@@ -32,7 +32,6 @@ namespace mUIApp.Views.Elements
         DISABLED = 0,
         ACTIVE,
         HOVER,
-        COUNT_STATES,
     }
 
     public class UIButton : UIClickableObj
@@ -40,36 +39,36 @@ namespace mUIApp.Views.Elements
         public override float Width { get { return Renderer.sprite.bounds.size.x*Transform.lossyScale.x; } }
         public override float Height { get { return Renderer.sprite.bounds.size.y * Transform.lossyScale.y; } }
 
-        protected readonly Sprite[] _stateSprites;
+        private readonly Sprite[] _stateSprites;
         private UIButtonState _uiButtonState;
         private UIClickCondition _uiClickCondition;
         private event Action<object> _onButtonClick;
         private object _onButtonClickArgs;
         private float _lastClickTime;
 
-        public UIButton(BaseView view, Sprite sprite, Sprite hoverSprite) : base(view)
+        public UIButton(BaseView view, Sprite sprite, Sprite hoverSprite = null) : base(view)
         {
             _onButtonClickArgs = null;
             _uiButtonState = UIButtonState.ACTIVE;
             _uiClickCondition = UIClickCondition.BUTTON_UP;
-            _stateSprites = new Sprite[(int)UIButtonState.COUNT_STATES];
+            _stateSprites = new Sprite[3];
             _stateSprites[(int) UIButtonState.ACTIVE] = sprite;
             _stateSprites[(int) UIButtonState.HOVER] = hoverSprite;
-            Renderer.sprite = _stateSprites[(int) UIButtonState.ACTIVE];
 
+            UpdateSprite();
             OnUIMouseDownEvent += OnButtonDown;
             OnUIMouseUpEvent += OnButtonUp;
 
             this.SetBoxArea(Renderer.sprite?.bounds ?? new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 0)));
         }
-
-        public UIButton ClickCondition(UIClickCondition condition)
+        
+        public virtual UIButton ClickCondition(UIClickCondition condition)
         {
             _uiClickCondition = condition;
             return this;
         }
 
-        public UIButton Click(Action<object> onClick, object args = null)
+        public virtual UIButton Click(Action<object> onClick, object args = null)
         {
             _onButtonClick += onClick;
             _onButtonClickArgs = args;
@@ -103,9 +102,21 @@ namespace mUIApp.Views.Elements
             _onButtonClick?.Invoke(_onButtonClickArgs);
         }
 
+        public UIButton UpdateSprite(Sprite sprite, UIButtonState state)
+        {
+            if (sprite != null)
+            {
+                _stateSprites[(int) state] = sprite;
+                UpdateSprite();
+            }
+
+            return this;
+        }
+
         private void UpdateSprite()
         {
-            Renderer.sprite = _stateSprites[(int)_uiButtonState];
+            if (_stateSprites[(int)_uiButtonState] != null)
+                Renderer.sprite = _stateSprites[(int)_uiButtonState];
         }
     }
 }
