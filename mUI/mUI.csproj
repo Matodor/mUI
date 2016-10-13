@@ -57,6 +57,7 @@
     <Compile Include="src\Views\Elements\UIButton.cs" />
     <Compile Include="src\Views\BaseView.cs" />
     <Compile Include="src\Views\Elements\UICheckBox.cs" />
+    <Compile Include="src\Views\Elements\UICheckBoxGroup.cs" />
     <Compile Include="src\Views\Elements\UISprite.cs" />
     <Compile Include="src\Views\PartialView.cs" />
     <Compile Include="src\Abstract\ISpriteRepository.cs" />

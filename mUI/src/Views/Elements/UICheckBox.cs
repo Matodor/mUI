@@ -15,7 +15,7 @@ namespace mUIApp.Views.Elements
     public static class UICheckboxHelper
     {
         public static UICheckBox CreateCheckBox(this BaseView view, Sprite uncheck, Sprite hoverSprite = null,
-            Sprite @checked = null, string objName = "sprite")
+            Sprite @checked = null, string objName = "CheckBox")
         {
             return new UICheckBox(view, uncheck, hoverSprite, @checked).SetName(objName);
         }
@@ -26,8 +26,8 @@ namespace mUIApp.Views.Elements
         private CheckBoxState _checkBoxState;
         private object _onCheckClickArgs;
         private object _onUnCheckClickArgs;
-        private event Action<object> _onCheckClick;
-        private event Action<object> _onUnCheckClick;
+        private event Action<UIObject, object> _onCheckClick;
+        private event Action<UIObject, object> _onUnCheckClick;
         private Sprite _uncheckedSprite;
         private Sprite _checkedSprite;
 
@@ -41,19 +41,15 @@ namespace mUIApp.Views.Elements
             base.Click(ChangeState);
         }
 
-        private void ChangeState(object obj)
+        private void ChangeState(UIObject uiObject, object obj)
         {
             if (_checkBoxState == CheckBoxState.UNCHECKED)
             {
-                _onCheckClick?.Invoke(_onCheckClickArgs);
-                _checkBoxState = CheckBoxState.CHECKED;
-                UpdateSprite(_checkedSprite, UIButtonState.ACTIVE);
+                SetChecked();
             }
             else if (_checkBoxState == CheckBoxState.CHECKED)
             {
-                _onUnCheckClick?.Invoke(_onUnCheckClickArgs);
-                _checkBoxState = CheckBoxState.UNCHECKED;
-                UpdateSprite(_uncheckedSprite, UIButtonState.ACTIVE);
+                SetUnChecked();
             }
         }
 
@@ -70,14 +66,30 @@ namespace mUIApp.Views.Elements
             return this;
         }
 
-        public UICheckBox UnCheck(Action<object> onClick, object args = null)
+        public UICheckBox SetChecked()
+        {
+            _onCheckClick?.Invoke(this, _onCheckClickArgs);
+            _checkBoxState = CheckBoxState.CHECKED;
+            UpdateSprite(_checkedSprite, UIButtonState.ACTIVE);
+            return this;
+        }
+
+        public UICheckBox SetUnChecked()
+        {
+            _onUnCheckClick?.Invoke(this, _onUnCheckClickArgs);
+            _checkBoxState = CheckBoxState.UNCHECKED;
+            UpdateSprite(_uncheckedSprite, UIButtonState.ACTIVE);
+            return this;
+        }
+
+        public UICheckBox UnCheck(Action<UIObject, object> onClick, object args = null)
         {
             _onUnCheckClick += onClick;
             _onUnCheckClickArgs = args;
             return this;
         }
 
-        public UICheckBox Check(Action<object> onClick, object args = null)
+        public UICheckBox Check(Action<UIObject, object> onClick, object args = null)
         {
             _onCheckClick += onClick;
             _onCheckClickArgs = args;
@@ -89,7 +101,7 @@ namespace mUIApp.Views.Elements
             return this;
         }
 
-        public override UIButton Click(Action<object> onClick, object args = null)
+        public override UIButton Click(Action<UIObject, object> onClick, object args = null)
         {
             return this;
         }

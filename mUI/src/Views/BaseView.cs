@@ -15,20 +15,20 @@ namespace mUIApp.Views
         public GameObject GameObject { get { return _viewObject; } }
         public Transform Transform { get { return _viewTransform; } }
 
-        private List<PartialView> _childViews;
-        private List<UIObject> _childObjects;
+        protected List<PartialView> _childViews;
+        protected List<UIObject> _childObjects;
         private GameObject _viewObject;
         private Transform _viewTransform;
 
         private float _viewWidth;
         private float _viewHeight;
 
-        public void AddChildObject(UIObject obj)
+        public virtual void AddChildObject(UIObject obj)
         {
             _childObjects.Add(obj);    
         }
 
-        public void AddChildView(PartialView view)
+        public virtual void AddChildView(PartialView view)
         {
             _childViews.Add(view);    
         }
@@ -54,6 +54,17 @@ namespace mUIApp.Views
         public void SetHeight(float height)
         {
             _viewHeight = height;
+        }
+
+        public virtual void OnTick() { }
+
+        public void Tick()
+        {
+            for (int i = 0; i < _childObjects.Count; i++)
+                _childObjects[i].OnTick();
+            for (int i = 0; i < _childViews.Count; i++)
+                _childViews[i].Tick();
+            OnTick();
         }
     }
 }

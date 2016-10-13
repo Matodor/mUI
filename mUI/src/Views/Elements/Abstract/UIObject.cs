@@ -53,16 +53,19 @@ namespace mUIApp.Views.Elements
         public GameObject GameObject { get; }
         public Transform Transform { get; }
 
-        //private BaseView ParentView { get; }
+        protected BaseView ParentView { get; }
         
         protected UIObject(BaseView view)
         {
             view.AddChildObject(this);
 
-            GameObject = new GameObject("ui object");
+            ParentView = view;
+            GameObject = new GameObject("UIObject");
             Transform = GameObject.transform;
             Transform.parent = view.Transform;
             Renderer = GameObject.AddComponent<SpriteRenderer>();
         }
+
+        public virtual void OnTick() { }
     }
 }

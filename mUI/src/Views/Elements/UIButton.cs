@@ -9,12 +9,12 @@ namespace mUIApp.Views.Elements
 {
     public static class UIButtonHelper
     {
-        public static UIButton CreateButton(this BaseView view, Sprite sprite, string objName = "sprite")
+        public static UIButton CreateButton(this BaseView view, Sprite sprite, string objName = "Button")
         {
             return new UIButton(view, sprite, null).SetName(objName);
         }
 
-        public static UIButton CreateButton(this BaseView view, Sprite sprite, Sprite hoverSprite, string objName = "sprite")
+        public static UIButton CreateButton(this BaseView view, Sprite sprite, Sprite hoverSprite, string objName = "Button")
         {
             return new UIButton(view, sprite, hoverSprite).SetName(objName);
         }
@@ -42,7 +42,7 @@ namespace mUIApp.Views.Elements
         private readonly Sprite[] _stateSprites;
         private UIButtonState _uiButtonState;
         private UIClickCondition _uiClickCondition;
-        private event Action<object> _onButtonClick;
+        private event Action<UIObject, object> _onButtonClick;
         private object _onButtonClickArgs;
         private float _lastClickTime;
 
@@ -68,7 +68,7 @@ namespace mUIApp.Views.Elements
             return this;
         }
 
-        public virtual UIButton Click(Action<object> onClick, object args = null)
+        public virtual UIButton Click(Action<UIObject, object> onClick, object args = null)
         {
             _onButtonClick += onClick;
             _onButtonClickArgs = args;
@@ -99,7 +99,7 @@ namespace mUIApp.Views.Elements
         private void Click()
         {
             _lastClickTime = Time.time;
-            _onButtonClick?.Invoke(_onButtonClickArgs);
+            _onButtonClick?.Invoke(this, _onButtonClickArgs);
         }
 
         public UIButton UpdateSprite(Sprite sprite, UIButtonState state)

@@ -20,16 +20,17 @@ namespace mUIApp
         private void Update()
         {
             UIInput.Update();
+            mUI.Tick();
         }
 
         public void FixedUpdate()
         {
-            
+            mUI.FixedTick();
         }
 
         public void LateUpdate()
         {
-            
+            mUI.LateTick(); 
         }
     }
 }

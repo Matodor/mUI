@@ -8,7 +8,7 @@ namespace mUIApp.Views.Elements
 {
     public static class UISpriteHelper
     {
-        public static UISprite CreateSprite(this BaseView view, Sprite sprite, string objName = "sprite")
+        public static UISprite CreateSprite(this BaseView view, Sprite sprite, string objName = "Sprite")
         {
             return new UISprite(view, sprite).SetName(objName);
         }

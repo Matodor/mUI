@@ -1,4 +1,5 @@
-﻿using mUIApp.Input;
+﻿using System.Collections.Generic;
+using mUIApp.Input;
 using mUIApp.Views;
 using UnityEngine;
 
@@ -16,7 +17,8 @@ namespace mUIApp
         private static readonly mUIEngine _engineInstance;
         private static readonly GameObject _engineGameObject;
         private static readonly GameObject _uiViewsGameObject;
-        
+        private static readonly List<View> _uiViews;
+
         static mUI()
         {
             if (_engineInstance == null)
@@ -25,10 +27,25 @@ namespace mUIApp
                 _engineInstance = _engineGameObject.AddComponent<mUIEngine>();
                 _uiViewsGameObject = new GameObject("Views");
                 _uiViewsGameObject.transform.parent = _engineGameObject.transform;
+                _uiViews = new List<View>();
 
                 UICamera = new mUICamera();
                 Init();
             }
+        }
+
+        public static void Tick()
+        {
+            for (int i = _uiViews.Count - 1; i >= 0; i--)
+                _uiViews[i].Tick();
+        }
+
+        public static void LateTick()
+        {
+        }
+
+        public static void FixedTick()
+        {
         }
 
         private static void Init()
@@ -36,11 +53,17 @@ namespace mUIApp
             SpriteRepository = new mUIDefaultSpriteRepository();
         }
 
+        public static bool RemoveView(View view)
+        {
+            return _uiViews.Remove(view);
+        }
+
         public static T CreateView<T>(string viewName = "view") where T : View, new()
         {
             var view = new T();
             ViewHelper.InitViewCallback(view, _uiViewsGameObject.transform);
             view.GameObject.name = viewName;
+            _uiViews.Add(view);
             return view;    
         }
 
