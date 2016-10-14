@@ -59,7 +59,7 @@ namespace mUIApp.Views.Elements
             OnUIMouseDownEvent += OnButtonDown;
             OnUIMouseUpEvent += OnButtonUp;
 
-            this.SetBoxArea(Renderer.sprite?.bounds ?? new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 0)));
+            this.SetBoxArea();
         }
         
         public virtual UIButton ClickCondition(UIClickCondition condition)

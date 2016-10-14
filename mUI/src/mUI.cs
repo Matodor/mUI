@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using mUIApp.Input;
 using mUIApp.Views;
 using UnityEngine;
 
 namespace mUIApp
 {
-    public sealed class mUI
+    public static class mUI
     {
         public static bool Debug { get; set; }
         public static ISpriteRepository SpriteRepository { get; set; }
@@ -63,6 +64,10 @@ namespace mUIApp
             var view = new T();
             ViewHelper.InitViewCallback(view, _uiViewsGameObject.transform);
             view.GameObject.name = viewName;
+            view.ParentView = null;
+            view.SetHeight(UICamera.Height);
+            view.SetWidth(UICamera.Width);
+            view.Create();
             _uiViews.Add(view);
             return view;    
         }

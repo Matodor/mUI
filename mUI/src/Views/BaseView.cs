@@ -7,29 +7,86 @@ using UnityEngine;
 
 namespace mUIApp.Views
 {
-    public abstract class BaseView
+    public abstract class BaseView : UIRect, UIGameObject
     {
         public abstract void Create();
 
-        public BaseView ParentView { get; set; }
+        public int SortingOrder
+        {
+            get
+            {
+                return _sortingOrder;
+            }
+            set
+            {
+                UpdateSortingOrder(value);
+                _sortingOrder = value;
+            }
+        }
+
+        public BaseView ParentView
+        {
+            get
+            {
+                return _baseView;
+            }
+            set
+            {
+                _baseView = value;
+                if (value != null)
+                    SortingOrder = _baseView.SortingOrder + 1;
+                else SortingOrder = 0;
+            }
+        }
+
         public GameObject GameObject { get { return _viewObject; } }
         public Transform Transform { get { return _viewTransform; } }
+
+        public float PureWidth { get { return _viewWidth; } }
+        public float PureHeight { get { return _viewHeight; } }
+
+        public float Height { get { return PureHeight*Transform.lossyScale.y; } }
+        public float Width { get { return PureWidth*Transform.lossyScale.x; } }
+
+        public float LeftAnchor { get { return Transform.position.x - Width/2; } }
+        public float RightAnchor { get { return Transform.position.x + Width/2; } }
+        public float TopAnchor { get { return Transform.position.y + Height/2; } }
+        public float BottomAnchor { get { return Transform.position.y - Height/2; } }
 
         protected List<PartialView> _childViews;
         protected List<UIObject> _childObjects;
         private GameObject _viewObject;
         private Transform _viewTransform;
+        private int _sortingOrder;
+        private BaseView _baseView;
 
         private float _viewWidth;
         private float _viewHeight;
 
+        private void UpdateSortingOrder(int newValue)
+        {
+            for (int i = 0; i < _childObjects.Count; i++)
+            {
+                var old = _childObjects[i].SortingOrder;
+                _childObjects[i].Renderer.sortingOrder = newValue + old;
+            }
+
+            for (int i = 0; i < _childViews.Count; i++)
+            {
+                var old = _childViews[i].SortingOrder - _sortingOrder;
+                _childViews[i].SortingOrder = newValue + old;
+            }
+        }
+
         public virtual void AddChildObject(UIObject obj)
         {
+            obj.Renderer.sortingOrder = _sortingOrder;
             _childObjects.Add(obj);    
         }
 
         public virtual void AddChildView(PartialView view)
         {
+            view.SortingOrder = SortingOrder + 1;
             _childViews.Add(view);    
         }
 
@@ -40,20 +97,32 @@ namespace mUIApp.Views
             _viewTransform = _viewObject.transform;
             _childViews = new List<PartialView>();
             _childObjects = new List<UIObject>();
+            _sortingOrder = 0;
+            _baseView = null;
 
-            Debug.Log("Create view");
-
-            Create();
+            Debug.Log("View init");
         }
-
+        
         public void SetWidth(float width)
         {
-            _viewWidth = width;
+            if (ParentView != null)
+            {
+                if (width <= ParentView._viewWidth)
+                    _viewWidth = width;
+            }
+            else 
+                _viewWidth = width;
         }
 
         public void SetHeight(float height)
         {
-            _viewHeight = height;
+            if (ParentView != null)
+            {
+                if (height <= ParentView._viewHeight)
+                    _viewHeight = height;
+            }
+            else
+                _viewHeight = height;
         }
 
         public virtual void OnTick() { }

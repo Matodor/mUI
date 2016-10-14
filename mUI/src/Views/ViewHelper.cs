@@ -26,7 +26,13 @@ namespace mUIApp.Views
             InitViewCallback(partialView, view.Transform);
             partialView.GameObject.name = viewName;
             partialView.ParentView = view;
+            partialView.SetHeight(view.PureHeight);
+            partialView.SetWidth(view.PureWidth);
+            partialView.SortingOrder = view.SortingOrder + 1;
+            partialView.Create();
+
             view.AddChildView(partialView);
+
             return partialView;
         }
     }

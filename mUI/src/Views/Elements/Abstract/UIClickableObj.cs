@@ -10,7 +10,7 @@ namespace mUIApp.Views.Elements
     public abstract class UIClickable
     {
         public float Scale { get; set; }
-        public abstract bool InArea(Transform transform, Vector2 clickPos);
+        public abstract bool InArea(Transform transform, Vector2 clickPos, Bounds bounds);
 
         protected UIClickable()
         {
@@ -20,10 +20,7 @@ namespace mUIApp.Views.Elements
 
     public class UIClickableCircle : UIClickable
     {
-        public float Radius { get; set; }
-        public Bounds Bounds { get; set; }
-
-        public override bool InArea(Transform transform, Vector2 clickPos)
+        public override bool InArea(Transform transform, Vector2 clickPos, Bounds bounds)
         {
             return true;
         }
@@ -31,33 +28,31 @@ namespace mUIApp.Views.Elements
 
     public class UIClickableBox : UIClickable
     {
-        public Bounds Bounds { get; set; }
-
-        public override bool InArea(Transform transform, Vector2 clickPos)
+        public override bool InArea(Transform transform, Vector2 clickPos, Bounds bounds)
         {
-            var offset = mUI.GetSpriteOffset(Bounds);
+            var offset = mUI.GetSpriteOffset(bounds);
             var cosinus = Mathf.Cos(Mathf.Deg2Rad * transform.eulerAngles.z);
             var sinus = Mathf.Sin(Mathf.Deg2Rad * transform.eulerAngles.z);
             var pos = transform.position;
             float scaledX = transform.lossyScale.x*Scale;
             float scaledY = transform.lossyScale.y*Scale;
 
-            var leftTop = new Vector2(-Bounds.extents.x + offset.x, Bounds.extents.y + offset.y);
+            var leftTop = new Vector2(-bounds.extents.x + offset.x, bounds.extents.y + offset.y);
             leftTop.x *= scaledX;
             leftTop.y *= scaledY;
             leftTop = new Vector2(pos.x + leftTop.x * cosinus - leftTop.y * sinus, pos.y + leftTop.x * sinus + leftTop.y * cosinus);
 
-            var rightTop = new Vector2(Bounds.extents.x + offset.x, Bounds.extents.y + offset.y);
+            var rightTop = new Vector2(bounds.extents.x + offset.x, bounds.extents.y + offset.y);
             rightTop.x *= scaledX;
             rightTop.y *= scaledY;
             rightTop = new Vector2(pos.x + rightTop.x * cosinus - rightTop.y * sinus, pos.y + rightTop.x * sinus + rightTop.y * cosinus);
             
-            var rightBottom = new Vector2(Bounds.extents.x + offset.x, -Bounds.extents.y + offset.y);
+            var rightBottom = new Vector2(bounds.extents.x + offset.x, -bounds.extents.y + offset.y);
             rightBottom.x *= scaledX;
             rightBottom.y *= scaledY;
             rightBottom = new Vector2(pos.x + rightBottom.x * cosinus - rightBottom.y * sinus, pos.y + rightBottom.x * sinus + rightBottom.y * cosinus);
 
-            var leftBottom = new Vector2(-Bounds.extents.x + offset.x, -Bounds.extents.y + offset.y);
+            var leftBottom = new Vector2(-bounds.extents.x + offset.x, -bounds.extents.y + offset.y);
             leftBottom.x *= scaledX;
             leftBottom.y *= scaledY;
             leftBottom = new Vector2(pos.x + leftBottom.x * cosinus - leftBottom.y * sinus, pos.y + leftBottom.x * sinus + leftBottom.y * cosinus);
@@ -78,15 +73,15 @@ namespace mUIApp.Views.Elements
 
     public static class UIClickableObjHelper
     {
-        public static T SetCircleArea<T>(this T clickableObj, Bounds bounds, float radius) where T : UIClickableObj
+        public static T SetCircleArea<T>(this T clickableObj) where T : UIClickableObj
         {
-            clickableObj.AreaChecker = new UIClickableCircle {Bounds = bounds, Radius = radius};
+            clickableObj.AreaChecker = new UIClickableCircle();
             return clickableObj;
         }
 
-        public static T SetBoxArea<T>(this T clickableObj, Bounds bounds) where T : UIClickableObj
+        public static T SetBoxArea<T>(this T clickableObj) where T : UIClickableObj
         {
-            clickableObj.AreaChecker = new UIClickableBox {Bounds = bounds};
+            clickableObj.AreaChecker = new UIClickableBox();
             return clickableObj;
         }
     }
@@ -115,7 +110,8 @@ namespace mUIApp.Views.Elements
 
         protected bool InArea(Vector2 screenPos)
         {
-            return AreaChecker.InArea(Transform, mUI.UICamera.ScreenToWorldPoint(screenPos));
+            return AreaChecker.InArea(Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
+                Renderer.sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
         }
 
         private void OnUIMouseDown(mUIMouseEvent mouseEvent)

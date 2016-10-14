@@ -1,10 +1,24 @@
 ﻿using System;
+using mUIApp.Views;
 using UnityEngine;
 
 namespace mUIApp
 {
-    public class mUICamera
+    public class mUICamera : UIRect
     {
+        public Vector2 Position { get { return Transform.position; } }
+        public Transform Transform { get; }
+
+        public float PureHeight { get { return _camera.orthographicSize*2; } }
+        public float PureWidth { get { return _camera.orthographicSize*_camera.aspect*2; } }
+        public float Height { get { return PureHeight*Transform.lossyScale.y; } }
+        public float Width { get { return PureWidth*Transform.lossyScale.x; } }
+
+        public float LeftAnchor { get { return Transform.position.x - Width/2; } }
+        public float RightAnchor { get { return Transform.position.x + Width/2; } }
+        public float TopAnchor { get { return Transform.position.y + Height/2; } }
+        public float BottomAnchor { get { return Transform.position.y - Height/2; } }
+
         private readonly Camera _camera;
 
         public mUICamera()
@@ -16,6 +30,8 @@ namespace mUIApp
             _camera.farClipPlane = 1;
             _camera.nearClipPlane = -1;
             _camera.orthographicSize = 5;
+
+            Transform = _camera.transform;
         }
 
         public void SetOrthographicSize(float size)
