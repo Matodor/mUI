@@ -71,7 +71,9 @@
     <Compile Include="src\mUICamera.cs" />
     <Compile Include="src\Views\ViewHelper.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="src\Animations\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "D:\Unity Develop\mUI\mUI\bin\Debug\mUI.dll" "D:\Unity Develop\KappaClicker\KappaClicker\Assets\Plugins"</PostBuildEvent>

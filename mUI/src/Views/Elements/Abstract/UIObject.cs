@@ -113,7 +113,6 @@ namespace mUIApp.Views.Elements
         public abstract float Width { get; }
         public abstract float Height { get; }
 
-        public int SortingOrder { get { return Renderer.sortingOrder - ParentView.SortingOrder; } }
         public SpriteRenderer Renderer { get; }
         public GameObject GameObject { get; }
         public Transform Transform { get; }

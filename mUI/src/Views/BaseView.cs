@@ -11,6 +11,7 @@ namespace mUIApp.Views
     {
         public abstract void Create();
 
+        public const int NextViewSortingOrder = 10;
         public int SortingOrder
         {
             get
@@ -19,7 +20,7 @@ namespace mUIApp.Views
             }
             set
             {
-                UpdateSortingOrder(value);
+                UpdateSortingOrder(_sortingOrder, value);
                 _sortingOrder = value;
             }
         }
@@ -34,8 +35,9 @@ namespace mUIApp.Views
             {
                 _baseView = value;
                 if (value != null)
-                    SortingOrder = _baseView.SortingOrder + 1;
-                else SortingOrder = 0;
+                {
+                    SortingOrder = _baseView.SortingOrder + NextViewSortingOrder;
+                }
             }
         }
 
@@ -57,36 +59,36 @@ namespace mUIApp.Views
         protected List<UIObject> _childObjects;
         private GameObject _viewObject;
         private Transform _viewTransform;
-        private int _sortingOrder;
         private BaseView _baseView;
+        private int _sortingOrder;
 
         private float _viewWidth;
         private float _viewHeight;
 
-        private void UpdateSortingOrder(int newValue)
+        private void UpdateSortingOrder(int oldvalue, int newValue)
         {
             for (int i = 0; i < _childObjects.Count; i++)
             {
-                var old = _childObjects[i].SortingOrder;
+                var old = _childObjects[i].Renderer.sortingOrder - oldvalue;
                 _childObjects[i].Renderer.sortingOrder = newValue + old;
             }
 
             for (int i = 0; i < _childViews.Count; i++)
             {
-                var old = _childViews[i].SortingOrder - _sortingOrder;
+                var old = _childViews[i].SortingOrder - oldvalue;
                 _childViews[i].SortingOrder = newValue + old;
             }
         }
 
         public virtual void AddChildObject(UIObject obj)
         {
-            obj.Renderer.sortingOrder = _sortingOrder;
+            obj.Renderer.sortingOrder = SortingOrder;
             _childObjects.Add(obj);    
         }
 
         public virtual void AddChildView(PartialView view)
         {
-            view.SortingOrder = SortingOrder + 1;
+            view.SortingOrder = SortingOrder + NextViewSortingOrder;
             _childViews.Add(view);    
         }
 
@@ -97,8 +99,8 @@ namespace mUIApp.Views
             _viewTransform = _viewObject.transform;
             _childViews = new List<PartialView>();
             _childObjects = new List<UIObject>();
-            _sortingOrder = 0;
             _baseView = null;
+            _sortingOrder = 0;
 
             Debug.Log("View init");
         }

@@ -86,6 +86,9 @@ namespace mUIApp.Views.Elements
 
         private void OnButtonUp(mUIMouseEvent mouseEvent)
         {
+            if (_uiButtonState != UIButtonState.HOVER)
+                return;
+
             _uiButtonState = UIButtonState.ACTIVE;
             UpdateSprite();
 

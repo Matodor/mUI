@@ -19,11 +19,13 @@ namespace mUIApp.Views.Elements
         public override float Width { get { return 0; } }
         public override float Height { get { return 0; } }
 
-        private readonly List<UIToggle> _toggles; 
+        private readonly List<UIToggle> _toggles;
+        private UIToggle _currenToggle;
 
         public UIToggleGroup(BaseView view) : base(view)
         {
             _toggles = new List<UIToggle>();
+            _currenToggle = null;
         }
 
         public UIToggle AddToggle(Sprite disabled, Sprite hoverSprite = null, Sprite enabled = null)
@@ -42,11 +44,18 @@ namespace mUIApp.Views.Elements
         private void OnDisableToggle(UIObject sender, object obj)
         {
             var toggle = (UIToggle) sender;
+            _currenToggle = null;
         }
 
         private void OnEnableToggle(UIObject sender, object obj)
         {
             var toggle = (UIToggle) sender;
+            if (_currenToggle != null)
+            {
+                if (_currenToggle != toggle)
+                    _currenToggle.SetDisabled();
+            }
+            _currenToggle = toggle;
         }
     }
 }
