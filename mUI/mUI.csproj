@@ -49,9 +49,13 @@
   <ItemGroup>
     <Compile Include="src\Abstract\IInputBase.cs" />
     <Compile Include="src\Abstract\IInputGetEvents.cs" />
+    <Compile Include="src\Animations\Abstract\mUIAnimation.cs" />
+    <Compile Include="src\Animations\Types\UILinearAnimation.cs" />
     <Compile Include="src\Concrete\mGUIDesktopGetEvents.cs" />
     <Compile Include="src\Concrete\mGUIInputDefault.cs" />
     <Compile Include="src\Concrete\mGUIMobileGetEvents.cs" />
+    <Compile Include="src\Other\mUIBezierHelper.cs" />
+    <Compile Include="src\Other\mUIEasingFunctions.cs" />
     <Compile Include="src\Views\Elements\Abstract\UIClickableObj.cs" />
     <Compile Include="src\Views\Elements\Abstract\UIGameObject.cs" />
     <Compile Include="src\Views\Elements\Abstract\UIObject.cs" />
@@ -71,9 +75,7 @@
     <Compile Include="src\mUICamera.cs" />
     <Compile Include="src\Views\ViewHelper.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\Animations\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "D:\Unity Develop\mUI\mUI\bin\Debug\mUI.dll" "D:\Unity Develop\KappaClicker\KappaClicker\Assets\Plugins"</PostBuildEvent>

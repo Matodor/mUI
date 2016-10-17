@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using mUIApp.Animations;
 using UnityEngine;
 
 namespace mUIApp.Views.Elements
@@ -16,6 +17,15 @@ namespace mUIApp.Views.Elements
 
     public static class UIObjectHelper
     {
+        public static Vector2 GetRelativePos<T>(this T obj, float xRelative, float yRelative) where T : UIGameObject
+        {
+            return  new Vector3(
+                obj.ParentView.LeftAnchor + obj.ParentView.Width * xRelative,
+                obj.ParentView.BottomAnchor + obj.ParentView.Height * yRelative,
+                obj.Transform.position.z
+            );
+        }
+
         public static T RelativePos<T>(this T obj, float xRelative, float yRelative) where T : UIGameObject
         {
             obj.Transform.position = new Vector3(
@@ -26,7 +36,7 @@ namespace mUIApp.Views.Elements
             return obj;
         }
 
-        public static T RelativeMargin<T>(this T obj, float xRelative, float yRelative = 0, Space space = Space.World) where T : UIGameObject
+        public static T RelativeTranslate<T>(this T obj, float xRelative, float yRelative = 0, Space space = Space.World) where T : UIGameObject
         {
             obj.Transform.Translate(
                 obj.ParentView.Width*xRelative,
@@ -37,7 +47,7 @@ namespace mUIApp.Views.Elements
             return obj;
         }
 
-        public static T Margin<T>(this T obj, float x, float y = 0, Space space = Space.World) where T : UIGameObject
+        public static T Translate<T>(this T obj, float x, float y = 0, Space space = Space.World) where T : UIGameObject
         {
             obj.Transform.Translate(x, y, 0, space);
             return obj;
@@ -117,7 +127,8 @@ namespace mUIApp.Views.Elements
         public GameObject GameObject { get; }
         public Transform Transform { get; }
         public BaseView ParentView { get; }
-        
+        public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>();
+
         protected UIObject(BaseView view)
         {
             ParentView = view;
@@ -131,6 +142,13 @@ namespace mUIApp.Views.Elements
             view.AddChildObject(this);
         }
 
-        public virtual void OnTick() { }
+        public void Tick()
+        {
+            for (int i = Animations.Count - 1; i >= 0; i--)
+                Animations[i].Tick();
+            OnTick();   
+        }
+
+        protected virtual void OnTick() { }
     }
 }

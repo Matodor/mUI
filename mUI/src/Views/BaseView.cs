@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using mUIApp.Animations;
 using mUIApp.Views.Elements;
 using UnityEngine;
 
@@ -41,6 +42,7 @@ namespace mUIApp.Views
             }
         }
 
+        public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>(); 
         public GameObject GameObject { get { return _viewObject; } }
         public Transform Transform { get { return _viewTransform; } }
 
@@ -80,13 +82,13 @@ namespace mUIApp.Views
             }
         }
 
-        public virtual void AddChildObject(UIObject obj)
+        public void AddChildObject(UIObject obj)
         {
             obj.Renderer.sortingOrder = SortingOrder;
             _childObjects.Add(obj);    
         }
 
-        public virtual void AddChildView(PartialView view)
+        public void AddChildView(PartialView view)
         {
             view.SortingOrder = SortingOrder + NextViewSortingOrder;
             _childViews.Add(view);    
@@ -127,12 +129,12 @@ namespace mUIApp.Views
                 _viewHeight = height;
         }
 
-        public virtual void OnTick() { }
+        protected virtual void OnTick() { }
 
         public void Tick()
         {
             for (int i = 0; i < _childObjects.Count; i++)
-                _childObjects[i].OnTick();
+                _childObjects[i].Tick();
             for (int i = 0; i < _childViews.Count; i++)
                 _childViews[i].Tick();
             OnTick();

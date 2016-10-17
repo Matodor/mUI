@@ -102,5 +102,32 @@ namespace mUIApp
                         return true;
             return false;
         }
+
+        public static int Сlamp(int val, int min, int max)
+        {
+            if (val < min)
+                return min;
+            if (val > max)
+                return max;
+            return val;
+        }
+
+        public static double Сlamp(double val, double min, double max)
+        {
+            if (val < min)
+                return min;
+            if (val > max)
+                return max;
+            return val;
+        }
+
+        public static float Сlamp(float val, float min, float max)
+        {
+            if (val < min)
+                return min;
+            if (val > max)
+                return max;
+            return val;
+        }
     }
 }

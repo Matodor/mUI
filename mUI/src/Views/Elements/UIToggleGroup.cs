@@ -33,8 +33,9 @@ namespace mUIApp.Views.Elements
             var toggle = new UIToggle(ParentView, disabled, hoverSprite, enabled)
                 .SetName("Toggle [" + _toggles.Count + "]")
                 .Enable(OnEnableToggle)
-                .Disable(OnDisableToggle); 
+                .Disable(OnDisableToggle);
 
+            toggle.SortingOrder(Renderer.sortingOrder);
             toggle.Transform.parent = Transform;
             toggle.Transform.localPosition = Vector3.zero;
             _toggles.Add(toggle);
