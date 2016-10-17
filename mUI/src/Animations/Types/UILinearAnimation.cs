@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using mUIApp.Other;
+﻿using mUIApp.Other;
 using mUIApp.Views;
 using UnityEngine;
 
@@ -34,14 +30,9 @@ namespace mUIApp.Animations
             );
         }
 
-        //protected override void OnStartAnimation()
-        //{
-        //    
-        //}
-
         protected override void OnEndAnimation()
         {
-            mUI.Log("Time: " + Time.time);
+
         }
     }
 }

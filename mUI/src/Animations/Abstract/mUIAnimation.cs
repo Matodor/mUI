@@ -62,6 +62,7 @@ namespace mUIApp.Animations
         public mUIAnimationPlayType PlayType { get; set; }
         public mUIAnimationState State { get; set; }
         public mUIEasingType EasingType { get; set; }
+        public UIGameObject UIGameObject { get { return _uiGameObject; } }
 
         public event Action<mUIAnimation> OnEndAnimationEvent;
         protected abstract void OnAnimation();
@@ -74,16 +75,16 @@ namespace mUIApp.Animations
         
         protected mUIAnimation(UIGameObject uiGameObject)
         {
-            _animationTime = 0;
-            _animationEasingTime = 0;
-            _uiGameObject = uiGameObject;
-            _uiGameObject.Animations.Add(this);
-            _animationDir = mUIAnimationDir.FORWARD;
             Duration = 1;
             State = mUIAnimationState.PLAYS;
             PlayType = mUIAnimationPlayType.PLAY_ONCE;
             EasingType = mUIEasingType.linear;
 
+            _animationTime = 0;
+            _animationEasingTime = 0;
+            _uiGameObject = uiGameObject;
+            _uiGameObject.Animations.Add(this);
+            _animationDir = mUIAnimationDir.FORWARD;
             mUI.Log("Added animation");
         }
 
