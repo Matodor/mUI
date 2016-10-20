@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using mUIApp.Input;
+using mUIApp.Other;
 using mUIApp.Views;
 using UnityEngine;
 
@@ -14,21 +15,27 @@ namespace mUIApp
         public static GameObject GameObject { get { return _engineGameObject; } }
         public static GameObject ViewsGameObject { get { return _uiViewsGameObject; } }
         public static mUICamera UICamera { get; }
+        public static string DefaultFont { get; set; }
+
+        public const string DefaultFontName = "mUIDefault";
 
         private static readonly mUIEngine _engineInstance;
         private static readonly GameObject _engineGameObject;
         private static readonly GameObject _uiViewsGameObject;
         private static readonly List<View> _uiViews;
+        private static readonly Dictionary<string, mUIFont> _uiFonts; 
 
         static mUI()
         {
             if (_engineInstance == null)
             {
                 _engineGameObject = new GameObject("mUI");
-                _engineInstance = _engineGameObject.AddComponent<mUIEngine>();
                 _uiViewsGameObject = new GameObject("Views");
+
+                _engineInstance = _engineGameObject.AddComponent<mUIEngine>();
                 _uiViewsGameObject.transform.parent = _engineGameObject.transform;
                 _uiViews = new List<View>();
+                _uiFonts = new Dictionary<string, mUIFont>();
 
                 UICamera = new mUICamera();
                 Init();
@@ -41,6 +48,24 @@ namespace mUIApp
                 _uiViews[i].Tick();
         }
 
+        public static mUIFont GetFont(string name)
+        {
+            if (_uiFonts.ContainsKey(name))
+                return _uiFonts[name];
+            return null;
+        }
+
+        public static bool LoadFont(string name)
+        {
+            var font = new mUIFont(name);
+            if (font.Loaded)
+            {
+                _uiFonts.Add(name, font);
+                return true;
+            }
+            return false;
+        }
+
         public static void LateTick()
         {
         }
@@ -48,9 +73,10 @@ namespace mUIApp
         public static void FixedTick()
         {
         }
-
+        
         private static void Init()
         {
+            DefaultFont = DefaultFontName;
             SpriteRepository = new mUIDefaultSpriteRepository();
         }
 

@@ -25,8 +25,8 @@ namespace mUIApp.Animations
         protected override void OnAnimation()
         {
             var newPos = mUIBezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
-            _uiGameObject.Transform.position = new Vector3(
-                newPos.x, newPos.y, _uiGameObject.Transform.position.z
+            UIGameObject.Transform.position = new Vector3(
+                newPos.x, newPos.y, UIGameObject.Transform.position.z
             );
         }
 

@@ -16,12 +16,12 @@ namespace mUIApp.Views.Elements
 
     public class UISprite : UIObject
     {
-        public override float Width { get { return Renderer.sprite.bounds.size.x * Transform.lossyScale.x; } }
-        public override float Height { get { return Renderer.sprite.bounds.size.y * Transform.lossyScale.y; } }
+        public override float Width { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.x * Transform.lossyScale.x; } }
+        public override float Height { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.y * Transform.lossyScale.y; } }
 
         public UISprite(BaseView view, Sprite sprite) : base(view)
         {
-            Renderer.sprite = sprite;
+            ((SpriteRenderer)Renderer).sprite = sprite;
         }
     }
 }

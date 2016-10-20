@@ -72,7 +72,7 @@ namespace mUIApp.Views
             for (int i = 0; i < _childObjects.Count; i++)
             {
                 var old = _childObjects[i].Renderer.sortingOrder - oldvalue;
-                _childObjects[i].Renderer.sortingOrder = newValue + old;
+                _childObjects[i].SortingOrder(newValue + old);
             }
 
             for (int i = 0; i < _childViews.Count; i++)
@@ -84,7 +84,8 @@ namespace mUIApp.Views
 
         public void AddChildObject(UIObject obj)
         {
-            obj.Renderer.sortingOrder = SortingOrder;
+            if (obj.Renderer != null)
+                obj.Renderer.sortingOrder = SortingOrder;
             _childObjects.Add(obj);    
         }
 

@@ -36,8 +36,8 @@ namespace mUIApp.Views.Elements
 
     public class UIButton : UIClickableObj
     {
-        public override float Width { get { return Renderer.sprite.bounds.size.x*Transform.lossyScale.x; } }
-        public override float Height { get { return Renderer.sprite.bounds.size.y * Transform.lossyScale.y; } }
+        public override float Width { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.x*Transform.lossyScale.x; } }
+        public override float Height { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.y * Transform.lossyScale.y; } }
 
         private readonly Sprite[] _stateSprites;
         private UIButtonState _uiButtonState;
@@ -119,7 +119,7 @@ namespace mUIApp.Views.Elements
         private void UpdateSprite()
         {
             if (_stateSprites[(int)_uiButtonState] != null)
-                Renderer.sprite = _stateSprites[(int)_uiButtonState];
+                ((SpriteRenderer)Renderer).sprite = _stateSprites[(int)_uiButtonState];
         }
     }
 }

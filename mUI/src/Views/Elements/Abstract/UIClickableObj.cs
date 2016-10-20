@@ -111,7 +111,7 @@ namespace mUIApp.Views.Elements
         protected bool InArea(Vector2 screenPos)
         {
             return AreaChecker.InArea(Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
-                Renderer.sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
+                ((SpriteRenderer)Renderer).sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
         }
 
         private void OnUIMouseDown(mUIMouseEvent mouseEvent)

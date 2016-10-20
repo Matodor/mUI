@@ -65,10 +65,12 @@ namespace mUIApp.Animations
         public UIGameObject UIGameObject { get { return _uiGameObject; } }
 
         public event Action<mUIAnimation> OnEndAnimationEvent;
+        public event Action<mUIAnimation> OnAnimationEvent;
+
         protected abstract void OnAnimation();
         protected abstract void OnEndAnimation();
-        protected readonly UIGameObject _uiGameObject;
 
+        private readonly UIGameObject _uiGameObject;
         private float _animationTime;
         private float _animationEasingTime;
         private mUIAnimationDir _animationDir;
@@ -85,7 +87,6 @@ namespace mUIApp.Animations
             _uiGameObject = uiGameObject;
             _uiGameObject.Animations.Add(this);
             _animationDir = mUIAnimationDir.FORWARD;
-            mUI.Log("Added animation");
         }
 
         public void Tick()
@@ -98,6 +99,7 @@ namespace mUIApp.Animations
             _animationEasingTime = mUIEasingFunctions.GetValue(EasingType, 1, _animationTime, 1);
 
             OnAnimation();
+            OnAnimationEvent?.Invoke(this);
 
             if (_animationTime >= 1 && _animationDir == mUIAnimationDir.FORWARD || 
                 _animationTime <= 0 && _animationDir == mUIAnimationDir.BACKWARD)

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using mUIApp.Animations;
 using UnityEngine;
 
@@ -53,7 +51,12 @@ namespace mUIApp.Views.Elements
             return obj;
         }
 
-        public static Vector2 Position<T>(this T obj) where T : UIGameObject
+        public static Vector2 GetScale<T>(this T obj) where T : UIGameObject
+        {
+            return obj.Transform.localScale;
+        }
+
+        public static Vector2 GetPos<T>(this T obj) where T : UIGameObject
         {
             return obj.Transform.position;
         }
@@ -123,21 +126,25 @@ namespace mUIApp.Views.Elements
         public abstract float Width { get; }
         public abstract float Height { get; }
 
-        public SpriteRenderer Renderer { get; }
+        public Renderer Renderer { get; protected set; }
         public GameObject GameObject { get; }
         public Transform Transform { get; }
         public BaseView ParentView { get; }
         public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>();
 
-        protected UIObject(BaseView view)
+        protected UIObject(BaseView view, bool createSpriteRenderer = true)
         {
             ParentView = view;
             GameObject = new GameObject("UIObject");
             Transform = GameObject.transform;
             Transform.parent = view.Transform;
             Transform.localPosition = Vector3.zero;
-            Renderer = GameObject.AddComponent<SpriteRenderer>();
-            Renderer.sortingOrder = view.SortingOrder;
+
+            if (createSpriteRenderer)
+            {
+                Renderer = GameObject.AddComponent<SpriteRenderer>();
+                Renderer.sortingOrder = view.SortingOrder;
+            }
 
             view.AddChildObject(this);
         }
