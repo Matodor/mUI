@@ -49,7 +49,8 @@ namespace mUIApp.Views.Elements
         private string _cachedText;
         private float _textWidth;
         private float _textHeight;
-        private float _charSpacingScale;
+        private float _letterSpacingScale;
+        //private float _charSpacingScale;
         private TextAlignment _textAlignment;
 
         private readonly MeshRenderer _meshRenderer;
@@ -61,7 +62,7 @@ namespace mUIApp.Views.Elements
             _textAlignment = TextAlignment.Left;
             Renderer = GameObject.AddComponent<MeshRenderer>();
 
-            _charSpacingScale = 1;
+            _letterSpacingScale = 1;
             _cachedFont = mUI.GetFont(fontName);
             _cachedText = text;
             _meshRenderer = (MeshRenderer) Renderer;
@@ -72,15 +73,34 @@ namespace mUIApp.Views.Elements
             UpdateMeshText();
         }
 
-        public UILabel Size(int size = 100)
+        public UILabel Size(int size = 50)
         {
+            Transform.localScale = new Vector3(
+                Transform.localScale.x * (size / 50f),
+                Transform.localScale.y * (size / 50f),
+                Transform.localScale.z
+            );
+            return this;
+        }
 
+        public UILabel Text(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return this;
+
+            _cachedText = text;
+            UpdateMeshText();
             return this;
         }
 
         private void UpdateAlignment()
         {
             UpdateMeshText();
+        }
+
+        private float LetterSpacing()
+        {
+            return _cachedFont.AvgCharWidth*0.3f*_letterSpacingScale;
         }
 
         private void UpdateMeshText()
@@ -96,7 +116,7 @@ namespace mUIApp.Views.Elements
             var normals = new Vector3[charCount * 4];
             var uv = new Vector2[charCount * 4];
             var colors = new Color32[charCount * 4];
-            var triangles = new int[charCount * 6];
+            var triangles = new int[charCount * 6]; 
 
             var sumHeight = 0f;
             var charIndex = 0;
@@ -107,13 +127,14 @@ namespace mUIApp.Views.Elements
                 var lineWidth = 0f;
                 var lineHeight = 0f;
                 var charsInLine = 0;
-                var lastWidth = 0f;
+                var lastCharOffset = 0f;
 
                 foreach (char ch in line)
                 {
                     if (ch == ' ')
                     {
-                        lineWidth += _cachedFont.SpaceLength + _cachedFont.AvgCharWidth*_charSpacingScale*0.1f;
+                        lastCharOffset = _cachedFont.SpaceLength + LetterSpacing();
+                        lineWidth += lastCharOffset;
                         continue;
                     }
 
@@ -123,10 +144,7 @@ namespace mUIApp.Views.Elements
                     var charMesh = _cachedFont.GetCharMesh(ch);
                     var charWidth = charMesh.Width;
                     var charHeight = charMesh.Height;
-
-                    var offsetPos = new Vector3(
-                        lineWidth,
-                        sumHeight - charHeight * charMesh.Pivot.y, 0);
+                    var offsetPos = new Vector3(lineWidth, sumHeight - charHeight * charMesh.Pivot.y, 0);
 
                     vertices[charIndex + 0] = charMesh.Vertices[0] + offsetPos;
                     vertices[charIndex + 1] = charMesh.Vertices[1] + offsetPos;
@@ -158,14 +176,14 @@ namespace mUIApp.Views.Elements
                     if (charHeight > lineHeight)
                         lineHeight = charHeight;
 
-                    lastWidth = charWidth + _cachedFont.AvgCharWidth*_charSpacingScale*0.3f;
-                    lineWidth += lastWidth;
+                    lastCharOffset = charWidth + LetterSpacing();
+                    lineWidth += lastCharOffset;
                     charIndex = charIndex + 4;
                     trianglesIndex = trianglesIndex + 6;
                     charsInLine++;
                 }
 
-                lineWidth -= lastWidth;
+                lineWidth -= lastCharOffset;
 
                 switch (_textAlignment)
                 {

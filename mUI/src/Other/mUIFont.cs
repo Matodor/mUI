@@ -77,12 +77,12 @@ namespace mUIApp.Other
             if (Loaded)
             {
                 mUI.Log("Font: " + name + " loaded");
-                SpaceLength = 2.2f;
+               
                 MaxCharHeight = _charMeshes.Max(c => c.Value.Height);
                 MaxCharWidth = _charMeshes.Max(c => c.Value.Width);
                 AvgCharWidth = _charMeshes.Average(c => c.Value.Width);
                 AvgCharHeight = _charMeshes.Average(c => c.Value.Height);
-
+                SpaceLength = AvgCharWidth/3;
                 CharCase = ECharCase.NONE;
             }
         }
