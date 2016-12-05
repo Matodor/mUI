@@ -30,21 +30,35 @@ namespace mUIApp.Views.Elements
     {
         public override float Width { get; }
         public override float Height { get; }
-        public TextAlignment TextAlignment { get; set; }
+
+        public TextAlignment TextAlignment
+        {
+            get
+            {
+                return _textAlignment;
+            }
+
+            set
+            {
+                _textAlignment = value;
+                UpdateAlignment();
+            }
+        }
 
         private mUIFont _cachedFont;
         private string _cachedText;
         private float _textWidth;
         private float _textHeight;
         private float _charSpacingScale;
+        private TextAlignment _textAlignment;
 
-        private MeshRenderer _meshRenderer;
-        private MeshFilter _meshFilter;
-        private MaterialPropertyBlock _textPropertyBlock;
+        private readonly MeshRenderer _meshRenderer;
+        private readonly MeshFilter _meshFilter;
+        private readonly MaterialPropertyBlock _textPropertyBlock;
         
         public UILabel(BaseView view, string text, string fontName) : base(view, false)
         {
-            TextAlignment = TextAlignment.Left;
+            _textAlignment = TextAlignment.Left;
             Renderer = GameObject.AddComponent<MeshRenderer>();
 
             _charSpacingScale = 1;
@@ -57,9 +71,21 @@ namespace mUIApp.Views.Elements
              
             UpdateMeshText();
         }
-        
+
+        public UILabel Size(int size = 100)
+        {
+
+            return this;
+        }
+
+        private void UpdateAlignment()
+        {
+            UpdateMeshText();
+        }
+
         private void UpdateMeshText()
         {
+            var localScale = Transform.localScale;
             GameObject.name = _cachedText;
             Transform.localScale = new Vector3(1, 1, 1);
 
@@ -83,11 +109,8 @@ namespace mUIApp.Views.Elements
                 var charsInLine = 0;
                 var lastWidth = 0f;
 
-                mUI.Log("Line: " + line);
                 foreach (char ch in line)
                 {
-                    mUI.Log("Char: " + ch);
-
                     if (ch == ' ')
                     {
                         lineWidth += _cachedFont.SpaceLength + _cachedFont.AvgCharWidth*_charSpacingScale*0.1f;
@@ -144,15 +167,23 @@ namespace mUIApp.Views.Elements
 
                 lineWidth -= lastWidth;
 
-                switch (TextAlignment)
+                switch (_textAlignment)
                 {
                     case TextAlignment.Center:
-                        for (int i = charIndex - charsInLine * 4; i < charIndex; i++)
-                            vertices[i] = new Vector3(vertices[i].x - lineWidth / 2f, vertices[i].y, vertices[i].z);
+                        for (int i = charIndex - charsInLine*4; i < charIndex; i++)
+                        {
+                            vertices[i].x = vertices[i].x - lineWidth/2f;
+                            vertices[i].y = vertices[i].y;
+                            vertices[i].z = vertices[i].z;
+                        }
                         break;
                     case TextAlignment.Right:
-                        for (int i = charIndex - charsInLine * 4; i < charIndex; i++)
-                            vertices[i] = new Vector3(vertices[i].x - lineWidth, vertices[i].y, vertices[i].z);
+                        for (int i = charIndex - charsInLine*4; i < charIndex; i++)
+                        {
+                            vertices[i].x = vertices[i].x - lineWidth;
+                            vertices[i].y = vertices[i].y;
+                            vertices[i].z = vertices[i].z;
+                        }
                         break;
                 }
 
@@ -174,6 +205,7 @@ namespace mUIApp.Views.Elements
             _meshFilter.mesh = textMesh;
             _meshRenderer.material = _cachedFont.Material;
             _meshRenderer.SetPropertyBlock(_textPropertyBlock);
+            Transform.localScale = localScale;
         }
     }
 }

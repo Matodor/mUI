@@ -39,8 +39,10 @@ namespace mUIApp.Other
         public Material Material { get { return _fontMaterial; } }
         public bool Loaded { get; }
         public float SpaceLength { get; set; }
-        public float MaxCharHeight { get; set; }
+        public float MaxCharHeight { get; }
+        public float MaxCharWidth { get; }
         public float AvgCharWidth { get; }
+        public float AvgCharHeight { get; }
 
         public ECharCase CharCase { get; set; }
         private readonly Material _fontMaterial;
@@ -77,7 +79,9 @@ namespace mUIApp.Other
                 mUI.Log("Font: " + name + " loaded");
                 SpaceLength = 2.2f;
                 MaxCharHeight = _charMeshes.Max(c => c.Value.Height);
+                MaxCharWidth = _charMeshes.Max(c => c.Value.Width);
                 AvgCharWidth = _charMeshes.Average(c => c.Value.Width);
+                AvgCharHeight = _charMeshes.Average(c => c.Value.Height);
 
                 CharCase = ECharCase.NONE;
             }
