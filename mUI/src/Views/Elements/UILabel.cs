@@ -1,8 +1,13 @@
-﻿using System;
+﻿#define UNITY_EDITOR
+
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using mUIApp.Other;
+using UnityEditor;
 using UnityEngine;
 
 namespace mUIApp.Views.Elements
@@ -26,10 +31,39 @@ namespace mUIApp.Views.Elements
         }
     }
 
+#if UNITY_EDITOR
+    [CustomEditor(typeof(UILabelBehaviour))]
+    class UILabelEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            UILabelBehaviour behaviour = (UILabelBehaviour) target;
+            behaviour.CachedColor = EditorGUILayout.ColorField("Label color", behaviour.CachedColor);
+
+            if (GUILayout.Button("Print color"))
+            {
+                mUI.Log("Color: {0}", behaviour.CachedColor);
+            }
+
+            if (GUILayout.Button("Update"))
+            {
+                behaviour.Label.Color(behaviour.CachedColor);
+            }
+        }
+    }
+
+    class UILabelBehaviour : MonoBehaviour
+    {
+        public Color32 CachedColor { get; set; }
+        public UILabel Label { get; set; }
+    }
+#endif
+
     public class UILabel : UIObject
     {
-        public override float Width { get; }
-        public override float Height { get; }
+        public override float Width { get { return _textWidth; } }
+        public override float Height { get { return _textHeight; } }
+        public string LabelText { get { return _cachedText; } }
 
         public TextAlignment TextAlignment
         {
@@ -50,13 +84,16 @@ namespace mUIApp.Views.Elements
         private float _textWidth;
         private float _textHeight;
         private float _letterSpacingScale;
-        //private float _charSpacingScale;
         private TextAlignment _textAlignment;
 
         private readonly MeshRenderer _meshRenderer;
         private readonly MeshFilter _meshFilter;
         private readonly MaterialPropertyBlock _textPropertyBlock;
-        
+
+#if UNITY_EDITOR
+        private readonly UILabelBehaviour _labelBehaviour;
+#endif
+
         public UILabel(BaseView view, string text, string fontName) : base(view, false)
         {
             _textAlignment = TextAlignment.Left;
@@ -71,6 +108,34 @@ namespace mUIApp.Views.Elements
             _textPropertyBlock = new MaterialPropertyBlock();
              
             UpdateMeshText();
+
+#if UNITY_EDITOR
+            _labelBehaviour = GameObject.AddComponent<UILabelBehaviour>();
+            _labelBehaviour.Label = this;
+            _labelBehaviour.CachedColor = mUIColors.White.Color32;
+            var editor = (UILabelEditor)Editor.CreateEditor(GameObject, typeof(UILabelEditor));
+#endif
+        }
+
+        public UILabel Color(Color32 newColor)
+        {
+            /*Color32[] colors = new Color32[_meshFilter.mesh.colors32.Length];
+            for (int i = 0; i < colors.Length; i++)
+                colors[i] = newColor;
+            _meshFilter.mesh.colors32 = colors;*/
+
+#if UNITY_EDITOR
+            _labelBehaviour.CachedColor = newColor;
+#endif
+
+            _textPropertyBlock.SetColor("_Color", newColor);
+            _meshRenderer.SetPropertyBlock(_textPropertyBlock);
+            return this;
+        }
+
+        public UILabel Color(mUIColor newColor)
+        {
+            return Color(newColor.Color32);
         }
 
         public UILabel Size(int size = 50)
@@ -78,7 +143,7 @@ namespace mUIApp.Views.Elements
             Transform.localScale = new Vector3(
                 Transform.localScale.x * (size / 50f),
                 Transform.localScale.y * (size / 50f),
-                Transform.localScale.z
+                Transform.localScale.z 
             );
             return this;
         }
@@ -151,10 +216,10 @@ namespace mUIApp.Views.Elements
                     vertices[charIndex + 2] = charMesh.Vertices[2] + offsetPos;
                     vertices[charIndex + 3] = charMesh.Vertices[3] + offsetPos;
 
-                    colors[charIndex + 0] = Color.white;
-                    colors[charIndex + 1] = Color.white;
-                    colors[charIndex + 2] = Color.white;
-                    colors[charIndex + 3] = Color.white;
+                    colors[charIndex + 0] = UnityEngine.Color.white;
+                    colors[charIndex + 1] = UnityEngine.Color.white;
+                    colors[charIndex + 2] = UnityEngine.Color.white;
+                    colors[charIndex + 3] = UnityEngine.Color.white;
 
                     uv[charIndex + 0] = charMesh.Uv[0];
                     uv[charIndex + 1] = charMesh.Uv[1];
@@ -209,6 +274,8 @@ namespace mUIApp.Views.Elements
                 if (_textWidth < lineWidth)
                     _textWidth = lineWidth;
             }
+
+            _textHeight = sumHeight + _cachedFont.MaxCharHeight;
 
             var textMesh = new Mesh
             {

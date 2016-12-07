@@ -57,6 +57,7 @@
     <Compile Include="src\Concrete\mGUIInputDefault.cs" />
     <Compile Include="src\Concrete\mGUIMobileGetEvents.cs" />
     <Compile Include="src\Other\mUIBezierHelper.cs" />
+    <Compile Include="src\Other\mUIColors.cs" />
     <Compile Include="src\Other\mUIEasingFunctions.cs" />
     <Compile Include="src\Other\mUIFont.cs" />
     <Compile Include="src\Views\Elements\Abstract\UIClickableObj.cs" />
