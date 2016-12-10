@@ -14,7 +14,7 @@ namespace mUIApp.Input
         event Action<mUIKeyboardEvent> OnKeyUpEvent;
         event Action<mUIKeyboardEvent> OnKeyDownEvent;
 
-        void ParseEvent(mGUIEvent @event);
+        void ParseEvent(mUIEvent @event);
         void OnGUI();
         void Update();
     }
@@ -42,12 +42,12 @@ namespace mUIApp.Input
         ScrollWheel = 5,
     }
 
-    public abstract class mGUIEvent
+    public abstract class mUIEvent
     {
         public mUIEventType Type { get; protected set; }
     }
 
-    public class mUIKeyboardEvent : mGUIEvent
+    public class mUIKeyboardEvent : mUIEvent
     {
         public mUIKeyboardEvent()
         {
@@ -68,7 +68,7 @@ namespace mUIApp.Input
         public char Character;
     }
 
-    public class mUIMouseEvent : mGUIEvent
+    public class mUIMouseEvent : mUIEvent
     {
         public mUIMouseEvent()
         {

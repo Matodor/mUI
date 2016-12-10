@@ -10,8 +10,7 @@ namespace mUIApp.Views
 {
     public abstract class BaseView : UIRect, UIGameObject
     {
-        public abstract void Create();
-
+        public virtual void Create(object data) { }
         public const int NextViewSortingOrder = 10;
         public int SortingOrder
         {
@@ -104,8 +103,6 @@ namespace mUIApp.Views
             _childObjects = new List<UIObject>();
             _baseView = null;
             _sortingOrder = 0;
-
-            Debug.Log("View init");
         }
         
         public void SetWidth(float width)

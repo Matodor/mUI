@@ -53,9 +53,9 @@
     <Compile Include="src\Animations\Types\UILinearAnimation.cs" />
     <Compile Include="src\Animations\Types\UIRotateAnimation.cs" />
     <Compile Include="src\Animations\Types\UIScaleAnimation.cs" />
-    <Compile Include="src\Concrete\mGUIDesktopGetEvents.cs" />
-    <Compile Include="src\Concrete\mGUIInputDefault.cs" />
-    <Compile Include="src\Concrete\mGUIMobileGetEvents.cs" />
+    <Compile Include="src\Concrete\mUIDesktopGetEvents.cs" />
+    <Compile Include="src\Concrete\mUIInputDefault.cs" />
+    <Compile Include="src\Concrete\mUIMobileGetEvents.cs" />
     <Compile Include="src\Other\mUIBezierHelper.cs" />
     <Compile Include="src\Other\mUIColors.cs" />
     <Compile Include="src\Other\mUIEasingFunctions.cs" />
@@ -67,6 +67,7 @@
     <Compile Include="src\Views\Elements\UIButton.cs" />
     <Compile Include="src\Views\BaseView.cs" />
     <Compile Include="src\Views\Elements\UILabel.cs" />
+    <Compile Include="src\Views\Elements\UISlider.cs" />
     <Compile Include="src\Views\Elements\UIToggle.cs" />
     <Compile Include="src\Views\Elements\UIToggleGroup.cs" />
     <Compile Include="src\Views\Elements\UISprite.cs" />

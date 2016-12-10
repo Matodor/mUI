@@ -7,6 +7,5 @@ namespace mUIApp.Views
 {
     public abstract class PartialView : BaseView
     {
-        
     }
 }

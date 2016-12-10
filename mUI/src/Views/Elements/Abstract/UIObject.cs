@@ -132,6 +132,8 @@ namespace mUIApp.Views.Elements
         public BaseView ParentView { get; }
         public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>();
 
+        public event Action OnTick = () => {};
+
         protected UIObject(BaseView view, bool createSpriteRenderer = true)
         {
             ParentView = view;
@@ -155,7 +157,5 @@ namespace mUIApp.Views.Elements
                 Animations[i].Tick();
             OnTick();   
         }
-
-        protected virtual void OnTick() { }
     }
 }

@@ -20,7 +20,7 @@ namespace mUIApp.Views
             InitViewCallback = (InitView) Delegate.CreateDelegate(typeof (InitView), methodInfo);
         }
 
-        public static PartialView CreatePartial<T>(this BaseView view, string viewName = "partialView") where T : PartialView, new()
+        public static PartialView CreatePartial<T>(this BaseView view, string viewName = "partialView", object data = null) where T : PartialView, new()
         {
             var partialView = new T();
             InitViewCallback(partialView, view.Transform);
@@ -29,8 +29,7 @@ namespace mUIApp.Views
             partialView.SetHeight(view.PureHeight);
             partialView.SetWidth(view.PureWidth);
             partialView.SortingOrder = view.SortingOrder + 1;
-            partialView.Create();
-
+            partialView.Create(data);
             view.AddChildView(partialView);
 
             return partialView;

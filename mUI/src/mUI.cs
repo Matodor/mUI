@@ -85,7 +85,7 @@ namespace mUIApp
             return _uiViews.Remove(view);
         }
 
-        public static T CreateView<T>(string viewName = "view") where T : View, new()
+        public static T CreateView<T>(string viewName = "view", object data = null) where T : View, new()
         {
             var view = new T();
             ViewHelper.InitViewCallback(view, _uiViewsGameObject.transform);
@@ -93,7 +93,7 @@ namespace mUIApp
             view.ParentView = null;
             view.SetHeight(UICamera.Height);
             view.SetWidth(UICamera.Width);
-            view.Create();
+            view.Create(data);
             _uiViews.Add(view);
             return view;    
         }

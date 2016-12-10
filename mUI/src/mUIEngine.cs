@@ -9,7 +9,7 @@ namespace mUIApp
 
         public void Awake()
         {
-            UIInput = new mGUIInputDefault();
+            UIInput = new mUIInputDefault();
         }
 
         private void OnGUI()

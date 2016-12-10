@@ -22,7 +22,7 @@ namespace mUIApp.Views.Elements
     {
         public override bool InArea(Transform transform, Vector2 clickPos, Bounds bounds)
         {
-            return true;
+            return false;
         }
     }
 
@@ -108,11 +108,7 @@ namespace mUIApp.Views.Elements
             mUI.UIInput.OnMouseDragEvent -= OnUIMouseDrag;
         }
 
-        protected bool InArea(Vector2 screenPos)
-        {
-            return AreaChecker.InArea(Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
-                ((SpriteRenderer)Renderer).sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
-        }
+        protected abstract bool InArea(Vector2 screenPos);
 
         private void OnUIMouseDown(mUIMouseEvent mouseEvent)
         {

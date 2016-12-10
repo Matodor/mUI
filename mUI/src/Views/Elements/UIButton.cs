@@ -75,6 +75,12 @@ namespace mUIApp.Views.Elements
             return this;
         }
 
+        protected override bool InArea(Vector2 screenPos)
+        {
+            return AreaChecker.InArea(Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
+                   ((SpriteRenderer)Renderer).sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
+        }
+
         private void OnButtonDown(mUIMouseEvent mouseEvent)
         {
             _uiButtonState = UIButtonState.HOVER;

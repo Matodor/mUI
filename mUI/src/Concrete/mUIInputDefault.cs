@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mUIApp.Input
 {
-    public class mGUIInputDefault : IInputBase
+    public class mUIInputDefault : IInputBase
     {
         public event Action<mUIMouseEvent> OnMouseDownEvent;
         public event Action<mUIMouseEvent> OnMouseUpEvent;
@@ -14,7 +14,7 @@ namespace mUIApp.Input
         private IInputGetEvents _getEventsController;
         private Action<IInputBase> _onGUI, _onUpdate;
 
-        public mGUIInputDefault()
+        public mUIInputDefault()
         {
             OnMouseDownEvent = i => { };
             OnMouseUpEvent = i => { };
@@ -36,17 +36,17 @@ namespace mUIApp.Input
 
         private void SetupMobile()
         {
-            _getEventsController = new mGUIMobileGetEvents();
+            _getEventsController = new mUIMobileGetEvents();
             _onUpdate = _getEventsController.GetEvents;
         }
 
         private void SetupDesktop()
         {
-            _getEventsController = new mGUIDesktopGetEvents();
+            _getEventsController = new mUIDesktopGetEvents();
             _onGUI = _getEventsController.GetEvents;
         }
 
-        public void ParseEvent(mGUIEvent @event)
+        public void ParseEvent(mUIEvent @event)
         {
             if (@event.Type == mUIEventType.MOUSE_EVENT)
             {

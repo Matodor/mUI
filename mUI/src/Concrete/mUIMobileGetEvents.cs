@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace mUIApp.Input
 {
-    class mGUIMobileGetEvents : IInputGetEvents
+    class mUIMobileGetEvents : IInputGetEvents
     {
         public void GetEvents(IInputBase input)
         {
