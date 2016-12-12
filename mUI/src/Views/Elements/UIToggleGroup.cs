@@ -29,10 +29,10 @@ namespace mUIApp.Views.Elements
             _toggles = new List<UIToggle>();
             _currenToggle = null;
 
-            OnChangeActiveState += OnOnChangeActiveState;
+            OnChangeActiveState += OnChangeState;
         }
 
-        private void OnOnChangeActiveState(UIObject uiObject, bool oldState, bool newState)
+        private void OnChangeState(UIObject uiObject, bool oldState, bool newState)
         {
             for (int i = 0; i < _toggles.Count; i++)
                 _toggles[i].Active = newState;

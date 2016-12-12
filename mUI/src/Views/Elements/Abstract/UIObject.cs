@@ -171,11 +171,14 @@ namespace mUIApp.Views.Elements
 
         protected UIObject(BaseView view, bool createSpriteRenderer = true)
         {
+            _active = true;
+
             ParentView = view;
             GameObject = new GameObject("UIObject");
             Transform = GameObject.transform;
             Transform.parent = view.Transform;
             Transform.localPosition = Vector3.zero;
+
             OnTick += (o) => { }; 
 
             if (createSpriteRenderer)
