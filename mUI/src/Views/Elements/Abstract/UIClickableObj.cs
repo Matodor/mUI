@@ -90,9 +90,9 @@ namespace mUIApp.Views.Elements
     {
         public UIClickable AreaChecker { get; set; }
 
-        protected event Action<mUIMouseEvent> OnUIMouseDownEvent;
-        protected event Action<mUIMouseEvent> OnUIMouseUpEvent;
-        protected event Action<mUIMouseEvent> OnUIMouseDragEvent;
+        public event Action<UIObject, mUIMouseEvent> OnUIMouseDownEvent;
+        public event Action<UIObject, mUIMouseEvent> OnUIMouseUpEvent;
+        public event Action<UIObject, mUIMouseEvent> OnUIMouseDragEvent;
 
         protected UIClickableObj(BaseView view) : base(view)
         {
@@ -114,20 +114,20 @@ namespace mUIApp.Views.Elements
         {
             if (InArea(mouseEvent.MouseScreenPos))
             {
-                OnUIMouseDownEvent?.Invoke(mouseEvent);
+                OnUIMouseDownEvent?.Invoke(this, mouseEvent);
             }
         }
 
         private void OnUIMouseUp(mUIMouseEvent mouseEvent)
         {
-            OnUIMouseUpEvent?.Invoke(mouseEvent);
+            OnUIMouseUpEvent?.Invoke(this, mouseEvent);
         }
 
         private void OnUIMouseDrag(mUIMouseEvent mouseEvent)
         {
             if (InArea(mouseEvent.MouseScreenPos))
             {
-                OnUIMouseDragEvent?.Invoke(mouseEvent);
+                OnUIMouseDragEvent?.Invoke(this, mouseEvent);
             }
         }
     }

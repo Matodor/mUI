@@ -10,7 +10,7 @@ namespace mUIApp
     public static class mUI
     {
         public static bool Debug { get; set; }
-        public static ISpriteRepository SpriteRepository { get; set; }
+        public static ISpriteRepository Sprites { get; set; }
         public static IInputBase UIInput { get { return _engineInstance.UIInput; } }
         public static GameObject GameObject { get { return _engineGameObject; } }
         public static GameObject ViewsGameObject { get { return _uiViewsGameObject; } }
@@ -18,6 +18,9 @@ namespace mUIApp
         public static string DefaultFont { get; set; }
 
         public const string DefaultFontName = "mUIDefault";
+
+        public static event Action OnTick;
+        public static event Action OnFixedTick;
 
         private static readonly mUIEngine _engineInstance;
         private static readonly GameObject _engineGameObject;
@@ -37,15 +40,21 @@ namespace mUIApp
                 _uiViews = new List<View>();
                 _uiFonts = new Dictionary<string, mUIFont>();
 
-                UICamera = new mUICamera();
+                UICamera = new mUICamera(ViewsGameObject);
                 Init();
             }
+        }
+
+        public static ActionTimer ActionTimer(float time, Action<object> action, object data = null)
+        {
+            return new ActionTimer(time, action, data);
         }
 
         public static void Tick()
         {
             for (int i = _uiViews.Count - 1; i >= 0; i--)
                 _uiViews[i].Tick();
+            OnTick?.Invoke();
         }
 
         public static mUIFont GetFont(string name)
@@ -72,12 +81,13 @@ namespace mUIApp
 
         public static void FixedTick()
         {
+            OnFixedTick?.Invoke();
         }
         
         private static void Init()
         {
             DefaultFont = DefaultFontName;
-            SpriteRepository = new mUIDefaultSpriteRepository();
+            Sprites = new mUIDefaultSpriteRepository();
         }
 
         public static bool RemoveView(View view)

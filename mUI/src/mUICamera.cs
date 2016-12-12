@@ -8,6 +8,7 @@ namespace mUIApp
     {
         public Vector2 Position { get { return Transform.position; } }
         public Transform Transform { get; }
+        public Camera Camera { get { return _camera; } }
 
         public float PureHeight { get { return _camera.orthographicSize*2; } }
         public float PureWidth { get { return _camera.orthographicSize*_camera.aspect*2; } }
@@ -19,16 +20,17 @@ namespace mUIApp
         public float TopAnchor { get { return Transform.position.y + Height/2; } }
         public float BottomAnchor { get { return Transform.position.y - Height/2; } }
 
+
         private readonly Camera _camera;
 
-        public mUICamera()
+        public mUICamera(GameObject attachObj)
         {
-            _camera = mUI.ViewsGameObject.AddComponent<Camera>();
+            _camera = attachObj.AddComponent<Camera>();
             _camera.clearFlags = CameraClearFlags.Depth;
             _camera.depth = 0;
             _camera.orthographic = true;
-            _camera.farClipPlane = 1;
-            _camera.nearClipPlane = -1;
+            _camera.farClipPlane = 0.01f;
+            _camera.nearClipPlane = -0.01f;
             _camera.orthographicSize = 5;
 
             Transform = _camera.transform;

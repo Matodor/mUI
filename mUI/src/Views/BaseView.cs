@@ -56,6 +56,12 @@ namespace mUIApp.Views
         public float TopAnchor { get { return Transform.position.y + Height/2; } }
         public float BottomAnchor { get { return Transform.position.y - Height/2; } }
 
+        public event Action<BaseView> OnChangedHeight;
+        public event Action<BaseView> OnChangedWidth;
+        public event Action<BaseView> OnTick;
+        public event Action<BaseView, PartialView> OnAddChildView;
+        public event Action<BaseView, UIObject> OnAddChildObject;
+
         protected List<PartialView> _childViews;
         protected List<UIObject> _childObjects;
         private GameObject _viewObject;
@@ -85,19 +91,22 @@ namespace mUIApp.Views
         {
             if (obj.Renderer != null)
                 obj.Renderer.sortingOrder = SortingOrder;
-            _childObjects.Add(obj);    
+            _childObjects.Add(obj);
+            OnAddChildObject?.Invoke(this, obj);
         }
 
         public void AddChildView(PartialView view)
         {
             view.SortingOrder = SortingOrder + NextViewSortingOrder;
-            _childViews.Add(view);    
+            _childViews.Add(view);
+            OnAddChildView?.Invoke(this, view);
         }
 
         private void InitBase(Transform parent)
         {
             _viewObject = new GameObject("view");
             _viewObject.transform.parent = parent;
+            _viewObject.transform.localPosition = Vector3.zero;
             _viewTransform = _viewObject.transform;
             _childViews = new List<PartialView>();
             _childObjects = new List<UIObject>();
@@ -114,6 +123,7 @@ namespace mUIApp.Views
             }
             else 
                 _viewWidth = width;
+            OnChangedWidth?.Invoke(this);
         }
 
         public void SetHeight(float height)
@@ -125,9 +135,8 @@ namespace mUIApp.Views
             }
             else
                 _viewHeight = height;
+            OnChangedHeight?.Invoke(this);
         }
-
-        protected virtual void OnTick() { }
 
         public void Tick()
         {
@@ -135,7 +144,7 @@ namespace mUIApp.Views
                 _childObjects[i].Tick();
             for (int i = 0; i < _childViews.Count; i++)
                 _childViews[i].Tick();
-            OnTick();
+            OnTick?.Invoke(this);
         }
     }
 }

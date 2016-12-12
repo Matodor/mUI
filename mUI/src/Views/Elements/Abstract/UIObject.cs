@@ -15,6 +15,18 @@ namespace mUIApp.Views.Elements
 
     public static class UIObjectHelper
     {
+        public static T SetParent<T>(this T obj, UIObject parent) where T : UIObject
+        {
+            return obj.SetParent(parent.Transform);
+        }
+
+        public static T SetParent<T>(this T obj, Transform parent) where T : UIObject
+        {
+            obj.Transform.parent = parent;
+            obj.Transform.localPosition = Vector3.zero;
+            return obj;
+        }
+
         public static Vector2 GetRelativePos<T>(this T obj, float xRelative, float yRelative) where T : UIGameObject
         {
             return  new Vector3(
@@ -45,9 +57,9 @@ namespace mUIApp.Views.Elements
             return obj;
         }
 
-        public static T Translate<T>(this T obj, float x, float y = 0, Space space = Space.World) where T : UIGameObject
+        public static T Translate<T>(this T obj, float x, float y = 0, float z = 0, Space space = Space.World) where T : UIGameObject
         {
-            obj.Transform.Translate(x, y, 0, space);
+            obj.Transform.Translate(x, y, z, space);
             return obj;
         }
 
@@ -110,6 +122,12 @@ namespace mUIApp.Views.Elements
             return obj;
         }
 
+        public static T Active<T>(this T obj, bool active) where T : UIObject
+        {
+            obj.Active = active;
+            return obj;
+        }
+
         public static void Scale(Transform transform, float x, float y)
         {
             transform.localScale = new Vector3(x, y, transform.localScale.z);
@@ -132,7 +150,24 @@ namespace mUIApp.Views.Elements
         public BaseView ParentView { get; }
         public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>();
 
-        public event Action OnTick = () => {};
+        public event Action<UIObject, bool, bool> OnChangeActiveState;
+
+        public bool Active
+        {
+            get
+            {
+                return _active;
+            }
+            set
+            {
+                OnChangeActiveState?.Invoke(this, _active, value);
+                _active = value;
+            }
+        }
+
+        public event Action<UIObject> OnTick;
+
+        private bool _active;
 
         protected UIObject(BaseView view, bool createSpriteRenderer = true)
         {
@@ -141,6 +176,7 @@ namespace mUIApp.Views.Elements
             Transform = GameObject.transform;
             Transform.parent = view.Transform;
             Transform.localPosition = Vector3.zero;
+            OnTick += (o) => { }; 
 
             if (createSpriteRenderer)
             {
@@ -155,7 +191,7 @@ namespace mUIApp.Views.Elements
         {
             for (int i = Animations.Count - 1; i >= 0; i--)
                 Animations[i].Tick();
-            OnTick();   
+            OnTick?.Invoke(this);   
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using mUIApp.Input;
+using mUIApp.Other;
 using UnityEngine;
 
 namespace mUIApp.Views.Elements
@@ -17,8 +18,8 @@ namespace mUIApp.Views.Elements
     {
         public static UISlider CreateSlider(this BaseView view, string objName = "Slider", UISliderType type = UISliderType.VERTICAL)
         {
-            var sliderView = view.CreatePartial<UISliderView>("SliderView");
-            return new UISlider(sliderView, type).SetName(objName);
+            var sliderView = view.CreatePartial<UISliderView>(objName);
+            return new UISlider(sliderView, type).SetName("SliderController");
         }
     }
 
@@ -37,41 +38,83 @@ namespace mUIApp.Views.Elements
         public float PureWidth { get { return ParentView.PureWidth; } }
         public float PureHeight { get { return ParentView.PureHeight; } }
 
-        private UISliderType _sliderType;
+        private readonly UISliderType _sliderType;
         private readonly List<PartialView> _childs;
         private Vector2 _startDragPos;
         private Vector2 _lastDragPos;
         private Vector2 _lastDragDIff;
+        private bool _sliderIsPressed;
+        private float _pressClickTime;
 
         public UISlider(BaseView view, UISliderType type) : base(view)
         {
             _sliderType = type;
             _childs = new List<PartialView>();
+            _sliderIsPressed = false;
 
+            OnTick += SliderTick;
             OnUIMouseUpEvent += OnMouseUpEvent;
             OnUIMouseDragEvent += OnMouseDragEvent;
             OnUIMouseDownEvent += OnMouseDownEvent;
+            view.CreateRectCamera();
 
             this.SetBoxArea();
         }
 
-        private void OnMouseUpEvent(mUIMouseEvent mouseEvent)
+        private void SliderTick(UIObject sender)
         {
-            var currentPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
-            _lastDragPos = currentPos;
+            if (!Active)
+                return;
+
+            if (!_sliderIsPressed)
+            {
+                Move(_lastDragDIff);
+                _lastDragDIff *= 0.95f;
+            }
         }
 
-        private void OnMouseDragEvent(mUIMouseEvent mouseEvent)
+        private void OnMouseUpEvent(UIObject sender, mUIMouseEvent mouseEvent)
         {
+            if (!Active)
+                return;
+
+            var currentPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
+            _lastDragPos = currentPos;
+            _sliderIsPressed = false;
+        }
+
+        private void OnMouseDragEvent(UIObject sender, mUIMouseEvent mouseEvent)
+        {
+            if (!Active)
+                return;
+
+            if (!_sliderIsPressed)
+                return;
+
             var currentPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
             var diffPos = currentPos - _lastDragPos;
-
+             
             Move(diffPos);
 
             _lastDragDIff = diffPos;
             _lastDragPos = currentPos;
 
-            mUI.Log("diffPos: {0}", diffPos);
+            //mUI.Log("diffPos: {0}", diffPos);
+        }
+
+        private void OnMouseDownEvent(UIObject sender, mUIMouseEvent mouseEvent)
+        {
+            if (!Active)
+                return;
+
+            if (mUI.Debug)
+                DrawDebug();
+
+            _sliderIsPressed = true;
+            _startDragPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
+            _lastDragPos = _startDragPos;
+            _lastDragDIff = Vector2.zero;
+            _pressClickTime = Time.time;
         }
 
         private void Move(Vector2 diffPos)
@@ -112,25 +155,9 @@ namespace mUIApp.Views.Elements
             }
         }
 
-        private void OnMouseDownEvent(mUIMouseEvent mouseEvent)
-        {
-            if (mUI.Debug)
-                DrawDebug();
-            _startDragPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
-            _lastDragPos = _startDragPos;
-        }
 
         private void DrawDebug()
         {
-            Debug.DrawLine(new Vector3(ParentView.LeftAnchor, ParentView.TopAnchor),
-                new Vector3(ParentView.RightAnchor, ParentView.TopAnchor));
-            Debug.DrawLine(new Vector3(ParentView.RightAnchor, ParentView.TopAnchor),
-                new Vector3(ParentView.RightAnchor, ParentView.BottomAnchor));
-            Debug.DrawLine(new Vector3(ParentView.RightAnchor, ParentView.BottomAnchor),
-                new Vector3(ParentView.LeftAnchor, ParentView.BottomAnchor));
-            Debug.DrawLine(new Vector3(ParentView.LeftAnchor, ParentView.BottomAnchor),
-                new Vector3(ParentView.LeftAnchor, ParentView.TopAnchor));
-
             for (int i = 0; i < _childs.Count; i++)
             {
                 Debug.DrawLine(new Vector3(_childs[i].LeftAnchor, _childs[i].TopAnchor),

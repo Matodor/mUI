@@ -39,11 +39,13 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEditor">
+    <Reference Include="UnityEditor, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>UnityLibs\UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>UnityLibs\UnityEngine.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -60,6 +62,8 @@
     <Compile Include="src\Other\mUIColors.cs" />
     <Compile Include="src\Other\mUIEasingFunctions.cs" />
     <Compile Include="src\Other\mUIFont.cs" />
+    <Compile Include="src\Other\mUIOther.cs" />
+    <Compile Include="src\Other\mUIRectCamera.cs" />
     <Compile Include="src\Views\Elements\Abstract\UIClickableObj.cs" />
     <Compile Include="src\Views\Elements\Abstract\UIGameObject.cs" />
     <Compile Include="src\Views\Elements\Abstract\UIObject.cs" />

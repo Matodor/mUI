@@ -81,8 +81,11 @@ namespace mUIApp.Views.Elements
                    ((SpriteRenderer)Renderer).sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
         }
 
-        private void OnButtonDown(mUIMouseEvent mouseEvent)
+        private void OnButtonDown(UIObject sender, mUIMouseEvent mouseEvent)
         {
+            if (!Active)
+                return;
+
             _uiButtonState = UIButtonState.HOVER;
             UpdateSprite();
 
@@ -90,8 +93,11 @@ namespace mUIApp.Views.Elements
                 Click();
         }
 
-        private void OnButtonUp(mUIMouseEvent mouseEvent)
+        private void OnButtonUp(UIObject sender, mUIMouseEvent mouseEvent)
         {
+            if (!Active)
+                return;
+
             if (_uiButtonState != UIButtonState.HOVER)
                 return;
 

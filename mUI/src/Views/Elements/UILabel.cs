@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using mUIApp.Other;
-using UnityEditor;
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace mUIApp.Views.Elements
@@ -34,11 +36,14 @@ namespace mUIApp.Views.Elements
 #if UNITY_EDITOR
     [CustomEditor(typeof(UILabelBehaviour))]
     class UILabelEditor : Editor
-    {
+    { 
         public override void OnInspectorGUI()
         {
             UILabelBehaviour behaviour = (UILabelBehaviour) target;
             behaviour.CachedColor = EditorGUILayout.ColorField("Label color", behaviour.CachedColor);
+
+            string text = GUILayout.TextField(behaviour.Label.LabelText);
+            behaviour.Label.Text(text);
 
             if (GUILayout.Button("Print color"))
             {
@@ -192,14 +197,13 @@ namespace mUIApp.Views.Elements
                 var lineWidth = 0f;
                 var lineHeight = 0f;
                 var charsInLine = 0;
-                var lastCharOffset = 0f;
+                //var lastCharOffset = 0f;
 
                 foreach (char ch in line)
                 {
                     if (ch == ' ')
                     {
-                        lastCharOffset = _cachedFont.SpaceLength + LetterSpacing();
-                        lineWidth += lastCharOffset;
+                        lineWidth += _cachedFont.SpaceLength + LetterSpacing();
                         continue;
                     }
 
@@ -241,14 +245,13 @@ namespace mUIApp.Views.Elements
                     if (charHeight > lineHeight)
                         lineHeight = charHeight;
 
-                    lastCharOffset = charWidth + LetterSpacing();
-                    lineWidth += lastCharOffset;
+                    lineWidth += charWidth + LetterSpacing();
                     charIndex = charIndex + 4;
                     trianglesIndex = trianglesIndex + 6;
                     charsInLine++;
                 }
 
-                lineWidth -= lastCharOffset;
+                lineWidth -= LetterSpacing();
 
                 switch (_textAlignment)
                 {

@@ -19,6 +19,8 @@ namespace mUIApp.Views.Elements
         public override float Width { get { return 0; } }
         public override float Height { get { return 0; } }
 
+        public event Action<UIToggle, UIToggle> OnChangeActiveToogle;
+
         private readonly List<UIToggle> _toggles;
         private UIToggle _currenToggle;
 
@@ -26,6 +28,14 @@ namespace mUIApp.Views.Elements
         {
             _toggles = new List<UIToggle>();
             _currenToggle = null;
+
+            OnChangeActiveState += OnOnChangeActiveState;
+        }
+
+        private void OnOnChangeActiveState(UIObject uiObject, bool oldState, bool newState)
+        {
+            for (int i = 0; i < _toggles.Count; i++)
+                _toggles[i].Active = newState;
         }
 
         public UIToggle AddToggle(Sprite disabled, Sprite hoverSprite = null, Sprite enabled = null)
@@ -54,8 +64,11 @@ namespace mUIApp.Views.Elements
             if (_currenToggle != null)
             {
                 if (_currenToggle != toggle)
+                {
                     _currenToggle.SetDisabled();
+                }
             }
+            OnChangeActiveToogle?.Invoke(_currenToggle, toggle);
             _currenToggle = toggle;
         }
     }

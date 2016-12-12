@@ -1,7 +1,7 @@
 D:\Unity Develop\mUI\mUI\bin\Debug\mUI.dll
 D:\Unity Develop\mUI\mUI\bin\Debug\mUI.pdb
-D:\Unity Develop\mUI\mUI\bin\Debug\UnityEditor.dll
-D:\Unity Develop\mUI\mUI\bin\Debug\UnityEngine.dll
 D:\Unity Develop\mUI\mUI\obj\Debug\mUI.dll
 D:\Unity Develop\mUI\mUI\obj\Debug\mUI.pdb
 D:\Unity Develop\mUI\mUI\obj\Debug\mUI.csprojResolveAssemblyReference.cache
+D:\Unity Develop\mUI\mUI\bin\Debug\UnityEditor.dll
+D:\Unity Develop\mUI\mUI\bin\Debug\UnityEngine.dll

@@ -23,5 +23,11 @@ namespace mUIApp.Views.Elements
         {
             ((SpriteRenderer)Renderer).sprite = sprite;
         }
+
+        public UISprite Sprite(Sprite sprite)
+        {
+            ((SpriteRenderer)Renderer).sprite = sprite;
+            return this;
+        }
     }
 }
