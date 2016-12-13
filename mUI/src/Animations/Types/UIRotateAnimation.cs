@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using mUIApp.Animations;
-using mUIApp.Other;
+﻿using mUIApp.Other;
 using mUIApp.Views;
 using UnityEngine;
 

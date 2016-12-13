@@ -45,6 +45,11 @@ namespace mUIApp
             }
         }
 
+        public static ActionRepeat ActionRepeat(float repeatTime, Action<object> action, object data = null)
+        {
+            return new ActionRepeat(repeatTime, action, data);
+        }
+
         public static ActionTimer ActionTimer(float time, Action<object> action, object data = null)
         {
             return new ActionTimer(time, action, data);

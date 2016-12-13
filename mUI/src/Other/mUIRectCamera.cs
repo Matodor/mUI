@@ -23,10 +23,14 @@ namespace mUIApp.Other
             _attachView.Translate(0, 0, 1);
             _camera = new mUICamera(_attachView.GameObject);
 
+            _attachView.OnTranslateEvent += view =>
+            {
+                UpdateViewport();
+            };
+
             _attachView.OnChangedHeight += view =>
             {
                 _camera.SetOrthographicSize(view.Height/2);
-                mUI.Log("OnChangedHeight: {0} {1}", view.GameObject.name, view.Height);
                 UpdateViewport();
             };
 

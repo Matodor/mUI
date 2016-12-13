@@ -43,6 +43,7 @@ namespace mUIApp.Views.Elements
                 obj.ParentView.BottomAnchor + obj.ParentView.Height*yRelative,
                 obj.Transform.position.z
             );
+            obj.OnTranslate();
             return obj;
         }
 
@@ -54,12 +55,14 @@ namespace mUIApp.Views.Elements
                 0,
                 space
             );
+            obj.OnTranslate();
             return obj;
         }
 
         public static T Translate<T>(this T obj, float x, float y = 0, float z = 0, Space space = Space.World) where T : UIGameObject
         {
             obj.Transform.Translate(x, y, z, space);
+            obj.OnTranslate();
             return obj;
         }
 
@@ -76,6 +79,7 @@ namespace mUIApp.Views.Elements
         public static T Position<T>(this T obj, float x, float y) where T : UIGameObject
         {
             obj.Transform.position = new Vector3(x, y, obj.Transform.position.z);
+            obj.OnTranslate();
             return obj;
         }
 
@@ -89,12 +93,14 @@ namespace mUIApp.Views.Elements
             if ((set & UIVector3Set.SET_Z) == UIVector3Set.SET_Z)
                 newPos.z = other.Transform.position.z;
             obj.Transform.position = newPos;
+            obj.OnTranslate();
             return obj;
         }
 
         public static T Position<T>(this T obj, UIObject other) where T : UIGameObject
         {
             obj.Transform.position = other.Transform.position;
+            obj.OnTranslate();
             return obj;
         }
 
@@ -113,12 +119,32 @@ namespace mUIApp.Views.Elements
         public static T Scale<T>(this T obj, float x, float y) where T : UIGameObject
         {
             Scale(obj.Transform, x, y);
+            obj.OnScale();
+            return obj;
+        }
+
+        public static T Rotate<T>(this T obj, float x, float y, float z) where T : UIGameObject
+        {
+            Rotate(obj.Transform, x, y, z);
+            return obj;
+        }
+
+        public static T Rotate<T>(this T obj, float z) where T : UIGameObject
+        {
+            Rotate(obj.Transform, obj.Transform.eulerAngles.x, obj.Transform.eulerAngles.y, z);
+            return obj;
+        }
+
+        public static T Rotate<T>(this T obj, Vector3 rotate) where T : UIGameObject
+        {
+            Rotate(obj.Transform, rotate.x, rotate.y, rotate.z);
             return obj;
         }
 
         public static T Scale<T>(this T obj, Vector3 scale) where T : UIGameObject
         {
             Scale(obj.Transform, scale.x, scale.y, scale.z);
+            obj.OnScale();
             return obj;
         }
 
@@ -126,6 +152,11 @@ namespace mUIApp.Views.Elements
         {
             obj.Active = active;
             return obj;
+        }
+
+        public static void Rotate(Transform transform, float x, float y, float z)
+        {
+            transform.eulerAngles = new Vector3(x, y, z);
         }
 
         public static void Scale(Transform transform, float x, float y)
@@ -150,7 +181,33 @@ namespace mUIApp.Views.Elements
         public BaseView ParentView { get; }
         public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>();
 
+        public void OnTranslate()
+        {
+            OnTranslateEvent?.Invoke(this);
+        }
+
+        public void Destroy()
+        {
+            ParentView.RemoveChildObject(this);
+            UnityEngine.Object.Destroy(GameObject);
+        }
+
+        public void OnRotate()
+        {
+            OnRotateEvent?.Invoke(this);
+        }
+
+        public void OnScale()
+        {
+            OnScaleEvent?.Invoke(this);
+        }
+
+        public event Action<UIGameObject> OnTranslateEvent;
+        public event Action<UIGameObject> OnScaleEvent;
+        public event Action<UIGameObject> OnRotateEvent;
+
         public event Action<UIObject, bool, bool> OnChangeActiveState;
+        public event Action<UIObject> OnTick;
 
         public bool Active
         {
@@ -164,9 +221,7 @@ namespace mUIApp.Views.Elements
                 _active = value;
             }
         }
-
-        public event Action<UIObject> OnTick;
-
+        
         private bool _active;
 
         protected UIObject(BaseView view, bool createSpriteRenderer = true)

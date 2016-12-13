@@ -41,7 +41,32 @@ namespace mUIApp.Views
             }
         }
 
-        public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>(); 
+        public void Destroy()
+        {
+            ParentView.RemoveChildView(this);
+            UnityEngine.Object.Destroy(GameObject);
+        }
+
+        public void OnRotate()
+        {
+            OnRotateEvent?.Invoke(this);
+        }
+
+        public void OnTranslate()
+        {
+            OnTranslateEvent?.Invoke(this);
+        }
+
+        public void OnScale()
+        {
+            OnScaleEvent?.Invoke(this);
+        }
+
+        public event Action<UIGameObject> OnRotateEvent;
+        public event Action<UIGameObject> OnTranslateEvent;
+        public event Action<UIGameObject> OnScaleEvent;
+
+        public List<mUIAnimation> Animations { get; } = new List<mUIAnimation>();
         public GameObject GameObject { get { return _viewObject; } }
         public Transform Transform { get { return _viewTransform; } }
 
@@ -62,7 +87,7 @@ namespace mUIApp.Views
         public event Action<BaseView, PartialView> OnAddChildView;
         public event Action<BaseView, UIObject> OnAddChildObject;
 
-        protected List<PartialView> _childViews;
+        protected List<BaseView> _childViews;
         protected List<UIObject> _childObjects;
         private GameObject _viewObject;
         private Transform _viewTransform;
@@ -87,12 +112,22 @@ namespace mUIApp.Views
             }
         }
 
+        public void RemoveChildObject(UIObject obj)
+        {
+            _childObjects.Remove(obj);
+        }
+
         public void AddChildObject(UIObject obj)
         {
             if (obj.Renderer != null)
                 obj.Renderer.sortingOrder = SortingOrder;
             _childObjects.Add(obj);
             OnAddChildObject?.Invoke(this, obj);
+        }
+
+        public void RemoveChildView(BaseView view)
+        {
+            _childViews.Remove(view);
         }
 
         public void AddChildView(PartialView view)
@@ -108,7 +143,7 @@ namespace mUIApp.Views
             _viewObject.transform.parent = parent;
             _viewObject.transform.localPosition = Vector3.zero;
             _viewTransform = _viewObject.transform;
-            _childViews = new List<PartialView>();
+            _childViews = new List<BaseView>();
             _childObjects = new List<UIObject>();
             _baseView = null;
             _sortingOrder = 0;

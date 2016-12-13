@@ -41,19 +41,22 @@ namespace mUIApp.Views.Elements
         {
             UILabelBehaviour behaviour = (UILabelBehaviour) target;
             behaviour.CachedColor = EditorGUILayout.ColorField("Label color", behaviour.CachedColor);
+            behaviour.Label.Color(behaviour.CachedColor);
 
-            string text = GUILayout.TextField(behaviour.Label.LabelText);
+            string text = GUILayout.TextField(behaviour.Label.TextLabel);
             behaviour.Label.Text(text);
+            int textSize = int.Parse(GUILayout.TextField(behaviour.Label.TextSize.ToString()));
+            behaviour.Label.Size(textSize);
 
             if (GUILayout.Button("Print color"))
             {
                 mUI.Log("Color: {0}", behaviour.CachedColor);
             }
 
-            if (GUILayout.Button("Update"))
+            /*if (GUILayout.Button("Update"))
             {
                 behaviour.Label.Color(behaviour.CachedColor);
-            }
+            }*/
         }
     }
 
@@ -68,7 +71,10 @@ namespace mUIApp.Views.Elements
     {
         public override float Width { get { return _textWidth; } }
         public override float Height { get { return _textHeight; } }
-        public string LabelText { get { return _cachedText; } }
+        public string TextLabel { get { return _cachedText; } }
+        public int TextSize { get { return _cachedSize; } }
+
+        public event Action<UILabel> OnChangeText;
 
         public TextAlignment TextAlignment
         {
@@ -86,6 +92,7 @@ namespace mUIApp.Views.Elements
 
         private mUIFont _cachedFont;
         private string _cachedText;
+        private int _cachedSize;
         private float _textWidth;
         private float _textHeight;
         private float _letterSpacingScale;
@@ -145,6 +152,11 @@ namespace mUIApp.Views.Elements
 
         public UILabel Size(int size = 50)
         {
+            if (_cachedSize == size)
+                return this;
+
+            _cachedSize = size;
+
             Transform.localScale = new Vector3(
                 Transform.localScale.x * (size / 50f),
                 Transform.localScale.y * (size / 50f),
@@ -155,11 +167,12 @@ namespace mUIApp.Views.Elements
 
         public UILabel Text(string text)
         {
-            if (string.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(text) || text == _cachedText )
                 return this;
-
+            
             _cachedText = text;
             UpdateMeshText();
+            OnChangeText?.Invoke(this);
             return this;
         }
 

@@ -14,5 +14,13 @@ namespace mUIApp.Views
         Transform Transform { get; }
         BaseView ParentView { get; }
         List<mUIAnimation> Animations { get; }
+
+        void Destroy();
+        void OnRotate();
+        void OnTranslate();
+        void OnScale();
+        event Action<UIGameObject> OnRotateEvent;
+        event Action<UIGameObject> OnTranslateEvent;
+        event Action<UIGameObject> OnScaleEvent;
     }
 }

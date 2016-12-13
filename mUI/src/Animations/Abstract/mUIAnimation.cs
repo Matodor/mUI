@@ -52,6 +52,24 @@ namespace mUIApp.Animations
             animation.State = state;
             return animation;
         }
+
+        public static T OffsetStart<T>(this T animation, float offset) where T : mUIAnimation
+        {
+            animation.SetOffsetStart(offset);
+            return animation;
+        }
+
+        public static T AnimationPos<T>(this T animation, float pos) where T : mUIAnimation
+        {
+            animation.SetAnimationPos(pos);
+            return animation;
+        }
+
+        public static T DestroyOnEnd<T>(this T animation) where T : mUIAnimation
+        {
+            animation.DestroyOnEnd = true;
+            return animation;
+        }
     }
 
     public abstract class mUIAnimation
@@ -63,6 +81,7 @@ namespace mUIApp.Animations
         public mUIAnimationState State { get; set; }
         public mUIEasingType EasingType { get; set; }
         public UIGameObject UIGameObject { get { return _uiGameObject; } }
+        public bool DestroyOnEnd { get; set; }
 
         public event Action<mUIAnimation> OnEndAnimationEvent;
         public event Action<mUIAnimation> OnAnimationEvent;
@@ -71,12 +90,19 @@ namespace mUIApp.Animations
         protected abstract void OnEndAnimation();
 
         private readonly UIGameObject _uiGameObject;
+        private float _animationStart;
         private float _animationTime;
         private float _animationEasingTime;
         private mUIAnimationDir _animationDir;
-        
+
+        ~mUIAnimation()
+        {
+            //mUI.Log("Destroy animation: {0}", ToString());
+        }
+
         protected mUIAnimation(UIGameObject uiGameObject)
         {
+            DestroyOnEnd = false;
             Duration = 1;
             State = mUIAnimationState.PLAYS;
             PlayType = mUIAnimationPlayType.PLAY_ONCE;
@@ -89,9 +115,19 @@ namespace mUIApp.Animations
             _animationDir = mUIAnimationDir.FORWARD;
         }
 
+        public void SetOffsetStart(float time)
+        {
+            _animationStart = Time.time + time;
+        }
+
+        public void SetAnimationPos(float time)
+        {
+            _animationTime = mUI.Сlamp(time, 0, 1);
+        }
+
         public void Tick()
         {
-            if (State == mUIAnimationState.STOPPED)
+            if (State == mUIAnimationState.STOPPED || Time.time < _animationStart)
                 return;
              
             _animationTime += (_animationDir == mUIAnimationDir.FORWARD ? 1 : -1) * (Time.deltaTime / Duration);
@@ -104,11 +140,8 @@ namespace mUIApp.Animations
             if (_animationTime >= 1 && _animationDir == mUIAnimationDir.FORWARD || 
                 _animationTime <= 0 && _animationDir == mUIAnimationDir.BACKWARD)
             {
-                if (PlayType == mUIAnimationPlayType.PLAY_ONCE)
-                {
-                    Remove();
-                    return;
-                }
+                OnEndAnimation();
+                OnEndAnimationEvent?.Invoke(this);
 
                 if (PlayType == mUIAnimationPlayType.RESET_REPEAT)
                 {
@@ -118,15 +151,25 @@ namespace mUIApp.Animations
                 {
                     _animationDir = _animationDir == mUIAnimationDir.FORWARD ? mUIAnimationDir.BACKWARD : mUIAnimationDir.FORWARD;
                 }
+                else if (PlayType == mUIAnimationPlayType.PLAY_ONCE)
+                {
+                    State = mUIAnimationState.STOPPED;
+                    Remove();
 
-                OnEndAnimation();
-                OnEndAnimationEvent?.Invoke(this);
+                    if (DestroyOnEnd)
+                    {
+                        _uiGameObject.Destroy();
+                        for (int i = 0; i < _uiGameObject.Animations.Count; i++)
+                            _uiGameObject.Animations[i].Remove();
+                    }
+                }
             }
         }
 
         public void Remove()
         {
-            mUI.Log("Remove animation: " + ToString());
+            //mUI.Log("Remove animation: " + ToString());
+            State = mUIAnimationState.STOPPED;
             _uiGameObject.Animations.Remove(this);
         }
     }
