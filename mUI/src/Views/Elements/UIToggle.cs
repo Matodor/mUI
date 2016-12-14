@@ -14,10 +14,10 @@ namespace mUIApp.Views.Elements
 
     public static class UIToggleHelper
     {
-        public static UIToggle CreateToggle(this BaseView view, Sprite disabled, Sprite hoverSprite = null,
+        public static UIToggle CreateToggle(this UIObject obj, Sprite disabled, Sprite hoverSprite = null,
             Sprite enabled = null, string objName = "Toggle")
         {
-            return new UIToggle(view, disabled, hoverSprite, enabled).SetName(objName);
+            return new UIToggle(obj, disabled, hoverSprite, enabled).SetName(objName);
         }
     } 
 
@@ -31,8 +31,8 @@ namespace mUIApp.Views.Elements
         private Sprite _disabledSprite;
         private Sprite _enabledSprite;
 
-        public UIToggle(BaseView view, Sprite disabled, Sprite hoverSprite = null, Sprite enabled = null) :
-            base(view, disabled, hoverSprite)
+        public UIToggle(UIObject obj, Sprite disabled, Sprite hoverSprite = null, Sprite enabled = null) :
+            base(obj, disabled, hoverSprite)
         {
             _disabledSprite = disabled;
             _enabledSprite = enabled;

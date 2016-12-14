@@ -94,7 +94,7 @@ namespace mUIApp.Views.Elements
         public event Action<UIObject, mUIMouseEvent> OnUIMouseUpEvent;
         public event Action<UIObject, mUIMouseEvent> OnUIMouseDragEvent;
 
-        protected UIClickableObj(BaseView view) : base(view)
+        protected UIClickableObj(UIObject obj) : base(obj)
         {
             mUI.UIInput.OnMouseDownEvent += OnUIMouseDown;
             mUI.UIInput.OnMouseUpEvent += OnUIMouseUp;

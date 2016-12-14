@@ -9,14 +9,14 @@ namespace mUIApp.Views.Elements
 {
     public static class UIButtonHelper
     {
-        public static UIButton CreateButton(this BaseView view, Sprite sprite, string objName = "Button")
+        public static UIButton CreateButton(this UIObject obj, Sprite sprite, string objName = "Button")
         {
-            return new UIButton(view, sprite, null).SetName(objName);
+            return new UIButton(obj, sprite, null).SetName(objName);
         }
 
-        public static UIButton CreateButton(this BaseView view, Sprite sprite, Sprite hoverSprite, string objName = "Button")
+        public static UIButton CreateButton(this UIObject obj, Sprite sprite, Sprite hoverSprite, string objName = "Button")
         {
-            return new UIButton(view, sprite, hoverSprite).SetName(objName);
+            return new UIButton(obj, sprite, hoverSprite).SetName(objName);
         }
     }
 
@@ -36,8 +36,8 @@ namespace mUIApp.Views.Elements
 
     public class UIButton : UIClickableObj
     {
-        public override float Width { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.x*Transform.lossyScale.x; } }
-        public override float Height { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.y * Transform.lossyScale.y; } }
+        public override float PureWidth { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.x; } }
+        public override float PureHeight { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.y; } }
 
         private readonly Sprite[] _stateSprites;
         private UIButtonState _uiButtonState;
@@ -46,7 +46,7 @@ namespace mUIApp.Views.Elements
         private object _onButtonClickArgs;
         private float _lastClickTime;
 
-        public UIButton(BaseView view, Sprite sprite, Sprite hoverSprite = null) : base(view)
+        public UIButton(UIObject obj, Sprite sprite, Sprite hoverSprite = null) : base(obj)
         {
             _onButtonClickArgs = null;
             _uiButtonState = UIButtonState.ACTIVE;

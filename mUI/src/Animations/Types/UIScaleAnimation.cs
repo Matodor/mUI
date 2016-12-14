@@ -10,7 +10,7 @@ namespace mUIApp.Animations
 {
     public static class UIScaleAnimationHelper
     {
-        public static UIScaleAnimation ScaleAnimation<T>(this T obj, Vector2 startScale, Vector2 endScale) where T : UIGameObject
+        public static UIScaleAnimation ScaleAnimation<T>(this T obj, Vector2 startScale, Vector2 endScale) where T : UIObject
         {
             return new UIScaleAnimation(startScale, endScale, obj);
         }
@@ -20,7 +20,7 @@ namespace mUIApp.Animations
     {
         private readonly Vector2 _startScale, _endScale;
 
-        public UIScaleAnimation(Vector2 startScale, Vector2 endScale, UIGameObject uiGameObject) : base(uiGameObject)
+        public UIScaleAnimation(Vector2 startScale, Vector2 endScale, UIObject uiGameObject) : base(uiGameObject)
         {
             _startScale = startScale;
             _endScale = endScale;
@@ -29,8 +29,8 @@ namespace mUIApp.Animations
         protected override void OnAnimation()
         {
             var newScale = mUIBezierHelper.Linear(CurrentEasingTime, _startScale, _endScale);
-            UIGameObject.Transform.localScale = new Vector3(
-                newScale.x, newScale.y, UIGameObject.Transform.localScale.z
+            UIObject.Transform.localScale = new Vector3(
+                newScale.x, newScale.y, UIObject.Transform.localScale.z
             );
         }
 

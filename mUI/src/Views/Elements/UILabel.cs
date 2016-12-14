@@ -16,12 +16,12 @@ namespace mUIApp.Views.Elements
 {
     public static class UILabelHelper
     {
-        public static UILabel CreateLabel(this BaseView view, string text)
+        public static UILabel CreateLabel(this UIObject view, string text)
         {
             return CreateLabel(view, text, mUI.DefaultFont, 45).SetName(text);
         }
 
-        private static UILabel CreateLabel(BaseView view, string text, string fontName, float textSize)
+        private static UILabel CreateLabel(UIObject view, string text, string fontName, float textSize)
         {
             return new UILabel(view, text, fontName);
         }
@@ -69,12 +69,14 @@ namespace mUIApp.Views.Elements
 
     public class UILabel : UIObject
     {
-        public override float Width { get { return _textWidth; } }
-        public override float Height { get { return _textHeight; } }
+        public override float PureWidth { get { return _textWidth; } }
+        public override float PureHeight { get { return _textHeight; } }
         public string TextLabel { get { return _cachedText; } }
         public int TextSize { get { return _cachedSize; } }
 
+        /******************** Events ********************/
         public event Action<UILabel> OnChangeText;
+        /************************************************/
 
         public TextAlignment TextAlignment
         {
@@ -106,11 +108,9 @@ namespace mUIApp.Views.Elements
         private readonly UILabelBehaviour _labelBehaviour;
 #endif
 
-        public UILabel(BaseView view, string text, string fontName) : base(view, false)
+        public UILabel(UIObject view, string text, string fontName) : base(view, UIRendererType.MESH_RENDERER)
         {
             _textAlignment = TextAlignment.Left;
-            Renderer = GameObject.AddComponent<MeshRenderer>();
-
             _letterSpacingScale = 1;
             _cachedFont = mUI.GetFont(fontName);
             _cachedText = text;

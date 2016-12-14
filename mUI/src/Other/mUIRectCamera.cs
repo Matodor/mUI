@@ -6,7 +6,7 @@ namespace mUIApp.Other
 {
     public static class mUIRectCameraHelper
     {
-        public static mUIRectCamera CreateRectCamera(this BaseView view)
+        public static mUIRectCamera CreateRectCamera(this UIView view)
         {
             return new mUIRectCamera(view);
         }
@@ -15,22 +15,22 @@ namespace mUIApp.Other
     public class mUIRectCamera
     {
         private readonly mUICamera _camera;
-        private readonly BaseView _attachView;
+        private readonly UIView _attachView;
 
-        public mUIRectCamera(BaseView attachView)
+        public mUIRectCamera(UIView attachView)
         {
             _attachView = attachView;
             _attachView.Translate(0, 0, 1);
             _camera = new mUICamera(_attachView.GameObject);
 
-            _attachView.OnTranslateEvent += view =>
+            _attachView.OnTranslateEvent += (view, vector) =>
             {
                 UpdateViewport();
             };
 
-            _attachView.OnChangedHeight += view =>
+            _attachView.OnChangeHeight += (view, height) =>
             {
-                _camera.SetOrthographicSize(view.Height/2);
+                _camera.SetOrthographicSize(height/2);
                 UpdateViewport();
             };
 
@@ -42,10 +42,10 @@ namespace mUIApp.Other
             var viewportPos = mUI.UICamera.Camera.WorldToViewportPoint(_attachView.Transform.position);
             var sliderWidth = _attachView.Width;
             var sliderHeight = _attachView.Height;
-            var lb = new Vector2(mUI.UICamera.LeftAnchor, mUI.UICamera.BottomAnchor);
+            var lb = new Vector2(mUI.UICamera.Left, mUI.UICamera.Bottom);
 
-            var sliderScreenWidthScale = _attachView.Width / (mUI.UICamera.RightAnchor - mUI.UICamera.LeftAnchor);
-            var sliderScreenHeightScale = _attachView.Height / (mUI.UICamera.TopAnchor - mUI.UICamera.BottomAnchor);
+            var sliderScreenWidthScale = _attachView.Width / (mUI.UICamera.Right - mUI.UICamera.Left);
+            var sliderScreenHeightScale = _attachView.Height / (mUI.UICamera.Top - mUI.UICamera.Bottom);
             
             //mUI.Log("sliderScreenWidthScale: {0}", sliderScreenWidthScale);
             //mUI.Log("sliderScreenHeightScale: {0}", sliderScreenHeightScale);

@@ -66,26 +66,22 @@
     <Compile Include="src\Other\mUIFont.cs" />
     <Compile Include="src\Other\mUIOther.cs" />
     <Compile Include="src\Other\mUIRectCamera.cs" />
-    <Compile Include="src\Views\Elements\Abstract\UIClickableObj.cs" />
-    <Compile Include="src\Views\Elements\Abstract\UIGameObject.cs" />
-    <Compile Include="src\Views\Elements\Abstract\UIObject.cs" />
-    <Compile Include="src\Views\Elements\Abstract\UIRect.cs" />
+    <Compile Include="src\Views\Abstract\UIClickableObj.cs" />
     <Compile Include="src\Views\Elements\UIButton.cs" />
-    <Compile Include="src\Views\BaseView.cs" />
     <Compile Include="src\Views\Elements\UILabel.cs" />
     <Compile Include="src\Views\Elements\UISlider.cs" />
     <Compile Include="src\Views\Elements\UIToggle.cs" />
     <Compile Include="src\Views\Elements\UIToggleGroup.cs" />
     <Compile Include="src\Views\Elements\UISprite.cs" />
-    <Compile Include="src\Views\PartialView.cs" />
     <Compile Include="src\Abstract\ISpriteRepository.cs" />
-    <Compile Include="src\Views\View.cs" />
+    <Compile Include="src\Views\Abstract\UIObject.cs" />
     <Compile Include="src\Concrete\mUIDefaultSpriteRepository.cs" />
     <Compile Include="src\mUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\mUIEngine.cs" />
     <Compile Include="src\mUICamera.cs" />
-    <Compile Include="src\Views\ViewHelper.cs" />
+    <Compile Include="src\Views\Elements\UIView.cs" />
+    <Compile Include="src\Views\UIObjectHelper.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

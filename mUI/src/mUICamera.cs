@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace mUIApp
 {
-    public class mUICamera : UIRect
+    public class mUICamera
     {
         public Vector2 Position { get { return Transform.position; } }
         public Transform Transform { get; }
@@ -15,10 +15,10 @@ namespace mUIApp
         public float Height { get { return PureHeight*Transform.lossyScale.y; } }
         public float Width { get { return PureWidth*Transform.lossyScale.x; } }
 
-        public float LeftAnchor { get { return Transform.position.x - Width/2; } }
-        public float RightAnchor { get { return Transform.position.x + Width/2; } }
-        public float TopAnchor { get { return Transform.position.y + Height/2; } }
-        public float BottomAnchor { get { return Transform.position.y - Height/2; } }
+        public float Left { get { return Transform.position.x - Width/2; } }
+        public float Right { get { return Transform.position.x + Width/2; } }
+        public float Top { get { return Transform.position.y + Height/2; } }
+        public float Bottom { get { return Transform.position.y - Height/2; } }
 
 
         private readonly Camera _camera;

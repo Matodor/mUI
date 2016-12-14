@@ -16,47 +16,44 @@ namespace mUIApp.Views.Elements
 
     public static class UISliderHelper
     {
-        public static UISlider CreateSlider(this BaseView view, string objName = "Slider", UISliderType type = UISliderType.VERTICAL)
+        public static UISlider CreateSlider(this UIObject obj, string objName = "Slider", UISliderType type = UISliderType.VERTICAL)
         {
-            var sliderView = view.CreatePartial<UISliderView>(objName);
+            var sliderView = obj.CreateView<UISliderView>(obj);
             return new UISlider(sliderView, type).SetName("SliderController");
         }
     }
 
-    public class UISliderView : PartialView
+    public class UISliderView : UIView
     {
-        public override void Create(object data)
+        public UISliderView(UIObject parent) : base(parent)
         {
-            
         }
     }
 
     public class UISlider : UIClickableObj
     { 
-        public override float Width { get { return ParentView.Width; } }
-        public override float Height { get { return ParentView.Height; } }
-        public float PureWidth { get { return ParentView.PureWidth; } }
-        public float PureHeight { get { return ParentView.PureHeight; } }
+        public override float PureWidth { get { return Parent.Width; } }
+        public override float PureHeight { get { return Parent.Height; } }
 
         private readonly UISliderType _sliderType;
-        private readonly List<PartialView> _childs;
+        private readonly List<UIView> _childs;
         private Vector2 _startDragPos;
         private Vector2 _lastDragPos;
         private Vector2 _lastDragDIff;
         private bool _sliderIsPressed;
         private float _pressClickTime;
 
-        public UISlider(BaseView view, UISliderType type) : base(view)
+        public UISlider(UIView obj, UISliderType type) : base(obj)
         {
             _sliderType = type;
-            _childs = new List<PartialView>();
+            _childs = new List<UIView>();
             _sliderIsPressed = false;
 
             OnTick += SliderTick;
             OnUIMouseUpEvent += OnMouseUpEvent;
             OnUIMouseDragEvent += OnMouseDragEvent;
             OnUIMouseDownEvent += OnMouseDownEvent;
-            view.CreateRectCamera();
+            obj.CreateRectCamera();
 
             this.SetBoxArea();
         }
@@ -125,18 +122,18 @@ namespace mUIApp.Views.Elements
                 {
                     if (diffPos.y <= 0)
                     {
-                        var firstTop = _childs[0].TopAnchor;
-                        if (Math.Abs(ParentView.TopAnchor - firstTop) < Math.Abs(diffPos.y))
-                            diffPos.y = ParentView.TopAnchor - firstTop;
-                        else if (ParentView.TopAnchor >= firstTop)
+                        var firstTop = _childs[0].Top;
+                        if (Math.Abs(Parent.Top - firstTop) < Math.Abs(diffPos.y))
+                            diffPos.y = Parent.Top - firstTop;
+                        else if (Parent.Top >= firstTop)
                             diffPos.y = 0;
                     }
                     else
                     {
-                        var lastBottom = _childs[_childs.Count - 1].BottomAnchor;
-                        if (Math.Abs(lastBottom - ParentView.BottomAnchor) < Math.Abs(diffPos.y))
-                            diffPos.y = ParentView.BottomAnchor - lastBottom;
-                        else if (ParentView.BottomAnchor <= lastBottom)
+                        var lastBottom = _childs[_childs.Count - 1].Bottom;
+                        if (Math.Abs(lastBottom - Parent.Bottom) < Math.Abs(diffPos.y))
+                            diffPos.y = Parent.Bottom - lastBottom;
+                        else if (Parent.Bottom <= lastBottom)
                             diffPos.y = 0;
                     }
                 }
@@ -160,36 +157,36 @@ namespace mUIApp.Views.Elements
         {
             for (int i = 0; i < _childs.Count; i++)
             {
-                Debug.DrawLine(new Vector3(_childs[i].LeftAnchor, _childs[i].TopAnchor),
-                new Vector3(_childs[i].RightAnchor, _childs[i].TopAnchor));
-                Debug.DrawLine(new Vector3(_childs[i].RightAnchor, _childs[i].TopAnchor),
-                    new Vector3(_childs[i].RightAnchor, _childs[i].BottomAnchor));
-                Debug.DrawLine(new Vector3(_childs[i].RightAnchor, _childs[i].BottomAnchor),
-                    new Vector3(_childs[i].LeftAnchor, _childs[i].BottomAnchor));
-                Debug.DrawLine(new Vector3(_childs[i].LeftAnchor, _childs[i].BottomAnchor),
-                    new Vector3(_childs[i].LeftAnchor, _childs[i].TopAnchor));
+                Debug.DrawLine(new Vector3(_childs[i].Left, _childs[i].Top),
+                new Vector3(_childs[i].Right, _childs[i].Top));
+                Debug.DrawLine(new Vector3(_childs[i].Right, _childs[i].Top),
+                    new Vector3(_childs[i].Right, _childs[i].Bottom));
+                Debug.DrawLine(new Vector3(_childs[i].Right, _childs[i].Bottom),
+                    new Vector3(_childs[i].Left, _childs[i].Bottom));
+                Debug.DrawLine(new Vector3(_childs[i].Left, _childs[i].Bottom),
+                    new Vector3(_childs[i].Left, _childs[i].Top));
             }
         }
-        
-        public T CreateChild<T>(float height, float width, float spacing = 0, object data = null) where T : PartialView, new()
+
+        public T CreateChild<T>(float height, float width, float spacing = 0, params object[] param) where T : UIView
         {
-            var child = ParentView.CreatePartial<T>("element", data);
-            child.SetHeight(height); 
-            child.SetWidth(width);
+            var newView = (T)Activator.CreateInstance(typeof(T), Parent, param);
+            newView.SetHeight(height);
+            newView.SetWidth(width);
 
             if (_childs.Count == 0)
-                child.Position(ParentView.GetPos().x, ParentView.TopAnchor - height/2);
+                newView.Position(Parent.GetPos().x, Parent.Top - height/2);
             else
-                child.Position(ParentView.GetPos().x, _childs[_childs.Count - 1].BottomAnchor - height/2 - spacing);
+                newView.Position(Parent.GetPos().x, _childs[_childs.Count - 1].Bottom - height/2 - spacing);
 
-            _childs.Add(child);
-            return (T)child;
+            _childs.Add(newView);
+            return newView;
         }
 
         protected override bool InArea(Vector2 screenPos)
         {
-            return AreaChecker.InArea(ParentView.Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
-                new Bounds(new Vector3(0, 0), new Vector3(ParentView.Width, ParentView.Height)));
+            return AreaChecker.InArea(Parent.Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
+                new Bounds(new Vector3(0, 0), new Vector3(Parent.Width, Parent.Height)));
         }
     }
 }

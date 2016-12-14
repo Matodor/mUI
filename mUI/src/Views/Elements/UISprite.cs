@@ -8,18 +8,18 @@ namespace mUIApp.Views.Elements
 {
     public static class UISpriteHelper
     {
-        public static UISprite CreateSprite(this BaseView view, Sprite sprite, string objName = "Sprite")
+        public static UISprite CreateSprite(this UIObject obj, Sprite sprite, string objName = "Sprite")
         {
-            return new UISprite(view, sprite).SetName(objName);
+            return new UISprite(obj, sprite).SetName(objName);
         }
     }
 
     public class UISprite : UIObject
     {
-        public override float Width { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.x * Transform.lossyScale.x; } }
-        public override float Height { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.y * Transform.lossyScale.y; } }
+        public override float PureWidth { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.x; } }
+        public override float PureHeight { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.y; } }
 
-        public UISprite(BaseView view, Sprite sprite) : base(view)
+        public UISprite(UIObject view, Sprite sprite) : base(view)
         {
             ((SpriteRenderer)Renderer).sprite = sprite;
         }

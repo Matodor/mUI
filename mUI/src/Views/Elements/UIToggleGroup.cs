@@ -8,23 +8,23 @@ namespace mUIApp.Views.Elements
 {
     public static class UIToggleGroupHelper
     {
-        public static UIToggleGroup CreateToggleGroup(this BaseView view, string objName = "ToggleGroup")
+        public static UIToggleGroup CreateToggleGroup(this UIObject obj, string objName = "ToggleGroup")
         {
-            return new UIToggleGroup(view).SetName(objName);
+            return new UIToggleGroup(obj).SetName(objName);
         }
     }
 
     public class UIToggleGroup : UIObject
     {
-        public override float Width { get { return 0; } }
-        public override float Height { get { return 0; } }
+        public override float PureWidth { get { return 0; } }
+        public override float PureHeight { get { return 0; } }
 
         public event Action<UIToggle, UIToggle> OnChangeActiveToogle;
 
         private readonly List<UIToggle> _toggles;
         private UIToggle _currenToggle;
 
-        public UIToggleGroup(BaseView view) : base(view)
+        public UIToggleGroup(UIObject obj) : base(obj)
         {
             _toggles = new List<UIToggle>();
             _currenToggle = null;
@@ -40,7 +40,7 @@ namespace mUIApp.Views.Elements
 
         public UIToggle AddToggle(Sprite disabled, Sprite hoverSprite = null, Sprite enabled = null)
         {
-            var toggle = new UIToggle(ParentView, disabled, hoverSprite, enabled)
+            var toggle = new UIToggle(Parent, disabled, hoverSprite, enabled)
                 .SetName("Toggle [" + _toggles.Count + "]")
                 .Enable(OnEnableToggle)
                 .Disable(OnDisableToggle);

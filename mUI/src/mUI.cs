@@ -25,7 +25,7 @@ namespace mUIApp
         private static readonly mUIEngine _engineInstance;
         private static readonly GameObject _engineGameObject;
         private static readonly GameObject _uiViewsGameObject;
-        private static readonly List<View> _uiViews;
+        //private static readonly List<View> _uiViews;
         private static readonly Dictionary<string, mUIFont> _uiFonts; 
 
         static mUI()
@@ -37,7 +37,6 @@ namespace mUIApp
 
                 _engineInstance = _engineGameObject.AddComponent<mUIEngine>();
                 _uiViewsGameObject.transform.parent = _engineGameObject.transform;
-                _uiViews = new List<View>();
                 _uiFonts = new Dictionary<string, mUIFont>();
 
                 UICamera = new mUICamera(ViewsGameObject);
@@ -57,9 +56,7 @@ namespace mUIApp
 
         public static void Tick()
         {
-            for (int i = _uiViews.Count - 1; i >= 0; i--)
-                _uiViews[i].Tick();
-            OnTick?.Invoke();
+            OnTick();
         }
 
         public static mUIFont GetFont(string name)
@@ -86,31 +83,15 @@ namespace mUIApp
 
         public static void FixedTick()
         {
-            OnFixedTick?.Invoke();
+            OnFixedTick();
         }
         
         private static void Init()
         {
+            OnTick += () => { };
+            OnFixedTick += () => { };
             DefaultFont = DefaultFontName;
             Sprites = new mUIDefaultSpriteRepository();
-        }
-
-        public static bool RemoveView(View view)
-        {
-            return _uiViews.Remove(view);
-        }
-
-        public static T CreateView<T>(string viewName = "view", object data = null) where T : View, new()
-        {
-            var view = new T();
-            ViewHelper.InitViewCallback(view, _uiViewsGameObject.transform);
-            view.GameObject.name = viewName;
-            view.ParentView = null;
-            view.SetHeight(UICamera.Height);
-            view.SetWidth(UICamera.Width);
-            view.Create(data);
-            _uiViews.Add(view);
-            return view;    
         }
 
         public static void Log(string format, params object[] obj)

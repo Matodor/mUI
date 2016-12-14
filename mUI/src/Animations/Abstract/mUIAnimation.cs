@@ -80,7 +80,7 @@ namespace mUIApp.Animations
         public mUIAnimationPlayType PlayType { get; set; }
         public mUIAnimationState State { get; set; }
         public mUIEasingType EasingType { get; set; }
-        public UIGameObject UIGameObject { get { return _uiGameObject; } }
+        public UIObject UIObject { get { return _uiObject; } }
         public bool DestroyOnEnd { get; set; }
 
         public event Action<mUIAnimation> OnEndAnimationEvent;
@@ -89,7 +89,7 @@ namespace mUIApp.Animations
         protected abstract void OnAnimation();
         protected abstract void OnEndAnimation();
 
-        private readonly UIGameObject _uiGameObject;
+        private readonly UIObject _uiObject;
         private float _animationStart;
         private float _animationTime;
         private float _animationEasingTime;
@@ -100,7 +100,7 @@ namespace mUIApp.Animations
             //mUI.Log("Destroy animation: {0}", ToString());
         }
 
-        protected mUIAnimation(UIGameObject uiGameObject)
+        protected mUIAnimation(UIObject obj)
         {
             DestroyOnEnd = false;
             Duration = 1;
@@ -110,8 +110,9 @@ namespace mUIApp.Animations
 
             _animationTime = 0;
             _animationEasingTime = 0;
-            _uiGameObject = uiGameObject;
-            _uiGameObject.Animations.Add(this);
+            _uiObject = obj;
+            _uiObject.AddAnimation(this);
+            _uiObject.OnTick += Tick;
             _animationDir = mUIAnimationDir.FORWARD;
         }
 
@@ -125,7 +126,7 @@ namespace mUIApp.Animations
             _animationTime = mUI.Сlamp(time, 0, 1);
         }
 
-        public void Tick()
+        private void Tick(UIObject obj)
         {
             if (State == mUIAnimationState.STOPPED || Time.time < _animationStart)
                 return;
@@ -158,9 +159,7 @@ namespace mUIApp.Animations
 
                     if (DestroyOnEnd)
                     {
-                        _uiGameObject.Destroy();
-                        for (int i = 0; i < _uiGameObject.Animations.Count; i++)
-                            _uiGameObject.Animations[i].Remove();
+                        _uiObject.Destroy();
                     }
                 }
             }
@@ -170,7 +169,8 @@ namespace mUIApp.Animations
         {
             //mUI.Log("Remove animation: " + ToString());
             State = mUIAnimationState.STOPPED;
-            _uiGameObject.Animations.Remove(this);
+            _uiObject.RemoveAnimation(this);
+            _uiObject.OnTick -= Tick;
         }
     }
 }

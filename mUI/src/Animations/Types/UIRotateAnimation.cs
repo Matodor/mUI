@@ -6,7 +6,7 @@ namespace mUIApp.Animations
 {
     public static class UIRotateAnimationHelper
     {
-        public static UIRotateAnimation RotateAnimation<T>(this T obj, float fromAngle, float endAngle) where T : UIGameObject
+        public static UIRotateAnimation RotateAnimation<T>(this T obj, float fromAngle, float endAngle) where T : UIObject
         {
             return new UIRotateAnimation(fromAngle, endAngle, obj);
         }
@@ -16,7 +16,7 @@ namespace mUIApp.Animations
     {
         private readonly float _fromAngle, _endAngle;
 
-        public UIRotateAnimation(float fromAngle, float endAngle, UIGameObject uiGameObject) : base(uiGameObject)
+        public UIRotateAnimation(float fromAngle, float endAngle, UIObject uiGameObject) : base(uiGameObject)
         {
             _fromAngle = fromAngle;
             _endAngle = endAngle;
@@ -25,9 +25,9 @@ namespace mUIApp.Animations
         protected override void OnAnimation()
         {
             float newAngle = mUIBezierHelper.Linear(CurrentEasingTime, _fromAngle, _endAngle);
-            UIGameObject.Transform.eulerAngles = new Vector3(
-                UIGameObject.Transform.eulerAngles.x,
-                UIGameObject.Transform.eulerAngles.y,
+            UIObject.Transform.eulerAngles = new Vector3(
+                UIObject.Transform.eulerAngles.x,
+                UIObject.Transform.eulerAngles.y,
                 newAngle
             );
         }
