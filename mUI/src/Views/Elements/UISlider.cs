@@ -18,14 +18,14 @@ namespace mUIApp.Views.Elements
     {
         public static UISlider CreateSlider(this UIObject obj, string objName = "Slider", UISliderType type = UISliderType.VERTICAL)
         {
-            var sliderView = obj.CreateView<UISliderView>(obj);
+            var sliderView = obj.CreateView<UISliderView>();
             return new UISlider(sliderView, type).SetName("SliderController");
         }
     }
 
     public class UISliderView : UIView
     {
-        public UISliderView(UIObject parent) : base(parent)
+        public UISliderView(UIObject parent, params object[] param) : base(parent)
         {
         }
     }
@@ -171,6 +171,7 @@ namespace mUIApp.Views.Elements
         public T CreateChild<T>(float height, float width, float spacing = 0, params object[] param) where T : UIView
         {
             var newView = (T)Activator.CreateInstance(typeof(T), Parent, param);
+
             newView.SetHeight(height);
             newView.SetWidth(width);
 

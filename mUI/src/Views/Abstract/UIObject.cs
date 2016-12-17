@@ -73,6 +73,7 @@ namespace mUIApp
 
         protected UIObject(UIObject parent, UIRendererType type = UIRendererType.SPRITE_RENDERER)
         {
+            _active = true;
             _animations = new List<mUIAnimation>();
             _childsObjects = new List<UIObject>();
 
@@ -126,34 +127,20 @@ namespace mUIApp
             OnRotateEvent?.Invoke(this, Transform.eulerAngles);
         }
 
-        public void RemoveAnimation(mUIAnimation anim)
-        {
-            _animations.Remove(anim);
-        }
-
-        public void AddAnimation(mUIAnimation anim)
-        {
-            _animations.Add(anim);
-        }
-
-        public void AddChild(UIObject child)
-        {
-            _childsObjects.Add(child);            
-        }
-
         public void Destroy()
         {
             // destroy animations
+            OnDestroy?.Invoke(this);
         }
 
         private void FixedTick()
         {
-
+            OnFixedTick?.Invoke(this);
         }
 
         private void Tick()
         {
-            
+            OnTick?.Invoke(this);
         }
     }
 }

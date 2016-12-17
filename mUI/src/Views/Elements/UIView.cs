@@ -32,11 +32,11 @@ namespace mUIApp.Views
         public event Action<UIView, float> OnChangeWidth;
 
         private float _viewHeight;
-        private float _viewWidth;
+        private float _viewWidth;  
 
-        public static T Create<T>(params object[] param) where T : UIView, new()
+        public static T Create<T>(params object[] param) where T : UIView
         {
-            var newView = (T)Activator.CreateInstance(typeof(T), null, param);
+            var newView = (T)Activator.CreateInstance(typeof(T), new object[] { null, param });
             newView.Create();
             return newView;
         }
