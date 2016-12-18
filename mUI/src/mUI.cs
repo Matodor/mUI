@@ -12,6 +12,7 @@ namespace mUIApp
         public static bool Debug { get; set; }
         public static ISpriteRepository Sprites { get; set; }
         public static IInputBase UIInput { get { return _engineInstance.UIInput; } }
+        public static IKeyStorage KeyStorage { get; set; }
         public static GameObject GameObject { get { return _engineGameObject; } }
         public static GameObject ViewsGameObject { get { return _uiViewsGameObject; } }
         public static mUICamera UICamera { get; }
@@ -41,7 +42,7 @@ namespace mUIApp
 
                 UICamera = new mUICamera(ViewsGameObject);
                 Init();
-            }
+            } 
         }
 
         public static ActionRepeat ActionRepeat(float repeatTime, Action<object> action, object data = null)
@@ -91,6 +92,7 @@ namespace mUIApp
             OnTick += () => { };
             OnFixedTick += () => { };
             DefaultFont = DefaultFontName;
+            KeyStorage = new mUIKeyStorage();
             Sprites = new mUIDefaultSpriteRepository();
         }
 

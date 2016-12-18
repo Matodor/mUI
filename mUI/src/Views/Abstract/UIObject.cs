@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using mUIApp.Animations;
+using mUIApp.Views;
 using UnityEngine;
 
 namespace mUIApp
@@ -20,8 +21,9 @@ namespace mUIApp
 
         public float Width { get { return PureWidth*Transform.lossyScale.x; } }
         public float Height { get { return PureHeight*Transform.lossyScale.y; } }
+
         public float Top { get { return Transform.position.y + Height/2; } }
-        public float Bottom { get { return Transform.position.y + Height/2; } }
+        public float Bottom { get { return Transform.position.y - Height/2; } }
         public float Left { get { return Transform.position.x - Width/2; } }
         public float Right { get { return Transform.position.x + Width/2; } }
 
@@ -29,18 +31,8 @@ namespace mUIApp
         public GameObject GameObject { get; }
         public Transform Transform { get; }
         public Renderer Renderer { get; set; }
-
-        public int SortingOrder
-        {
-            get
-            {
-                return _sortingOrder;
-            }
-            set
-            {
-                _sortingOrder = value;
-            }
-        }
+        public List<mUIAnimation> Animations { get; }
+        public List<UIObject> Childs { get; }
 
         public bool Active
         {
@@ -66,16 +58,13 @@ namespace mUIApp
         public event Action<UIObject> OnDestroy;
         /************************************************/
         
-        private bool _active;
-        private int _sortingOrder;
-        private readonly List<UIObject> _childsObjects;
-        private readonly List<mUIAnimation> _animations; 
-
+        private bool _active; 
+        
         protected UIObject(UIObject parent, UIRendererType type = UIRendererType.SPRITE_RENDERER)
         {
             _active = true;
-            _animations = new List<mUIAnimation>();
-            _childsObjects = new List<UIObject>();
+            Animations = new List<mUIAnimation>();
+            Childs = new List<UIObject>();
 
             GameObject = new GameObject("UIObject");
             Transform = GameObject.transform;
@@ -84,12 +73,10 @@ namespace mUIApp
                 Renderer = GameObject.AddComponent<SpriteRenderer>();
             else
                 Renderer = GameObject.AddComponent<MeshRenderer>();
-
+             
             if (parent != null)
             {
-                Parent = parent;
-                Transform.parent = parent.Transform;
-                Transform.localPosition = Vector3.zero;
+                ChangeParent(parent);
             }
             else
             {
@@ -97,9 +84,24 @@ namespace mUIApp
                 Transform.parent = mUI.ViewsGameObject.transform;
                 Transform.localPosition = Vector3.zero;
             }
-
+             
             mUI.OnTick += Tick;
             mUI.OnFixedTick += FixedTick;
+        }
+
+        ~UIObject()
+        {
+            mUI.Log("Destroy: {0}", ToString());
+        }
+
+        public void ChangeParent(UIObject newParent)
+        {
+            Parent?.Childs.Remove(this);
+            Parent = newParent;
+            Parent.Childs.Add(this);
+            Transform.parent = Parent.Transform;
+            Transform.localPosition = Vector3.zero;
+            this.SortingOrder(1);
         }
 
         public void Position(float x, float y, float z)
@@ -109,7 +111,7 @@ namespace mUIApp
             OnSetPositionEvent?.Invoke(this, pos);
         }
 
-        public void Translate(float x, float y, float z, Space space = Space.World)
+        public void Translate(float x, float y, float z, Space space)
         {
             Transform.Translate(x, y, z, space);
             OnTranslateEvent?.Invoke(this, new Vector3(x, y, z));
@@ -129,8 +131,20 @@ namespace mUIApp
 
         public void Destroy()
         {
-            // destroy animations
+            mUI.OnTick -= Tick;
+            mUI.OnFixedTick -= FixedTick;
+
+            Parent?.Childs.Remove(this);
+            Parent = null;
+
+            for (int i = Animations.Count - 1; i >= 0; i--)
+                Animations[i].Remove();
+
+            for (int i = Childs.Count - 1; i >= 0; i--)
+                Childs[i].Destroy();
+
             OnDestroy?.Invoke(this);
+            UnityEngine.Object.Destroy(GameObject);
         }
 
         private void FixedTick()

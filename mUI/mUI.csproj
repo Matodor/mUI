@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="src\Abstract\IInputBase.cs" />
     <Compile Include="src\Abstract\IInputGetEvents.cs" />
+    <Compile Include="src\Abstract\IKeyStorage.cs" />
     <Compile Include="src\Animations\Abstract\mUIAnimation.cs" />
     <Compile Include="src\Animations\Types\UIColorAnimation.cs" />
     <Compile Include="src\Animations\Types\UILinearAnimation.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="src\Animations\Types\UIScaleAnimation.cs" />
     <Compile Include="src\Concrete\mUIDesktopGetEvents.cs" />
     <Compile Include="src\Concrete\mUIInputDefault.cs" />
+    <Compile Include="src\Concrete\mUIKeyStorage.cs" />
     <Compile Include="src\Concrete\mUIMobileGetEvents.cs" />
     <Compile Include="src\Other\AES.cs" />
     <Compile Include="src\Other\mUIBezierHelper.cs" />

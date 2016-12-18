@@ -1,4 +1,4 @@
-﻿//#define UNITY_EDITOR
+﻿#define UNITY_EDITOR
 
 using System;
 using System.Collections.Generic;
@@ -115,7 +115,6 @@ namespace mUIApp.Views.Elements
             _cachedFont = mUI.GetFont(fontName);
             _cachedText = text;
             _meshRenderer = (MeshRenderer) Renderer;
-            _meshRenderer.sortingOrder = view.SortingOrder;
             _meshFilter = GameObject.AddComponent<MeshFilter>();
             _textPropertyBlock = new MaterialPropertyBlock();
              

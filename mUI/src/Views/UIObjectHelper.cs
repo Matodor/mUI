@@ -21,10 +21,9 @@ namespace mUIApp.Views
             return obj.SetParent(parent.Transform);
         }*/
 
-        public static T SetParent<T>(this T obj, Transform parent) where T : UIObject
+        public static T SetParent<T>(this T obj, UIObject parent) where T : UIObject
         {
-            obj.Transform.parent = parent;
-            obj.Transform.localPosition = Vector3.zero;
+            obj.ChangeParent(parent);
             return obj;
         }
 
@@ -101,7 +100,7 @@ namespace mUIApp.Views
 
         public static T SortingOrder<T>(this T obj, int sortingOrder) where T : UIObject
         {
-            obj.Renderer.sortingOrder = obj.Parent.SortingOrder + sortingOrder;
+            obj.Renderer.sortingOrder = obj.Parent.Renderer.sortingOrder + sortingOrder;
             return obj;
         }
 

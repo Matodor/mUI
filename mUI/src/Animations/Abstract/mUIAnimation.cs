@@ -112,6 +112,7 @@ namespace mUIApp.Animations
             _animationEasingTime = 0;
             _uiObject = obj;
             _uiObject.OnTick += Tick;
+            _uiObject.Animations.Add(this);
             _animationDir = mUIAnimationDir.FORWARD;
         }
 
@@ -169,6 +170,7 @@ namespace mUIApp.Animations
             //mUI.Log("Remove animation: " + ToString());
             State = mUIAnimationState.STOPPED;
             _uiObject.OnTick -= Tick;
+            _uiObject.Animations.Remove(this);
         }
     }
 }
