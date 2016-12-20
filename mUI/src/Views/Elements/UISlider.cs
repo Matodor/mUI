@@ -40,7 +40,9 @@ namespace mUIApp.Views.Elements
         private Vector2 _startDragPos;
         private Vector2 _lastDragPos;
         private Vector2 _lastDragDIff;
+        private Vector2 _lastDragPath;
         private bool _sliderIsPressed;
+        private bool _canPressButtons;
         private float _pressClickTime;
 
         public UISlider(UIView obj, UISliderType type) : base(obj)
@@ -48,7 +50,9 @@ namespace mUIApp.Views.Elements
             _sliderType = type;
             _childs = new List<UIView>();
             _sliderIsPressed = false;
+            _canPressButtons = true;
 
+            IgnoreSortingOrder = true;
             OnTick += SliderTick;
             OnUIMouseUpEvent += OnMouseUpEvent;
             OnUIMouseDragEvent += OnMouseDragEvent;
@@ -69,6 +73,11 @@ namespace mUIApp.Views.Elements
                 _lastDragDIff *= 0.95f;
             }
         }
+
+        public bool CanPressButtons()
+        {
+            return _canPressButtons;
+        } 
 
         private void OnMouseUpEvent(UIObject sender, mUIMouseEvent mouseEvent)
         {
@@ -95,8 +104,13 @@ namespace mUIApp.Views.Elements
 
             _lastDragDIff = diffPos;
             _lastDragPos = currentPos;
+            _lastDragPath += diffPos;
 
-            //mUI.Log("diffPos: {0}", diffPos);
+            if (_canPressButtons && (Math.Abs(_lastDragPath.x) > 0.05 || Math.Abs(_lastDragPath.y) > 0.05))
+            {
+                mUI.Log("!!!!!!!_canPressButtons!!!!!");
+                _canPressButtons = false;
+            }
         }
 
         private void OnMouseDownEvent(UIObject sender, mUIMouseEvent mouseEvent)
@@ -107,6 +121,8 @@ namespace mUIApp.Views.Elements
             if (mUI.Debug)
                 DrawDebug();
 
+            _canPressButtons = true;
+            _lastDragPath = Vector2.zero;
             _sliderIsPressed = true;
             _startDragPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
             _lastDragPos = _startDragPos;
@@ -168,12 +184,27 @@ namespace mUIApp.Views.Elements
             }
         }
 
+        private void SliderInject(UIObject uiObject)
+        {
+            foreach (var child in uiObject.Childs)
+            {
+                var obj = child as UIClickableObj;
+                if (obj != null)
+                {
+                    var tmp = obj.CanClick;
+                    obj.CanClick = (v) => tmp(v) && Active && InArea(v) && CanPressButtons();
+                }
+                SliderInject(child);
+            } 
+        }
+
         public T CreateChild<T>(float height, float width, float spacing = 0, params object[] param) where T : UIView
         {
             var newView = (T)Activator.CreateInstance(typeof(T), Parent, param);
 
             newView.SetHeight(height);
             newView.SetWidth(width);
+            SliderInject(newView);
 
             if (_childs.Count == 0)
                 newView.Position(Parent.GetPos().x, Parent.Top - height/2);
@@ -184,7 +215,7 @@ namespace mUIApp.Views.Elements
             return newView;
         }
 
-        protected override bool InArea(Vector2 screenPos)
+        public override bool InArea(Vector2 screenPos)
         {
             return AreaChecker.InArea(Parent.Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
                 new Bounds(new Vector3(0, 0), new Vector3(Parent.Width, Parent.Height)));

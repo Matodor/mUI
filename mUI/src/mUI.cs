@@ -98,7 +98,8 @@ namespace mUIApp
 
         public static void Log(string format, params object[] obj)
         {
-            UnityEngine.Debug.Log(string.Format(format, obj));
+            if (Debug)
+                UnityEngine.Debug.Log(string.Format(format, obj));
         }
 
         public static void Log(object obj)

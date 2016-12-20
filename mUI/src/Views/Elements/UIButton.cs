@@ -75,17 +75,14 @@ namespace mUIApp.Views.Elements
             return this;
         }
 
-        protected override bool InArea(Vector2 screenPos)
+        public override bool InArea(Vector2 screenPos)
         {
             return AreaChecker.InArea(Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
                    ((SpriteRenderer)Renderer).sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
         }
-
+        
         private void OnButtonDown(UIObject sender, mUIMouseEvent mouseEvent)
         {
-            if (!Active)
-                return;
-
             _uiButtonState = UIButtonState.HOVER;
             UpdateSprite();
 
@@ -95,23 +92,20 @@ namespace mUIApp.Views.Elements
 
         private void OnButtonUp(UIObject sender, mUIMouseEvent mouseEvent)
         {
-            if (!Active)
-                return;
-
             if (_uiButtonState != UIButtonState.HOVER)
                 return;
 
             _uiButtonState = UIButtonState.ACTIVE;
             UpdateSprite();
 
-            if (InArea(mouseEvent.MouseScreenPos))
+            if (CanClick(mouseEvent.MouseScreenPos))
             {
                 if (_uiClickCondition == UIClickCondition.BUTTON_UP || _uiClickCondition == UIClickCondition.BUTTON_PRESSED)
                     Click();
             }
         }
 
-        private void Click()
+        public void Click()
         {
             _lastClickTime = Time.time;
             _onButtonClick?.Invoke(this, _onButtonClickArgs);

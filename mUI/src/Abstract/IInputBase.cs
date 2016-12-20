@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using mUIApp.Views.Elements;
 using UnityEngine;
 
 namespace mUIApp.Input
@@ -14,6 +15,7 @@ namespace mUIApp.Input
         event Action<mUIKeyboardEvent> OnKeyUpEvent;
         event Action<mUIKeyboardEvent> OnKeyDownEvent;
 
+        UIClickableObjList UIClickableObjList { get; }
         void ParseEvent(mUIEvent @event);
         void OnGUI();
         void Update();

@@ -89,6 +89,8 @@ namespace mUIApp.Views.Elements
     public abstract class UIClickableObj : UIObject
     {
         public UIClickable AreaChecker { get; set; }
+        public bool IgnoreSortingOrder { get; set; } = false;
+        public Func<Vector2, bool> CanClick { get; set; }
 
         public event Action<UIObject, mUIMouseEvent> OnUIMouseDownEvent;
         public event Action<UIObject, mUIMouseEvent> OnUIMouseUpEvent;
@@ -96,39 +98,36 @@ namespace mUIApp.Views.Elements
 
         protected UIClickableObj(UIObject obj) : base(obj)
         {
-            mUI.UIInput.OnMouseDownEvent += OnUIMouseDown;
-            mUI.UIInput.OnMouseUpEvent += OnUIMouseUp;
-            mUI.UIInput.OnMouseDragEvent += OnUIMouseDrag;
+            mUI.UIInput.UIClickableObjList.Add(this);
+            OnDestroy += DestroyClickable;
+            CanClick = (v) => Active && InArea(v);
         }
 
+        private void DestroyClickable(UIObject uiObject)
+        {
+            mUI.UIInput.UIClickableObjList.Remove(this);
+        }
+         
         ~UIClickableObj()
         {
-            mUI.UIInput.OnMouseDownEvent -= OnUIMouseDown;
-            mUI.UIInput.OnMouseUpEvent -= OnUIMouseUp;
-            mUI.UIInput.OnMouseDragEvent -= OnUIMouseDrag;
+            mUI.UIInput.UIClickableObjList.Remove(this);
         }
 
-        protected abstract bool InArea(Vector2 screenPos);
+        public abstract bool InArea(Vector2 screenPos);
 
-        private void OnUIMouseDown(mUIMouseEvent mouseEvent)
+        public void OnUIMouseDown(mUIMouseEvent mouseEvent)
         {
-            if (InArea(mouseEvent.MouseScreenPos))
-            {
-                OnUIMouseDownEvent?.Invoke(this, mouseEvent);
-            }
+            OnUIMouseDownEvent?.Invoke(this, mouseEvent);
         }
 
-        private void OnUIMouseUp(mUIMouseEvent mouseEvent)
+        public void OnUIMouseUp(mUIMouseEvent mouseEvent)
         {
             OnUIMouseUpEvent?.Invoke(this, mouseEvent);
         }
 
-        private void OnUIMouseDrag(mUIMouseEvent mouseEvent)
+        public void OnUIMouseDrag(mUIMouseEvent mouseEvent)
         {
-            if (InArea(mouseEvent.MouseScreenPos))
-            {
-                OnUIMouseDragEvent?.Invoke(this, mouseEvent);
-            }
+            OnUIMouseDragEvent?.Invoke(this, mouseEvent);
         }
     }
 }

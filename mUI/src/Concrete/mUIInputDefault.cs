@@ -1,8 +1,42 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using mUIApp.Views.Elements;
 using UnityEngine;
 
 namespace mUIApp.Input
 {
+    public class UIClickableObjList
+    {
+        private readonly List<UIClickableObj> _list;
+
+        public UIClickableObjList()
+        {
+            _list = new List<UIClickableObj>();
+        }
+
+        public void Add(UIClickableObj obj)
+        {
+            _list.Add(obj);
+        }
+
+        public bool Remove(UIClickableObj obj)
+        {
+            return _list.Remove(obj);
+        }
+
+        public IEnumerable<UIClickableObj> GetAll()
+        {
+            return _list.AsEnumerable();
+        }
+
+        public IEnumerable<UIClickableObj> Get(Func<UIClickableObj, bool> predicat)
+        {
+            return _list.Where(predicat);
+        } 
+    }
+
     public class mUIInputDefault : IInputBase
     {
         public event Action<mUIMouseEvent> OnMouseDownEvent;
@@ -11,11 +45,15 @@ namespace mUIApp.Input
         public event Action<mUIKeyboardEvent> OnKeyUpEvent;
         public event Action<mUIKeyboardEvent> OnKeyDownEvent;
 
+        public UIClickableObjList UIClickableObjList { get; }
+
         private IInputGetEvents _getEventsController;
         private Action<IInputBase> _onGUI, _onUpdate;
 
         public mUIInputDefault()
         {
+            UIClickableObjList = new UIClickableObjList();
+
             OnMouseDownEvent = i => { };
             OnMouseUpEvent = i => { };
             OnMouseDragEvent = i => { };
@@ -56,14 +94,52 @@ namespace mUIApp.Input
                     case mUIMouseEventType.NONE:
                         break;
                     case mUIMouseEventType.MouseDown:
+                    {
+                        UIClickableObj current = null;
+                        foreach (var clickable in UIClickableObjList.Get(obj => obj.CanClick(mouseEvent.MouseScreenPos)))
+                        {
+                            if (clickable.IgnoreSortingOrder)
+                                clickable.OnUIMouseDown(mouseEvent);
+                            else
+                            {
+                                if (current == null)
+                                    current = clickable;
+                                else
+                                {
+                                    if (!clickable.IgnoreSortingOrder && current.Renderer.sortingOrder < clickable.Renderer.sortingOrder)
+                                        current = clickable;
+                                } 
+                            }
+                        }
+                        current?.OnUIMouseDown(mouseEvent);
                         OnMouseDownEvent(mouseEvent);
-                        break;
+                    } break;
                     case mUIMouseEventType.MouseUp:
+                        foreach (var clickable in UIClickableObjList.GetAll())
+                            clickable.OnUIMouseUp(mouseEvent);
                         OnMouseUpEvent(mouseEvent);
                         break;
                     case mUIMouseEventType.MouseDrag:
+                    {
+                        UIClickableObj current = null;
+                        foreach (var clickable in UIClickableObjList.Get(obj => obj.CanClick(mouseEvent.MouseScreenPos)))
+                        {
+                            if (clickable.IgnoreSortingOrder)
+                                clickable.OnUIMouseDrag(mouseEvent);
+                            else
+                            {
+                                if (current == null)
+                                    current = clickable;
+                                else
+                                {
+                                    if (!clickable.IgnoreSortingOrder && current.Renderer.sortingOrder < clickable.Renderer.sortingOrder)
+                                        current = clickable;
+                                }
+                            }
+                        }
+                        current?.OnUIMouseDrag(mouseEvent);
                         OnMouseDragEvent(mouseEvent);
-                        break;
+                    } break;
                     case mUIMouseEventType.ScrollWheel:
                         break;
                 }

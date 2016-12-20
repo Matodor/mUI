@@ -38,7 +38,7 @@ namespace mUIApp
         {
             get
             {
-                return _active;
+                return _active && GameObject.activeInHierarchy;
             }
             set
             {
