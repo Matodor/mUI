@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace mUIApp.Views.Elements
 {
-    public static class UISpriteHelper
+    public static partial class UIElementsHelper
     {
         public static UISprite CreateSprite(this UIObject obj, Sprite sprite, string objName = "Sprite")
         {

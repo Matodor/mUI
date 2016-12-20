@@ -71,6 +71,7 @@
     <Compile Include="src\Views\Abstract\UIClickableObj.cs" />
     <Compile Include="src\Views\Elements\UIButton.cs" />
     <Compile Include="src\Views\Elements\UILabel.cs" />
+    <Compile Include="src\Views\Elements\UIScrollBar.cs" />
     <Compile Include="src\Views\Elements\UISlider.cs" />
     <Compile Include="src\Views\Elements\UIToggle.cs" />
     <Compile Include="src\Views\Elements\UIToggleGroup.cs" />

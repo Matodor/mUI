@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using mUIApp.Input;
 using mUIApp.Other;
@@ -43,6 +44,16 @@ namespace mUIApp
                 UICamera = new mUICamera(ViewsGameObject);
                 Init();
             } 
+        }
+
+        public static Coroutine StartCoroutine(IEnumerator routine)
+        {
+            return _engineInstance.StartCoroutine(routine);
+        }
+
+        public static ActionThread ActionThread(Action action)
+        {
+            return new ActionThread(action);
         }
 
         public static ActionRepeat ActionRepeat(float repeatTime, Action<object> action, object data = null)

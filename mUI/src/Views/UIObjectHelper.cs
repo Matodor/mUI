@@ -14,7 +14,7 @@ namespace mUIApp.Views
         SET_Z = 0x2,
     }
 
-    public static class UIObjectHelper
+    public static partial class UIElementsHelper
     {
         /*public static T SetParent<T>(this T obj, UIObject parent) where T : UIObject
         {

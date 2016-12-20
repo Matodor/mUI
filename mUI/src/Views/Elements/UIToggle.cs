@@ -12,7 +12,7 @@ namespace mUIApp.Views.Elements
         ENABLED
     }
 
-    public static class UIToggleHelper
+    public static partial class UIElementsHelper
     {
         public static UIToggle CreateToggle(this UIObject obj, Sprite disabled, Sprite hoverSprite = null,
             Sprite enabled = null, string objName = "Toggle")

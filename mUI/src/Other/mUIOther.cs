@@ -2,10 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 
 namespace mUIApp.Other
 {
+    public class ActionThread
+    {
+        public event Action OnFinished;
+
+        private readonly Action _action;
+
+        public ActionThread(Action action)
+        {
+            _action = action;
+            var thread = new Thread(Run);
+            thread.Start();
+        }
+
+        ~ActionThread()
+        {
+            mUI.Log("Destroy ActionThread");
+        }
+
+        private void Run()
+        {
+            _action();
+
+            OnFinished?.Invoke();
+        }
+    }
+
     public class ActionRepeat
     {
         private readonly Action<object> _action;

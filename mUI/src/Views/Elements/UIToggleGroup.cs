@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace mUIApp.Views.Elements
 {
-    public static class UIToggleGroupHelper
+    public static partial class UIElementsHelper
     {
         public static UIToggleGroup CreateToggleGroup(this UIObject obj, string objName = "ToggleGroup")
         {

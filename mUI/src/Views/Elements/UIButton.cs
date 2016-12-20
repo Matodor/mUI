@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace mUIApp.Views.Elements
 {
-    public static class UIButtonHelper
+    public static partial class UIElementsHelper
     {
         public static UIButton CreateButton(this UIObject obj, Sprite sprite, string objName = "Button")
         {

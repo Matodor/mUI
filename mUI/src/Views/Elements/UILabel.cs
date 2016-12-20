@@ -14,16 +14,16 @@ using UnityEngine;
 
 namespace mUIApp.Views.Elements
 {
-    public static class UILabelHelper
+    public static partial class UIElementsHelper
     {
         public static UILabel CreateLabel(this UIObject view, string text)
         {
             return CreateLabel(view, text, mUI.DefaultFont, 45).SetName(text);
         }
 
-        private static UILabel CreateLabel(UIObject view, string text, string fontName, float textSize)
+        private static UILabel CreateLabel(UIObject view, string text, string fontName, int textSize)
         {
-            return new UILabel(view, text, fontName);
+            return new UILabel(view, text, fontName).Size(textSize);
         }
 
         public static UILabel TextAlignment(this UILabel obj, TextAlignment alignment)

@@ -79,7 +79,7 @@ namespace mUIApp
                 ChangeParent(parent);
             }
             else
-            {
+            { 
                 Parent = null;
                 Transform.parent = mUI.ViewsGameObject.transform;
                 Transform.localPosition = Vector3.zero;
@@ -92,6 +92,18 @@ namespace mUIApp
         ~UIObject()
         {
             mUI.Log("Destroy: {0}", ToString());
+        }
+
+        public void Show()
+        {
+            GameObject.SetActive(true);
+            Active = true;
+        }
+
+        public void Hide()
+        {
+            GameObject.SetActive(false);
+            Active = false;
         }
 
         public void ChangeParent(UIObject newParent)

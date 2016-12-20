@@ -14,9 +14,9 @@ namespace mUIApp.Views.Elements
         VERTICAL = 1,
     }
 
-    public static class UISliderHelper
+    public static partial class UIElementsHelper
     {
-        public static UISlider CreateSlider(this UIObject obj, string objName = "Slider", UISliderType type = UISliderType.VERTICAL)
+        public static UISlider CreateSlider(this UIObject obj, UISliderType type = UISliderType.VERTICAL, string objName = "Slider")
         {
             var sliderView = obj.CreateView<UISliderView>();
             return new UISlider(sliderView, type).SetName("SliderController");
@@ -69,8 +69,11 @@ namespace mUIApp.Views.Elements
 
             if (!_sliderIsPressed)
             {
-                Move(_lastDragDIff);
-                _lastDragDIff *= 0.95f;
+                if (Math.Abs(_lastDragDIff.x) > 0.001 || Math.Abs(_lastDragDIff.y) > 0.001)
+                {
+                    Move(_lastDragDIff);
+                    _lastDragDIff *= 0.95f;
+                }
             }
         }
 
@@ -108,7 +111,6 @@ namespace mUIApp.Views.Elements
 
             if (_canPressButtons && (Math.Abs(_lastDragPath.x) > 0.05 || Math.Abs(_lastDragPath.y) > 0.05))
             {
-                mUI.Log("!!!!!!!_canPressButtons!!!!!");
                 _canPressButtons = false;
             }
         }

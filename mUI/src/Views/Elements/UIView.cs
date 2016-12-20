@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace mUIApp.Views
 {
-    public static class UIViewHelper
+    public static partial class UIElementsHelper
     {
         public static T CreateView<T>(this UIObject view, params object[] param) where T : UIView
         {
