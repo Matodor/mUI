@@ -19,6 +19,7 @@ namespace mUIApp
         {
             _dictionary = new Dictionary<string, string>();
 
+            mUI.Log("mUIKeyStorage try load");
             if (PlayerPrefs.HasKey(_loadKey))
             {
                 Load();
@@ -33,7 +34,7 @@ namespace mUIApp
             mUI.Log("mUIKeyStorage load decompressed: {0}", decompressed);
 
             using (TextReader reader = new StringReader(decompressed))
-            {
+            { 
                 string line = "";
                 string currentKey = "";
                 bool key = true;
@@ -66,6 +67,7 @@ namespace mUIApp
 
             var toSave = Convert.ToBase64String(Zip(db));
             PlayerPrefs.SetString(_loadKey, toSave);
+            PlayerPrefs.Save();
             mUI.Log("mUIKeyStorage: {0}", db);
             mUI.Log("mUIKeyStorage compressed: {0}", toSave);
         }

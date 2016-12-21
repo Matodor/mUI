@@ -91,7 +91,7 @@ namespace mUIApp
 
         ~UIObject()
         {
-            mUI.Log("Destroy: {0}", ToString());
+            //mUI.Log("Destroy: {0}", ToString());
         }
 
         public void Show()

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using mUIApp.Input;
 using mUIApp.Other;
 using mUIApp.Views;
@@ -34,6 +36,9 @@ namespace mUIApp
         {
             if (_engineInstance == null)
             {
+                Debug = true;
+                InejctEditor();
+
                 _engineGameObject = new GameObject("mUI");
                 _uiViewsGameObject = new GameObject("Views");
 
@@ -46,6 +51,20 @@ namespace mUIApp
             } 
         }
 
+        private static void InejctEditor()
+        {
+            var unityEditor = AppDomain.CurrentDomain.GetAssemblies()
+                .FirstOrDefault(assembly => assembly.GetName().Name == "UnityEditor");
+            Log("InejctEditor: {0}", unityEditor?.ToString());
+            var editorApplication = unityEditor?.GetTypes().FirstOrDefault(o => o.FullName == "UnityEditor.EditorApplication");
+            if (editorApplication != null)
+            {
+                var updateField = editorApplication.GetField("update", BindingFlags.Static | BindingFlags.Public);
+                var isCompiling = editorApplication.GetProperty("isCompiling", BindingFlags.Static | BindingFlags.Public);
+                var isPlaying = editorApplication.GetProperty("isPlaying", BindingFlags.Static | BindingFlags.Public);
+            }
+        }
+
         public static Coroutine StartCoroutine(IEnumerator routine)
         {
             return _engineInstance.StartCoroutine(routine);
@@ -53,7 +72,7 @@ namespace mUIApp
 
         public static ActionThread ActionThread(Action action)
         {
-            return new ActionThread(action);
+            return new ActionThread(action); 
         }
 
         public static ActionRepeat ActionRepeat(float repeatTime, Action<object> action, object data = null)
