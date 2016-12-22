@@ -8,7 +8,7 @@ namespace mUIApp
     public interface IKeyStorage
     {
         void Save();
-        void Load();
+        bool Load();
         T GetValue<T>(string key) where T : struct;
         void SetValue<T>(string key, T value) where T : struct;
     }

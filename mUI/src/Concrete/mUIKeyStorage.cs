@@ -18,16 +18,13 @@ namespace mUIApp
         public mUIKeyStorage()
         {
             _dictionary = new Dictionary<string, string>();
-
-            mUI.Log("mUIKeyStorage try load");
-            if (PlayerPrefs.HasKey(_loadKey))
-            {
-                Load();
-            }
         }
 
-        public void Load()
+        public bool Load()
         {
+            if (!PlayerPrefs.HasKey(_loadKey))
+                return false;
+
             var db = PlayerPrefs.GetString(_loadKey);
             var decompressed = Unzip(Convert.FromBase64String(db));
             mUI.Log("mUIKeyStorage load: {0}", db);
@@ -54,6 +51,8 @@ namespace mUIApp
                     }
                 }
             }
+
+            return true;
         }
 
         public void Save()

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace mUIApp.Views.Elements
 {
-    public enum UISliderType
+    public enum UIObjectOrientation
     {
         HORIZONTAL = 0,
         VERTICAL = 1,
@@ -16,7 +16,7 @@ namespace mUIApp.Views.Elements
 
     public static partial class UIElementsHelper
     {
-        public static UISlider CreateSlider(this UIObject obj, UISliderType type = UISliderType.VERTICAL, string objName = "Slider")
+        public static UISlider CreateSlider(this UIObject obj, UIObjectOrientation type = UIObjectOrientation.VERTICAL, string objName = "Slider")
         {
             var sliderView = obj.CreateView<UISliderView>();
             return new UISlider(sliderView, type).SetName("SliderController");
@@ -35,7 +35,7 @@ namespace mUIApp.Views.Elements
         public override float PureWidth { get { return Parent.Width; } }
         public override float PureHeight { get { return Parent.Height; } }
 
-        private readonly UISliderType _sliderType;
+        private readonly UIObjectOrientation _objectOrientation;
         private readonly List<UIView> _childs;
         private Vector2 _startDragPos;
         private Vector2 _lastDragPos;
@@ -45,9 +45,9 @@ namespace mUIApp.Views.Elements
         private bool _canPressButtons;
         private float _pressClickTime;
 
-        public UISlider(UIView obj, UISliderType type) : base(obj)
+        public UISlider(UIView obj, UIObjectOrientation type) : base(obj)
         {
-            _sliderType = type;
+            _objectOrientation = type;
             _childs = new List<UIView>();
             _sliderIsPressed = false;
             _canPressButtons = true;
@@ -58,8 +58,6 @@ namespace mUIApp.Views.Elements
             OnUIMouseDragEvent += OnMouseDragEvent;
             OnUIMouseDownEvent += OnMouseDownEvent;
             obj.CreateRectCamera();
-
-            this.SetBoxArea();
         }
 
         private void SliderTick(UIObject sender)
@@ -102,12 +100,10 @@ namespace mUIApp.Views.Elements
 
             var currentPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
             var diffPos = currentPos - _lastDragPos;
-             
-            Move(diffPos);
 
             _lastDragDIff = diffPos;
             _lastDragPos = currentPos;
-            _lastDragPath += diffPos;
+            _lastDragPath += Move(diffPos);
 
             if (_canPressButtons && (Math.Abs(_lastDragPath.x) > 0.05 || Math.Abs(_lastDragPath.y) > 0.05))
             {
@@ -132,11 +128,11 @@ namespace mUIApp.Views.Elements
             _pressClickTime = Time.time;
         }
 
-        private void Move(Vector2 diffPos)
+        private Vector2 Move(Vector2 diffPos)
         {
             if (_childs.Count != 0)
             {
-                if (_sliderType == UISliderType.VERTICAL)
+                if (_objectOrientation == UIObjectOrientation.VERTICAL)
                 {
                     if (diffPos.y <= 0)
                     {
@@ -162,12 +158,13 @@ namespace mUIApp.Views.Elements
 
                 for (int i = 0; i < _childs.Count; i++)
                 {
-                    if (_sliderType == UISliderType.VERTICAL)
+                    if (_objectOrientation == UIObjectOrientation.VERTICAL)
                         _childs[i].Translate(0, diffPos.y);
                     else
                         _childs[i].Translate(diffPos.x, 0);
                 }
             }
+            return diffPos;
         }
 
 
@@ -209,9 +206,15 @@ namespace mUIApp.Views.Elements
             SliderInject(newView);
 
             if (_childs.Count == 0)
-                newView.Position(Parent.GetPos().x, Parent.Top - height/2);
+            {
+                if (_objectOrientation == UIObjectOrientation.VERTICAL)
+                    newView.Position(Parent.GetPos().x, Parent.Top - height/2);
+            }
             else
-                newView.Position(Parent.GetPos().x, _childs[_childs.Count - 1].Bottom - height/2 - spacing);
+            {
+                if (_objectOrientation == UIObjectOrientation.VERTICAL)
+                    newView.Position(Parent.GetPos().x, _childs[_childs.Count - 1].Bottom - height/2 - spacing);
+            }
 
             _childs.Add(newView);
             return newView;

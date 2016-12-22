@@ -23,6 +23,9 @@ namespace mUIApp.Views.Elements
 
     public sealed class UIToggle : UIButton
     {
+        public ToggleState State { get { return _toggleState; } }
+        public event Action<UIToggle, ToggleState> OnChange;
+
         private ToggleState _toggleState;
         private object _onEnableClickArgs;
         private object _onDisableClickArgs;
@@ -79,6 +82,7 @@ namespace mUIApp.Views.Elements
             _onEnableClick?.Invoke(this, _onEnableClickArgs);
             _toggleState = ToggleState.ENABLED;
             UpdateSprite(_enabledSprite, UIButtonState.ACTIVE);
+            OnChange?.Invoke(this, _toggleState);
             return this;
         }
 
@@ -87,6 +91,7 @@ namespace mUIApp.Views.Elements
             _onDisableClick?.Invoke(this, _onDisableClickArgs);
             _toggleState = ToggleState.DISABLED;
             UpdateSprite(_disabledSprite, UIButtonState.ACTIVE);
+            OnChange?.Invoke(this, _toggleState);
             return this;
         }
 

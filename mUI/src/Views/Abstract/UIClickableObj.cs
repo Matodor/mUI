@@ -98,6 +98,8 @@ namespace mUIApp.Views.Elements
 
         protected UIClickableObj(UIObject obj) : base(obj)
         {
+            this.SetBoxArea();
+
             mUI.UIInput.UIClickableObjList.Add(this);
             OnDestroy += DestroyClickable;
             CanClick = (v) => Active && InArea(v);
