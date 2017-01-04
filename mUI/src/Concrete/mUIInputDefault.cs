@@ -26,6 +26,11 @@ namespace mUIApp.Input
             return _list.Remove(obj);
         }
 
+        public UIClickableObj[] GetAllAsArray()
+        {
+            return _list.ToArray();
+        }
+
         public IEnumerable<UIClickableObj> GetAll()
         {
             return _list.AsEnumerable();
@@ -39,11 +44,11 @@ namespace mUIApp.Input
 
     public class mUIInputDefault : IInputBase
     {
-        public event Action<mUIMouseEvent> OnMouseDownEvent;
-        public event Action<mUIMouseEvent> OnMouseUpEvent;
-        public event Action<mUIMouseEvent> OnMouseDragEvent;
-        public event Action<mUIKeyboardEvent> OnKeyUpEvent;
-        public event Action<mUIKeyboardEvent> OnKeyDownEvent;
+        public event Action<mUIMouseEvent>      OnMouseDownEvent = i => { };
+        public event Action<mUIMouseEvent>      OnMouseUpEvent   = i => { };
+        public event Action<mUIMouseEvent>      OnMouseDragEvent = i => { };
+        public event Action<mUIKeyboardEvent>   OnKeyUpEvent     = i => { };
+        public event Action<mUIKeyboardEvent>   OnKeyDownEvent   = i => { };
 
         public UIClickableObjList UIClickableObjList { get; }
 
@@ -53,12 +58,6 @@ namespace mUIApp.Input
         public mUIInputDefault()
         {
             UIClickableObjList = new UIClickableObjList();
-
-            OnMouseDownEvent = i => { };
-            OnMouseUpEvent = i => { };
-            OnMouseDragEvent = i => { };
-            OnKeyUpEvent = i => { };
-            OnKeyDownEvent = i => { };
 
             _onGUI = i => { };
             _onUpdate = i => { };
@@ -84,6 +83,27 @@ namespace mUIApp.Input
             _onGUI = _getEventsController.GetEvents;
         }
 
+        private void CheckClickable(ref UIClickableObj current, UIClickableObj next)
+        {
+            if (current == null)
+                current = next;
+            else
+            {
+                if (current.Renderer.sortingOrder < next.Renderer.sortingOrder)
+                    current = next;
+            }
+        }
+
+        private IEnumerable<UIClickableObj> ClickableObject(mUIMouseEvent mouseEvent)
+        {
+            return UIClickableObjList.Get(GetClickableObj(mouseEvent));
+        } 
+
+        private Func<UIClickableObj, bool> GetClickableObj(mUIMouseEvent mouseEvent)
+        {
+            return obj => obj.Active && obj.CanClick(mouseEvent.MouseScreenPos);
+        }
+
         public void ParseEvent(mUIEvent @event)
         {
             if (@event.Type == mUIEventType.MOUSE_EVENT)
@@ -96,49 +116,43 @@ namespace mUIApp.Input
                     case mUIMouseEventType.MouseDown:
                     {
                         UIClickableObj current = null;
-                        foreach (var clickable in UIClickableObjList.Get(obj => obj.CanClick(mouseEvent.MouseScreenPos)))
+                        Action<mUIMouseEvent> events = e => { };
+                              
+                        foreach (var clickable in ClickableObject(mouseEvent))
                         {
                             if (clickable.IgnoreSortingOrder)
-                                clickable.OnUIMouseDown(mouseEvent);
+                                events += clickable.OnUIMouseDown;
                             else
-                            {
-                                if (current == null)
-                                    current = clickable;
-                                else
-                                {
-                                    if (!clickable.IgnoreSortingOrder && current.Renderer.sortingOrder < clickable.Renderer.sortingOrder)
-                                        current = clickable;
-                                } 
-                            }
+                                CheckClickable(ref current, clickable);
                         }
-                        current?.OnUIMouseDown(mouseEvent);
-                        OnMouseDownEvent(mouseEvent);
+
+                        if (current != null)
+                            events += current.OnUIMouseDown;
+                        events += OnMouseDownEvent;
+                        events(mouseEvent);
                     } break;
                     case mUIMouseEventType.MouseUp:
-                        foreach (var clickable in UIClickableObjList.GetAll())
+                        foreach (var clickable in UIClickableObjList.GetAllAsArray())
                             clickable.OnUIMouseUp(mouseEvent);
                         OnMouseUpEvent(mouseEvent);
                         break;
                     case mUIMouseEventType.MouseDrag:
                     {
                         UIClickableObj current = null;
-                        foreach (var clickable in UIClickableObjList.Get(obj => obj.CanClick(mouseEvent.MouseScreenPos)))
+                        Action<mUIMouseEvent> events = e => { };
+
+                        foreach (var clickable in ClickableObject(mouseEvent))
                         {
                             if (clickable.IgnoreSortingOrder)
-                                clickable.OnUIMouseDrag(mouseEvent);
+                                events += clickable.OnUIMouseDrag;
                             else
-                            {
-                                if (current == null)
-                                    current = clickable;
-                                else
-                                {
-                                    if (!clickable.IgnoreSortingOrder && current.Renderer.sortingOrder < clickable.Renderer.sortingOrder)
-                                        current = clickable;
-                                }
-                            }
+                                CheckClickable(ref current, clickable);
                         }
-                        current?.OnUIMouseDrag(mouseEvent);
-                        OnMouseDragEvent(mouseEvent);
+
+                        if (current != null)
+                            events += current.OnUIMouseDrag;
+                        events += OnMouseDragEvent;
+                        events(mouseEvent);
                     } break;
                     case mUIMouseEventType.ScrollWheel:
                         break;

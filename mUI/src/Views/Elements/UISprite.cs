@@ -14,7 +14,7 @@ namespace mUIApp.Views.Elements
         }
     }
 
-    public class UISprite : UIObject
+    public class UISprite : UIClickableObj
     {
         public override float PureWidth { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.x; } }
         public override float PureHeight { get { return ((SpriteRenderer)Renderer).sprite.bounds.size.y; } }
@@ -33,6 +33,12 @@ namespace mUIApp.Views.Elements
         {
             ((SpriteRenderer)Renderer).sprite = sprite;
             return this;
+        }
+
+        public override bool InArea(Vector2 screenPos)
+        {
+            return AreaChecker.InArea(Transform, mUI.UICamera.ScreenToWorldPoint(screenPos),
+                   ((SpriteRenderer)Renderer).sprite?.bounds ?? new Bounds(new Vector3(0, 0), new Vector3(1, 1)));
         }
     }
 }

@@ -33,6 +33,8 @@ namespace mUIApp.src.Views.Elements
         private readonly UISprite _bar, _point;
         private readonly UIObjectOrientation _orientation;
 
+        private bool _isPressed;
+
         private float _currentValue;
         private float _min;
         private float _max;
@@ -91,11 +93,12 @@ namespace mUIApp.src.Views.Elements
 
             var currentPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
             _lastDragPos = currentPos;
+            _isPressed = false;
         }
 
         private void MouseDragEvent(UIObject uiObject, mUIMouseEvent mouseEvent)
         {
-            if (!Active)
+            if (!Active || !_isPressed)
                 return;
 
             var currentPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
@@ -113,6 +116,7 @@ namespace mUIApp.src.Views.Elements
             if (!Active)
                 return;
 
+            _isPressed = true;
             _lastDragPath = Vector2.zero;
             _startDragPos = mUI.UICamera.ScreenToWorldPoint(mouseEvent.MouseScreenPos);
             _lastDragPos = _startDragPos;
