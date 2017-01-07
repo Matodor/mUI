@@ -49,7 +49,7 @@ namespace mUIApp.Animations
             _cachedColor.n1 = mUIBezierHelper.Linear(CurrentEasingTime, _fromColor.n1, _toColor.n1);
             _cachedColor.n2 = mUIBezierHelper.Linear(CurrentEasingTime, _fromColor.n2, _toColor.n2);
             _cachedColor.n3 = mUIBezierHelper.Linear(CurrentEasingTime, _fromColor.n3, _toColor.n3);
-            _cachedColor.n4 = mUIBezierHelper.Linear(CurrentEasingTime, _fromColor.n4, _toColor.n4);
+            _cachedColor.Aplha = mUIBezierHelper.Linear(CurrentEasingTime, _fromColor.Aplha, _toColor.Aplha);
             _onSetColor(_cachedColor);
         }
 

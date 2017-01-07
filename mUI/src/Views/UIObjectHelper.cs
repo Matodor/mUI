@@ -27,6 +27,14 @@ namespace mUIApp.Views
             return obj;
         }
 
+        /// <summary>
+        /// xRelative = 0 and yRelative = 0 - left bottom corner of parent view 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="xRelative"></param>
+        /// <param name="yRelative"></param>
+        /// <returns></returns>
         public static Vector2 GetRelativePos<T>(this T obj, float xRelative, float yRelative) where T : UIObject
         {
             return new Vector3(

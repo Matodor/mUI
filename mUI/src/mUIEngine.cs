@@ -1,15 +1,17 @@
-﻿using mUIApp.Input;
+﻿using System;
+using mUIApp.Input;
 using UnityEngine;
 
 namespace mUIApp
 {
     public sealed class mUIEngine : MonoBehaviour
     {
-        public IInputBase UIInput { get; set; }
+        public event Action OnApplicationQuitEvent;
+
+        public IInputBase UIInput { get; set; } = new mUIInputDefault();
 
         public void Awake()
         {
-            UIInput = new mUIInputDefault();
         }
 
         private void OnGUI()
@@ -23,10 +25,16 @@ namespace mUIApp
             mUI.Tick();
         }
 
+        private void OnApplicationQuit()
+        {
+            OnApplicationQuitEvent?.Invoke();
+            mUI.Log("[mUI] OnApplicationQuit");
+        }
+
         public void FixedUpdate()
         {
             mUI.FixedTick();
-        }
+        } 
 
         public void LateUpdate()
         {

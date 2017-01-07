@@ -79,7 +79,7 @@ namespace mUIApp.Other
         public float n1; // r, h
         public float n2; // g, s
         public float n3; // b, v
-        public float n4; // a, a
+        public float Aplha; // a, a
 
         public Color32 Color32
         {
@@ -89,12 +89,17 @@ namespace mUIApp.Other
             }
         }
 
+        public mUIColor FromAlpha(float alpha)
+        {
+            return new mUIColor(n1, n2, n3, alpha);
+        }
+
         public mUIColor(float a1, float a2, float a3, float a4 = 255, UIColorType t = UIColorType.RGBA)
         {
             n1 = Mathf.Clamp(a1, 0, 255);
             n2 = Mathf.Clamp(a2, 0, 255);
             n3 = Mathf.Clamp(a3, 0, 255);
-            n4 = Mathf.Clamp(a4, 0, 255);
+            Aplha = Mathf.Clamp(a4, 0, 255);
             Type = t;
         }
     }
@@ -110,8 +115,8 @@ namespace mUIApp.Other
         public static Color32 ToColor32(mUIColor inner)
         {
             if (inner.Type != UIColorType.RGBA)
-                return HSVToRGB(inner.n1, inner.n2 / 255, inner.n3 / 255, inner.n4 / 255);
-            return new Color32((byte)inner.n1, (byte)inner.n2, (byte)inner.n3, (byte)inner.n4);
+                return HSVToRGB(inner.n1, inner.n2 / 255, inner.n3 / 255, inner.Aplha / 255);
+            return new Color32((byte)inner.n1, (byte)inner.n2, (byte)inner.n3, (byte)inner.Aplha);
         }
 
         private static Color HSVToRGB(float H, float S, float V, float A)
