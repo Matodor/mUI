@@ -76,6 +76,11 @@ namespace mUIApp.Views
             return obj.Transform.localScale;
         }
 
+        public static Vector3 GetRotation<T>(this T obj) where T : UIObject
+        {
+            return obj.Transform.eulerAngles;
+        }
+
         public static Vector2 GetPos<T>(this T obj) where T : UIObject
         {
             return obj.Transform.position;

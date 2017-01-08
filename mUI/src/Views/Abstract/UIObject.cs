@@ -141,6 +141,18 @@ namespace mUIApp
             OnRotateEvent?.Invoke(this, Transform.eulerAngles);
         }
 
+        public void RemoveAnimations()
+        {
+            for (int i = Animations.Count - 1; i >= 0; i--)
+                Animations[i].Remove();
+        }
+
+        public void DestroyChilds()
+        {
+            for (int i = Childs.Count - 1; i >= 0; i--)
+                Childs[i].Destroy();
+        }
+
         public void Destroy()
         {
             mUI.OnTick -= Tick;
@@ -149,11 +161,8 @@ namespace mUIApp
             Parent?.Childs.Remove(this);
             Parent = null;
 
-            for (int i = Animations.Count - 1; i >= 0; i--)
-                Animations[i].Remove();
-
-            for (int i = Childs.Count - 1; i >= 0; i--)
-                Childs[i].Destroy();
+            RemoveAnimations();
+            DestroyChilds();
 
             OnDestroy?.Invoke(this);
             UnityEngine.Object.Destroy(GameObject);

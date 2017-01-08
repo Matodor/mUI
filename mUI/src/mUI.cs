@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Security.Cryptography;
 using mUIApp.Input;
 using mUIApp.Other;
 using mUIApp.Views;
@@ -226,6 +227,22 @@ namespace mUIApp
             if (val > max)
                 return max;
             return val;
+        }
+
+        public static uint RandomUInt32()
+        {
+            RNGCryptoServiceProvider rg = new RNGCryptoServiceProvider();
+            byte[] rno = new byte[5];
+            rg.GetBytes(rno);
+            return BitConverter.ToUInt32(rno, 0);
+        }
+
+        public static int RandomInt32()
+        {
+            RNGCryptoServiceProvider rg = new RNGCryptoServiceProvider();
+            byte[] rno = new byte[5];
+            rg.GetBytes(rno);
+            return BitConverter.ToInt32(rno, 0);
         }
     }
 }

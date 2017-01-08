@@ -94,6 +94,15 @@ namespace mUIApp.Other
             return new mUIColor(n1, n2, n3, alpha);
         }
 
+        public mUIColor(Color32 color, UIColorType t = UIColorType.RGBA)
+        {
+            n1 = Mathf.Clamp(color.r, 0, 255);
+            n2 = Mathf.Clamp(color.g, 0, 255);
+            n3 = Mathf.Clamp(color.b, 0, 255);
+            Aplha = Mathf.Clamp(color.a, 0, 255);
+            Type = t;
+        }
+
         public mUIColor(float a1, float a2, float a3, float a4 = 255, UIColorType t = UIColorType.RGBA)
         {
             n1 = Mathf.Clamp(a1, 0, 255);

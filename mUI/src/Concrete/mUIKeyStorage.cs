@@ -61,7 +61,7 @@ namespace mUIApp
             foreach (var kvp in _dictionary)
             {
                 db += kvp.Key + '\n';
-                db += kvp.Value.ToString() + '\n';
+                db += kvp.Value.ToString().Replace('\n', ' ') + '\n';
             }
 
             var toSave = Convert.ToBase64String(Zip(db));
