@@ -16,7 +16,7 @@ namespace mFramework
         public float OrthographicSize { get; set; } = 5;
     }
 
-    public sealed class UICamera : IGameObject
+    public sealed class UICamera
     {
         public GameObject GameObject { get { return _cameraGameObject; } }
 

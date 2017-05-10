@@ -8,6 +8,12 @@ namespace mFramework
 {
     public static class GameObjectExtension
     {
+        public static IGameObject SetName(this IGameObject instance, string name)
+        {
+            instance.GameObject.name = name;
+            return instance;
+        }
+
         public static IGameObject SetParent(this IGameObject instance, IGameObject parentInstance)
         {
             SetParentImpl(instance.GameObject, parentInstance.GameObject);

@@ -14,16 +14,23 @@ namespace mFramework
     public sealed class UI : ITicking
     {
         public static UI Instance { get; private set; }
+        public static UIView BaseView { get; private set; }
 
-        private readonly UICamera _uiCamera;
+        public static UICamera UICamera { get; private set; }
 
         private UI(UISettings settings)
         {
+            UICamera = UICamera.Create(settings.CameraSettings);
+            UICamera.GameObject.SetParent(mEngine.Instance.gameObject);
+
             Instance = this;
-
-            _uiCamera = UICamera.Create(settings.CameraSettings);
-            _uiCamera.SetParent(mEngine.Instance.gameObject);
-
+            BaseView = UIView.Create<BaseView>(new UIViewSettings
+            {
+                Height = UICamera.PureHeight,
+                Width = UICamera.PureWidth,
+                Name = "BaseView"
+            }, null);
+            
             mCore.Log("[ui] created");
         }
 
@@ -40,7 +47,7 @@ namespace mFramework
                 throw new Exception("UI already created");
             return new UI(settings);
         }
-
+        
         public void Tick()
         {
         }
