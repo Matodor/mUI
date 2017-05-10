@@ -7,6 +7,11 @@ namespace mUIApp
 {
     public interface IKeyStorage
     {
+        event Action<mUIKeyStorage> OnBeforeSave;
+        event Action<mUIKeyStorage> OnAfterSave;
+        event Action<mUIKeyStorage> OnBeforeLoad;
+        event Action<mUIKeyStorage> OnAfterLoad;
+
         void Save();
         bool Load();
         T GetValue<T>(string key) where T : struct;

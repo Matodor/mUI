@@ -69,13 +69,13 @@
     <Compile Include="src\Other\mUIOther.cs" />
     <Compile Include="src\Other\mUIRectCamera.cs" />
     <Compile Include="src\Views\Abstract\UIClickableObj.cs" />
-    <Compile Include="src\Views\Elements\UIButton.cs" />
-    <Compile Include="src\Views\Elements\UILabel.cs" />
-    <Compile Include="src\Views\Elements\UIScrollBar.cs" />
-    <Compile Include="src\Views\Elements\UISlider.cs" />
-    <Compile Include="src\Views\Elements\UIToggle.cs" />
-    <Compile Include="src\Views\Elements\UIToggleGroup.cs" />
-    <Compile Include="src\Views\Elements\UISprite.cs" />
+    <Compile Include="src\Views\Components\UIButton.cs" />
+    <Compile Include="src\Views\Components\UILabel.cs" />
+    <Compile Include="src\Views\Components\UIScrollBar.cs" />
+    <Compile Include="src\Views\Components\UISlider.cs" />
+    <Compile Include="src\Views\Components\UIToggle.cs" />
+    <Compile Include="src\Views\Components\UIToggleGroup.cs" />
+    <Compile Include="src\Views\Components\UISprite.cs" />
     <Compile Include="src\Abstract\ISpriteRepository.cs" />
     <Compile Include="src\Views\Abstract\UIObject.cs" />
     <Compile Include="src\Concrete\mUIDefaultSpriteRepository.cs" />
@@ -83,7 +83,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\mUIEngine.cs" />
     <Compile Include="src\mUICamera.cs" />
-    <Compile Include="src\Views\Elements\UIView.cs" />
+    <Compile Include="src\Views\UIView.cs" />
     <Compile Include="src\Views\UIObjectHelper.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -43,7 +43,7 @@ namespace mUIApp
         {
             if (_engineInstance == null)
             {
-                Debug = true;
+                Debug = false;
 
                 _engineGameObject = new GameObject("mUI");
                 _uiViewsGameObject = new GameObject("Views");
@@ -71,16 +71,15 @@ namespace mUIApp
                     unityEditor.GetTypes().FirstOrDefault(o => o.FullName == "UnityEditor.EditorApplication");
                 if (editorApplication != null)
                 {
+                    Debug = true;
+
                     var updateField = editorApplication.GetField("update", BindingFlags.Static | BindingFlags.Public);
-
-
                     var isCompiling = editorApplication.GetProperty("isCompiling",
                         BindingFlags.Static | BindingFlags.Public);
                     if (isCompiling != null)
                         _getIsCompiling =
                             (EditorGetBoolean)
                                 Delegate.CreateDelegate(typeof (EditorGetBoolean), isCompiling.GetGetMethod());
-
 
                     var isPlaying = editorApplication.GetProperty("isPlaying", BindingFlags.Static | BindingFlags.Public);
                     if (isPlaying != null)

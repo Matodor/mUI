@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using mUIApp.src.Other;
-using mUIApp.Views;
+using mUIApp.Other;
 using UnityEngine;
 
 namespace mUIApp.Animations

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace mUIApp.src.Other
+namespace mUIApp.Other
 {
     public enum mUIEasingType
     {

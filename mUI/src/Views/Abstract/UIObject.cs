@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using mUIApp.Animations;
-using mUIApp.Views;
+using mUIApp.Components;
 using UnityEngine;
 
 namespace mUIApp
@@ -27,10 +25,10 @@ namespace mUIApp
         public float Left { get { return Transform.position.x - Width/2; } }
         public float Right { get { return Transform.position.x + Width/2; } }
 
-        public UIObject Parent { get; set; }
+        public UIObject Parent { get; private set; }
         public GameObject GameObject { get; }
         public Transform Transform { get; }
-        public Renderer Renderer { get; set; }
+        public Renderer Renderer { get; private set; }
         public List<mUIAnimation> Animations { get; }
         public List<UIObject> Childs { get; }
 

@@ -10,6 +10,11 @@ namespace mUIApp
 {
     public class mUIKeyStorage : IKeyStorage
     {
+        public event Action<mUIKeyStorage> OnBeforeSave;
+        public event Action<mUIKeyStorage> OnAfterSave;
+        public event Action<mUIKeyStorage> OnBeforeLoad;
+        public event Action<mUIKeyStorage> OnAfterLoad;
+
         public string Password { get; set; } = "default_password";
 
         private const string _loadKey = "!_mUI_load_storage_key_!";
@@ -22,6 +27,7 @@ namespace mUIApp
 
         public bool Load()
         {
+            OnBeforeLoad?.Invoke(this);
             if (!PlayerPrefs.HasKey(_loadKey))
                 return false;
 
@@ -52,11 +58,14 @@ namespace mUIApp
                 }
             }
 
+            OnAfterLoad?.Invoke(this);
             return true;
         }
 
         public void Save()
         {
+            OnBeforeSave?.Invoke(this);
+
             string db = "";
             foreach (var kvp in _dictionary)
             {
@@ -69,6 +78,8 @@ namespace mUIApp
             PlayerPrefs.Save();
             mUI.Log("mUIKeyStorage: {0}", db);
             mUI.Log("mUIKeyStorage compressed: {0}", toSave);
+
+            OnAfterSave?.Invoke(this);
         }
 
         public void DeleteKey(string key)

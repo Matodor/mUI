@@ -1,7 +1,6 @@
 ﻿using System;
+using mUIApp.Components;
 using mUIApp.Other;
-using mUIApp.Views;
-using mUIApp.Views.Elements;
 using UnityEngine;
 
 namespace mUIApp.Animations

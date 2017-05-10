@@ -1,5 +1,4 @@
-﻿using mUIApp.Views;
-using mUIApp.Views.Elements;
+﻿using mUIApp.Components;
 using UnityEngine;
 
 namespace mUIApp.Other
