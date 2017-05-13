@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using mFramework;
+using mFramework.UI;
 
 namespace Assets.Scripts.Views
 {
@@ -10,7 +8,12 @@ namespace Assets.Scripts.Views
     {
         protected override void CreateInterface(params object[] @params)
         {
-            mCore.Log(@params.ToString());
+            foreach (var o in @params)
+            {
+                mCore.Log(o.ToString());
+            }
+
+            this.UISprite("GameGUI_28");
         }
     }
 }

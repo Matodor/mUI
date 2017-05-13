@@ -1,4 +1,4 @@
-﻿namespace mFramework
+﻿namespace mFramework.UI
 {
     public sealed class BaseView : UIView
     {

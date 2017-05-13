@@ -8,36 +8,24 @@ namespace mFramework
 {
     public static class GameObjectExtension
     {
-        public static IGameObject SetName(this IGameObject instance, string name)
+        public static Transform SetParent(this Transform transform, Transform parent)
         {
-            instance.GameObject.name = name;
-            return instance;
-        }
-
-        public static IGameObject SetParent(this IGameObject instance, IGameObject parentInstance)
-        {
-            SetParentImpl(instance.GameObject, parentInstance.GameObject);
-            return instance;
-        }
-
-        public static IGameObject SetParent(this IGameObject instance, GameObject parent)
-        {
-            SetParentImpl(instance.GameObject, parent);
-            return instance;
+            SetParentImpl(transform, parent);
+            return transform;
         }
 
         public static GameObject SetParent(this GameObject gameObject, GameObject parent)
         {
-            SetParentImpl(gameObject, parent);
+            SetParentImpl(gameObject.transform, parent.transform);
             return gameObject;
         }
 
-        private static void SetParentImpl(GameObject gameObject, GameObject parent)
+        private static void SetParentImpl(Transform transform, Transform parent)
         {
-            if (gameObject == null || parent == null)
-                throw new NullReferenceException("SetParentImpl");
-            gameObject.transform.parent = parent.transform;
-            gameObject.transform.localPosition = Vector3.zero;
+            if (transform == null || parent == null)
+                throw new NullReferenceException("GameObjectExtension (SetParentImpl): the given transform was null");
+            transform.parent = parent;
+            transform.localPosition = Vector3.zero;
         }
     }
 }

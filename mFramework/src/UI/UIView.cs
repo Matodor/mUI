@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using mFramework.UI;
 using UnityEngine;
 
-namespace mFramework
+namespace mFramework.UI
 {
     public sealed class UIViewSettings
     {
@@ -13,20 +14,21 @@ namespace mFramework
         public float Width { get; set; }
     }
 
-    public abstract class UIView : ITicking
+    public abstract partial class UIView : ITicking
     {
         public event Action<UIView, bool> OnChangeActive;
-        public event Action<UIView> OnTick, OnFixedTick, OnLateTick; 
 
         private float _height;
         private float _width;
         private readonly GameObject _gameObject;
         private readonly IList<UIView> _childsViews;
+        private readonly List<UIComponent> _childsComponents;
 
         protected UIView()
         {
             _gameObject = new GameObject("UIView");
             _childsViews = new List<UIView>();
+            _childsComponents = new List<UIComponent>();
         }
 
         public T ChildView<T>(params object[] @params) where T : UIView
@@ -51,7 +53,7 @@ namespace mFramework
             view.SetupSettings(settings);
 
             if (parent == null)
-                view._gameObject.SetParent(UI.BaseView == null ? UI.UICamera.GameObject : UI.BaseView._gameObject);
+                view._gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
             else
                 view._gameObject.SetParent(parent._gameObject);
             
@@ -72,7 +74,12 @@ namespace mFramework
         }
 
         protected abstract void CreateInterface(params object[] @params);
-        
+
+        private T AddComponent<T>(T component) where T : UIComponent
+        {
+            return component;
+        }
+
         public UIView Show()
         {
             _gameObject.SetActive(true);
@@ -87,28 +94,22 @@ namespace mFramework
             return this;
         }
 
-        public void Tick()
+        public virtual void Tick()
         {
             for (int i = 0; i < _childsViews.Count; i++)
                 _childsViews[i].Tick();
-
-            OnTick?.Invoke(this);
         }
 
-        public void FixedTick()
+        public virtual void FixedTick()
         {
             for (int i = 0; i < _childsViews.Count; i++)
                 _childsViews[i].FixedTick();
-
-            OnFixedTick?.Invoke(this);
         }
 
-        public void LateTick()
+        public virtual void LateTick()
         {
             for (int i = 0; i < _childsViews.Count; i++)
                 _childsViews[i].LateTick();
-
-            OnLateTick?.Invoke(this);
         }
     }
 }

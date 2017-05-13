@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace mFramework
+namespace mFramework.UI
 {
     public sealed class UICameraSettings
     {

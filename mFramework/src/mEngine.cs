@@ -17,8 +17,9 @@ namespace mFramework
 
         public void Awake()
         {
+            //DontDestroyOnLoad(gameObject);
         }
-        
+
         private void Update()
         {
             mCore.Instance.Tick();

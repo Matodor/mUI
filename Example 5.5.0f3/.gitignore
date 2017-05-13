@@ -1,0 +1,12 @@
+## Unity3d
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/Assets/AssetStoreTools*
+
+
+# Builds
+*.apk
+*.unitypackage

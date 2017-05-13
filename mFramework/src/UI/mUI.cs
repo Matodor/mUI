@@ -4,21 +4,21 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace mFramework
+namespace mFramework.UI
 {
     public sealed class UISettings
     {
         public UICameraSettings CameraSettings { get; } = new UICameraSettings();
     }
 
-    public sealed class UI : ITicking
+    public sealed class mUI : ITicking
     {
-        public static UI Instance { get; private set; }
+        public static mUI Instance { get; private set; }
         public static UIView BaseView { get; private set; }
 
         public static UICamera UICamera { get; private set; }
 
-        private UI(UISettings settings)
+        private mUI(UISettings settings)
         {
             UICamera = UICamera.Create(settings.CameraSettings);
             UICamera.GameObject.SetParent(mEngine.Instance.gameObject);
@@ -34,18 +34,18 @@ namespace mFramework
             mCore.Log("[ui] created");
         }
 
-        public static UI Create()
+        public static mUI Create()
         {
             return Create(new UISettings());
         }
 
-        public static UI Create(UISettings settings)
+        public static mUI Create(UISettings settings)
         {
             if (settings == null)
                 throw new NullReferenceException("UISettings is null");
             if (Instance != null)
                 throw new Exception("UI already created");
-            return new UI(settings);
+            return new mUI(settings);
         }
         
         public void Tick()

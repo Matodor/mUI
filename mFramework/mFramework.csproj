@@ -48,19 +48,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\abstract\IGameObject.cs" />
+    <Compile Include="src\extensions\UIExtension.cs" />
     <Compile Include="src\abstract\ITicking.cs" />
     <Compile Include="src\extensions\GameObjectExtension.cs" />
     <Compile Include="src\mEngine.cs" />
     <Compile Include="src\mCore.cs" />
-    <Compile Include="src\UI\BaseView.cs" />
-    <Compile Include="src\UI\UI.cs" />
+    <Compile Include="src\SpritesRepository.cs" />
+    <Compile Include="src\UI\components\UISprite.cs" />
+    <Compile Include="src\UI\views\BaseView.cs" />
+    <Compile Include="src\UI\mUI.cs" />
     <Compile Include="src\UI\UICamera.cs" />
     <Compile Include="src\UI\UIView.cs" />
-    <Compile Include="src\UI\UIObject.cs" />
+    <Compile Include="src\UI\UIComponent.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\UI\components\" />
+    <Folder Include="src\concrete\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="libs\UnityEditor.dll" />
