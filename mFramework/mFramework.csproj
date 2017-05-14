@@ -48,12 +48,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\events\EventListener.cs" />
+    <Compile Include="src\events\EventsController.cs" />
+    <Compile Include="src\events\MouseEventListener.cs" />
     <Compile Include="src\extensions\UIExtension.cs" />
     <Compile Include="src\abstract\ITicking.cs" />
     <Compile Include="src\extensions\GameObjectExtension.cs" />
+    <Compile Include="src\events\InputEvent.cs" />
+    <Compile Include="src\events\KeyboardEvent.cs" />
     <Compile Include="src\mEngine.cs" />
     <Compile Include="src\mCore.cs" />
+    <Compile Include="src\events\MouseEvent.cs" />
     <Compile Include="src\SpritesRepository.cs" />
+    <Compile Include="src\StateableSprite.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
     <Compile Include="src\UI\components\UISprite.cs" />
     <Compile Include="src\UI\UIObject.cs" />

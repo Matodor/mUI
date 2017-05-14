@@ -6,12 +6,15 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public abstract partial class UIObject : ITicking
+    public abstract class UIObject : ITicking
     {
         public event Action<UIObject, bool> OnActiveChanged;
         public event Action<UIObject> OnSortingOrderChanged;
 
+        protected float _height;
+        protected float _width;
         protected readonly GameObject _gameObject;
+
         private readonly List<UIObject> _childObjects;
         private readonly UIObject _parentObject;
         private int _sortingOrder;

@@ -17,6 +17,8 @@ namespace Assets.Scripts.Views
             {
                 Sprite = SpritesRepository.Get("GameGUI_28")
             });
+
+            Component<UIButton>(new UIButtonSettings());
         }
     }
 }

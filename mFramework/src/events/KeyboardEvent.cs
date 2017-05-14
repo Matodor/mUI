@@ -5,10 +5,7 @@ using System.Text;
 
 namespace mFramework
 {
-    public interface ITicking
+    class KeyboardEvent
     {
-        void Tick();
-        void FixedTick();
-        void LateTick();
     }
 }

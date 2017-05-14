@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -16,7 +18,13 @@ namespace mFramework.UI
     {
         protected UIComponent(UIObject parent) : base(parent)
         {
-            _gameObject.name = "UIComponent";
+            SetName("UIComponent");
+        }
+
+        public UIComponent SetName(string name)
+        {
+            _gameObject.name = name;
+            return this;
         }
 
         public static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
@@ -24,8 +32,12 @@ namespace mFramework.UI
             if (parent == null)
                 throw new NullReferenceException("UIComponent: the given parentObj was null");
 
-            var component = (T)Activator.CreateInstance(typeof(T), parent);
+            var component = (T)
+                Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,
+                    new object[] {parent}, CultureInfo.InvariantCulture);
+
             component.ApplySettings(settings);
+            component.SetName(typeof(T).Name);
             return component;
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace mFramework
 {
@@ -17,20 +18,24 @@ namespace mFramework
 
         public void Awake()
         {
-            //DontDestroyOnLoad(gameObject);
+        }
+
+        private void OnGUI()
+        {
         }
 
         private void Update()
         {
+            EventsController.Instance.Update();
             mCore.Instance.Tick();
         }
 
-        public void FixedUpdate()
+        private void FixedUpdate()
         {
             mCore.Instance.FixedTick();
         }
 
-        public void LateUpdate()
+        private void LateUpdate()
         {
             mCore.Instance.LateTick();
         }

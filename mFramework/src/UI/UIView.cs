@@ -17,9 +17,6 @@ namespace mFramework.UI
     public abstract class UIView : UIObject
     {
         private static UIView _nextParentView;
-
-        private float _height;
-        private float _width;
         
         protected UIView() : base(_nextParentView)
         {

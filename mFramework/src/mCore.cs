@@ -14,6 +14,15 @@ namespace mFramework
         public static bool IsEditor { get; private set; }
 
         private readonly mEngine _engine;
+        private delegate bool EditorGetBoolean();
+
+        private Type _editorApplication, _callbackFunctionType;
+        private bool _editorIsLocked;
+        private EditorGetBoolean _editorIsPlaying;
+        private EditorGetBoolean _editorIsCompiling;
+        private Assembly _unityEditorAssembly;
+        private Delegate _playmodeStateChangedDelegate, _updateEditorDelegate;
+        private FieldInfo _playmodeStateChangedField, _updateField;
 
         private mCore()
         {
@@ -33,16 +42,6 @@ namespace mFramework
                 throw new Exception("mFramework already created");
             return new mCore();
         }
-
-        private delegate bool EditorGetBoolean();
-
-        private Type _editorApplication, _callbackFunctionType;
-        private bool _editorIsLocked;
-        private EditorGetBoolean _editorIsPlaying;
-        private EditorGetBoolean _editorIsCompiling;
-        private Assembly _unityEditorAssembly;
-        private Delegate _playmodeStateChangedDelegate, _updateEditorDelegate;
-        private FieldInfo _playmodeStateChangedField, _updateField;
 
         private void InejctEditor()
         {
