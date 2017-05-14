@@ -111,6 +111,22 @@ namespace mFramework
             }
         }
 
+        public static bool IsInheritedFrom(Type one, Type from)
+        {
+            if (one == null || from == null)
+                throw new NullReferenceException("mCore: IsInheritedFrom - the given type was null");
+
+            var bt = one.BaseType;
+            while (bt != null)
+            {
+                if (bt == from)
+                    return true;
+                bt = bt.BaseType;
+            }
+
+            return false;
+        }
+
         public static void Log(string format, params object[] obj)
         {
             if (IsEditor && IsDebug)

@@ -13,7 +13,10 @@ namespace Assets.Scripts.Views
                 mCore.Log(o.ToString());
             }
 
-            this.UISprite("GameGUI_28");
+            Component<UISprite>(new UISpriteSettings
+            {
+                Sprite = SpritesRepository.Get("GameGUI_28")
+            });
         }
     }
 }

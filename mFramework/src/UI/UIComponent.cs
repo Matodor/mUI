@@ -7,27 +7,45 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public abstract class UIComponent : ITicking
+    public abstract class UIComponentSettings
     {
-        protected readonly UIView _parentView;
-        protected readonly GameObject _gameObject;
+        
+    }
 
-        protected UIComponent(UIView parentView)
+    public abstract class UIComponent : UIObject
+    {
+        protected UIComponent(UIObject parent) : base(parent)
         {
-            _parentView = parentView
-            _gameObject = new GameObject("UIComponent");
+            _gameObject.name = "UIComponent";
         }
 
-        public void Tick()
+        public static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
+        {
+            if (parent == null)
+                throw new NullReferenceException("UIComponent: the given parentObj was null");
+
+            var component = (T)Activator.CreateInstance(typeof(T), parent);
+            component.ApplySettings(settings);
+            return component;
+        }
+
+        protected virtual void ApplySettings(UIComponentSettings settings)
         {
         }
 
-        public void FixedTick()
+        public override void Tick()
         {
+            base.Tick();
         }
 
-        public void LateTick()
+        public override void FixedTick()
         {
+            base.FixedTick();
+        }
+
+        public override void LateTick()
+        {
+            base.LateTick();
         }
     }
 }

@@ -50,14 +50,17 @@ namespace mFramework.UI
         
         public void Tick()
         {
+            BaseView.Tick();
         }
 
         public void FixedTick()
         {
+            BaseView.FixedTick();
         }
 
         public void LateTick()
         {
+            BaseView.LateTick();
         }
     }
 }

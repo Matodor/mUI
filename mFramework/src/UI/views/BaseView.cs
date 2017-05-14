@@ -6,5 +6,10 @@
         {
             mCore.Log("[ui] Create base view");
         }
+
+        public override void Tick()
+        {
+            base.Tick();
+        }
     }
 }

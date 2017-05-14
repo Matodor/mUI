@@ -6,58 +6,39 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public sealed class UISpriteSettings
+    public sealed class UISpriteSettings : UIComponentSettings
     {
         public Sprite Sprite { get; set; }
         public Color? Color { get; set; } = null;
     }
-
-    public abstract partial class UIView
-    {
-        public UISprite UISprite(string sprite)
-        {
-            return this.UISprite(new UISpriteSettings
-            {
-                Sprite = SpritesRepository.Get(sprite),
-            });
-        }
-
-        public UISprite UISprite(Sprite sprite)
-        {
-            return this.UISprite(new UISpriteSettings
-            {
-                Sprite = sprite,
-            });
-        }
-
-        public UISprite UISprite(UISpriteSettings settings)
-        {
-            return AddComponent(UI.UISprite.Create(this, settings));
-        }
-    }
     
-    public class UISprite : UIComponent
+    public sealed class UISprite : UIComponent
     {
         public SpriteRenderer Renderer { get; }
 
-        private UISprite(UIView parentView) : base(parentView)
+        private UISprite(UIObject parent) : base(parent)
         {
             Renderer = _gameObject.AddComponent<SpriteRenderer>();
+            OnSortingOrderChanged += o =>
+            {
+                Renderer.sortingOrder = SortingOrder();
+            };
         }
 
-        public static UISprite Create(UIView view, UISpriteSettings settings)
+        protected override void ApplySettings(UIComponentSettings settings)
         {
-            if (settings.Sprite == null)
+            if (!(settings is UISpriteSettings))
+                throw new NullReferenceException("UISPrite: The given settings is not UISpriteSettings");
+            if (settings == null)
+                throw new NullReferenceException("UISPrite: The given settings was null");
+
+            UISpriteSettings uiSpriteSettings = (UISpriteSettings) settings;
+            if (uiSpriteSettings.Sprite == null)
                 throw new NullReferenceException("UISPrite: The given sprite was null");
-            if (view == null)
-                throw new NullReferenceException("UISPrite: The given parentView was null");
 
-            var uiSprite = new UISprite(view);
-            uiSprite.Renderer.sprite = settings.Sprite;
-            if (settings.Color.HasValue)
-                uiSprite.SetColor(settings.Color.Value);
-
-            return uiSprite;
+            Renderer.sprite = uiSpriteSettings.Sprite;
+            if (uiSpriteSettings.Color.HasValue)
+                SetColor(uiSpriteSettings.Color.Value);
         }
 
         public UISprite SetColor(Color color)

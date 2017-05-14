@@ -14,21 +14,15 @@ namespace mFramework.UI
         public float Width { get; set; }
     }
 
-    public abstract partial class UIView : ITicking
+    public abstract class UIView : UIObject
     {
-        public event Action<UIView, bool> OnChangeActive;
+        private static UIView _nextParentView;
 
         private float _height;
         private float _width;
-        private readonly GameObject _gameObject;
-        private readonly IList<UIView> _childsViews;
-        private readonly List<UIComponent> _childsComponents;
-
-        protected UIView()
+        
+        protected UIView() : base(_nextParentView)
         {
-            _gameObject = new GameObject("UIView");
-            _childsViews = new List<UIView>();
-            _childsComponents = new List<UIComponent>();
         }
 
         public T ChildView<T>(params object[] @params) where T : UIView
@@ -42,24 +36,21 @@ namespace mFramework.UI
 
         public T ChildView<T>(UIViewSettings settings, params object[] @params) where T : UIView
         {
-            var view = Create<T>(settings, this, @params);
-            _childsViews.Add(view);
-            return view;
+            return Create<T>(settings, this, @params);
         }
 
         public static T Create<T>(UIViewSettings settings, UIView parent, params object[] @params) where T : UIView
         {
+            _nextParentView = parent;
             var view = Activator.CreateInstance<T>();
-            view.SetupSettings(settings);
+            _nextParentView = null;
 
-            if (parent == null)
-                view._gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
-            else
-                view._gameObject.SetParent(parent._gameObject);
-            
+            view.SetupSettings(settings);           
             view.Init(@params);
             return view;
         }
+
+        protected abstract void CreateInterface(params object[] @params);
 
         protected virtual void SetupSettings(UIViewSettings settings)
         {
@@ -72,44 +63,20 @@ namespace mFramework.UI
         {
             CreateInterface(@params);
         }
-
-        protected abstract void CreateInterface(params object[] @params);
-
-        private T AddComponent<T>(T component) where T : UIComponent
+        
+        public override void Tick()
         {
-            return component;
+            base.Tick();
         }
 
-        public UIView Show()
+        public override void FixedTick()
         {
-            _gameObject.SetActive(true);
-            OnChangeActive?.Invoke(this, true);
-            return this;
+            base.FixedTick();
         }
 
-        public UIView Hide()
+        public override void LateTick()
         {
-            _gameObject.SetActive(false);
-            OnChangeActive?.Invoke(this, true);
-            return this;
-        }
-
-        public virtual void Tick()
-        {
-            for (int i = 0; i < _childsViews.Count; i++)
-                _childsViews[i].Tick();
-        }
-
-        public virtual void FixedTick()
-        {
-            for (int i = 0; i < _childsViews.Count; i++)
-                _childsViews[i].FixedTick();
-        }
-
-        public virtual void LateTick()
-        {
-            for (int i = 0; i < _childsViews.Count; i++)
-                _childsViews[i].LateTick();
+            base.LateTick();
         }
     }
 }
