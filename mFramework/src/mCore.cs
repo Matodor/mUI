@@ -112,8 +112,10 @@ namespace mFramework
 
         public static bool IsInheritedFrom(Type one, Type from)
         {
-            if (one == null || from == null)
-                throw new NullReferenceException("mCore: IsInheritedFrom - the given type was null");
+            if (one == null)
+                throw new ArgumentNullException(nameof(one));
+            if (from == null)
+                throw new ArgumentNullException(nameof(from));
 
             var bt = one.BaseType;
             while (bt != null)

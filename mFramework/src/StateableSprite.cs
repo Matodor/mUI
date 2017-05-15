@@ -6,17 +6,37 @@ using UnityEngine;
 
 namespace mFramework
 {
+    public struct SpriteStates
+    {
+        public Sprite Default { get; set; }
+        public Sprite Highlighted { get; set; }
+        public Sprite Selected { get; set; }
+    }
+
     public class StateableSprite
     {
-
-        private StateableSprite()
+        public enum State
         {
-            
+            DEFAULT = 0,
+            HIGHLIGHTED = 1,
+            SELECTED = 2
         }
 
-        public static StateableSprite Create(Sprite defaultState, Sprite highlighted = null, Sprite selected = null)
+        private readonly Sprite _defaultState, _highlightedState, _selectedState;
+        private State _state;
+
+        private StateableSprite(SpriteStates spriteStates)
         {
-            return new StateableSprite();
+            _defaultState = spriteStates.Default;
+            _highlightedState = spriteStates.Highlighted;
+            _selectedState = spriteStates.Selected;
+
+            _state = State.DEFAULT;
+        }
+
+        public static StateableSprite Create(SpriteStates spriteStates)
+        {
+            return new StateableSprite(spriteStates);
         }
     }
 }

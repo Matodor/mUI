@@ -30,7 +30,7 @@ namespace mFramework.UI
         public static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
         {
             if (parent == null)
-                throw new NullReferenceException("UIComponent: the given parentObj was null");
+                throw new ArgumentNullException(nameof(parent));
 
             var component = (T)
                 Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,

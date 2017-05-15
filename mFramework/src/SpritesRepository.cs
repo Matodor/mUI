@@ -44,7 +44,7 @@ namespace mFramework
         public static void Add(Sprite sprite)
         {
             if (sprite == null || _sprites.ContainsKey(sprite.name))
-                throw new NullReferenceException("SpriteRepository: the given sprite was null");
+                throw new ArgumentNullException(nameof(sprite));
             _sprites.Add(sprite.name, sprite);
         }
 

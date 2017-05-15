@@ -28,17 +28,19 @@ namespace mFramework.UI
         protected override void ApplySettings(UIComponentSettings settings)
         {
             if (!(settings is UISpriteSettings))
-                throw new NullReferenceException("UISPrite: The given settings is not UISpriteSettings");
+                throw new ArgumentException("UISPrite: The given settings is not UISpriteSettings");
             if (settings == null)
-                throw new NullReferenceException("UISPrite: The given settings was null");
+                throw new ArgumentNullException(nameof(settings));
 
             UISpriteSettings uiSpriteSettings = (UISpriteSettings) settings;
             if (uiSpriteSettings.Sprite == null)
-                throw new NullReferenceException("UISPrite: The given sprite was null");
+                throw new ArgumentNullException(nameof(uiSpriteSettings.Sprite));
 
             Renderer.sprite = uiSpriteSettings.Sprite;
             if (uiSpriteSettings.Color.HasValue)
                 SetColor(uiSpriteSettings.Color.Value);
+
+            base.ApplySettings(uiSpriteSettings);
         }
 
         public UISprite SetColor(Color color)

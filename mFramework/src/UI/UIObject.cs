@@ -14,6 +14,7 @@ namespace mFramework.UI
         protected float _height;
         protected float _width;
         protected readonly GameObject _gameObject;
+        protected readonly Transform _transform;
 
         private readonly List<UIObject> _childObjects;
         private readonly UIObject _parentObject;
@@ -24,6 +25,7 @@ namespace mFramework.UI
             _sortingOrder = 0;
             _parentObject = parentObject;
             _gameObject = new GameObject("UIView");
+            _transform = _gameObject.transform;
             _childObjects = new List<UIObject>();
 
             if (parentObject == null)
@@ -53,6 +55,21 @@ namespace mFramework.UI
             OnSortingOrderChanged?.Invoke(this);
             for (int i = 0; i < _childObjects.Count; i++)
                 _childObjects[i].SortingOrderChanged();
+        }
+
+        public Vector2 GlobalScale()
+        {
+            return _transform.lossyScale;
+        }
+
+        public Vector2 Position()
+        {
+            return _transform.position;
+        }
+
+        public float Rotation()
+        {
+            return _transform.eulerAngles.z;
         }
 
         public UIObject Show()
