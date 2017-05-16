@@ -10,7 +10,7 @@ namespace mFramework
 {
     public class EventsController
     {
-        public static EventsController Instance { get; private set; }
+        public static EventsController Instance { get; }
 
         private readonly Event _currentEvent;
         private readonly Dictionary<long, MouseEventListener> _mouseEventListeners;
@@ -32,10 +32,14 @@ namespace mFramework
                 Instance._mouseEventListeners.Remove(listener.GUID);
         }
 
-        public static void AddMouseEventListener(MouseEventListener listener)
+        public static MouseEventListener AddMouseEventListener(MouseEventListener listener)
         {
             if (!Instance._mouseEventListeners.ContainsKey(listener.GUID))
+            {
                 Instance._mouseEventListeners.Add(listener.GUID, listener);
+                return listener;
+            }
+            return null;
         }
 
         public void Update()
@@ -88,7 +92,7 @@ namespace mFramework
             {
                 if (_currentEvent.isMouse)
                 {
-                    MouseEvent mouseEvent = new MouseEvent
+                    var mouseEvent = new MouseEvent
                     {
                         Button = _currentEvent.button,
                         ClickCount = _currentEvent.clickCount,

@@ -14,9 +14,7 @@ namespace mFramework
 
         public static MouseEventListener Create()
         {
-            var listener = new MouseEventListener();
-            EventsController.AddMouseEventListener(listener);
-            return listener;
+            return EventsController.AddMouseEventListener(new MouseEventListener());
         }
 
         public void MouseWheel(MouseEvent @event)
@@ -37,6 +35,11 @@ namespace mFramework
         public void MouseUp(MouseEvent @event)
         {
             OnMouseUp?.Invoke(@event);
+        }
+
+        public override void Detach()
+        {
+            EventsController.RemoveMouseEventListener(this);
         }
     }
 }

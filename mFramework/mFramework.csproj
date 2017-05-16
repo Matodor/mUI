@@ -50,7 +50,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\abstract\IUIClickable.cs" />
     <Compile Include="src\Area2D.cs" />
-    <Compile Include="src\BoxArea2D.cs" />
+    <Compile Include="src\RectangleArea2D.cs" />
     <Compile Include="src\events\EventListener.cs" />
     <Compile Include="src\events\EventsController.cs" />
     <Compile Include="src\events\MouseEventListener.cs" />
@@ -85,6 +85,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"</PostBuildEvent>
+    <PostBuildEvent>copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"
+copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.pdb" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"</PostBuildEvent>
   </PropertyGroup>
 </Project>

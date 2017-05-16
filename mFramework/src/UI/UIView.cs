@@ -16,6 +16,9 @@ namespace mFramework.UI
 
     public abstract class UIView : UIObject
     {
+        private float _height;
+        private float _width;
+
         private static UIView _nextParentView;
         
         protected UIView() : base(_nextParentView)
@@ -26,8 +29,8 @@ namespace mFramework.UI
         {
             return ChildView<T>(new UIViewSettings
             {
-                Width = _width,
-                Height = _height
+                Width = GetWidth(),
+                Height = GetHeight()
             }, @params);
         }
 
@@ -60,7 +63,17 @@ namespace mFramework.UI
         {
             CreateInterface(@params);
         }
-        
+
+        public override float GetHeight()
+        {
+            return _height;
+        }
+
+        public override float GetWidth()
+        {
+            return _width;
+        }
+
         public override void Tick()
         {
             base.Tick();

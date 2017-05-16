@@ -5,7 +5,7 @@ using System.Text;
 
 namespace mFramework
 {
-    public class EventListener
+    public abstract class EventListener
     {
         public long GUID { get; }
 
@@ -15,5 +15,7 @@ namespace mFramework
         {
             GUID = ++_guid;
         }
+
+        public abstract void Detach();
     }
 }

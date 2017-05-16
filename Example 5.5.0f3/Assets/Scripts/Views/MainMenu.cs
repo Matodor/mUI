@@ -13,12 +13,22 @@ namespace Assets.Scripts.Views
                 mCore.Log(o.ToString());
             }
 
+            /*
             Component<UISprite>(new UISpriteSettings
             {
                 Sprite = SpritesRepository.Get("GameGUI_28")
             });
+            */
 
-            Component<UIButton>(new UIButtonSettings());
+            Component<UIButton>(new UIButtonSettings
+            {
+                ButtonSpriteStates = new SpriteStates
+                {
+                    Default = SpritesRepository.Get("GameGUI_28"),
+                    Highlighted = SpritesRepository.Get("GameGUI_29"),
+                    Selected = SpritesRepository.Get("GameGUI_33"),
+                }
+            });
         }
     }
 }

@@ -22,21 +22,39 @@ namespace mFramework
             SELECTED = 2
         }
 
-        private readonly Sprite _defaultState, _highlightedState, _selectedState;
+        public event Action<Sprite> OnStateChanged;
+        public State CurrentState { get { return _state; } }
+        
+        private readonly SpriteStates _spriteStates;
         private State _state;
 
         private StateableSprite(SpriteStates spriteStates)
         {
-            _defaultState = spriteStates.Default;
-            _highlightedState = spriteStates.Highlighted;
-            _selectedState = spriteStates.Selected;
-
+            _spriteStates = spriteStates;
             _state = State.DEFAULT;
         }
 
         public static StateableSprite Create(SpriteStates spriteStates)
         {
             return new StateableSprite(spriteStates);
+        }
+
+        public void SetDefault()
+        {
+            _state = State.DEFAULT;
+            OnStateChanged?.Invoke(_spriteStates.Default);
+        }
+
+        public void SetHighlighted()
+        {
+            _state = State.HIGHLIGHTED;
+            OnStateChanged?.Invoke(_spriteStates.Highlighted);
+        }
+
+        public void SetSelected()
+        {
+            _state = State.SELECTED;
+            OnStateChanged?.Invoke(_spriteStates.Selected);
         }
     }
 }

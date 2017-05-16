@@ -15,6 +15,7 @@ namespace mFramework
         {
             base.InArea(worldPoint);
 
+
             var cos = Mathf.Cos(Mathf.Deg2Rad * Rotation);
             var sin = Mathf.Sin(Mathf.Deg2Rad * Rotation);
 
@@ -41,6 +42,13 @@ namespace mFramework
             y = (heightDiv2 + Offset.y) * Scale.y;
             var rightTop = mMath.GetRotatedPoint(Center.x, Center.y, ref x, ref y, ref sin, ref cos);
 
+            if (mCore.IsEditor && mCore.IsDebug)
+            {
+                Debug.DrawLine(leftTop, rightTop);
+                Debug.DrawLine(rightTop, rightBottom);
+                Debug.DrawLine(rightBottom, leftBottom);
+                Debug.DrawLine(leftBottom, leftTop);
+            }
 
             return
                 mMath.TriangleContainsPoint(leftTop, leftBottom, rightBottom, worldPoint) ||

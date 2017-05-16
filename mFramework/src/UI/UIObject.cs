@@ -11,8 +11,6 @@ namespace mFramework.UI
         public event Action<UIObject, bool> OnActiveChanged;
         public event Action<UIObject> OnSortingOrderChanged;
 
-        protected float _height;
-        protected float _width;
         protected readonly GameObject _gameObject;
         protected readonly Transform _transform;
 
@@ -35,6 +33,22 @@ namespace mFramework.UI
                 _gameObject.SetParent(parentObject._gameObject);
                 _parentObject.AddChildObject(this);
             }
+        }
+
+        public virtual float GetWidth()
+        {
+            return 0;
+        }
+
+        public virtual float GetHeight()
+        {
+            return 0;
+        }
+
+        public UIObject Translate(Vector2 translatePos)
+        {
+            _transform.Translate(translatePos, Space.World);
+            return this;
         }
 
         public UIObject SortingOrder(int sortingOrder)

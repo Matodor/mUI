@@ -8,7 +8,7 @@ namespace mFramework
 {
     public enum AreaType
     {
-        BOX = 0,    
+        RECTANGLE = 0,    
     }
 
     public abstract class Area2D
@@ -18,12 +18,14 @@ namespace mFramework
         public float Rotation { get; set; }
         public Vector2 Scale { get; set; } = Vector2.one;
 
-        public Action<Area2D> Update { get; set; }
+        public event Action<Area2D> Update;
 
         public virtual bool InArea(Vector2 worldPoint)
         {
             Update?.Invoke(this);
             return false;
         }
+
+        public virtual void Draw() { }
     }
 }

@@ -18,15 +18,13 @@ namespace mFramework.src.UI
 
             switch (areaType)
             {
-                case AreaType.BOX:
-                    Area2D = new RectangleArea2D
+                case AreaType.RECTANGLE:
+                    Area2D = new RectangleArea2D();
+                    Area2D.Update += area2d =>
                     {
-                        Update = area2d =>
-                        {
-                            area2d.Center = component.Position();
-                            area2d.Rotation = component.Rotation();
-                            area2d.Scale = component.GlobalScale();
-                        }
+                        area2d.Center = component.Position();
+                        area2d.Rotation = component.Rotation();
+                        area2d.Scale = component.GlobalScale();
                     };
 
                     break;

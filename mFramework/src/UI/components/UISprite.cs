@@ -12,7 +12,7 @@ namespace mFramework.UI
         public Color? Color { get; set; } = null;
     }
     
-    public sealed class UISprite : UIComponent
+    public class UISprite : UIComponent
     {
         public SpriteRenderer Renderer { get; }
 
@@ -27,20 +27,34 @@ namespace mFramework.UI
 
         protected override void ApplySettings(UIComponentSettings settings)
         {
-            if (!(settings is UISpriteSettings))
-                throw new ArgumentException("UISPrite: The given settings is not UISpriteSettings");
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            UISpriteSettings uiSpriteSettings = (UISpriteSettings) settings;
-            if (uiSpriteSettings.Sprite == null)
-                throw new ArgumentNullException(nameof(uiSpriteSettings.Sprite));
+            var spriteSettings = settings as UISpriteSettings;
+            if (spriteSettings == null)
+                throw new ArgumentException("UISPrite: The given settings is not UISpriteSettings");
+          
+            Renderer.sprite = spriteSettings.Sprite;
+            if (spriteSettings.Color.HasValue)
+                SetColor(spriteSettings.Color.Value);
 
-            Renderer.sprite = uiSpriteSettings.Sprite;
-            if (uiSpriteSettings.Color.HasValue)
-                SetColor(uiSpriteSettings.Color.Value);
+            base.ApplySettings(spriteSettings);
+        }
 
-            base.ApplySettings(uiSpriteSettings);
+        public override float GetHeight()
+        {
+            return Renderer.sprite?.bounds.size.y ?? 0;
+        }
+
+        public override float GetWidth()
+        {
+            return Renderer.sprite?.bounds.size.x ?? 0;
+        }
+
+        public UISprite SetSprite(Sprite sprite)
+        {
+            Renderer.sprite = sprite;
+            return this;
         }
 
         public UISprite SetColor(Color color)
