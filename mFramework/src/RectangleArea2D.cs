@@ -14,8 +14,7 @@ namespace mFramework
         public override bool InArea(Vector2 worldPoint)
         {
             base.InArea(worldPoint);
-
-
+            
             var cos = Mathf.Cos(Mathf.Deg2Rad * Rotation);
             var sin = Mathf.Sin(Mathf.Deg2Rad * Rotation);
 

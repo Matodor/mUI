@@ -9,11 +9,13 @@ namespace mFramework.src.UI
     public class UIClickable
     {
         public Area2D Area2D { get; }
+        public Func<bool> CanClick { get; set; }
 
         private readonly MouseEventListener _eventListener;
 
         private UIClickable(UIComponent component, IUIClickable handler, AreaType areaType)
         {
+            CanClick = () => true;
             _eventListener = MouseEventListener.Create();
 
             switch (areaType)
@@ -34,6 +36,8 @@ namespace mFramework.src.UI
 
             _eventListener.OnMouseDown += @event =>
             {
+                if (!Can()) return;
+
                 var worldPos = mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos);
                 if (Area2D.InArea(worldPos))
                     handler.MouseDown(worldPos);
@@ -41,13 +45,22 @@ namespace mFramework.src.UI
 
             _eventListener.OnMouseUp += @event =>
             {
+                if (!Can()) return;
+
                 handler.MouseUp(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));
             };
 
             _eventListener.OnMouseDrag += @event =>
             {
+                if (!Can()) return;
+
                 handler.MouseDrag(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));
             };
+        }
+
+        private bool Can()
+        {
+            return CanClick != null && CanClick();
         }
 
         public static UIClickable Create(UIComponent component, IUIClickable handler, AreaType areaType)

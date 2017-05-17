@@ -7,20 +7,35 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public sealed class UIButtonSettings : UIComponentSettings
+    public class UIButtonSettings : UIComponentSettings
     {
+        public ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
         public SpriteStates ButtonSpriteStates { get; set; }
         public AreaType ButtonAreaType { get; set; } = AreaType.RECTANGLE;
     }
 
+    public enum ClickCondition
+    {
+        BUTTON_UP,
+        BUTTON_DOWN,
+        BUTTON_PRESSED
+    }
+
     public class UIButton : UIComponent, IUIClickable
     {
+        public ClickCondition ClickCondition { get; set; }
+        public event Action<UIButton> OnClick, OnMouseDown, OnMouseUp;
+
+
+        public StateableSprite StateableSprite { get { return _stateableSprite; } }
+
         private UIClickable _clickableHandler;
         private StateableSprite _stateableSprite;
         private UISprite _uiSprite;
 
-        private UIButton(UIObject parent) : base(parent)
+        protected UIButton(UIObject parent) : base(parent)
         {
+            ClickCondition = ClickCondition.BUTTON_UP;
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -32,6 +47,8 @@ namespace mFramework.UI
             if (buttonSettings == null)
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
 
+            ClickCondition = buttonSettings.ClickCondition;
+
             switch (buttonSettings.ButtonAreaType)
             {
                 case AreaType.RECTANGLE:
@@ -40,15 +57,14 @@ namespace mFramework.UI
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            SetupClickableHandler();
 
             _uiSprite = Component<UISprite>(new UISpriteSettings { Sprite = buttonSettings.ButtonSpriteStates.Default });
             _stateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
             _stateableSprite.OnStateChanged += sprite =>
             {
-                if (sprite != null)
-                {
+                if (sprite != null && _uiSprite.Renderer.sprite != sprite)
                     _uiSprite.SetSprite(sprite);
-                }
             };
 
             base.ApplySettings(buttonSettings);
@@ -74,6 +90,13 @@ namespace mFramework.UI
             };
         }
 
+        private void SetupClickableHandler()
+        {
+            if (_clickableHandler == null)
+                return;
+            _clickableHandler.CanClick = () => IsActive;
+        }
+
         public override float GetHeight()
         {
             return _uiSprite.GetHeight();
@@ -86,10 +109,22 @@ namespace mFramework.UI
 
         public void MouseDown(Vector2 worldPos)
         {
+            _stateableSprite.SetHighlighted();
+
+            if (ClickCondition == ClickCondition.BUTTON_DOWN)
+                OnClick?.Invoke(this);
+
+            OnMouseDown?.Invoke(this);
         }
 
         public void MouseUp(Vector2 worldPos)
         {
+            _stateableSprite.SetDefault();
+
+            if (ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
+                OnClick?.Invoke(this);
+
+            OnMouseUp?.Invoke(this);
         }
 
         public void MouseDrag(Vector2 worldPos)

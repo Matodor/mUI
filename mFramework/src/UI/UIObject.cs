@@ -8,8 +8,11 @@ namespace mFramework.UI
 {
     public abstract class UIObject : ITicking
     {
-        public event Action<UIObject, bool> OnActiveChanged;
+        public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
         public event Action<UIObject> OnSortingOrderChanged;
+
+        public bool IsActive { get { return _isActive; } }
+        public bool IsVisible { get { return _isVisible; } }
 
         protected readonly GameObject _gameObject;
         protected readonly Transform _transform;
@@ -17,9 +20,12 @@ namespace mFramework.UI
         private readonly List<UIObject> _childObjects;
         private readonly UIObject _parentObject;
         private int _sortingOrder;
+        private bool _isActive;
+        private bool _isVisible;
 
         protected UIObject(UIObject parentObject)
         {
+            _isActive = true;
             _sortingOrder = 0;
             _parentObject = parentObject;
             _gameObject = new GameObject("UIView");
@@ -43,6 +49,18 @@ namespace mFramework.UI
         public virtual float GetHeight()
         {
             return 0;
+        }
+
+        public UIObject Rotate(float x, float y, float z)
+        {
+            _transform.Rotate(x, y, z);
+            return this;
+        }
+
+        public UIObject Rotate(float angle)
+        {
+            _transform.Rotate(0, 0, angle);
+            return this;
         }
 
         public UIObject Translate(Vector2 translatePos)
@@ -86,18 +104,59 @@ namespace mFramework.UI
             return _transform.eulerAngles.z;
         }
 
+        public UIObject Active()
+        {
+            if (!_isVisible) return this;
+
+            ActiveChanged(true);
+            return this;
+        }
+
+        public UIObject Inactive()
+        {
+            if (!_isVisible) return this;
+
+            ActiveChanged(false);
+            return this;
+        }
+
         public UIObject Show()
         {
-            _gameObject.SetActive(true);
-            OnActiveChanged?.Invoke(this, true);
+            VisibleChanged(true);
             return this;
         }
 
         public UIObject Hide()
         {
-            _gameObject.SetActive(false);
-            OnActiveChanged?.Invoke(this, true);
+            VisibleChanged(false);
             return this;
+        }
+
+        private void VisibleChanged(bool visible)
+        {
+            if (_isVisible == visible)
+                return;
+
+            _isVisible = visible;
+            _isActive = visible;
+
+            OnVisibleChanged?.Invoke(this);
+            OnActiveChanged?.Invoke(this);
+
+            for (int i = 0; i < _childObjects.Count; i++)
+                _childObjects[i].VisibleChanged(visible);
+        }
+
+        private void ActiveChanged(bool active)
+        {
+            if (_isActive == active)
+                return;
+            
+            _isActive = active;
+
+            OnActiveChanged?.Invoke(this);
+            for (int i = 0; i < _childObjects.Count; i++)
+                _childObjects[i].ActiveChanged(active);
         }
 
         public virtual void Tick()
