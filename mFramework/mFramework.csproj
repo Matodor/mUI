@@ -68,6 +68,7 @@
     <Compile Include="src\StateableSprite.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
     <Compile Include="src\UI\components\UIRadioGroup.cs" />
+    <Compile Include="src\UI\components\UISlider.cs" />
     <Compile Include="src\UI\components\UISprite.cs" />
     <Compile Include="src\UI\components\UIToggle.cs" />
     <Compile Include="src\UI\UIClickable.cs" />

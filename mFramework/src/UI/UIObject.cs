@@ -11,6 +11,7 @@ namespace mFramework.UI
         public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
         public event Action<UIObject> OnSortingOrderChanged;
 
+        public ulong GUID { get; }
         public bool IsActive { get { return _isActive; } }
         public bool IsVisible { get { return _isVisible; } }
 
@@ -23,9 +24,13 @@ namespace mFramework.UI
         private bool _isActive;
         private bool _isVisible;
 
+        private static ulong _guid;
+
         protected UIObject(UIObject parentObject)
         {
+            GUID = ++_guid;
             _isActive = true;
+            _isVisible = true;
             _sortingOrder = 0;
             _parentObject = parentObject;
             _gameObject = new GameObject("UIView");
