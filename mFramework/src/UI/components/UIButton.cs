@@ -97,6 +97,11 @@ namespace mFramework.UI
             _clickableHandler.CanClick = () => IsActive;
         }
 
+        public override UIRect GetRect()
+        {
+            return _uiSprite.GetRect();
+        }
+
         public override float GetHeight()
         {
             return _uiSprite.GetHeight();

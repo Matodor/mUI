@@ -80,5 +80,20 @@ namespace mFramework.UI
             OnChanged?.Invoke(this);
             return this;
         }
+
+        public override UIRect GetRect()
+        {
+            return _button.GetRect();
+        }
+
+        public override float GetWidth()
+        {
+            return _button.GetWidth();
+        }
+
+        public override float GetHeight()
+        {
+            return _button.GetHeight();
+        }
     }
 }

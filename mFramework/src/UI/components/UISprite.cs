@@ -43,12 +43,12 @@ namespace mFramework.UI
 
         public override float GetHeight()
         {
-            return Renderer.sprite?.bounds.size.y ?? 0;
+            return Renderer.sprite?.bounds.size.y ?? base.GetHeight();
         }
 
         public override float GetWidth()
         {
-            return Renderer.sprite?.bounds.size.x ?? 0;
+            return Renderer.sprite?.bounds.size.x ?? base.GetWidth();
         }
 
         public UISprite SetSprite(Sprite sprite)

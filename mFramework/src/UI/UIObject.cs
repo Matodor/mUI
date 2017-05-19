@@ -46,6 +46,22 @@ namespace mFramework.UI
             }
         }
 
+        public virtual UIRect GetRect()
+        {
+            var pos = Position();
+            var heightDiv2 = GetHeight() / 2;
+            var widthDiv2 = GetWidth() / 2;
+
+            return new UIRect()
+            {
+                Position = pos,
+                Bottom = pos.y - heightDiv2,
+                Top = pos.y + heightDiv2,
+                Left = pos.x - widthDiv2,
+                Right = pos.x + widthDiv2,
+            };
+        }
+
         public virtual float GetWidth()
         {
             return 0;

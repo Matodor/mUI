@@ -73,6 +73,7 @@
     <Compile Include="src\UI\components\UIToggle.cs" />
     <Compile Include="src\UI\UIClickable.cs" />
     <Compile Include="src\UI\UIObject.cs" />
+    <Compile Include="src\UI\UIRect.cs" />
     <Compile Include="src\UI\views\BaseView.cs" />
     <Compile Include="src\UI\mUI.cs" />
     <Compile Include="src\UI\UICamera.cs" />
