@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using mFramework.src.UI;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -23,12 +19,13 @@ namespace mFramework.UI
 
     public class UIButton : UIComponent, IUIClickable
     {
+        public UIClickable UIClickable { get { return _clickableHandler; } }
         public ClickCondition ClickCondition { get; set; }
-        public event Action<UIButton> OnClick, OnMouseDown, OnMouseUp;
-
-
         public StateableSprite StateableSprite { get { return _stateableSprite; } }
 
+        public event Action<UIButton> OnClick;
+        public event Func<UIButton, bool> OnMouseDown, OnMouseUp;
+        
         private UIClickable _clickableHandler;
         private StateableSprite _stateableSprite;
         private UISprite _uiSprite;
@@ -94,7 +91,7 @@ namespace mFramework.UI
         {
             if (_clickableHandler == null)
                 return;
-            _clickableHandler.CanClick = () => IsActive;
+            _clickableHandler.CanClick += () => IsActive;
         }
 
         public override UIRect GetRect()
@@ -116,20 +113,16 @@ namespace mFramework.UI
         {
             _stateableSprite.SetHighlighted();
 
-            if (ClickCondition == ClickCondition.BUTTON_DOWN)
+            if ((OnMouseDown?.Invoke(this) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
                 OnClick?.Invoke(this);
-
-            OnMouseDown?.Invoke(this);
         }
 
         public void MouseUp(Vector2 worldPos)
         {
             _stateableSprite.SetDefault();
 
-            if (ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
+            if ((OnMouseUp?.Invoke(this) ?? true) && ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
                 OnClick?.Invoke(this);
-
-            OnMouseUp?.Invoke(this);
         }
 
         public void MouseDrag(Vector2 worldPos)

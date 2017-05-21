@@ -18,11 +18,13 @@ namespace mFramework.UI
     {
         private float _height;
         private float _width;
+        private bool _created;
 
         private static UIView _nextParentView;
         
         protected UIView() : base(_nextParentView)
         {
+            _created = false;
         }
 
         public T ChildView<T>(params object[] @params) where T : UIView
@@ -61,7 +63,20 @@ namespace mFramework.UI
 
         public void Init(params object[] @params)
         {
+            if (_created)
+                throw new Exception("This UIView already created");
+
             CreateInterface(@params);
+            _created = true;
+        }
+
+        public Vector2 RelativePosition(float x, float y)
+        {
+            return Position() + new Vector2
+            {
+                x = -GetWidth() / 2 + GetWidth() * mMath.Сlamp(x, 0, 1),
+                y = -GetHeight() / 2 + GetHeight() * mMath.Сlamp(y, 0, 1)
+            };
         }
 
         public override float GetHeight()

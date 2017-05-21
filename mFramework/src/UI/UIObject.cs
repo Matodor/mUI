@@ -10,7 +10,9 @@ namespace mFramework.UI
     {
         public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
         public event Action<UIObject> OnSortingOrderChanged;
+        public event Action<UIObject> OnAddedChildren;
 
+        public UIObject Parent { get { return _parentObject; } }
         public ulong GUID { get; }
         public bool IsActive { get { return _isActive; } }
         public bool IsVisible { get { return _isVisible; } }
@@ -40,10 +42,7 @@ namespace mFramework.UI
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
             else
-            {
                 _gameObject.SetParent(parentObject._gameObject);
-                _parentObject.AddChildObject(this);
-            }
         }
 
         public virtual UIRect GetRect()
@@ -84,6 +83,12 @@ namespace mFramework.UI
             return this;
         }
 
+        public UIObject Translate(float x, float y)
+        {
+            _transform.Translate(x, y, 0, Space.World);
+            return this;
+        }
+
         public UIObject Translate(Vector2 translatePos)
         {
             _transform.Translate(translatePos, Space.World);
@@ -113,6 +118,16 @@ namespace mFramework.UI
         public Vector2 GlobalScale()
         {
             return _transform.lossyScale;
+        }
+
+        public void Position(float x, float y)
+        {
+            _transform.position.Set(x, y, _transform.position.z);
+        }
+
+        public void Position(Vector2 position)
+        {
+            _transform.position.Set(position.x, position.y, _transform.position.z);
         }
 
         public Vector2 Position()
@@ -200,12 +215,15 @@ namespace mFramework.UI
 
         public T Component<T>(UIComponentSettings settings) where T : UIComponent
         {
-            return UIComponent.Create<T>(this, settings);
+            var child = UIComponent.Create<T>(this, settings);
+            AddChildObject(child);
+            return child;
         }
 
         private T AddChildObject<T>(T @object) where T : UIObject
         {
             _childObjects.Add(@object);
+            OnAddedChildren?.Invoke(@object);
             return @object;
         }
     }

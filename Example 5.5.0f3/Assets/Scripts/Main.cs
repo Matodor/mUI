@@ -4,9 +4,8 @@ using mFramework;
 using mFramework.UI;
 using UnityEngine;
 
-public class Main : MonoBehaviour {
-
-	// Use this for initialization
+public class Main : MonoBehaviour
+{
 	void Start ()
 	{
         mCore.Init();
@@ -24,7 +23,6 @@ public class Main : MonoBehaviour {
 	    var mainMenu = mUI.BaseView.ChildView<MainMenu>();
     }
 	
-	// Update is called once per frame
     void Update() 
     {
     }

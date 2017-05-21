@@ -47,7 +47,17 @@ namespace mFramework.UI
                 throw new Exception("UI already created");
             return new mUI(settings);
         }
-        
+
+        public static float MaxWidth()
+        {
+            return BaseView.GetWidth();
+        }
+
+        public static float MaxHeight()
+        {
+            return BaseView.GetHeight();
+        }
+
         public void Tick()
         {
             BaseView.Tick();

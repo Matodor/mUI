@@ -38,6 +38,7 @@ namespace mFramework.UI
             {
                 if (_isSelected)
                     _button.StateableSprite.SetSelected();
+                return true;
             };
 
             if (toggleSettings.DefaultSelected)

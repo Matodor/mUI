@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using mFramework.UI;
 
-namespace mFramework.src.UI
+namespace mFramework.UI
 {
     public class UIClickable
     {
         public Area2D Area2D { get; }
-        public Func<bool> CanClick { get; set; }
+        public event Func<bool> CanClick;
 
         private readonly MouseEventListener _eventListener;
 
         private UIClickable(UIComponent component, IUIClickable handler, AreaType areaType)
         {
-            CanClick = () => true;
             _eventListener = MouseEventListener.Create();
 
             switch (areaType)
@@ -60,7 +55,7 @@ namespace mFramework.src.UI
 
         private bool Can()
         {
-            return CanClick != null && CanClick();
+            return CanClick?.Invoke() ?? true;
         }
 
         public static UIClickable Create(UIComponent component, IUIClickable handler, AreaType areaType)

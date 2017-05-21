@@ -33,7 +33,7 @@ namespace Assets.Scripts.Views
                 }
             });
             button.OnClick += sender => mCore.Log("UIButton: click");
-            button.Translate(new Vector2(0, -3));
+            button.Translate(0, -3);
 
 
             // UIToggle
@@ -48,7 +48,7 @@ namespace Assets.Scripts.Views
                 DefaultSelected = true
             });
             toggle.OnChanged += sender => mCore.Log("UIToogle: {0}", sender.IsSelected);
-            toggle.Translate(new Vector2(0, 3));
+            toggle.Translate(0, 3);
 
 
             // UIRadioGroup
@@ -72,10 +72,31 @@ namespace Assets.Scripts.Views
                 return t;
             };
 
-            addToggle(radioGroup).Translate(new Vector2(-1, 0));
-            addToggle(radioGroup).Translate(new Vector2(+0, 0));
-            addToggle(radioGroup).Translate(new Vector2(+1, 0));
-            radioGroup.Translate(new Vector2(0, -1));
+            addToggle(radioGroup).Translate(-1, 0);
+            addToggle(radioGroup).Translate(0, 0);
+            addToggle(radioGroup).Translate(1, 0);
+            radioGroup.Translate(0, -1);
+
+
+            // UISlider
+            var slider = Component<UISlider>(new UISliderSettings
+            {
+                Width = mUI.MaxWidth() * 0.9f,
+                Height = 1f
+            });
+            slider.Translate(0, 1.5f);
+            
+            for (int i = 0; i < 10; i++)
+            {
+                slider.Component<UIButton>(new UIButtonSettings
+                {
+                    ButtonSpriteStates = new SpriteStates
+                    {
+                        Default = SpritesRepository.Get("GameGUI_4"),
+                        Highlighted = SpritesRepository.Get("GameGUI_5")
+                    }
+                });
+            }
         }
     }
 }
