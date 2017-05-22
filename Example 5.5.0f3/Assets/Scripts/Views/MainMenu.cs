@@ -82,7 +82,12 @@ namespace Assets.Scripts.Views
             var slider = Component<UISlider>(new UISliderSettings
             {
                 Width = mUI.MaxWidth() * 0.9f,
-                Height = 1f
+                Height = 1f,
+                Offset = 0.3f,
+                OrientationSettings = new UISliderHorizontalSettings
+                {
+                    SliderDirection = UISliderHorizontalSettings.Direction.RIGHT_TO_LEFT
+                }
             });
             slider.Translate(0, 1.5f);
             

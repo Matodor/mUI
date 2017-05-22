@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -17,10 +18,12 @@ namespace mFramework.UI
         public bool IsActive { get { return _isActive; } }
         public bool IsVisible { get { return _isVisible; } }
 
+        public ReadOnlyCollection<UIObject> ChildsObjects { get { return _childsObjects.AsReadOnly(); } }
+
         protected readonly GameObject _gameObject;
         protected readonly Transform _transform;
 
-        private readonly List<UIObject> _childObjects;
+        private readonly List<UIObject> _childsObjects;
         private readonly UIObject _parentObject;
         private int _sortingOrder;
         private bool _isActive;
@@ -37,12 +40,19 @@ namespace mFramework.UI
             _parentObject = parentObject;
             _gameObject = new GameObject("UIView");
             _transform = _gameObject.transform;
-            _childObjects = new List<UIObject>();
+            _childsObjects = new List<UIObject>();
 
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
             else
                 _gameObject.SetParent(parentObject._gameObject);
+
+            mUI.Instance.AddUIObject(this);
+        }
+
+        ~UIObject()
+        {
+            mUI.Instance.RemoveUIObject(this);
         }
 
         public virtual UIRect GetRect()
@@ -111,8 +121,8 @@ namespace mFramework.UI
         private void SortingOrderChanged()
         {
             OnSortingOrderChanged?.Invoke(this);
-            for (int i = 0; i < _childObjects.Count; i++)
-                _childObjects[i].SortingOrderChanged();
+            for (int i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].SortingOrderChanged();
         }
 
         public Vector2 GlobalScale()
@@ -122,12 +132,17 @@ namespace mFramework.UI
 
         public void Position(float x, float y)
         {
-            _transform.position.Set(x, y, _transform.position.z);
+            _transform.position = new Vector3
+            {
+                x = x,
+                y = y,
+                z = _transform.position.z
+            };
         }
 
         public void Position(Vector2 position)
         {
-            _transform.position.Set(position.x, position.y, _transform.position.z);
+            Position(position.x, position.y);
         }
 
         public Vector2 Position()
@@ -179,8 +194,8 @@ namespace mFramework.UI
             OnVisibleChanged?.Invoke(this);
             OnActiveChanged?.Invoke(this);
 
-            for (int i = 0; i < _childObjects.Count; i++)
-                _childObjects[i].VisibleChanged(visible);
+            for (int i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].VisibleChanged(visible);
         }
 
         private void ActiveChanged(bool active)
@@ -191,26 +206,26 @@ namespace mFramework.UI
             _isActive = active;
 
             OnActiveChanged?.Invoke(this);
-            for (int i = 0; i < _childObjects.Count; i++)
-                _childObjects[i].ActiveChanged(active);
+            for (int i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].ActiveChanged(active);
         }
 
         public virtual void Tick()
         {
-            for (int i = 0; i < _childObjects.Count; i++)
-                _childObjects[i].Tick();
+            for (int i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].Tick();
         }
 
         public virtual void FixedTick()
         {
-            for (int i = 0; i < _childObjects.Count; i++)
-                _childObjects[i].FixedTick();
+            for (int i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].FixedTick();
         }
 
         public virtual void LateTick()
         {
-            for (int i = 0; i < _childObjects.Count; i++)
-                _childObjects[i].LateTick();
+            for (int i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].LateTick();
         }
 
         public T Component<T>(UIComponentSettings settings) where T : UIComponent
@@ -222,7 +237,7 @@ namespace mFramework.UI
 
         private T AddChildObject<T>(T @object) where T : UIObject
         {
-            _childObjects.Add(@object);
+            _childsObjects.Add(@object);
             OnAddedChildren?.Invoke(@object);
             return @object;
         }

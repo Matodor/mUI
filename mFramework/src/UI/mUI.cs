@@ -13,18 +13,23 @@ namespace mFramework.UI
 
     public sealed class mUI : ITicking
     {
-        public static mUI Instance { get; private set; }
-        public static UIView BaseView { get; private set; }
+        public static mUI Instance { get { return _instance; } }
+        public static UIView BaseView { get { return _instance._baseView; } }
+        public static UICamera UICamera { get { return _instance._uiCamera; } }
 
-        public static UICamera UICamera { get; private set; }
+        private static mUI _instance;
+        private readonly UIView _baseView;
+        private readonly UICamera _uiCamera;
+        private readonly Dictionary<ulong, UIObject> _uiObjects;
 
         private mUI(UISettings settings)
         {
-            UICamera = UICamera.Create(settings.CameraSettings);
-            UICamera.GameObject.SetParent(mEngine.Instance.gameObject);
+            _uiCamera = UICamera.Create(settings.CameraSettings);
+            _uiCamera.GameObject.SetParent(mEngine.Instance.gameObject);
 
-            Instance = this;
-            BaseView = UIView.Create<BaseView>(new UIViewSettings
+            _instance = this;
+            _uiObjects = new Dictionary<ulong, UIObject>();
+            _baseView = UIView.Create<BaseView>(new UIViewSettings
             {
                 Height = UICamera.PureHeight,
                 Width = UICamera.PureWidth,
@@ -43,7 +48,7 @@ namespace mFramework.UI
         {
             if (settings == null)
                 throw new NullReferenceException("UISettings is null");
-            if (Instance != null)
+            if (_instance != null)
                 throw new Exception("UI already created");
             return new mUI(settings);
         }
@@ -56,6 +61,24 @@ namespace mFramework.UI
         public static float MaxHeight()
         {
             return BaseView.GetHeight();
+        }
+
+        public bool RemoveUIObject(UIObject obj)
+        {
+            if (!_uiObjects.ContainsKey(obj.GUID))
+                return false;
+
+            _uiObjects.Remove(obj.GUID);
+            return true;
+        }
+
+        public bool AddUIObject(UIObject obj)
+        {
+            if (_uiObjects.ContainsKey(obj.GUID))
+                return false;
+
+            _uiObjects.Add(obj.GUID, obj);
+            return true;
         }
 
         public void Tick()
