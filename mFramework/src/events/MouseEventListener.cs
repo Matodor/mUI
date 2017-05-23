@@ -17,6 +17,11 @@ namespace mFramework
             return EventsController.AddMouseEventListener(new MouseEventListener());
         }
 
+        ~MouseEventListener()
+        {
+            Detach();
+        }
+
         public void MouseWheel(MouseEvent @event)
         {
             OnMouseWheel?.Invoke(@event);

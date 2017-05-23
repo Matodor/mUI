@@ -20,14 +20,8 @@ namespace mFramework.UI
         {
             SetName("UIComponent");
         }
-
-        public UIComponent SetName(string name)
-        {
-            _gameObject.name = name;
-            return this;
-        }
-
-        public static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
+        
+        internal static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
@@ -43,21 +37,6 @@ namespace mFramework.UI
 
         protected virtual void ApplySettings(UIComponentSettings settings)
         {
-        }
-
-        public override void Tick()
-        {
-            base.Tick();
-        }
-
-        public override void FixedTick()
-        {
-            base.FixedTick();
-        }
-
-        public override void LateTick()
-        {
-            base.LateTick();
         }
     }
 }

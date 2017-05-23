@@ -2,12 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using mFramework.UI;
-using UnityEditor;
 using UnityEngine;
 
 namespace mFramework
 {
-    public sealed class mCore : ITicking
+    public sealed class mCore
     {
         public static mCore Instance { get; private set; }
         public static bool IsDebug { get; set; }
@@ -110,31 +109,13 @@ namespace mFramework
             }
         }
 
-        public static bool IsInheritedFrom(Type one, Type from)
-        {
-            if (one == null)
-                throw new ArgumentNullException(nameof(one));
-            if (from == null)
-                throw new ArgumentNullException(nameof(from));
-
-            var bt = one.BaseType;
-            while (bt != null)
-            {
-                if (bt == from)
-                    return true;
-                bt = bt.BaseType;
-            }
-
-            return false;
-        }
-
         public static void Log(string format, params object[] obj)
         {
             if (IsEditor && IsDebug)
                 UnityEngine.Debug.Log(string.Format(format, obj));
         }
 
-        public void Tick()
+        internal void Tick()
         {
             /*
                 if (UnityEditor.EditorApplication.isCompiling && (UnityEditor.EditorApplication.isPlaying || UnityEditor.EditorApplication.isPaused))
@@ -147,12 +128,12 @@ namespace mFramework
             mUI.Instance?.Tick();
         }
 
-        public void FixedTick()
+        internal void FixedTick()
         {
             mUI.Instance?.FixedTick();
         }
 
-        public void LateTick()
+        internal void LateTick()
         {
             mUI.Instance?.LateTick();
         }

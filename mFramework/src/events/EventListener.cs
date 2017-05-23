@@ -7,7 +7,7 @@ namespace mFramework
 {
     public abstract class EventListener
     {
-        public long GUID { get; }
+        internal long GUID { get; }
 
         private static long _guid = 0;
 

@@ -55,8 +55,6 @@
     <Compile Include="src\events\EventsController.cs" />
     <Compile Include="src\events\MouseEventListener.cs" />
     <Compile Include="src\extensions\SpriteExtension.cs" />
-    <Compile Include="src\extensions\UIExtension.cs" />
-    <Compile Include="src\abstract\ITicking.cs" />
     <Compile Include="src\extensions\GameObjectExtension.cs" />
     <Compile Include="src\events\InputEvent.cs" />
     <Compile Include="src\events\KeyboardEvent.cs" />

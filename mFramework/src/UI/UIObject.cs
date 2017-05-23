@@ -7,14 +7,15 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public abstract class UIObject : ITicking
+    public abstract class UIObject
     {
+        internal ulong GUID { get; }
+
         public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
         public event Action<UIObject> OnSortingOrderChanged;
         public event Action<UIObject> OnAddedChildren;
 
         public UIObject Parent { get { return _parentObject; } }
-        public ulong GUID { get; }
         public bool IsActive { get { return _isActive; } }
         public bool IsVisible { get { return _isVisible; } }
 
@@ -45,14 +46,24 @@ namespace mFramework.UI
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
             else
+            {
                 _gameObject.SetParent(parentObject._gameObject);
-
+                if (this is UIView)
+                    parentObject.AddChildObject(this);
+            }
+            
             mUI.Instance.AddUIObject(this);
         }
 
         ~UIObject()
         {
             mUI.Instance.RemoveUIObject(this);
+        }
+
+        public UIObject SetName(string name)
+        {
+            _gameObject.name = name;
+            return this;
         }
 
         public virtual UIRect GetRect()
@@ -210,19 +221,19 @@ namespace mFramework.UI
                 _childsObjects[i].ActiveChanged(active);
         }
 
-        public virtual void Tick()
+        internal virtual void Tick()
         {
             for (int i = 0; i < _childsObjects.Count; i++)
                 _childsObjects[i].Tick();
         }
 
-        public virtual void FixedTick()
+        internal virtual void FixedTick()
         {
             for (int i = 0; i < _childsObjects.Count; i++)
                 _childsObjects[i].FixedTick();
         }
 
-        public virtual void LateTick()
+        internal virtual void LateTick()
         {
             for (int i = 0; i < _childsObjects.Count; i++)
                 _childsObjects[i].LateTick();

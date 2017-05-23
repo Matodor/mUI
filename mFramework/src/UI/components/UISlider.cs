@@ -6,36 +6,23 @@ namespace mFramework.UI
 {
     public sealed class UISliderSettings : UIComponentSettings
     {
-        public float Height { get; set; }
-        public float Width { get; set; }
-        public float Offset { get; set; }
-        public UISliderOrientationSettings OrientationSettings { get; set; }
+        public float Height { get; set; } = 0;
+        public float Width { get; set; } = 0;
+        public float Offset { get; set; } = 0;
+        public DirectionOfAddingSlides DirectionOfAddingSlides { get; set; } = DirectionOfAddingSlides.FORWARD;
+        public SliderType SliderType { get; set; } = SliderType.HORIZONTAL;
     }
 
-    public abstract class UISliderOrientationSettings
+    public enum SliderType
     {
+        HORIZONTAL = 0,
+        VERTICAL = 1,
     }
 
-    public sealed class UISliderVerticalSettings : UISliderOrientationSettings
+    public enum DirectionOfAddingSlides
     {
-        public enum Direction
-        {
-            TOP_TO_BOTTOM = 0,
-            BOTTOM_TO_TOP = 1,
-        }
-
-        public Direction SliderDirection { get; set; }
-    }
-
-    public sealed class UISliderHorizontalSettings : UISliderOrientationSettings
-    {
-        public enum Direction
-        {
-            LEFT_TO_RIGHT = 0,
-            RIGHT_TO_LEFT = 1,
-        }
-
-        public Direction SliderDirection { get; set; }
+        FORWARD = 0,
+        BACKWARD = 1,
     }
 
     public class UISlider : UIComponent, IUIClickable
@@ -44,15 +31,20 @@ namespace mFramework.UI
 
         private readonly List<UIObject> _slides;
         private UIClickable _clickableHandler;
+        private SliderType _sliderType;
+        private DirectionOfAddingSlides _directionOfAddingSlides;
+
         private float _height;
         private float _width;
-        private UISliderOrientationSettings _sliderOrientation;
+        private float _offset;
+        private float _lastMoveDiff;
+
         private bool _isPressed;
         private Vector2 _lastMousePos;
-        private float _offset;
 
         private UISlider(UIObject parent) : base(parent)
         {
+            _lastMoveDiff = 0;
             _isPressed = false;
             _slides = new List<UIObject>();
             OnAddedChildren += SetupChildren;
@@ -60,13 +52,10 @@ namespace mFramework.UI
 
         private void SetupChildren(UIObject obj)
         {
-            var horizontal = _sliderOrientation as UISliderHorizontalSettings;
-            if (horizontal != null)
-                SetupChildrenHorizontal(obj, horizontal);
-            
-            var vertical = _sliderOrientation as UISliderVerticalSettings;
-            if (vertical != null)
-                SetupChildrenVertical(obj, vertical);
+            if (_sliderType == SliderType.HORIZONTAL)
+                SetupChildrenHorizontal(obj);
+            else
+                SetupChildrenVertical(obj);
 
             _slides.Add(obj);
             OnRecursiveAddedChildren(obj);
@@ -85,16 +74,16 @@ namespace mFramework.UI
 
         private bool CanChildsClick()
         {
-            return false;
+            return Math.Abs(_lastMoveDiff) <= 0.001f;
         }
 
-        private void SetupChildrenHorizontal(UIObject obj, UISliderHorizontalSettings settings)
+        private void SetupChildrenHorizontal(UIObject obj)
         {
             var rect = GetRect();
 
-            switch (settings.SliderDirection)
+            switch (_directionOfAddingSlides)
             {
-                case UISliderHorizontalSettings.Direction.LEFT_TO_RIGHT:
+                case DirectionOfAddingSlides.FORWARD:
                     mCore.Log(new Vector2(rect.Left + obj.GetWidth() / 2, rect.Position.y).ToString());
                     if (_slides.Count == 0)
                         obj.Position(rect.Left + obj.GetWidth() / 2, rect.Position.y);
@@ -108,7 +97,7 @@ namespace mFramework.UI
                         });
                     }
                     break;
-                case UISliderHorizontalSettings.Direction.RIGHT_TO_LEFT:
+                case DirectionOfAddingSlides.BACKWARD:
                     if (_slides.Count == 0)
                         obj.Position(rect.Right - obj.GetWidth() / 2, rect.Position.y);
                     else
@@ -124,15 +113,15 @@ namespace mFramework.UI
             }
         }
 
-        private void SetupChildrenVertical(UIObject obj, UISliderVerticalSettings settings)
+        private void SetupChildrenVertical(UIObject obj)
         {
             var rect = GetRect();
 
-            switch (settings.SliderDirection)
+            switch (_directionOfAddingSlides)
             {
-                case UISliderVerticalSettings.Direction.TOP_TO_BOTTOM:
+                case DirectionOfAddingSlides.FORWARD:
                     break;
-                case UISliderVerticalSettings.Direction.BOTTOM_TO_TOP:
+                case DirectionOfAddingSlides.BACKWARD:
                     break;
             }
         }
@@ -146,15 +135,8 @@ namespace mFramework.UI
             if (sliderSettings == null)
                 throw new ArgumentException("UISlider: The given settings is not UIComponentSettings");
 
-            if (sliderSettings.OrientationSettings == null)
-            {
-                sliderSettings.OrientationSettings = new UISliderHorizontalSettings
-                {
-                    SliderDirection = UISliderHorizontalSettings.Direction.LEFT_TO_RIGHT
-                };
-            }
-
-            _sliderOrientation = sliderSettings.OrientationSettings;
+            _sliderType = sliderSettings.SliderType;
+            _directionOfAddingSlides = sliderSettings.DirectionOfAddingSlides;
             _height = sliderSettings.Height;
             _width = sliderSettings.Width;
             _offset = sliderSettings.Offset;
@@ -198,21 +180,82 @@ namespace mFramework.UI
 
         public void MouseDrag(Vector2 worldPos)
         {
-            var diff = _lastMousePos - worldPos;
-
-            mCore.Log("DIFF: {0}", diff);
-
+            if (!_isPressed)
+                return;
+            var diff = worldPos - _lastMousePos;
+            Move(_sliderType == SliderType.HORIZONTAL ? diff.x : diff.y);
             _lastMousePos = worldPos;
         }
-
-        public void VerticalMove(float diff)
+        
+        private UIObject GetFirstSlide()
         {
+            return _slides[0];
+        }
+
+        private UIObject GetLastSlide()
+        {
+            return _slides[_slides.Count - 1];
+        }
+
+        public void Move(float diff)
+        {
+            if (_sliderType == SliderType.HORIZONTAL)
+            {
+                HorizontalMove(diff);
+                _lastMoveDiff = diff;
+            }
+            else
+            {
+                VerticalMove(diff);
+                _lastMoveDiff = diff;
+            }
+        }
+
+        internal override void Tick()
+        {
+            if (!_isPressed && Math.Abs(_lastMoveDiff) > 0.001f)
+                Move(_lastMoveDiff * 0.99f * Time.deltaTime * 50);
+            base.Tick();
+        }
+
+        private void VerticalMove(float diff)
+        {
+            if (_slides.Count == 0)
+                return;
 
         }
 
-        public void HorizontalMove(float diff)
+        private void HorizontalMove(float diff)
         {
-            
+            if (_slides.Count == 0)
+                return;
+            var rect = GetRect();
+
+            // move right
+            if (diff > 0)
+            {
+                var firstRect = _directionOfAddingSlides == DirectionOfAddingSlides.FORWARD
+                    ? GetFirstSlide().GetRect()
+                    : GetLastSlide().GetRect();
+
+                var freeSpace = rect.Left - firstRect.Left;
+                if (Math.Abs(diff) > freeSpace)
+                    diff = Math.Sign(diff) * freeSpace;
+            }
+            // move left
+            else if (diff < 0)
+            {
+                var lastRect = _directionOfAddingSlides == DirectionOfAddingSlides.FORWARD
+                    ? GetLastSlide().GetRect()
+                    : GetFirstSlide().GetRect();
+
+                var freeSpace = lastRect.Right - rect.Right;
+                if (Math.Abs(diff) > freeSpace)
+                    diff = Math.Sign(diff) * freeSpace;
+            }
+
+            for (int i = 0; i < _slides.Count; i++)
+                _slides[i].Translate(diff, 0);
         }
     }
 }

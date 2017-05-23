@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace mFramework
 {
-    public class EventsController
+    internal class EventsController
     {
         public static EventsController Instance { get; }
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -11,7 +8,7 @@ namespace mFramework.UI
         public UICameraSettings CameraSettings { get; } = new UICameraSettings();
     }
 
-    public sealed class mUI : ITicking
+    public sealed class mUI
     {
         public static mUI Instance { get { return _instance; } }
         public static UIView BaseView { get { return _instance._baseView; } }
@@ -63,7 +60,7 @@ namespace mFramework.UI
             return BaseView.GetHeight();
         }
 
-        public bool RemoveUIObject(UIObject obj)
+        internal bool RemoveUIObject(UIObject obj)
         {
             if (!_uiObjects.ContainsKey(obj.GUID))
                 return false;
@@ -72,7 +69,7 @@ namespace mFramework.UI
             return true;
         }
 
-        public bool AddUIObject(UIObject obj)
+        internal bool AddUIObject(UIObject obj)
         {
             if (_uiObjects.ContainsKey(obj.GUID))
                 return false;
@@ -81,17 +78,17 @@ namespace mFramework.UI
             return true;
         }
 
-        public void Tick()
+        internal void Tick()
         {
             BaseView.Tick();
         }
 
-        public void FixedTick()
+        internal void FixedTick()
         {
             BaseView.FixedTick();
         }
 
-        public void LateTick()
+        internal void LateTick()
         {
             BaseView.LateTick();
         }

@@ -17,7 +17,11 @@ namespace mFramework
                 y = (-pivot.y + 0.5f) * sprite.bounds.size.y
             };
         }
-    
+
+        public static Vector2 WorldSize(this Sprite sprite)
+        {
+            return sprite.bounds.size;
+        }
 
         public static Vector2 GetPivot(this Sprite sprite)
         {

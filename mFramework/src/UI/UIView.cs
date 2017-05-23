@@ -18,13 +18,11 @@ namespace mFramework.UI
     {
         private float _height;
         private float _width;
-        private bool _created;
 
         private static UIView _nextParentView;
         
         protected UIView() : base(_nextParentView)
         {
-            _created = false;
         }
 
         public T ChildView<T>(params object[] @params) where T : UIView
@@ -41,13 +39,14 @@ namespace mFramework.UI
             return Create<T>(settings, this, @params);
         }
 
-        public static T Create<T>(UIViewSettings settings, UIView parent, params object[] @params) where T : UIView
+        internal static T Create<T>(UIViewSettings settings, UIView parent, params object[] @params) where T : UIView
         {
             _nextParentView = parent;
             var view = Activator.CreateInstance<T>();
             _nextParentView = null;
 
-            view.SetupSettings(settings);           
+            view.SetName(typeof(T).Name);
+            view.SetupSettings(settings);
             view.Init(@params);
             return view;
         }
@@ -61,21 +60,27 @@ namespace mFramework.UI
             _gameObject.name = settings.Name;
         }
 
-        public void Init(params object[] @params)
+        private void Init(params object[] @params)
         {
-            if (_created)
-                throw new Exception("This UIView already created");
-
             CreateInterface(@params);
-            _created = true;
+        }
+
+        public float RelativeX(float x)
+        {
+            return -GetWidth() / 2 + GetWidth() * mMath.Сlamp(x, 0, 1);
+        }
+
+        public float RelativeY(float y)
+        {
+            return -GetHeight() / 2 + GetHeight() * mMath.Сlamp(y, 0, 1);
         }
 
         public Vector2 RelativePosition(float x, float y)
         {
             return Position() + new Vector2
             {
-                x = -GetWidth() / 2 + GetWidth() * mMath.Сlamp(x, 0, 1),
-                y = -GetHeight() / 2 + GetHeight() * mMath.Сlamp(y, 0, 1)
+                x = RelativeX(x),
+                y = RelativeY(y)
             };
         }
 
@@ -87,21 +92,6 @@ namespace mFramework.UI
         public override float GetWidth()
         {
             return _width;
-        }
-
-        public override void Tick()
-        {
-            base.Tick();
-        }
-
-        public override void FixedTick()
-        {
-            base.FixedTick();
-        }
-
-        public override void LateTick()
-        {
-            base.LateTick();
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Assets.Scripts.Views
                         Selected = SpritesRepository.Get("GameGUI_32"),
                     }
                 });
-                t.OnSelect += tgl => mCore.Log("UIRadioGroup: toggle {0}", tgl.GUID);
+                t.OnSelect += tgl => mCore.Log("UIRadioGroup: toggle");
                 return t;
             };
 
@@ -82,23 +82,25 @@ namespace Assets.Scripts.Views
             var slider = Component<UISlider>(new UISliderSettings
             {
                 Width = mUI.MaxWidth() * 0.9f,
-                Height = 1f,
-                Offset = 0.3f,
-                OrientationSettings = new UISliderHorizontalSettings
-                {
-                    SliderDirection = UISliderHorizontalSettings.Direction.RIGHT_TO_LEFT
-                }
+                Height = SpritesRepository.Get("GameGUI_40").WorldSize().y,
+                Offset = SpritesRepository.Get("GameGUI_40").WorldSize().x / 4,
+                DirectionOfAddingSlides = DirectionOfAddingSlides.BACKWARD,
+                SliderType = SliderType.HORIZONTAL
             });
-            slider.Translate(0, 1.5f);
+            slider.Translate(new Vector2
+            {
+                x = RelativeX(0.5f),
+                y = RelativeY(1) - SpritesRepository.Get("GameGUI_40").WorldSize().y*2
+            });
             
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 20; i++)
             {
                 slider.Component<UIButton>(new UIButtonSettings
                 {
                     ButtonSpriteStates = new SpriteStates
                     {
-                        Default = SpritesRepository.Get("GameGUI_4"),
-                        Highlighted = SpritesRepository.Get("GameGUI_5")
+                        Default = SpritesRepository.Get("GameGUI_40"),
+                        Highlighted = SpritesRepository.Get("GameGUI_41")
                     }
                 });
             }
