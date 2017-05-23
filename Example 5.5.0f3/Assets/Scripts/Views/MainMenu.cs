@@ -78,16 +78,16 @@ namespace Assets.Scripts.Views
             radioGroup.Translate(0, -1);
 
 
-            // UISlider
-            var slider = Component<UISlider>(new UISliderSettings
+            // UISlider horizontal
+            var horizontalSlider = Component<UISlider>(new UISliderSettings
             {
                 Width = mUI.MaxWidth() * 0.9f,
                 Height = SpritesRepository.Get("GameGUI_40").WorldSize().y,
                 Offset = SpritesRepository.Get("GameGUI_40").WorldSize().x / 4,
-                DirectionOfAddingSlides = DirectionOfAddingSlides.BACKWARD,
+                DirectionOfAddingSlides = DirectionOfAddingSlides.FORWARD,
                 SliderType = SliderType.HORIZONTAL
             });
-            slider.Translate(new Vector2
+            horizontalSlider.Translate(new Vector2
             {
                 x = RelativeX(0.5f),
                 y = RelativeY(1) - SpritesRepository.Get("GameGUI_40").WorldSize().y*2
@@ -95,7 +95,34 @@ namespace Assets.Scripts.Views
             
             for (int i = 0; i < 20; i++)
             {
-                slider.Component<UIButton>(new UIButtonSettings
+                horizontalSlider.Component<UIButton>(new UIButtonSettings
+                {
+                    ButtonSpriteStates = new SpriteStates
+                    {
+                        Default = SpritesRepository.Get("GameGUI_40"),
+                        Highlighted = SpritesRepository.Get("GameGUI_41")
+                    }
+                });
+            }
+
+            // UISlider horizontal
+            var verticalSlider = Component<UISlider>(new UISliderSettings
+            {
+                Width = mUI.MaxWidth() * 0.9f,
+                Height = SpritesRepository.Get("GameGUI_40").WorldSize().y,
+                Offset = SpritesRepository.Get("GameGUI_40").WorldSize().x / 4,
+                DirectionOfAddingSlides = DirectionOfAddingSlides.FORWARD,
+                SliderType = SliderType.VERTICAL
+            });
+            verticalSlider.Translate(new Vector2
+            {
+                x = RelativeX(0) + SpritesRepository.Get("GameGUI_40").WorldSize().x * 2,
+                y = RelativeY(1) - SpritesRepository.Get("GameGUI_40").WorldSize().y * 4
+            });
+
+            for (int i = 0; i < 20; i++)
+            {
+                verticalSlider.Component<UIButton>(new UIButtonSettings
                 {
                     ButtonSpriteStates = new SpriteStates
                     {

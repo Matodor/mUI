@@ -1,11 +1,12 @@
 ﻿using System;
+using UnityEngine;
 
 namespace mFramework.UI
 {
     public class UIClickable
     {
         public Area2D Area2D { get; }
-        public event Func<bool> CanClick;
+        public event Func<MouseEvent, bool> CanClick;
 
         private readonly MouseEventListener _eventListener;
 
@@ -31,7 +32,7 @@ namespace mFramework.UI
 
             _eventListener.OnMouseDown += @event =>
             {
-                if (!Can()) return;
+                if (!Can(@event)) return;
 
                 var worldPos = mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos);
                 if (Area2D.InArea(worldPos))
@@ -40,22 +41,32 @@ namespace mFramework.UI
 
             _eventListener.OnMouseUp += @event =>
             {
-                if (!Can()) return;
+                if (!Can(@event)) return;
 
                 handler.MouseUp(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));
             };
 
             _eventListener.OnMouseDrag += @event =>
             {
-                if (!Can()) return;
+                if (!Can(@event)) return;
 
                 handler.MouseDrag(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));
             };
         }
 
-        private bool Can()
+        public bool InArea(Vector2 worldPos)
         {
-            return CanClick?.Invoke() ?? true;
+            return Area2D.InArea(worldPos);
+        }
+
+        public Vector2 WorldPos(MouseEvent @event)
+        {
+            return mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos);
+        }
+
+        private bool Can(MouseEvent @event)
+        {
+            return CanClick?.Invoke(@event) ?? true;
         }
 
         public static UIClickable Create(UIComponent component, IUIClickable handler, AreaType areaType)

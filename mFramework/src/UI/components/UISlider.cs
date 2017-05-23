@@ -72,24 +72,22 @@ namespace mFramework.UI
             uiObject.OnAddedChildren += OnRecursiveAddedChildren;
         }
 
-        private bool CanChildsClick()
+        private bool CanChildsClick(MouseEvent @event)
         {
-            return Math.Abs(_lastMoveDiff) <= 0.001f;
+            return _clickableHandler.InArea(_clickableHandler.WorldPos(@event)) && Math.Abs(_lastMoveDiff) <= 0.001f;
         }
 
         private void SetupChildrenHorizontal(UIObject obj)
         {
             var rect = GetRect();
-
             switch (_directionOfAddingSlides)
             {
                 case DirectionOfAddingSlides.FORWARD:
-                    mCore.Log(new Vector2(rect.Left + obj.GetWidth() / 2, rect.Position.y).ToString());
                     if (_slides.Count == 0)
                         obj.Position(rect.Left + obj.GetWidth() / 2, rect.Position.y);
                     else
                     {
-                        var last = _slides[_slides.Count - 1];
+                        var last = GetLastSlide();
                         obj.Position(new Vector2
                         {
                             x = last.GetRect().Right + obj.GetWidth() / 2 + _offset,
@@ -102,7 +100,7 @@ namespace mFramework.UI
                         obj.Position(rect.Right - obj.GetWidth() / 2, rect.Position.y);
                     else
                     {
-                        var last = _slides[_slides.Count - 1];
+                        var last = GetLastSlide();
                         obj.Position(new Vector2
                         {
                             x = last.GetRect().Left - obj.GetWidth() / 2 - _offset,
@@ -116,12 +114,33 @@ namespace mFramework.UI
         private void SetupChildrenVertical(UIObject obj)
         {
             var rect = GetRect();
-
             switch (_directionOfAddingSlides)
             {
                 case DirectionOfAddingSlides.FORWARD:
+                    if (_slides.Count == 0)
+                        obj.Position(rect.Position.x, rect.Top - obj.GetHeight() / 2);
+                    else
+                    {
+                        var last = GetLastSlide();
+                        obj.Position(new Vector2
+                        {
+                            x = rect.Position.x,
+                            y = last.GetRect().Bottom - obj.GetHeight() / 2 - _offset,
+                        });
+                    }
                     break;
                 case DirectionOfAddingSlides.BACKWARD:
+                    if (_slides.Count == 0)
+                        obj.Position(rect.Position.x, rect.Bottom + obj.GetHeight() / 2);
+                    else
+                    {
+                        var last = GetLastSlide();
+                        obj.Position(new Vector2
+                        {
+                            x = rect.Position.x,
+                            y = last.GetRect().Top + obj.GetHeight() / 2 + _offset,
+                        });
+                    }
                     break;
             }
         }
@@ -151,7 +170,7 @@ namespace mFramework.UI
                     rect2d.Width = GetWidth();
                 }
             };
-            _clickableHandler.CanClick += () => IsActive;
+            _clickableHandler.CanClick += (e) => IsActive;
 
             base.ApplySettings(settings);
         }

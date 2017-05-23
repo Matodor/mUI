@@ -91,7 +91,7 @@ namespace mFramework.UI
         {
             if (_clickableHandler == null)
                 return;
-            _clickableHandler.CanClick += () => IsActive;
+            _clickableHandler.CanClick += (e) => IsActive;
         }
 
         public override UIRect GetRect()
