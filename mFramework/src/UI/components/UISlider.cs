@@ -65,14 +65,16 @@ namespace mFramework.UI
         {
             var uiClickable = uiObject as IUIClickable;
             if (uiClickable != null)
-                uiClickable.UIClickable.CanClick += CanChildsClick;
+            {
+                uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
+            }
 
             foreach (var child in uiObject.ChildsObjects)
                 OnRecursiveAddedChildren(child);
             uiObject.OnAddedChildren += OnRecursiveAddedChildren;
         }
 
-        private bool CanChildsClick(MouseEvent @event)
+        private bool CanChildsMouseDown(MouseEvent @event)
         {
             return _clickableHandler.InArea(_clickableHandler.WorldPos(@event)) && Math.Abs(_lastMoveDiff) <= 0.001f;
         }
@@ -170,7 +172,9 @@ namespace mFramework.UI
                     rect2d.Width = GetWidth();
                 }
             };
-            _clickableHandler.CanClick += (e) => IsActive;
+            _clickableHandler.CanMouseDown += (e) => IsActive;
+            _clickableHandler.CanMouseDrag += (e) => IsActive;
+            _clickableHandler.CanMouseUp += (e) => IsActive;
 
             base.ApplySettings(settings);
         }
