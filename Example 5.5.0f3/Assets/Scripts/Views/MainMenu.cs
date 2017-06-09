@@ -82,7 +82,7 @@ namespace Assets.Scripts.Views
             var horizontalSlider = Component<UISlider>(new UISliderSettings
             {
                 Width = mUI.MaxWidth() * 0.9f,
-                Height = SpritesRepository.Get("GameGUI_40").WorldSize().y,
+                Height = SpritesRepository.Get("GameGUI_40").WorldSize().y*3,
                 Offset = SpritesRepository.Get("GameGUI_40").WorldSize().x / 4,
                 DirectionOfAddingSlides = DirectionOfAddingSlides.FORWARD,
                 SliderType = SliderType.HORIZONTAL
@@ -108,16 +108,16 @@ namespace Assets.Scripts.Views
             // UISlider horizontal
             var verticalSlider = Component<UISlider>(new UISliderSettings
             {
-                Width = mUI.MaxWidth() * 0.9f,
-                Height = SpritesRepository.Get("GameGUI_40").WorldSize().y,
+                Width = SpritesRepository.Get("GameGUI_40").WorldSize().y*3,
+                Height = mUI.MaxHeight() - SpritesRepository.Get("GameGUI_40").WorldSize().y * 5,
                 Offset = SpritesRepository.Get("GameGUI_40").WorldSize().x / 4,
                 DirectionOfAddingSlides = DirectionOfAddingSlides.FORWARD,
                 SliderType = SliderType.VERTICAL
             });
             verticalSlider.Translate(new Vector2
             {
-                x = RelativeX(0) + SpritesRepository.Get("GameGUI_40").WorldSize().x * 2,
-                y = RelativeY(1) - SpritesRepository.Get("GameGUI_40").WorldSize().y * 4
+                x = RelativeX(0) + SpritesRepository.Get("GameGUI_40").WorldSize().x * 1.5f,
+                y = RelativeY(1) - verticalSlider.GetHeight() / 2 - SpritesRepository.Get("GameGUI_40").WorldSize().y * 3
             });
 
             for (int i = 0; i < 20; i++)
@@ -129,7 +129,7 @@ namespace Assets.Scripts.Views
                         Default = SpritesRepository.Get("GameGUI_40"),
                         Highlighted = SpritesRepository.Get("GameGUI_41")
                     }
-                });
+                }).OnClick += b => mCore.Log("GUID: {0}", b.GUID);
             }
         }
     }

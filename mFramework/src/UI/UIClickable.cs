@@ -6,7 +6,7 @@ namespace mFramework.UI
     public class UIClickable
     {
         public Area2D Area2D { get; }
-        public event Func<MouseEvent, bool> CanMouseDown, CanMouseUp, CanMouseDrag;
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseDown, CanMouseUp, CanMouseDrag;
 
         private readonly MouseEventListener _eventListener;
 
@@ -32,7 +32,7 @@ namespace mFramework.UI
 
             _eventListener.OnMouseDown += @event =>
             {
-                if (!CanMouseDown?.Invoke(@event) ?? false)
+                if (!CanMouseDown?.Invoke(handler, @event) ?? false)
                     return;
 
                 var worldPos = mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos);
@@ -42,7 +42,7 @@ namespace mFramework.UI
 
             _eventListener.OnMouseUp += @event =>
             {
-                if (!CanMouseUp?.Invoke(@event) ?? false)
+                if (!CanMouseUp?.Invoke(handler, @event) ?? false)
                     return;
 
                 handler.MouseUp(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));
@@ -50,7 +50,7 @@ namespace mFramework.UI
 
             _eventListener.OnMouseDrag += @event =>
             {
-                if (!CanMouseDrag?.Invoke(@event) ?? false)
+                if (!CanMouseDrag?.Invoke(handler, @event) ?? false)
                     return;
 
                 handler.MouseDrag(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));

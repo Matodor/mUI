@@ -12,8 +12,9 @@ namespace mFramework.UI
         public Color? Color { get; set; } = null;
     }
     
-    public class UISprite : UIComponent
+    public class UISprite : UIComponent, IUIRenderer
     {
+        public Renderer UIRenderer { get { return Renderer; } }
         public SpriteRenderer Renderer { get; }
 
         private UISprite(UIObject parent) : base(parent)

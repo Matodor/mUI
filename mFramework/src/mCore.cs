@@ -22,10 +22,10 @@ namespace mFramework
         private Assembly _unityEditorAssembly;
         private Delegate _playmodeStateChangedDelegate, _updateEditorDelegate;
         private FieldInfo _playmodeStateChangedField, _updateField;
-
+         
         private mCore()
         {
-            _engine = new GameObject("mFrameworkCore").AddComponent<mEngine>();
+            _engine = new GameObject("mFramework").AddComponent<mEngine>();
             
             Instance = this;
 

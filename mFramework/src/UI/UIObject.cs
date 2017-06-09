@@ -9,7 +9,7 @@ namespace mFramework.UI
 {
     public abstract class UIObject
     {
-        internal ulong GUID { get; }
+        public ulong GUID { get; }
 
         public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
         public event Action<UIObject> OnSortingOrderChanged;
@@ -39,7 +39,7 @@ namespace mFramework.UI
             _isVisible = true;
             _sortingOrder = 0;
             _parentObject = parentObject;
-            _gameObject = new GameObject("UIView");
+            _gameObject = new GameObject("UIObject");
             _transform = _gameObject.transform;
             _childsObjects = new List<UIObject>();
 

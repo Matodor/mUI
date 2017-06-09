@@ -91,9 +91,10 @@ namespace mFramework.UI
         {
             if (_clickableHandler == null)
                 return;
-            _clickableHandler.CanMouseUp += (e) => IsActive;
-            _clickableHandler.CanMouseDown += (e) => IsActive;
-            _clickableHandler.CanMouseDrag += (e) => IsActive;
+
+            _clickableHandler.CanMouseUp += (h, e) => IsActive;
+            _clickableHandler.CanMouseDown += (h, e) => IsActive;
+            _clickableHandler.CanMouseDrag += (h, e) => IsActive;
         }
 
         public override UIRect GetRect()
