@@ -69,6 +69,8 @@
     </None>
     <Compile Include="src\SpritesRepository.cs" />
     <Compile Include="src\StateableSprite.cs" />
+    <Compile Include="src\UI\animations\UILinearAnimation.cs" />
+    <Compile Include="src\UI\UIAnimation.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
     <Compile Include="src\UI\components\UIRadioGroup.cs" />
     <Compile Include="src\UI\components\UISlider.cs" />
@@ -93,7 +95,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"
-copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework\*.*" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\mFramework\"</PostBuildEvent>
+    <PostBuildEvent>copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"</PostBuildEvent>
   </PropertyGroup>
 </Project>

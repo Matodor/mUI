@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -14,6 +12,7 @@ namespace mFramework.UI
         public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
         public event Action<UIObject> OnSortingOrderChanged;
         public event Action<UIObject> OnAddedChildren;
+        public event Action<UIObject> OnTranslate;
 
         public UIObject Parent { get { return _parentObject; } }
         public bool IsActive { get { return _isActive; } }
@@ -24,6 +23,7 @@ namespace mFramework.UI
         protected readonly GameObject _gameObject;
         protected readonly Transform _transform;
 
+        private readonly List<UIAnimation> _animations;
         private readonly List<UIObject> _childsObjects;
         private readonly UIObject _parentObject;
         private int _sortingOrder;
@@ -42,6 +42,7 @@ namespace mFramework.UI
             _gameObject = new GameObject("UIObject");
             _transform = _gameObject.transform;
             _childsObjects = new List<UIObject>();
+            _animations = new List<UIAnimation>();
 
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
@@ -106,14 +107,20 @@ namespace mFramework.UI
 
         public UIObject Translate(float x, float y)
         {
-            _transform.Translate(x, y, 0, Space.World);
+            TranslateImpl(x, y);
             return this;
         }
 
         public UIObject Translate(Vector2 translatePos)
         {
-            _transform.Translate(translatePos, Space.World);
+            TranslateImpl(translatePos.x, translatePos.y);
+            OnTranslate?.Invoke(this);
             return this;
+        }
+
+        private void TranslateImpl(float x, float y)
+        {
+            _transform.Translate(x, y, 0, Space.World);
         }
 
         public UIObject SortingOrder(int sortingOrder)
@@ -244,6 +251,18 @@ namespace mFramework.UI
             var child = UIComponent.Create<T>(this, settings);
             AddChildObject(child);
             return child;
+        }
+
+        public T Animation<T>() where T : UIAnimation
+        {
+            var animation = UIAnimation<T>.Create();
+
+            return animation;
+        }
+
+        internal void AddAnimation(UIAnimation animation)
+        {
+            
         }
 
         private T AddChildObject<T>(T @object) where T : UIObject

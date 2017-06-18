@@ -26,7 +26,7 @@ namespace mFramework
         private mCore()
         {
             _engine = new GameObject("mFramework").AddComponent<mEngine>();
-            
+            _engine.transform.position = new Vector3(0, 0, 9999);
             Instance = this;
 
             if (Application.isEditor)

@@ -35,6 +35,7 @@ namespace mFramework.UI
 
         private readonly List<UIObject> _slides;
         private UIClickable _clickableHandler;
+        private UICamera _camera;
         private SliderType _sliderType;
         private DirectionOfAddingSlides _directionOfAddingSlides;
 
@@ -47,18 +48,44 @@ namespace mFramework.UI
         private bool _isPressed;
         private Vector2 _lastMousePos;
 
+        private static int _countSliders = 0;
         private readonly List<Pair<IUIClickable, MouseEvent>> _clickNext;
-        private readonly Material _sliderMaterial;
+        //private readonly Material _sliderMaterial;
 
         private UISlider(UIObject parent) : base(parent)
         {
+            _countSliders++;
             _lastMoveDiff = 0;
             _isPressed = false;
             _slides = new List<UIObject>();
             _clickNext = new List<Pair<IUIClickable, MouseEvent>>();
-            _sliderMaterial = new Material(Shader.Find("mFramework/Sprites/SpriteClipping"));
+            //_sliderMaterial = new Material(Shader.Find("mFramework/Sprites/SpriteClipping"));
             
             OnAddedChildren += SetupChildren;
+        }
+
+        ~UISlider()
+        {
+            _countSliders--;
+        }
+
+        private void UpdateViewport()
+        {
+            var viewportPos = mUI.UICamera.Camera.WorldToViewportPoint(Position());
+            var lb = new Vector2(mUI.UICamera.Left, mUI.UICamera.Bottom);
+
+            var sliderScreenWidthScale = GetWidth() / (mUI.UICamera.Right - mUI.UICamera.Left);
+            var sliderScreenHeightScale = GetHeight() / (mUI.UICamera.Top - mUI.UICamera.Bottom);
+
+            var minViewport = mUI.UICamera.Camera.WorldToViewportPoint(
+                new Vector3(lb.x + GetWidth() / 2, lb.y + GetHeight() / 2, 0));
+
+            _camera.Camera.rect = new Rect(
+                viewportPos.x - minViewport.x,
+                viewportPos.y - minViewport.y,
+                sliderScreenWidthScale,
+                sliderScreenHeightScale
+            );
         }
 
         private void SetupChildren(UIObject obj)
@@ -81,11 +108,11 @@ namespace mFramework.UI
                 uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
             }
 
-            var uiRenderer = uiObject as IUIRenderer;
-            if (uiRenderer != null)
-            {
-                uiRenderer.UIRenderer.material = _sliderMaterial;
-            }
+            //var uiRenderer = uiObject as IUIRenderer;
+            //if (uiRenderer != null)
+            //{
+            //    uiRenderer.UIRenderer.material = _sliderMaterial;
+            //}
 
             foreach (var child in uiObject.ChildsObjects)
                 OnRecursiveAddedChildren(child);
@@ -195,15 +222,29 @@ namespace mFramework.UI
             _clickableHandler.Area2D.Update += area2d =>
             {
                 var rect2d = area2d as RectangleArea2D;
-                if (rect2d != null)
-                {
-                    rect2d.Height = GetHeight();
-                    rect2d.Width = GetWidth();
-                }
+                if (rect2d == null)
+                    return;
+
+                rect2d.Height = GetHeight();
+                rect2d.Width = GetWidth();
             };
+
             _clickableHandler.CanMouseDown += (h, e) => IsActive;
             _clickableHandler.CanMouseDrag += (h, e) => IsActive;
             _clickableHandler.CanMouseUp += (h, e) => IsActive;
+
+            _camera = UICamera.Create(new UICameraSettings());
+            _camera.GameObject.SetParent(_gameObject);
+            _camera.SetOrthographicSize(GetHeight() / 2);
+            
+            _gameObject.transform.position = new Vector3(
+                _gameObject.transform.position.x,
+                _gameObject.transform.position.y,
+                _gameObject.transform.position.z + _countSliders
+            );
+
+            OnTranslate += (e) => UpdateViewport();
+            UpdateViewport();
 
             base.ApplySettings(settings);
         }
