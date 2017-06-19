@@ -10,7 +10,7 @@ namespace mFramework.UI
 
     public sealed class mUI
     {
-        public static mUI Instance { get { return _instance; } }
+        internal static mUI Instance { get { return _instance; } }
         public static UIView BaseView { get { return _instance._baseView; } }
         public static UICamera UICamera { get { return _instance._uiCamera; } }
 

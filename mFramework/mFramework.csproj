@@ -48,10 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\abstract\IGlobalUniqueIdentifier.cs" />
     <Compile Include="src\abstract\IUIClickable.cs" />
     <Compile Include="src\abstract\IUIRenderer.cs" />
     <Compile Include="src\Area2D.cs" />
+    <Compile Include="src\concrete\BezierHelper.cs" />
+    <Compile Include="src\concrete\EasingFunctions.cs" />
     <Compile Include="src\concrete\Pair.cs" />
+    <Compile Include="src\concrete\UnidirectionalList.cs" />
     <Compile Include="src\RectangleArea2D.cs" />
     <Compile Include="src\events\EventListener.cs" />
     <Compile Include="src\events\EventsController.cs" />
@@ -70,6 +74,7 @@
     <Compile Include="src\SpritesRepository.cs" />
     <Compile Include="src\StateableSprite.cs" />
     <Compile Include="src\UI\animations\UILinearAnimation.cs" />
+    <Compile Include="src\UI\animations\UIRotateAnimation.cs" />
     <Compile Include="src\UI\UIAnimation.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
     <Compile Include="src\UI\components\UIRadioGroup.cs" />

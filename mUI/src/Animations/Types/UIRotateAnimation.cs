@@ -1,5 +1,4 @@
 ﻿using mUIApp.Other;
-using mUIApp.Views;
 using UnityEngine;
 
 namespace mUIApp.Animations

@@ -5,26 +5,27 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public abstract class UIObject
+    public abstract class UIObject : IGlobalUniqueIdentifier
     {
         public ulong GUID { get; }
 
         public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
         public event Action<UIObject> OnSortingOrderChanged;
         public event Action<UIObject> OnAddedChildren;
+        public event Action<UIObject> OnRemovedChildren;
+        public event Action<UIObject> OnAddedAnimation;
+        public event Action<UIObject> OnBeforeDestroy;
         public event Action<UIObject> OnTranslate;
 
         public UIObject Parent { get { return _parentObject; } }
         public bool IsActive { get { return _isActive; } }
         public bool IsVisible { get { return _isVisible; } }
 
-        public ReadOnlyCollection<UIObject> ChildsObjects { get { return _childsObjects.AsReadOnly(); } }
-
         protected readonly GameObject _gameObject;
         protected readonly Transform _transform;
 
-        private readonly List<UIAnimation> _animations;
-        private readonly List<UIObject> _childsObjects;
+        private readonly UnidirectionalList<UIAnimation> _animations;
+        private readonly UnidirectionalList<UIObject> _childsObjects;
         private readonly UIObject _parentObject;
         private int _sortingOrder;
         private bool _isActive;
@@ -34,15 +35,16 @@ namespace mFramework.UI
 
         protected UIObject(UIObject parentObject)
         {
-            GUID = ++_guid;
             _isActive = true;
             _isVisible = true;
             _sortingOrder = 0;
             _parentObject = parentObject;
             _gameObject = new GameObject("UIObject");
             _transform = _gameObject.transform;
-            _childsObjects = new List<UIObject>();
-            _animations = new List<UIAnimation>();
+            _childsObjects = UnidirectionalList<UIObject>.Create();
+            _animations = UnidirectionalList<UIAnimation>.Create();
+
+            GUID = ++_guid;
 
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
@@ -59,6 +61,23 @@ namespace mFramework.UI
         ~UIObject()
         {
             mUI.Instance.RemoveUIObject(this);
+        }
+
+        public void ForEachChildren(Action<UIObject> action)
+        {
+            _childsObjects.ForEach(action);
+        }
+
+        public void Destroy()
+        {
+            OnBeforeDestroy?.Invoke(this);
+            _parentObject.RemoveChildObject(this);
+
+            _animations.ForEach(a => a.Remove());
+            _childsObjects.ForEach(o => o.Destroy());
+
+            mUI.Instance.RemoveUIObject(this);
+            UnityEngine.Object.Destroy(_gameObject);
         }
 
         public UIObject SetName(string name)
@@ -95,14 +114,23 @@ namespace mFramework.UI
 
         public UIObject Rotate(float x, float y, float z)
         {
-            _transform.Rotate(x, y, z);
+            _transform.eulerAngles = new Vector3(
+                x,
+                y,
+                z
+            );
             return this;
         }
 
         public UIObject Rotate(float angle)
         {
-            _transform.Rotate(0, 0, angle);
+            Rotate(_transform.eulerAngles.x, _transform.eulerAngles.y, angle);
             return this;
+        }
+
+        public float Rotation()
+        {
+            return _transform.eulerAngles.z;
         }
 
         public UIObject Translate(float x, float y)
@@ -139,8 +167,7 @@ namespace mFramework.UI
         private void SortingOrderChanged()
         {
             OnSortingOrderChanged?.Invoke(this);
-            for (int i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].SortingOrderChanged();
+            _childsObjects.ForEach(o => o.SortingOrderChanged());
         }
 
         public Vector2 GlobalScale()
@@ -166,11 +193,6 @@ namespace mFramework.UI
         public Vector2 Position()
         {
             return _transform.position;
-        }
-
-        public float Rotation()
-        {
-            return _transform.eulerAngles.z;
         }
 
         public UIObject Active()
@@ -212,8 +234,7 @@ namespace mFramework.UI
             OnVisibleChanged?.Invoke(this);
             OnActiveChanged?.Invoke(this);
 
-            for (int i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].VisibleChanged(visible);
+            _childsObjects.ForEach(o => o.VisibleChanged(visible));
         }
 
         private void ActiveChanged(bool active)
@@ -224,26 +245,23 @@ namespace mFramework.UI
             _isActive = active;
 
             OnActiveChanged?.Invoke(this);
-            for (int i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].ActiveChanged(active);
+            _childsObjects.ForEach(o => o.ActiveChanged(active));
         }
 
         internal virtual void Tick()
         {
-            for (int i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].Tick();
+            _animations.ForEach(a => a.Tick());
+            _childsObjects.ForEach(o => o.Tick());
         }
 
         internal virtual void FixedTick()
         {
-            for (int i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].FixedTick();
+            _childsObjects.ForEach(o => o.FixedTick());
         }
 
         internal virtual void LateTick()
         {
-            for (int i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].LateTick();
+            _childsObjects.ForEach(o => o.LateTick());
         }
 
         public T Component<T>(UIComponentSettings settings) where T : UIComponent
@@ -255,21 +273,37 @@ namespace mFramework.UI
 
         public T Animation<T>() where T : UIAnimation
         {
-            var animation = UIAnimation<T>.Create();
+            return Animation<T>(new UIAnimationSettings());
+        }
 
+        public T Animation<T>(UIAnimationSettings settings) where T : UIAnimation
+        {
+            var animation = UIAnimation.Create<T>(this, settings);
+            AddAnimation(animation);
             return animation;
         }
 
-        internal void AddAnimation(UIAnimation animation)
+        internal bool RemoveAnimation(UIAnimation animation)
         {
-            
+            return _animations.Remove(animation);
         }
 
-        private T AddChildObject<T>(T @object) where T : UIObject
+        private void AddAnimation(UIAnimation animation)
+        {
+            _animations.Add(animation);
+            OnAddedAnimation?.Invoke(this);
+        }
+
+        private bool RemoveChildObject(UIObject @object)
+        {
+            OnRemovedChildren?.Invoke(this);
+            return _childsObjects.Remove(@object);
+        }
+
+        private void AddChildObject(UIObject @object)
         {
             _childsObjects.Add(@object);
             OnAddedChildren?.Invoke(@object);
-            return @object;
         }
     }
 }

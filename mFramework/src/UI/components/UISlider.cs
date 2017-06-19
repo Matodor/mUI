@@ -114,8 +114,7 @@ namespace mFramework.UI
             //    uiRenderer.UIRenderer.material = _sliderMaterial;
             //}
 
-            foreach (var child in uiObject.ChildsObjects)
-                OnRecursiveAddedChildren(child);
+            uiObject.ForEachChildren(OnRecursiveAddedChildren);
             uiObject.OnAddedChildren += OnRecursiveAddedChildren;
         }
 

@@ -130,7 +130,7 @@ namespace mUIApp.Animations
             _animationTime += (_animationDir == mUIAnimationDir.FORWARD ? 1 : -1) * (Time.deltaTime / Duration);
             _animationTime = mUI.Сlamp(_animationTime, 0, 1);
             _animationEasingTime = mUIEasingFunctions.GetValue(EasingType, 1, _animationTime, 1);
-
+            
             OnAnimation();
             OnAnimationEvent?.Invoke(this);
 

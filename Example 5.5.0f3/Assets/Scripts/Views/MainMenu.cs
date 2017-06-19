@@ -17,9 +17,13 @@ namespace Assets.Scripts.Views
             
 
             // UISprite
-            Component<UISprite>(new UISpriteSettings
+            var sp = Component<UISprite>(new UISpriteSettings {Sprite = SpritesRepository.Get("GameGUI_35")});
+            sp.Animation<UILinearAnimation>(new UILinearAnimationSettings
             {
-                Sprite = SpritesRepository.Get("GameGUI_35")
+                StartPos = sp.Position(),
+                EndPos = new Vector2(sp.Position().x, RelativeY(0) + sp.GetHeight()/2),
+                PlayType = UIAnimationPlayType.END_FLIP,
+                Duration = 5
             });
             
 
@@ -34,6 +38,17 @@ namespace Assets.Scripts.Views
             });
             button.OnClick += sender => mCore.Log("UIButton: click");
             button.Translate(0, -3);
+            button.Animation<UIRotateAnimation>(new UIRotateAnimationSettings
+                {
+                    FromAngle = 90,
+                    ToAngle = 270,
+                    EasingType = EasingType.easeInBack,
+                    Duration = 2,
+                    PlayType = UIAnimationPlayType.END_FLIP
+                }).OnEndEvent +=
+                a => a.EasingType = a.EasingType == EasingType.easeInBack
+                    ? a.EasingType = EasingType.easeOutBack
+                    : a.EasingType = EasingType.easeInBack;
 
 
             // UIToggle
