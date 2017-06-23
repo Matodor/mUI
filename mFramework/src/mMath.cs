@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace mFramework
 {
@@ -19,7 +15,7 @@ namespace mFramework
             return false;
         }
 
-        public static int Сlamp(int val, int min, int max)
+        public static int Clamp(int val, int min, int max)
         {
             if (val < min)
                 return min;
@@ -28,7 +24,7 @@ namespace mFramework
             return val;
         }
 
-        public static double Сlamp(double val, double min, double max)
+        public static double Clamp(double val, double min, double max)
         {
             if (val < min)
                 return min;
@@ -37,7 +33,7 @@ namespace mFramework
             return val;
         }
 
-        public static float Сlamp(float val, float min, float max)
+        public static float Clamp(float val, float min, float max)
         {
             if (val < min)
                 return min;

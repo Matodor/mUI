@@ -4,7 +4,7 @@
     {
         protected override void CreateInterface(params object[] @params)
         {
-            mCore.Log("[ui] Create base view");
+            mCore.Log("[ui] Create BaseView");
         }
     }
 }

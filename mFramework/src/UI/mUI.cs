@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -14,8 +15,9 @@ namespace mFramework.UI
         public static UIView BaseView { get { return _instance._baseView; } }
         public static UICamera UICamera { get { return _instance._uiCamera; } }
 
+        internal static Dictionary<string, Font> _fonts;
         private static mUI _instance;
-        private readonly UIView _baseView;
+        private readonly BaseView _baseView;
         private readonly UICamera _uiCamera;
         private readonly Dictionary<ulong, UIObject> _uiObjects;
 
@@ -25,6 +27,7 @@ namespace mFramework.UI
             _uiCamera.GameObject.SetParent(mEngine.Instance.gameObject);
 
             _instance = this;
+            _fonts = new Dictionary<string, Font>();
             _uiObjects = new Dictionary<ulong, UIObject>();
             _baseView = UIView.Create<BaseView>(new UIViewSettings
             {
@@ -44,10 +47,21 @@ namespace mFramework.UI
         public static mUI Create(UISettings settings)
         {
             if (settings == null)
-                throw new NullReferenceException("UISettings is null");
+                throw new ArgumentNullException(nameof(settings));
             if (_instance != null)
                 throw new Exception("UI already created");
             return new mUI(settings);
+        }
+
+        public static bool LoadFont(string path)
+        {
+            var font = Resources.Load<Font>(path);
+            if (_fonts.ContainsKey(font.name))
+                return false;
+            
+            _fonts.Add(font.name, font);
+            mCore.Log("Loaded font: {0} ", font.ToString());
+            return true;
         }
 
         public static float MaxWidth()

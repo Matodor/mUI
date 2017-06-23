@@ -93,7 +93,7 @@ namespace mFramework.UI
 
         public void SetAnimationPos(float time)
         {
-            _animationTime = mMath.Сlamp(time, 0, 1);
+            _animationTime = mMath.Clamp(time, 0, 1);
         }
 
         protected virtual void ApplySettings(UIAnimationSettings settings)
@@ -125,7 +125,7 @@ namespace mFramework.UI
                 return;
 
             _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1 : -1) * (Time.deltaTime / Duration);
-            _animationTime = mMath.Сlamp(_animationTime, 0, 1);
+            _animationTime = mMath.Clamp(_animationTime, 0, 1);
             _animationEasingTime = EasingFunctions.GetValue(EasingType, 1, _animationTime, 1);
 
             OnAnimate();

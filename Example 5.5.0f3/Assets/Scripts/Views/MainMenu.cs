@@ -10,6 +10,7 @@ namespace Assets.Scripts.Views
     {
         protected override void CreateInterface(params object[] @params)
         {
+            mCore.Log(UIColor.HSVToRGB(359, 130, 255, 255).ToString());
             foreach (var o in @params)
             {
                 mCore.Log(o.ToString());
@@ -24,6 +25,13 @@ namespace Assets.Scripts.Views
                 EndPos = new Vector2(sp.Position().x, RelativeY(0) + sp.GetHeight()/2),
                 PlayType = UIAnimationPlayType.END_FLIP,
                 Duration = 5
+            });
+            sp.Animation<UIColorAnimation>(new UIColorAnimationSettings
+            {
+                FromColor = new UIColor(0, 160, 255, 255, UIColorType.HSVA),
+                ToColor = new UIColor(359, 132, 255, 255, UIColorType.HSVA),
+                PlayType = UIAnimationPlayType.END_FLIP,
+                Duration = 10
             });
             
 
@@ -146,6 +154,11 @@ namespace Assets.Scripts.Views
                     }
                 }).OnClick += b => mCore.Log("GUID: {0}", b.GUID);
             }
+
+            Component<UILabel>(new UILabelSettings
+            {
+                Text = "asd sdfsgywer"
+            });
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace mFramework.src.concrete
+﻿namespace mFramework
 {
     public class Pair<T1, T2>
     {

@@ -16,6 +16,8 @@ namespace mFramework.UI
         public event Action<UIObject> OnAddedAnimation;
         public event Action<UIObject> OnBeforeDestroy;
         public event Action<UIObject> OnTranslate;
+        public event Action<UIObject> OnScale;
+        public event Action<UIObject> OnRotate;
 
         public UIObject Parent { get { return _parentObject; } }
         public bool IsActive { get { return _isActive; } }
@@ -70,6 +72,9 @@ namespace mFramework.UI
 
         public void Destroy()
         {
+            if (this is UIView && this == mUI.BaseView)
+                throw new Exception("Can't destroy BaseView");
+
             OnBeforeDestroy?.Invoke(this);
             _parentObject.RemoveChildObject(this);
 
@@ -114,11 +119,8 @@ namespace mFramework.UI
 
         public UIObject Rotate(float x, float y, float z)
         {
-            _transform.eulerAngles = new Vector3(
-                x,
-                y,
-                z
-            );
+            _transform.eulerAngles = new Vector3(x, y, z);
+            OnRotate?.Invoke(this);
             return this;
         }
 
@@ -142,13 +144,13 @@ namespace mFramework.UI
         public UIObject Translate(Vector2 translatePos)
         {
             TranslateImpl(translatePos.x, translatePos.y);
-            OnTranslate?.Invoke(this);
             return this;
         }
 
         private void TranslateImpl(float x, float y)
         {
             _transform.Translate(x, y, 0, Space.World);
+            OnTranslate?.Invoke(this);
         }
 
         public UIObject SortingOrder(int sortingOrder)
@@ -168,6 +170,23 @@ namespace mFramework.UI
         {
             OnSortingOrderChanged?.Invoke(this);
             _childsObjects.ForEach(o => o.SortingOrderChanged());
+        }
+
+        public UIObject Scale(float x, float y)
+        {
+            _transform.localScale = new Vector3(x, y, _transform.localScale.z);
+            OnScale?.Invoke(this);
+            return this;
+        }
+
+        public UIObject Scale(Vector2 scale)
+        {
+            return Scale(scale.x, scale.y);
+        }
+
+        public Vector2 LocalScale()
+        {
+            return _transform.localScale;
         }
 
         public Vector2 GlobalScale()

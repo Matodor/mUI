@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -36,6 +35,7 @@ namespace mFramework.UI
         {
             var newAngle = BezierHelper.Linear(CurrentEasingTime, _fromAngle, _endAngle);
             _animatedObject.Rotate(newAngle);
+            base.OnAnimate();
         }
     }
 }

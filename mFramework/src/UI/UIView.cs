@@ -67,12 +67,12 @@ namespace mFramework.UI
 
         public float RelativeX(float x)
         {
-            return -GetWidth() / 2 + GetWidth() * mMath.Сlamp(x, 0, 1);
+            return -GetWidth() / 2 + GetWidth() * mMath.Clamp(x, 0, 1);
         }
 
         public float RelativeY(float y)
         {
-            return -GetHeight() / 2 + GetHeight() * mMath.Сlamp(y, 0, 1);
+            return -GetHeight() / 2 + GetHeight() * mMath.Clamp(y, 0, 1);
         }
 
         public Vector2 RelativePosition(float x, float y)

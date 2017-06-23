@@ -1,5 +1,4 @@
 ﻿using System;
-using mFramework.src.concrete;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -38,6 +37,7 @@ namespace mFramework.UI
         {
             var newPos = BezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
             _animatedObject.Position(newPos);
+            base.OnAnimate();
         }
     }
 }

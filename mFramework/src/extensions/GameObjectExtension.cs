@@ -22,8 +22,11 @@ namespace mFramework
 
         private static void SetParentImpl(Transform transform, Transform parent)
         {
-            if (transform == null || parent == null)
-                throw new NullReferenceException("GameObjectExtension (SetParentImpl): the given transform was null");
+            if (transform == null)
+                throw new ArgumentNullException(nameof(transform));
+            if (transform == parent)
+                throw new ArgumentNullException(nameof(parent));
+
             transform.parent = parent;
             transform.localPosition = Vector3.zero;
         }

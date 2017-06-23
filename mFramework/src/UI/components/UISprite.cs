@@ -12,7 +12,7 @@ namespace mFramework.UI
         public Color? Color { get; set; } = null;
     }
     
-    public class UISprite : UIComponent, IUIRenderer
+    public class UISprite : UIComponent, IUIRenderer, IColored
     {
         public Renderer UIRenderer { get { return Renderer; } }
         public SpriteRenderer Renderer { get; }
@@ -58,9 +58,15 @@ namespace mFramework.UI
             return this;
         }
 
-        public UISprite SetColor(Color color)
+        public UIObject SetColor(Color32 color)
         {
             Renderer.color = color;
+            return this;
+        }
+
+        public UIObject SetColor(UIColor color)
+        {
+            Renderer.color = color.Color32;
             return this;
         }
     }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    interface IUIRenderer
+    public interface IUIRenderer
     {
         Renderer UIRenderer { get; }
     }

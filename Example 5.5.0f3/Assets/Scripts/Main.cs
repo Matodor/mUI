@@ -17,6 +17,7 @@ public class Main : MonoBehaviour
 	        }
 	    });
         mUI.UICamera.Camera.backgroundColor = Color.gray;
+        mUI.LoadFont("testfont");
 
         SpritesRepository.LoadAll();
         mCore.Log("SpritesRepository count: " + SpritesRepository.Count());
