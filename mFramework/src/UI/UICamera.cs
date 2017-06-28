@@ -16,16 +16,42 @@ namespace mFramework.UI
         public float OrthographicSize { get; set; } = 5;
     }
 
+    internal class UICameraBehaviour : MonoBehaviour
+    {
+        public Camera Camera;
+        public event Action OnPostRenderEvent;
+
+        private UICameraBehaviour()
+        {
+            
+        }
+
+        public void OnPostRender()
+        {
+            OnPostRenderEvent?.Invoke();
+        }
+
+        public static UICameraBehaviour Create()
+        {
+            var go = new GameObject("UICamera");
+            var cameraBehaviour = go.AddComponent<UICameraBehaviour>();
+            cameraBehaviour.Camera = go.AddComponent<Camera>();
+            return cameraBehaviour;
+        }
+    }
+
     public sealed class UICamera
     {
-        public GameObject GameObject { get { return _cameraGameObject; } }
+        public event Action<UICamera> OnPostRenderEvent;
+
+        public GameObject GameObject { get; }
+        public Transform Transform { get; }
+        public Camera Camera { get; }
 
         public Vector2 Position { get { return Transform.position; } }
-        public Transform Transform { get; }
-        public Camera Camera { get { return _camera; } }
 
-        public float PureHeight { get { return _camera.orthographicSize * 2; } }
-        public float PureWidth { get { return _camera.orthographicSize * _camera.aspect * 2; } }
+        public float PureHeight { get { return _cameraBehaviour.Camera.orthographicSize * 2; } }
+        public float PureWidth { get { return _cameraBehaviour.Camera.orthographicSize * _cameraBehaviour.Camera.aspect * 2; } }
         public float Height { get { return PureHeight * Transform.lossyScale.y; } }
         public float Width { get { return PureWidth * Transform.lossyScale.x; } }
 
@@ -33,22 +59,28 @@ namespace mFramework.UI
         public float Right { get { return Transform.position.x + Width / 2; } }
         public float Top { get { return Transform.position.y + Height / 2; } }
         public float Bottom { get { return Transform.position.y - Height / 2; } }
-        
-        private readonly Camera _camera;
-        private readonly GameObject _cameraGameObject;
+
+        private readonly UICameraBehaviour _cameraBehaviour;
 
         private UICamera(UICameraSettings settings)
         {
-            _cameraGameObject = new GameObject("UICamera");
-            _camera = _cameraGameObject.AddComponent<Camera>();
-            _camera.clearFlags = settings.CameraClearFlags;
-            _camera.depth = settings.Depth;
-            _camera.orthographic = settings.Orthographic;
-            _camera.farClipPlane = settings.FarClipPlane;
-            _camera.nearClipPlane = settings.NearClipPlane;
-            _camera.orthographicSize = settings.OrthographicSize;
+            _cameraBehaviour = UICameraBehaviour.Create();
+            _cameraBehaviour.OnPostRenderEvent += OnPostRender;
+            Camera = _cameraBehaviour.Camera;
+            Camera.clearFlags = settings.CameraClearFlags;
+            Camera.depth = settings.Depth;
+            Camera.orthographic = settings.Orthographic;
+            Camera.farClipPlane = settings.FarClipPlane;
+            Camera.nearClipPlane = settings.NearClipPlane;
+            Camera.orthographicSize = settings.OrthographicSize;
 
-            Transform = _camera.transform;
+            Transform = _cameraBehaviour.transform; 
+            GameObject = _cameraBehaviour.gameObject;
+        }
+
+        private void OnPostRender()
+        {
+            OnPostRenderEvent?.Invoke(this);
         }
 
         public static UICamera Create(UICameraSettings settings)
@@ -58,7 +90,7 @@ namespace mFramework.UI
 
         public UICamera SetOrthographicSize(float size)
         {
-            _camera.orthographicSize = size;
+            _cameraBehaviour.Camera.orthographicSize = size;
             return this;
         }
 
@@ -66,7 +98,7 @@ namespace mFramework.UI
         {
             if (Application.isEditor)
                 screenPos.y = Screen.height - screenPos.y;
-            return _camera.ScreenToWorldPoint(screenPos);
+            return _cameraBehaviour.Camera.ScreenToWorldPoint(screenPos);
         }
     }
 }

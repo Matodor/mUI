@@ -25,6 +25,7 @@ namespace mFramework.UI
         {
             _uiCamera = UICamera.Create(settings.CameraSettings);
             _uiCamera.GameObject.SetParent(mEngine.Instance.gameObject);
+            _uiCamera.OnPostRenderEvent += OnPostRender;
 
             _instance = this;
             _fonts = new Dictionary<string, Font>();
@@ -51,6 +52,19 @@ namespace mFramework.UI
             if (_instance != null)
                 throw new Exception("UI already created");
             return new mUI(settings);
+        }
+
+        public static Font GetFont(string font)
+        {
+            if (!_fonts.ContainsKey(font))
+                return null;
+            return _fonts[font];
+        }
+
+        public static bool LoadOSFont(string fontName)
+        {
+            _fonts.Add(fontName, Font.CreateDynamicFontFromOSFont(fontName, 10));
+            return true;
         }
 
         public static bool LoadFont(string path)
@@ -90,6 +104,11 @@ namespace mFramework.UI
 
             _uiObjects.Add(obj.GUID, obj);
             return true;
+        }
+
+        internal void OnPostRender(UICamera camera)
+        {
+            BaseView.OnPostRender();
         }
 
         internal void Tick()

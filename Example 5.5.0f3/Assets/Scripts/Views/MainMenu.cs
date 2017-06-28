@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using mFramework;
 using mFramework.UI;
 using UnityEngine;
@@ -15,7 +14,39 @@ namespace Assets.Scripts.Views
             {
                 mCore.Log(o.ToString());
             }
-            
+
+            var l1 = Component<UILabel>(new UILabelSettings
+            {
+                Text = "BALBES GYdpDP",
+                Font = "Arial",
+                Size = 100,
+                VerticalAlign = UILabel.VerticalAlign.BASELINE,
+                Color = UIColors.Black
+            });
+
+            Component<UILabel>(new UILabelSettings
+            {
+                Text = "BALBES GYdpDP",
+                Font = "Arial",
+                Size = 100,
+                VerticalAlign = UILabel.VerticalAlign.ASCENDERLINE
+            });
+
+            Component<UILabel>(new UILabelSettings
+            {
+                Text = "BALBES GYdpDP",
+                Font = "Arial",
+                Size = 100,
+                VerticalAlign = UILabel.VerticalAlign.DESCENDERLINE
+            });
+
+            /*Component<UILabel>(new UILabelSettings
+            {
+                Text = "asd sd sgywer",
+                Font = "Arial",
+                Size = 100,
+                VerticalAlign = UIVerticalAlign.MIDDLE
+            }).Translate(0, 0);*/
 
             // UISprite
             var sp = Component<UISprite>(new UISpriteSettings {Sprite = SpritesRepository.Get("GameGUI_35")});
@@ -70,7 +101,11 @@ namespace Assets.Scripts.Views
                 },
                 DefaultSelected = true
             });
-            toggle.OnChanged += sender => mCore.Log("UIToogle: {0}", sender.IsSelected);
+            toggle.OnChanged += sender =>
+            {
+                mCore.Log("UIToogle: {0}", sender.IsSelected);
+                l1.IncreaseFontSize();
+            };
             toggle.Translate(0, 3);
 
 
@@ -154,11 +189,6 @@ namespace Assets.Scripts.Views
                     }
                 }).OnClick += b => mCore.Log("GUID: {0}", b.GUID);
             }
-
-            Component<UILabel>(new UILabelSettings
-            {
-                Text = "asd sdfsgywer"
-            });
         }
     }
 }

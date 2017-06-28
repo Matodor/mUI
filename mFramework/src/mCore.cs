@@ -35,6 +35,11 @@ namespace mFramework
             Log("[mFramework] init");
         }
 
+        ~mCore()
+        {
+            _editorIsLocked = false;
+        }
+
         public static mCore Init()
         {
             if (Instance != null)
