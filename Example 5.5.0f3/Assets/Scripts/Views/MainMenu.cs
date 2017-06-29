@@ -15,30 +15,15 @@ namespace Assets.Scripts.Views
                 mCore.Log(o.ToString());
             }
 
-            var l1 = Component<UILabel>(new UILabelSettings
+            Component<UILabel>(new UILabelSettings
             {
-                Text = "BALBES GYdpDP",
+                Text = "test Test Big up\nNew line\nNew Line qAqQAAqpD",
                 Font = "Arial",
                 Size = 100,
+                TextAlignment = TextAlignment.Center,
                 VerticalAlign = UILabel.VerticalAlign.BASELINE,
-                Color = UIColors.Black
-            });
-
-            Component<UILabel>(new UILabelSettings
-            {
-                Text = "BALBES GYdpDP",
-                Font = "Arial",
-                Size = 100,
-                VerticalAlign = UILabel.VerticalAlign.ASCENDERLINE
-            });
-
-            Component<UILabel>(new UILabelSettings
-            {
-                Text = "BALBES GYdpDP",
-                Font = "Arial",
-                Size = 100,
-                VerticalAlign = UILabel.VerticalAlign.DESCENDERLINE
-            });
+                FontStyle = FontStyle.BoldAndItalic
+            }).SortingOrder(10);
 
             /*Component<UILabel>(new UILabelSettings
             {
@@ -104,7 +89,6 @@ namespace Assets.Scripts.Views
             toggle.OnChanged += sender =>
             {
                 mCore.Log("UIToogle: {0}", sender.IsSelected);
-                l1.IncreaseFontSize();
             };
             toggle.Translate(0, 3);
 

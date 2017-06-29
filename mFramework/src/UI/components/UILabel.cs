@@ -12,6 +12,8 @@ namespace mFramework.UI
         public UILabel.VerticalAlign VerticalAlign { get; set; } = UILabel.VerticalAlign.BASELINE;
         public TextAnchor TextAnchor { get; set; } = TextAnchor.LowerLeft;
         public UIColor Color { get; set; } = UIColors.White;
+        public FontStyle FontStyle { get; set; } = FontStyle.Normal;
+        public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
     }
     
     public class UILabel : UIComponent, IUIRenderer, IColored
@@ -26,6 +28,8 @@ namespace mFramework.UI
         public Renderer UIRenderer { get; }
         public int FontSize { get { return _fontSize; } }
         public int LetterSpacing { get { return _letterSpacing; } }
+        public string Text { get { return _cachedText; } }
+        public Color TextColor { get { return _color; } }
 
         private Font _cachedFont;
         private readonly MeshRenderer _meshRenderer;
@@ -38,8 +42,10 @@ namespace mFramework.UI
         private int _fontSize = 50;
         private int _letterSpacing = 1;
 
+        private TextAlignment _textAlignment;
         private TextAnchor _textAnchor;
         private VerticalAlign _verticalAlign;
+        private FontStyle _fontStyle;
         private Color _color;
 
         protected UILabel(UIObject parent) : base(parent)
@@ -49,6 +55,22 @@ namespace mFramework.UI
             _meshFilter = _gameObject.AddComponent<MeshFilter>();
             _textPropertyBlock = new MaterialPropertyBlock();
             UIRenderer = _meshRenderer;
+
+            OnSortingOrderChanged += o =>
+            {
+                mCore.Log("OnSortingOrderChanged: {0} | Order: {1} | {2}", ToString(), SortingOrder(), _sortingOrder);
+                _meshRenderer.sortingOrder = SortingOrder();
+            };
+        }
+
+        public UILabel SetFontStyle(FontStyle fontStyle)
+        {
+            if (_fontStyle != fontStyle)
+            {
+                _fontStyle = fontStyle;
+                ForceUpdate();
+            }
+            return this;
         }
 
         public UILabel SetVerticalAlign(VerticalAlign align)
@@ -81,6 +103,26 @@ namespace mFramework.UI
             return this;
         }
 
+        public UILabel SetTextAlignment(TextAlignment alignment)
+        {
+            if (_textAlignment != alignment)
+            {
+                _textAlignment = alignment;
+                ForceUpdate();
+            }
+            return this;
+        }
+
+        public UILabel SetText(string text)
+        {
+            if (string.IsNullOrEmpty(text) || _cachedText == text)
+                return this;
+
+            _cachedText = text;
+            ForceUpdate();
+            return this;
+        }
+
         public UILabel SetFont(string fontName)
         {
             if (_fontName != fontName)
@@ -96,6 +138,15 @@ namespace mFramework.UI
             return this;
         }
 
+        private void FontRebuilt(Font font)
+        {
+            if (font == _cachedFont)
+            {
+                ForceUpdate();
+                UpdateMeshText();
+            }
+        }
+
         protected override void ApplySettings(UIComponentSettings settings)
         {
             if (settings == null)
@@ -105,45 +156,36 @@ namespace mFramework.UI
             if (labelSettings == null)
                 throw new ArgumentException("UILabel: The given settings is not UILabelSettings");
 
-            Font.textureRebuilt += font =>
-            {
-                if (font == _cachedFont)
-                {
-                    ForceUpdate();
-                    UpdateMeshText();
-                }
-            };
+            Font.textureRebuilt += FontRebuilt;
+            OnBeforeDestroy += o => Font.textureRebuilt -= FontRebuilt;
 
             _cachedText = labelSettings.Text;
             _fontSize = labelSettings.Size;
             _verticalAlign = labelSettings.VerticalAlign;
             _textAnchor = labelSettings.TextAnchor;
             _color = labelSettings.Color.Color32;
-            SetFont(labelSettings.Font);
-            
-            //mCore.Log("!!! _cachedFont = name: {0} | lineHeight: {1} | fontSize: {2}", _cachedFont.name, _cachedFont.lineHeight, _cachedFont.fontSize);
+            _fontStyle = labelSettings.FontStyle;
+            _textAlignment = labelSettings.TextAlignment;
 
+            SetFont(labelSettings.Font);
             ForceUpdate();
+
+            //mCore.Log("!!! _cachedFont = name: {0} | lineHeight: {1} | fontSize: {2}", _cachedFont.name, _cachedFont.lineHeight, _cachedFont.fontSize);
             base.ApplySettings(settings);
         }
 
-        public void ForceUpdate()
+        internal void ForceUpdate()
         {
             _forceUpdate = true;
         }
-
-        public void IncreaseFontSize()
-        {
-            SetFontSize(_fontSize + 1);
-        }
-
-        public void UpdateMeshText()
+        
+        internal void UpdateMeshText()
         {
             if (!_forceUpdate || string.IsNullOrEmpty(_cachedText))
                 return;
 
             _forceUpdate = false;
-            _cachedFont.RequestCharactersInTexture(_cachedText, _fontSize);
+            _cachedFont.RequestCharactersInTexture(_cachedText, _fontSize, _fontStyle);
             var localScale = LocalScale();
             Scale(1, 1);
 
@@ -158,30 +200,27 @@ namespace mFramework.UI
             var triangles = new int[charCount * 6];
 
             var textHeight = 0f;
+            var textWidth = 0f;
             var charIndex = 0;
             var trianglesIndex = 0;
 
-            foreach (string line in textLines)
+            const float magic = 200f;
+            var lineHeight = ((_fontSize / _cachedFont.fontSize) * _cachedFont.lineHeight) / magic;
+
+            foreach (var line in textLines)
             {
-                const float magic = 200f;
                 var lineWidth = 0f;
-                var lineHeight = 0f;
+                var lastLetterSpacing = 0f;
+                var charsInLine = 0;
 
-                foreach (char ch in line)
-                {
-                    //if (ch == ' ')
-                    //{
-                    //    lineWidth += 1;
-                    //    continue;
-                    //}
-                    
+                foreach (var ch in line)
+                {                   
                     CharacterInfo characterInfo;
-                    if (!_cachedFont.GetCharacterInfo(ch, out characterInfo, _fontSize))
+                    if (!_cachedFont.GetCharacterInfo(ch, out characterInfo, _fontSize, _fontStyle))
                         continue;
+                    var offsetPos = new Vector3(lineWidth, -textHeight);
 
-                    var offsetPos = new Vector3(lineWidth, lineHeight);
-
-                    mCore.Log("CH: {4} | maxX: {0} | minX: {1} | maxY: {2} | minY: {3} | advance: {5} | bearing: {6} |glyphHeight: {7} |glyphWidth: {8} | size: {9}", 
+                    /*mCore.Log("CH: {4} | maxX: {0} | minX: {1} | maxY: {2} | minY: {3} | advance: {5} | bearing: {6} |glyphHeight: {7} |glyphWidth: {8} | size: {9}", 
                         characterInfo.maxX,
                         characterInfo.minX,
                         characterInfo.maxY,
@@ -192,7 +231,7 @@ namespace mFramework.UI
                         characterInfo.glyphHeight,
                         characterInfo.glyphWidth,
                         characterInfo.size
-                    );
+                    );*/
 
                     var minX = characterInfo.minX / magic;
                     var maxX = characterInfo.maxX / magic;
@@ -208,6 +247,7 @@ namespace mFramework.UI
                         case VerticalAlign.DESCENDERLINE:
                             minY -= Mathf.Abs(maxY);
                             maxY -= Mathf.Abs(maxY);
+                            offsetPos = offsetPos + new Vector3(0, _cachedFont.lineHeight / magic);
                             break;
                     }
 
@@ -216,12 +256,13 @@ namespace mFramework.UI
                     vertices[charIndex + 2] = new Vector3(maxX, maxY) + offsetPos;
                     vertices[charIndex + 3] = new Vector3(maxX, minY) + offsetPos;
 
-                    lineWidth += characterInfo.advance / magic;
+                    lastLetterSpacing = characterInfo.advance / magic;
+                    lineWidth += lastLetterSpacing;
 
-                    colors[charIndex + 0] = _color;
-                    colors[charIndex + 1] = _color;
-                    colors[charIndex + 2] = _color;
-                    colors[charIndex + 3] = _color;
+                    colors[charIndex + 0] = Color.white;
+                    colors[charIndex + 1] = Color.white;
+                    colors[charIndex + 2] = Color.white;
+                    colors[charIndex + 3] = Color.white;
 
                     uv[charIndex + 0] = characterInfo.uvBottomLeft;
                     uv[charIndex + 1] = characterInfo.uvTopLeft;
@@ -242,10 +283,67 @@ namespace mFramework.UI
 
                     charIndex = charIndex + 4;
                     trianglesIndex = trianglesIndex + 6;
+                    charsInLine++;
                 }
-                
-                textHeight += _cachedFont.lineHeight / magic;
+
+                lineWidth -= lastLetterSpacing;
+                textHeight += lineHeight;
+
+                switch (_textAlignment)
+                {
+                    case TextAlignment.Center:
+                        for (int i = charIndex - charsInLine * 4; i < charIndex; i++)
+                        {
+                            vertices[i].x = vertices[i].x - lineWidth / 2f;
+                            vertices[i].y = vertices[i].y;
+                            vertices[i].z = vertices[i].z;
+                        }
+                        break;
+                    case TextAlignment.Right:
+                        for (int i = charIndex - charsInLine * 4; i < charIndex; i++)
+                        {
+                            vertices[i].x = vertices[i].x - lineWidth;
+                            vertices[i].y = vertices[i].y;
+                            vertices[i].z = vertices[i].z;
+                        }
+                        break;
+                }
+
+                if (lineWidth > textWidth)
+                    textWidth = lineWidth;
             }
+
+            /*switch (_textAnchor)
+            {
+                case TextAnchor.UpperLeft:
+                    for (int i = 0; i < vertices.Length; i++)
+                        vertices[i] = new Vector3(vertices[i].x, vertices[i].y, vertices[i].z);
+                    break;
+                case TextAnchor.UpperCenter:
+                    break;
+                case TextAnchor.UpperRight:
+                    break;
+                case TextAnchor.MiddleLeft:
+                    break;
+                case TextAnchor.MiddleCenter:
+                    for (int i = 0; i < vertices.Length; i++)
+                    {
+                        vertices[i] = new Vector3(
+                            vertices[i].x - textWidth / 2,
+                            vertices[i].y + textHeight / 2 - lineHeight,
+                            vertices[i].z
+                        );
+                    }
+                    break;
+                case TextAnchor.MiddleRight:
+                    break;
+                case TextAnchor.LowerLeft:
+                    break;
+                case TextAnchor.LowerCenter:
+                    break;
+                case TextAnchor.LowerRight:
+                    break;
+            }*/
             
             var textMesh = new Mesh
             {
@@ -266,7 +364,8 @@ namespace mFramework.UI
         public UIObject SetColor(Color32 color)
         {
             _color = color;
-            ForceUpdate();
+            _textPropertyBlock.SetColor("_Color", _color);
+            _meshRenderer.SetPropertyBlock(_textPropertyBlock);
             return this;
         }
 

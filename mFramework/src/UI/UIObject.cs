@@ -29,7 +29,7 @@ namespace mFramework.UI
         private readonly UnidirectionalList<UIAnimation> _animations;
         private readonly UnidirectionalList<UIObject> _childsObjects;
         private readonly UIObject _parentObject;
-        private int _sortingOrder;
+        protected int _sortingOrder;
         private bool _isActive;
         private bool _isVisible;
 
@@ -156,6 +156,7 @@ namespace mFramework.UI
         public UIObject SortingOrder(int sortingOrder)
         {
             _sortingOrder = sortingOrder;
+            mCore.Log("SET _sortingOrder = {0}", sortingOrder);
             SortingOrderChanged();
 
             return this;
@@ -163,11 +164,12 @@ namespace mFramework.UI
         
         public int SortingOrder()
         {
-            return _parentObject?.SortingOrder() ?? 0 + _sortingOrder;
+            return (_parentObject?.SortingOrder() ?? 0) + _sortingOrder;
         }
 
-        private void SortingOrderChanged()
+        internal void SortingOrderChanged()
         {
+            mCore.Log("SortingOrderChanged _sortingOrder = {0}", _sortingOrder);
             OnSortingOrderChanged?.Invoke(this);
             _childsObjects.ForEach(o => o.SortingOrderChanged());
         }

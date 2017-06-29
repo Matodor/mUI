@@ -17,7 +17,9 @@ public class Main : MonoBehaviour
 	        }
 	    });
         mUI.UICamera.Camera.backgroundColor = Color.gray;
-        mUI.LoadFont("testfont");
+        mUI.LoadFont("Orbitron");
+        mUI.LoadFont("Kazmann_Sans");
+        mUI.LoadFont("CTCSplash_Rounded");
         mUI.LoadOSFont("Arial");
 
         SpritesRepository.LoadAll();
