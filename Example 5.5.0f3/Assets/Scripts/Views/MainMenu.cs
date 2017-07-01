@@ -9,7 +9,6 @@ namespace Assets.Scripts.Views
     {
         protected override void CreateInterface(params object[] @params)
         {
-            mCore.Log(UIColor.HSVToRGB(359, 130, 255, 255).ToString());
             foreach (var o in @params)
             {
                 mCore.Log(o.ToString());
@@ -127,7 +126,7 @@ namespace Assets.Scripts.Views
                 Height = SpritesRepository.Get("GameGUI_40").WorldSize().y*3,
                 Offset = SpritesRepository.Get("GameGUI_40").WorldSize().x / 4,
                 DirectionOfAddingSlides = DirectionOfAddingSlides.FORWARD,
-                SliderType = SliderType.HORIZONTAL
+                SliderType = UIObjectOrientation.HORIZONTAL
             });
             horizontalSlider.Translate(new Vector2
             {
@@ -154,7 +153,7 @@ namespace Assets.Scripts.Views
                 Height = mUI.MaxHeight() - SpritesRepository.Get("GameGUI_40").WorldSize().y * 5,
                 Offset = SpritesRepository.Get("GameGUI_40").WorldSize().x / 4,
                 DirectionOfAddingSlides = DirectionOfAddingSlides.FORWARD,
-                SliderType = SliderType.VERTICAL
+                SliderType = UIObjectOrientation.VERTICAL
             });
             verticalSlider.Translate(new Vector2
             {
@@ -173,6 +172,39 @@ namespace Assets.Scripts.Views
                     }
                 }).OnClick += b => mCore.Log("GUID: {0}", b.GUID);
             }
+
+            
+            //
+            Component<UIScrollBar>(new UIScrollBarSettings
+            { 
+                BarSprite = SpritesRepository.Get("GameGUI_25"),
+                Orientation = UIObjectOrientation.HORIZONTAL,
+                ButtonSettings = new UIButtonSettings
+                {
+                    ButtonSpriteStates = new SpriteStates
+                    {
+                        Default = SpritesRepository.Get("GameGUI_38"),
+                        Highlighted = SpritesRepository.Get("GameGUI_39")
+                    },
+                    
+                }
+            }).Translate(0, 2);
+
+            Component<UIScrollBar>(new UIScrollBarSettings
+            {
+                BarSprite = SpritesRepository.Get("GameGUI_25"),
+                Orientation = UIObjectOrientation.VERTICAL,
+                ButtonSettings = new UIButtonSettings
+                {
+                    ButtonSpriteStates = new SpriteStates
+                    {
+                        Default = SpritesRepository.Get("GameGUI_38"),
+                        Highlighted = SpritesRepository.Get("GameGUI_39")
+                    },
+
+                },
+                
+            }).Translate(0, 2);
         }
     }
 }

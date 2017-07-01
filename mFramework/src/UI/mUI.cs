@@ -63,14 +63,18 @@ namespace mFramework.UI
 
         public static bool LoadOSFont(string fontName)
         {
-            _fonts.Add(fontName, Font.CreateDynamicFontFromOSFont(fontName, 10));
+            var font = Font.CreateDynamicFontFromOSFont(fontName, 10);
+            if (font == null)
+                return false;
+
+            _fonts.Add(fontName, font);
             return true;
         }
 
         public static bool LoadFont(string path)
         {
             var font = Resources.Load<Font>(path);
-            if (_fonts.ContainsKey(font.name))
+            if (font == null || _fonts.ContainsKey(font.name))
                 return false;
             
             _fonts.Add(font.name, font);

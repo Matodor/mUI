@@ -94,16 +94,17 @@ namespace mFramework.UI
         public virtual UIRect GetRect()
         {
             var pos = Position();
-            var heightDiv2 = GetHeight() / 2;
-            var widthDiv2 = GetWidth() / 2;
+            var scale = GlobalScale();
+            var scaledHeightDiv2 = (GetHeight() / 2) * scale.y;
+            var scaledWidthDiv2 = (GetWidth() / 2) * scale.x;
 
-            return new UIRect()
+            return new UIRect
             {
                 Position = pos,
-                Bottom = pos.y - heightDiv2,
-                Top = pos.y + heightDiv2,
-                Left = pos.x - widthDiv2,
-                Right = pos.x + widthDiv2,
+                Bottom = pos.y - scaledHeightDiv2,
+                Top = pos.y + scaledHeightDiv2,
+                Left = pos.x - scaledWidthDiv2,
+                Right = pos.x + scaledWidthDiv2,
             };
         }
 
@@ -156,7 +157,6 @@ namespace mFramework.UI
         public UIObject SortingOrder(int sortingOrder)
         {
             _sortingOrder = sortingOrder;
-            mCore.Log("SET _sortingOrder = {0}", sortingOrder);
             SortingOrderChanged();
 
             return this;
@@ -169,7 +169,6 @@ namespace mFramework.UI
 
         internal void SortingOrderChanged()
         {
-            mCore.Log("SortingOrderChanged _sortingOrder = {0}", _sortingOrder);
             OnSortingOrderChanged?.Invoke(this);
             _childsObjects.ForEach(o => o.SortingOrderChanged());
         }

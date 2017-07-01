@@ -80,6 +80,7 @@
     <Compile Include="src\UI\animations\UIRotateAnimation.cs" />
     <Compile Include="src\UI\animations\UIScaleAnimation.cs" />
     <Compile Include="src\UI\components\UILabel.cs" />
+    <Compile Include="src\UI\components\UIScrollBar.cs" />
     <Compile Include="src\UI\fonts\TrueTypeFontReader.cs" />
     <Compile Include="src\UI\UIAnimation.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="src\UI\UIColor.cs" />
     <Compile Include="src\UI\UIColors.cs" />
     <Compile Include="src\UI\UIObject.cs" />
+    <Compile Include="src\UI\UIObjectOrientation.cs" />
     <Compile Include="src\UI\UIRect.cs" />
     <Compile Include="src\UI\views\BaseView.cs" />
     <Compile Include="src\UI\mUI.cs" />
@@ -108,6 +110,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"</PostBuildEvent>
+    <PostBuildEvent>copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"
+copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\KappaClicker\KappaClicker\Assets\Plugins"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -10,7 +10,7 @@ namespace mFramework
     {
         public float Height { get; set; }
         public float Width { get; set; }
-        
+
         public override bool InArea(Vector2 worldPoint)
         {
             base.InArea(worldPoint);
@@ -24,22 +24,22 @@ namespace mFramework
             // left top
             var x = (-widthDiv2 + Offset.x) * Scale.x;
             var y = (heightDiv2 + Offset.y) * Scale.y;
-            var leftTop = mMath.GetRotatedPoint(Center.x, Center.y, ref x, ref y, ref sin, ref cos);
+            var leftTop = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // left bottom
             x = (-widthDiv2 + Offset.x) * Scale.x;
             y = (-heightDiv2 + Offset.y) * Scale.y;
-            var leftBottom = mMath.GetRotatedPoint(Center.x, Center.y, ref x, ref y, ref sin, ref cos);
+            var leftBottom = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // right bottom
             x = (widthDiv2 + Offset.x) * Scale.x;
             y = (-heightDiv2 + Offset.y) * Scale.y;
-            var rightBottom = mMath.GetRotatedPoint(Center.x, Center.y, ref x, ref y, ref sin, ref cos);
+            var rightBottom = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // right top
             x = (widthDiv2 + Offset.x) * Scale.x;
             y = (heightDiv2 + Offset.y) * Scale.y;
-            var rightTop = mMath.GetRotatedPoint(Center.x, Center.y, ref x, ref y, ref sin, ref cos);
+            var rightTop = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             if (mCore.IsEditor && mCore.IsDebug)
             {

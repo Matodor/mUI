@@ -58,7 +58,6 @@ namespace mFramework.UI
 
             OnSortingOrderChanged += o =>
             {
-                mCore.Log("OnSortingOrderChanged: {0} | Order: {1} | {2}", ToString(), SortingOrder(), _sortingOrder);
                 _meshRenderer.sortingOrder = SortingOrder();
             };
         }

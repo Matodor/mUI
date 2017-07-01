@@ -62,7 +62,7 @@ namespace mFramework.UI
             return Area2D.InArea(worldPos);
         }
 
-        public Vector2 WorldPos(MouseEvent @event)
+        public static Vector2 WorldPos(MouseEvent @event)
         {
             return mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos);
         }

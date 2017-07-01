@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace mFramework
+﻿namespace mFramework
 {
-    public abstract class EventListener
+    public abstract class EventListener : IGlobalUniqueIdentifier
     {
-        internal long GUID { get; }
-
-        private static long _guid = 0;
+        public ulong GUID { get; }
+        
+        private static ulong _guid;
 
         protected EventListener()
         {

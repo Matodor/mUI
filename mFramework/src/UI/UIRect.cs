@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIRect
+    public struct UIRect
     {
-        public float Top { get; set; }
-        public float Bottom { get; set; }
-        public float Right { get; set; }
-        public float Left { get; set; }
-
+        public float Top;
+        public float Bottom;
+        public float Right;
+        public float Left;
         public Vector2 Position;
     }
 }

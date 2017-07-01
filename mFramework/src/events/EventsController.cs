@@ -13,7 +13,7 @@ namespace mFramework
         public static EventsController Instance { get; }
 
         private readonly Event _currentEvent;
-        private readonly Dictionary<long, MouseEventListener> _mouseEventListeners;
+        private readonly UnidirectionalList<MouseEventListener> _mouseEventListeners;
 
         static EventsController()
         {
@@ -23,20 +23,19 @@ namespace mFramework
         private EventsController()
         {
             _currentEvent = new Event();
-            _mouseEventListeners = new Dictionary<long, MouseEventListener>();
+            _mouseEventListeners = UnidirectionalList<MouseEventListener>.Create();
         }
 
-        public static void RemoveMouseEventListener(MouseEventListener listener)
+        public static bool RemoveMouseEventListener(MouseEventListener listener)
         {
-            if (Instance._mouseEventListeners.ContainsKey(listener.GUID))
-                Instance._mouseEventListeners.Remove(listener.GUID);
+            return Instance._mouseEventListeners.Remove(listener.GUID);
         }
 
         public static MouseEventListener AddMouseEventListener(MouseEventListener listener)
         {
-            if (!Instance._mouseEventListeners.ContainsKey(listener.GUID))
+            if (!Instance._mouseEventListeners.Contains(listener))
             {
-                Instance._mouseEventListeners.Add(listener.GUID, listener);
+                Instance._mouseEventListeners.Add(listener);
                 return listener;
             }
             return null;
@@ -56,34 +55,22 @@ namespace mFramework
 
         private void MouseWheelEvent(MouseEvent @event)
         {
-            foreach (var listener in _mouseEventListeners.Values)
-            {
-                listener.MouseWheel(@event);
-            }
+            _mouseEventListeners.ForEach(listener => listener.MouseWheel(@event));
         }
 
         private void MouseDragEvent(MouseEvent @event)
         {
-            foreach (var listener in _mouseEventListeners.Values)
-            {
-                listener.MouseDrag(@event);
-            }
+            _mouseEventListeners.ForEach(listener => listener.MouseDrag(@event));
         }
 
         private void MouseUpEvent(MouseEvent @event)
         {
-            foreach (var listener in _mouseEventListeners.Values)
-            {
-                listener.MouseUp(@event);
-            }
+            _mouseEventListeners.ForEach(listener => listener.MouseUp(@event));
         }
 
         private void MouseDownEvent(MouseEvent @event)
         {
-            foreach (var listener in _mouseEventListeners.Values)
-            {
-                listener.MouseDown(@event);
-            }
+            _mouseEventListeners.ForEach(listener => listener.MouseDown(@event));
         }
 
         private void DesktopEvents()

@@ -6,16 +6,16 @@ using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-	void Start ()
-	{
+    void Start ()
+    {
         mCore.Init();
-	    mUI.Create(new UISettings
-	    {
+        mUI.Create(new UISettings
+        {
 	        CameraSettings =
 	        {
 	            CameraClearFlags = CameraClearFlags.SolidColor
 	        }
-	    });
+        });
         mUI.UICamera.Camera.backgroundColor = Color.gray;
         mUI.LoadFont("Orbitron");
         mUI.LoadFont("Kazmann_Sans");
@@ -24,10 +24,6 @@ public class Main : MonoBehaviour
 
         SpritesRepository.LoadAll();
         mCore.Log("SpritesRepository count: " + SpritesRepository.Count());
-	    var mainMenu = mUI.BaseView.ChildView<MainMenu>();
-    }
-	
-    void Update() 
-    {
+        var mainMenu = mUI.BaseView.ChildView<MainMenu>();
     }
 }

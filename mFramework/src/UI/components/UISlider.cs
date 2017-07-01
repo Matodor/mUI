@@ -10,13 +10,7 @@ namespace mFramework.UI
         public float Width { get; set; } = 0;
         public float Offset { get; set; } = 0;
         public DirectionOfAddingSlides DirectionOfAddingSlides { get; set; } = DirectionOfAddingSlides.FORWARD;
-        public SliderType SliderType { get; set; } = SliderType.HORIZONTAL;
-    }
-
-    public enum SliderType
-    {
-        HORIZONTAL = 0,
-        VERTICAL = 1,
+        public UIObjectOrientation SliderType { get; set; } = UIObjectOrientation.HORIZONTAL;
     }
 
     public enum DirectionOfAddingSlides
@@ -35,7 +29,7 @@ namespace mFramework.UI
         private readonly List<UIObject> _slides;
         private UIClickable _clickableHandler;
         private UICamera _camera;
-        private SliderType _sliderType;
+        private UIObjectOrientation _sliderType;
         private DirectionOfAddingSlides _directionOfAddingSlides;
 
         private float _height;
@@ -89,7 +83,7 @@ namespace mFramework.UI
 
         private void SetupChildren(UIObject obj)
         {
-            if (_sliderType == SliderType.HORIZONTAL)
+            if (_sliderType == UIObjectOrientation.HORIZONTAL)
                 SetupChildrenHorizontal(obj);
             else
                 SetupChildrenVertical(obj);
@@ -124,7 +118,7 @@ namespace mFramework.UI
 
         private bool CanChildsMouseDown(IUIClickable handler, MouseEvent @event)
         {
-            if (_clickableHandler.InArea(_clickableHandler.WorldPos(@event)) &&
+            if (_clickableHandler.InArea(UIClickable.WorldPos(@event)) &&
                 _dragPath < SLIDER_MAX_PATH_TO_CLICK)
             {
                 _clickNext.Add(new Pair<IUIClickable, MouseEvent>(handler, @event));
@@ -286,7 +280,7 @@ namespace mFramework.UI
                 return;
 
             var diff = worldPos - _lastMousePos;
-            if (_sliderType == SliderType.HORIZONTAL)
+            if (_sliderType == UIObjectOrientation.HORIZONTAL)
             {
                 _dragPath += Math.Abs(diff.x);
                 HorizontalMove(diff.x);
@@ -313,7 +307,7 @@ namespace mFramework.UI
 
         public void Move(float diff)
         {
-            if (_sliderType == SliderType.HORIZONTAL)
+            if (_sliderType == UIObjectOrientation.HORIZONTAL)
                 HorizontalMove(diff);
             else
                 VerticalMove(diff);

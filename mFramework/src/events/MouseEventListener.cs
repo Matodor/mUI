@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace mFramework
 {
@@ -11,6 +8,10 @@ namespace mFramework
         public event Action<MouseEvent> OnMouseUp;
         public event Action<MouseEvent> OnMouseDrag;
         public event Action<MouseEvent> OnMouseWheel;
+
+        private MouseEventListener()
+        {
+        }
 
         public static MouseEventListener Create()
         {

@@ -24,7 +24,7 @@ namespace mFramework.UI
         public StateableSprite StateableSprite { get { return _stateableSprite; } }
 
         public event Action<UIButton> OnClick;
-        public event Func<UIButton, bool> OnMouseDown, OnMouseUp;
+        public event Func<UIButton, Vector2, bool> OnMouseDown, OnMouseUp;
         
         private UIClickable _clickableHandler;
         private StateableSprite _stateableSprite;
@@ -116,7 +116,7 @@ namespace mFramework.UI
         {
             _stateableSprite.SetHighlighted();
 
-            if ((OnMouseDown?.Invoke(this) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
+            if ((OnMouseDown?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
                 OnClick?.Invoke(this);
         }
 
@@ -124,7 +124,7 @@ namespace mFramework.UI
         {
             _stateableSprite.SetDefault();
 
-            if ((OnMouseUp?.Invoke(this) ?? true) && ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
+            if ((OnMouseUp?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
                 OnClick?.Invoke(this);
         }
 

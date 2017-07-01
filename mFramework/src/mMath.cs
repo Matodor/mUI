@@ -42,7 +42,29 @@ namespace mFramework
             return val;
         }
 
-        public static Vector2 GetRotatedPoint(float centerX, float centerY, ref float x, ref float y, ref float sin, ref float cos)
+        public static void GetRotatedPoints(float angle, Vector2 center, Vector2[] rotatedPoints)
+        {
+            var cos = Mathf.Cos(Mathf.Deg2Rad * angle);
+            var sin = Mathf.Sin(Mathf.Deg2Rad * angle);
+
+            for (int i = 0; i < rotatedPoints.Length; i++)
+            {
+                rotatedPoints[i] = GetRotatedPoint(
+                    center.x, center.y,
+                    rotatedPoints[i].x, rotatedPoints[i].y,
+                    sin, cos
+                );
+            }
+        }
+
+        public static Vector2 GetRotatedPoint(Vector2 center, Vector2 point, float angle)
+        {
+            var cos = Mathf.Cos(Mathf.Deg2Rad * angle);
+            var sin = Mathf.Sin(Mathf.Deg2Rad * angle);
+            return GetRotatedPoint(center.x, center.y, point.x, point.y, sin, cos);
+        }
+
+        public static Vector2 GetRotatedPoint(float centerX, float centerY, float x, float y, float sin, float cos)
         {
             return new Vector2(centerX + x * cos - y * sin, centerY + x * sin + y * cos);
         }

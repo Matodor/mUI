@@ -43,8 +43,10 @@ namespace mFramework
 
         public static void Add(Sprite sprite)
         {
-            if (sprite == null || _sprites.ContainsKey(sprite.name))
+            if (sprite == null)
                 throw new ArgumentNullException(nameof(sprite));
+            if (_sprites.ContainsKey(sprite.name))
+                throw new Exception(string.Format("Sprite '{0}' already added in collection", sprite.name));
             _sprites.Add(sprite.name, sprite);
         }
 

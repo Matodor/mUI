@@ -34,7 +34,7 @@ namespace mFramework.UI
 
             _button = Component<UIButton>((UIButtonSettings) settings);
             _button.OnClick += ButtonClick;
-            _button.OnMouseUp += button =>
+            _button.OnMouseUp += (button, worldPos) =>
             {
                 if (_isSelected)
                     _button.StateableSprite.SetSelected();

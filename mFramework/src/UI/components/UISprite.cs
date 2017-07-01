@@ -64,6 +64,24 @@ namespace mFramework.UI
             return this;
         }
 
+        public override UIRect GetRect()
+        {
+            var pos = Position();
+            var scale = GlobalScale();
+            var scaledHeightDiv2 = GetHeight() / 2 * scale.y;
+            var scaledWidthDiv2 = GetWidth() / 2 * scale.x;
+            var centerOffset = Renderer.sprite?.GetCenterOffset() ?? new Vector2(0, 0);
+
+            return new UIRect()
+            {
+                Position = pos,
+                Bottom = pos.y - scaledHeightDiv2 + centerOffset.y * scale.y,
+                Top = pos.y + scaledHeightDiv2 + centerOffset.y * scale.y,
+                Left = pos.x - scaledWidthDiv2 + centerOffset.x * scale.x,
+                Right = pos.x + scaledWidthDiv2 + centerOffset.x * scale.x,
+            };
+        }
+
         public UIObject SetColor(UIColor color)
         {
             Renderer.color = color.Color32;
