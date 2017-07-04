@@ -1,18 +1,30 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using mFramework.UI;
 using UnityEngine;
 
 namespace mFramework
 {
+    public delegate object LateBoundFieldGet(object target);
+    public delegate void LateBoundFieldSet(object target, object value);
+
     public sealed class mCore
     {
-        public static mCore Instance { get; private set; }
+        public static mCore Instance
+        {
+            get { return _instance ?? (_instance = new mCore()); }
+        }
+
         public static bool IsDebug { get; set; }
         public static bool IsEditor { get; private set; }
+        public static event Action OnApplicationQuitEvent;
 
-        private readonly mEngine _engine;
+        private static mCore _instance;
+        private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
+
         private delegate bool EditorGetBoolean();
 
         private Type _editorApplication, _callbackFunctionType;
@@ -22,29 +34,33 @@ namespace mFramework
         private Assembly _unityEditorAssembly;
         private Delegate _playmodeStateChangedDelegate, _updateEditorDelegate;
         private FieldInfo _playmodeStateChangedField, _updateField;
-         
+        
         private mCore()
         {
-            _engine = new GameObject("mFramework").AddComponent<mEngine>();
-            _engine.transform.position = new Vector3(0, 0, 9999);
-            Instance = this;
+            _fieldDictionary = new Dictionary<Type, CachedFieldsInfo>();
+            var engine = new GameObject("mFramework").AddComponent<mEngine>();
+            engine.transform.position = new Vector3(0, 0, 9999);
 
             if (Application.isEditor)
                 InejctEditor();
 
             Log("[mFramework] init");
         }
-
+         
         ~mCore()
         {
             _editorIsLocked = false;
         }
 
-        public static mCore Init()
+        internal void Init()
         {
-            if (Instance != null)
-                throw new Exception("mFramework already created");
-            return new mCore();
+            
+        }
+
+        internal static void OnApplicationQuit()
+        {
+            OnApplicationQuitEvent?.Invoke();
+            Log("[mCore] OnApplicationQuit");
         }
 
         private void InejctEditor()
@@ -120,6 +136,57 @@ namespace mFramework
                 UnityEngine.Debug.Log(string.Format(format, obj));
         }
 
+        public static LateBoundFieldGet CreateFieldGetter(FieldInfo field)
+        {
+            var method = new DynamicMethod("Get" + field.Name, typeof(object), new[] { typeof(object) }, field.DeclaringType, true);
+            var gen = method.GetILGenerator();
+
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Castclass, field.DeclaringType); // Cast to source type
+            gen.Emit(OpCodes.Ldfld, field);
+
+            if (field.FieldType.IsValueType)
+                gen.Emit(OpCodes.Box, field.FieldType);
+
+            gen.Emit(OpCodes.Ret);
+
+            var callback = (LateBoundFieldGet)method.CreateDelegate(typeof(LateBoundFieldGet));
+            return callback;
+        }
+
+        public static LateBoundFieldSet CreateFieldSetter(FieldInfo field)
+        {
+            var method = new DynamicMethod("Set" + field.Name, null, new[] { typeof(object), typeof(object) }, field.DeclaringType, true);
+            var gen = method.GetILGenerator();
+
+            gen.Emit(OpCodes.Ldarg_0); // Load target to stack
+            gen.Emit(OpCodes.Castclass, field.DeclaringType); // Cast target to source type
+            gen.Emit(OpCodes.Ldarg_1); // Load value to stack
+            gen.Emit(OpCodes.Unbox_Any, field.FieldType); // Unbox the value to its proper value type
+            gen.Emit(OpCodes.Stfld, field); // Set the value to the input field
+            gen.Emit(OpCodes.Ret);
+             
+            var callback = (LateBoundFieldSet)method.CreateDelegate(typeof(LateBoundFieldSet));
+            return callback;
+        }
+
+        public static CachedFieldsInfo GetCachedFields(Type type)
+        {
+            CachedFieldsInfo cachedFieldsInfo;
+            if (Instance._fieldDictionary.TryGetValue(type, out cachedFieldsInfo) == false)
+            {
+                var fields = type.GetFields();
+                cachedFieldsInfo = new CachedFieldsInfo(fields.Length);
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    cachedFieldsInfo.CachedFields[i] = new CachedFieldInfo(
+                        fields[i], CreateFieldSetter(fields[i]), CreateFieldGetter(fields[i]));
+                }
+                Instance._fieldDictionary.Add(type, cachedFieldsInfo);
+            }
+            return cachedFieldsInfo;
+        }
+
         internal void Tick()
         {
             /*
@@ -130,17 +197,17 @@ namespace mFramework
                 }
             */
 
-            mUI.Instance?.Tick();
+            if (mUI.Instance != null) mUI.Instance.Tick();
         }
 
         internal void FixedTick()
         {
-            mUI.Instance?.FixedTick();
+            if (mUI.Instance != null) mUI.Instance.FixedTick();
         }
 
         internal void LateTick()
         {
-            mUI.Instance?.LateTick();
+            if (mUI.Instance != null) mUI.Instance.LateTick();
         }
     }
 }

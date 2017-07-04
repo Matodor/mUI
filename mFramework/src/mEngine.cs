@@ -1,29 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace mFramework
 {
     public sealed class mEngine : MonoBehaviour
     {
-        public static mEngine Instance { get; private set; }
+        public static mEngine Instance { get { return _instance; } }
 
-        private mEngine()
+        private static mEngine _instance;
+
+        static mEngine()
         {
-            Instance = this;
+            mCore.Instance.Init();
         }
 
         public void Awake()
         {
+            _instance = this;
         }
 
         private void OnGUI()
         {
         }
-        
+
+        private void OnApplicationQuit()
+        {
+            mCore.OnApplicationQuit();
+        }
+
         private void Update()
         {
             EventsController.Instance.Update();
