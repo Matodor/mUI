@@ -180,7 +180,7 @@ namespace mFramework.UI
         
         internal void UpdateMeshText()
         {
-            if (!_forceUpdate || string.IsNullOrEmpty(_cachedText))
+            if (!IsVisible || !_forceUpdate || string.IsNullOrEmpty(_cachedText))
                 return;
 
             _forceUpdate = false;
@@ -203,19 +203,22 @@ namespace mFramework.UI
             var charIndex = 0;
             var trianglesIndex = 0;
 
-            const float magic = 200f;
+            const float magic = 220f;
             var lineHeight = ((_fontSize / _cachedFont.fontSize) * _cachedFont.lineHeight) / magic;
 
-            foreach (var line in textLines)
+            for (int i = 0; i < textLines.Length; i++)
             {
                 var lineWidth = 0f;
                 var lastLetterSpacing = 0f;
                 var charsInLine = 0;
 
-                foreach (var ch in line)
+                var firstX = 0f;
+                var lastX = 0f;
+
+                for (int k = 0; k < textLines[i].Length; k++)
                 {                   
                     CharacterInfo characterInfo;
-                    if (!_cachedFont.GetCharacterInfo(ch, out characterInfo, _fontSize, _fontStyle))
+                    if (!_cachedFont.GetCharacterInfo(textLines[i][k], out characterInfo, _fontSize, _fontStyle))
                         continue;
                     var offsetPos = new Vector3(lineWidth, -textHeight);
 
@@ -255,8 +258,12 @@ namespace mFramework.UI
                     vertices[charIndex + 2] = new Vector3(maxX, maxY) + offsetPos;
                     vertices[charIndex + 3] = new Vector3(maxX, minY) + offsetPos;
 
-                    lastLetterSpacing = characterInfo.advance / magic;
-                    lineWidth += lastLetterSpacing;
+                    if (k == 0)
+                        firstX = vertices[charIndex + 0].x;
+                    if (k == textLines[i].Length - 1)
+                        lastX = vertices[charIndex + 3].x;
+
+                    lineWidth += characterInfo.advance / magic;
 
                     colors[charIndex + 0] = Color.white;
                     colors[charIndex + 1] = Color.white;
@@ -285,31 +292,40 @@ namespace mFramework.UI
                     charsInLine++;
                 }
 
-                lineWidth -= lastLetterSpacing;
+                var pureWidth = Mathf.Abs(lastX - firstX);
+                var firstOffset = firstX - Position().x;
                 textHeight += lineHeight;
 
                 switch (_textAlignment)
                 {
                     case TextAlignment.Center:
-                        for (int i = charIndex - charsInLine * 4; i < charIndex; i++)
+                        for (int j = charIndex - charsInLine * 4; j < charIndex; j++)
                         {
-                            vertices[i].x = vertices[i].x - lineWidth / 2f;
-                            vertices[i].y = vertices[i].y;
-                            vertices[i].z = vertices[i].z;
+                            vertices[j].x = vertices[j].x - pureWidth / 2f - firstOffset;
+                            vertices[j].y = vertices[j].y;
+                            vertices[j].z = vertices[j].z;
                         }
                         break;
                     case TextAlignment.Right:
-                        for (int i = charIndex - charsInLine * 4; i < charIndex; i++)
+                        for (int j = charIndex - charsInLine * 4; j < charIndex; j++)
                         {
-                            vertices[i].x = vertices[i].x - lineWidth;
-                            vertices[i].y = vertices[i].y;
-                            vertices[i].z = vertices[i].z;
+                            vertices[j].x = vertices[j].x - pureWidth - firstOffset;
+                            vertices[j].y = vertices[j].y;
+                            vertices[j].z = vertices[j].z;
                         }
                         break;
-                }
+                    case TextAlignment.Left:
+                        for (int j = charIndex - charsInLine * 4; j < charIndex; j++)
+                        {
+                            vertices[j].x = vertices[j].x - firstOffset;
+                            vertices[j].y = vertices[j].y;
+                            vertices[j].z = vertices[j].z;
+                        }
+                        break;
+                } 
 
-                if (lineWidth > textWidth)
-                    textWidth = lineWidth;
+                if (pureWidth > textWidth)
+                    textWidth = pureWidth;
             }
 
             /*switch (_textAnchor)

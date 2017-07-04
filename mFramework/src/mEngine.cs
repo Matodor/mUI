@@ -5,14 +5,17 @@ namespace mFramework
 {
     public sealed class mEngine : MonoBehaviour
     {
-        public static mEngine Instance { get { return _instance; } }
+        public static mEngine Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    mCore.Instance.Init();
+                return _instance;
+            }
+        }
 
         private static mEngine _instance;
-
-        static mEngine()
-        {
-            mCore.Instance.Init();
-        }
 
         public void Awake()
         {

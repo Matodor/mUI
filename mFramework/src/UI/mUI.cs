@@ -78,7 +78,7 @@ namespace mFramework.UI
                 return false;
             
             _fonts.Add(font.name, font);
-            mCore.Log("Loaded font: {0} ", font.ToString());
+            mCore.Log("Loaded font: {0} ", font.name);
             return true;
         }
 

@@ -76,8 +76,9 @@ namespace mFramework.UI
                 throw new Exception("Can't destroy BaseView");
 
             OnBeforeDestroy?.Invoke(this);
-            _parentObject.RemoveChildObject(this);
+            Hide();
 
+            _parentObject.RemoveChildObject(this);
             _animations.ForEach(a => a.Remove());
             _childsObjects.ForEach(o => o.Destroy());
 
@@ -195,6 +196,16 @@ namespace mFramework.UI
             return _transform.lossyScale;
         }
 
+        public void PositionX(float x)
+        {
+            Position(x, Position().y);
+        }
+
+        public void PositionY(float y)
+        {
+            Position(Position().x, y);
+        }
+
         public void Position(float x, float y)
         {
             _transform.position = new Vector3
@@ -203,6 +214,7 @@ namespace mFramework.UI
                 y = y,
                 z = _transform.position.z
             };
+            OnTranslate?.Invoke(this);
         }
 
         public void Position(Vector2 position)
@@ -306,6 +318,11 @@ namespace mFramework.UI
             var animation = UIAnimation.Create<T>(this, settings);
             AddAnimation(animation);
             return animation;
+        }
+
+        public void RemoveAnimations()
+        {
+            _animations.ForEach(a => a.Remove());
         }
 
         internal bool RemoveAnimation(UIAnimation animation)
