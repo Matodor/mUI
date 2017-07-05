@@ -190,7 +190,10 @@ namespace mFramework.UI
 
             var cleanText = _cachedText.Replace("\t", "");
             var textLines = cleanText.Split('\n');
-            var charCount = textLines.Sum(l => l.Length);
+
+            var charCount = 0;
+            for (int i = 0; i < textLines.Length; i++)
+                charCount += textLines[i].Length;
 
             var vertices = new Vector3[charCount * 4];
             var normals = new Vector3[charCount * 4];
@@ -219,21 +222,8 @@ namespace mFramework.UI
                     CharacterInfo characterInfo;
                     if (!_cachedFont.GetCharacterInfo(textLines[i][k], out characterInfo, _fontSize, _fontStyle))
                         continue;
+
                     var offsetPos = new Vector3(lineWidth, -textHeight);
-
-                    /*mCore.Log("CH: {4} | maxX: {0} | minX: {1} | maxY: {2} | minY: {3} | advance: {5} | bearing: {6} |glyphHeight: {7} |glyphWidth: {8} | size: {9}", 
-                        characterInfo.maxX,
-                        characterInfo.minX,
-                        characterInfo.maxY,
-                        characterInfo.minY,
-                        ch,
-                        characterInfo.advance,
-                        characterInfo.bearing,
-                        characterInfo.glyphHeight,
-                        characterInfo.glyphWidth,
-                        characterInfo.size
-                    );*/
-
                     var minX = characterInfo.minX / magic;
                     var maxX = characterInfo.maxX / magic;
                     var minY = characterInfo.minY / magic;
@@ -293,7 +283,6 @@ namespace mFramework.UI
 
                 var pureWidth = Mathf.Abs(lastX - firstX);
                 var firstOffset = firstX - Position().x;
-                mCore.Log("firstOffset = {0} | {1}", firstOffset, _cachedText);
                 textHeight += lineHeight;
 
                 switch (_textAlignment)
@@ -365,7 +354,6 @@ namespace mFramework.UI
             _meshFilter.mesh.normals = normals;
             _meshFilter.mesh.uv = uv;
             _meshFilter.mesh.triangles = triangles;
-            _meshFilter.mesh.RecalculateBounds();
 
             _meshRenderer.material = _cachedFont.material;
             _meshRenderer.SetPropertyBlock(_textPropertyBlock);
