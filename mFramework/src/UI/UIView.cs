@@ -5,7 +5,6 @@ namespace mFramework.UI
 {
     public sealed class UIViewSettings
     {
-        public string Name { get; set; } = "UIView";
         public float Height { get; set; }
         public float Width { get; set; }
     }
@@ -15,13 +14,13 @@ namespace mFramework.UI
         private float _height;
         private float _width;
 
-        private static UIView _nextParentView;
+        private static UIObject _nextParent;
         
-        protected UIView() : base(_nextParentView)
+        protected UIView() : base(_nextParent)
         {
         }
 
-        public T ChildView<T>(params object[] @params) where T : UIView
+        public T ChildView<T>(object[] @params = null) where T : UIView
         {
             return ChildView<T>(new UIViewSettings
             {
@@ -35,14 +34,17 @@ namespace mFramework.UI
             return Create<T>(settings, this, @params);
         }
 
-        internal static T Create<T>(UIViewSettings settings, UIView parent, params object[] @params) where T : UIView
+        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
         {
-            _nextParentView = parent;
+            _nextParent = parent;
             var view = Activator.CreateInstance<T>();
-            _nextParentView = null;
+            _nextParent = null;
 
             view.SetName(typeof(T).Name);
             view.SetupSettings(settings);
+
+            parent?.AddChildObject(view);
+
             view.Init(@params);
             return view;
         }
@@ -53,7 +55,6 @@ namespace mFramework.UI
         {
             _height = settings.Height;
             _width = settings.Width;
-            _gameObject.name = settings.Name;
         }
 
         private void Init(params object[] @params)
@@ -63,17 +64,17 @@ namespace mFramework.UI
 
         public float RelativeX(float x)
         {
-            return -GetWidth() / 2 + GetWidth() * mMath.Clamp(x, 0, 1);
+            return Position().x - GetWidth() / 2 + GetWidth() * mMath.Clamp(x, 0, 1);
         }
 
         public float RelativeY(float y)
         {
-            return -GetHeight() / 2 + GetHeight() * mMath.Clamp(y, 0, 1);
+            return Position().y - GetHeight() / 2 + GetHeight() * mMath.Clamp(y, 0, 1);
         }
 
-        public Vector2 RelativePosition(float x, float y)
+        public Vector2 RelativePos(float x, float y)
         {
-            return Position() + new Vector2
+            return new Vector2
             {
                 x = RelativeX(x),
                 y = RelativeY(y)
@@ -82,12 +83,12 @@ namespace mFramework.UI
 
         public override float GetHeight()
         {
-            return _height;
+            return _height * GlobalScale().y;
         }
 
         public override float GetWidth()
         {
-            return _width;
+            return _width * GlobalScale().x;
         }
     }
 }

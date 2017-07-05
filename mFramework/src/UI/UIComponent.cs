@@ -32,6 +32,8 @@ namespace mFramework.UI
 
             component.ApplySettings(settings);
             component.SetName(typeof(T).Name);
+            parent.AddChildObject(component);
+
             return component;
         }
 

@@ -51,11 +51,7 @@ namespace mFramework.UI
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
             else
-            {
                 _gameObject.SetParent(parentObject._gameObject);
-                if (this is UIView)
-                    parentObject.AddChildObject(this);
-            }
             
             mUI.Instance.AddUIObject(this);
         }
@@ -304,7 +300,6 @@ namespace mFramework.UI
         public T Component<T>(UIComponentSettings settings) where T : UIComponent
         {
             var child = UIComponent.Create<T>(this, settings);
-            AddChildObject(child);
             return child;
         }
 
@@ -342,7 +337,7 @@ namespace mFramework.UI
             return _childsObjects.Remove(@object);
         }
 
-        private void AddChildObject(UIObject @object)
+        internal void AddChildObject(UIObject @object)
         {
             _childsObjects.Add(@object);
             OnAddedChildren?.Invoke(@object);

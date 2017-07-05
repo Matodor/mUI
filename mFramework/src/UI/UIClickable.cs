@@ -10,7 +10,7 @@ namespace mFramework.UI
 
         private readonly MouseEventListener _eventListener;
 
-        private UIClickable(UIComponent component, IUIClickable handler, AreaType areaType)
+        private UIClickable(UIObject component, IUIClickable handler, AreaType areaType)
         {
             _eventListener = MouseEventListener.Create();
 
@@ -32,6 +32,8 @@ namespace mFramework.UI
 
             _eventListener.OnMouseDown += @event =>
             {
+                if (!component.IsActive)
+                    return;
                 if (!CanMouseDown?.Invoke(handler, @event) ?? false)
                     return;
 
@@ -42,6 +44,8 @@ namespace mFramework.UI
 
             _eventListener.OnMouseUp += @event =>
             {
+                if (!component.IsActive)
+                    return;
                 if (!CanMouseUp?.Invoke(handler, @event) ?? false)
                     return;
 
@@ -50,6 +54,8 @@ namespace mFramework.UI
 
             _eventListener.OnMouseDrag += @event =>
             {
+                if (!component.IsActive)
+                    return;
                 if (!CanMouseDrag?.Invoke(handler, @event) ?? false)
                     return;
 

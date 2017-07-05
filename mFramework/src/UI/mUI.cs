@@ -34,7 +34,6 @@ namespace mFramework.UI
             {
                 Height = UICamera.PureHeight,
                 Width = UICamera.PureWidth,
-                Name = "BaseView"
             }, null);
             
             mCore.Log("[ui] created");

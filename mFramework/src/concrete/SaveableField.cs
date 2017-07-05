@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace mFramework
 {
@@ -120,6 +121,34 @@ namespace mFramework
             if (bridge.Storage.GetString(bridge.Key, out value))
                 return new SaveableUInt64 {Value = Convert.ToUInt64(value)};
             return new SaveableUInt64 { Value = default(ulong) };
+        }
+    }
+
+    public struct SaveableDecimal : ISaveableField
+    {
+        public decimal Value;
+
+        public static implicit operator decimal(SaveableDecimal field)
+        {
+            return field.Value;
+        }
+
+        public static implicit operator SaveableDecimal(decimal value)
+        {
+            return new SaveableDecimal { Value = value };
+        }
+
+        public bool SaveValue(ISaveableFieldsBridge bridge)
+        {
+            return bridge.Storage.SetString(bridge.Key, Convert.ToString(Value, CultureInfo.InvariantCulture));
+        }
+
+        public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
+        {
+            string value;
+            if (bridge.Storage.GetString(bridge.Key, out value))
+                return new SaveableDecimal { Value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
+            return new SaveableDecimal { Value = default(decimal) };
         }
     }
 }

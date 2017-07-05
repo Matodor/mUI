@@ -43,7 +43,6 @@ namespace mFramework.UI
 
         private static int _countSliders = 0;
         private readonly List<Pair<IUIClickable, MouseEvent>> _clickNext;
-        //private readonly Material _sliderMaterial;
 
         private UISlider(UIObject parent) : base(parent)
         {
@@ -52,7 +51,6 @@ namespace mFramework.UI
             _isPressed = false;
             _slides = new List<UIObject>();
             _clickNext = new List<Pair<IUIClickable, MouseEvent>>();
-            //_sliderMaterial = new Material(Shader.Find("mFramework/Sprites/SpriteClipping"));
             
             OnAddedChildren += SetupChildren;
         }
@@ -60,6 +58,20 @@ namespace mFramework.UI
         ~UISlider()
         {
             _countSliders--;
+        }
+
+        public T ChildView<T>(object[] @params = null) where T : UIView
+        {
+            return ChildView<T>(new UIViewSettings
+            {
+                Width = GetWidth(),
+                Height = GetHeight()
+            }, @params);
+        }
+
+        public T ChildView<T>(UIViewSettings settings, params object[] @params) where T : UIView
+        {
+            return UIView.Create<T>(settings, this, @params);
         }
 
         private void UpdateViewport()
@@ -101,17 +113,11 @@ namespace mFramework.UI
                 uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
             }
 
-            //var uiRenderer = uiObject as IUIRenderer;
-            //if (uiRenderer != null)
-            //{
-            //    uiRenderer.UIRenderer.material = _sliderMaterial;
-            //}
-
             uiObject.ForEachChildren(OnRecursiveAddedChildren);
             uiObject.OnAddedChildren += OnRecursiveAddedChildren;
         }
 
-        private bool CanChildsMouseUp(IUIClickable handler, MouseEvent @event)
+        private static bool CanChildsMouseUp(IUIClickable handler, MouseEvent @event)
         {
             return false;
         }
@@ -137,7 +143,7 @@ namespace mFramework.UI
                         obj.Position(rect.Left + obj.GetWidth() / 2, rect.Position.y);
                     else
                     {
-                        var last = GetLastSlide();
+                        var last = GetLastSliderItem();
                         obj.Position(new Vector2
                         {
                             x = last.GetRect().Right + obj.GetWidth() / 2 + _offset,
@@ -150,7 +156,7 @@ namespace mFramework.UI
                         obj.Position(rect.Right - obj.GetWidth() / 2, rect.Position.y);
                     else
                     {
-                        var last = GetLastSlide();
+                        var last = GetLastSliderItem();
                         obj.Position(new Vector2
                         {
                             x = last.GetRect().Left - obj.GetWidth() / 2 - _offset,
@@ -171,7 +177,7 @@ namespace mFramework.UI
                         obj.Position(rect.Position.x, rect.Top - obj.GetHeight() / 2);
                     else
                     {
-                        var last = GetLastSlide();
+                        var last = GetLastSliderItem();
                         obj.Position(new Vector2
                         {
                             x = rect.Position.x,
@@ -184,7 +190,7 @@ namespace mFramework.UI
                         obj.Position(rect.Position.x, rect.Bottom + obj.GetHeight() / 2);
                     else
                     {
-                        var last = GetLastSlide();
+                        var last = GetLastSliderItem();
                         obj.Position(new Vector2
                         {
                             x = rect.Position.x,
@@ -243,12 +249,12 @@ namespace mFramework.UI
         
         public override float GetWidth()
         {
-            return _width;
+            return _width * GlobalScale().x;
         }
 
         public override float GetHeight()
         {
-            return _height;
+            return _height * GlobalScale().y;
         }
 
         public void MouseDown(Vector2 worldPos)
@@ -295,12 +301,12 @@ namespace mFramework.UI
             //mCore.Log("_movePath: {0}", _dragPath.ToString("f"));
         }
 
-        private UIObject GetFirstSlide()
+        private UIObject GetFirstSliderItem()
         {
             return _slides[0];
         }
 
-        private UIObject GetLastSlide()
+        private UIObject GetLastSliderItem()
         {
             return _slides[_slides.Count - 1];
         }
@@ -324,27 +330,36 @@ namespace mFramework.UI
         {
             if (_slides.Count == 0)
                 return;
+
+            UIRect topRect, bottomRect;
+            if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
+            {
+                topRect = GetFirstSliderItem().GetRect();
+                bottomRect = GetLastSliderItem().GetRect();
+            }
+            else
+            {
+                topRect = GetLastSliderItem().GetRect();
+                bottomRect = GetFirstSliderItem().GetRect();
+            }
+
             var rect = GetRect();
+            var pureHeight = topRect.Top - bottomRect.Bottom;
+
+            if (pureHeight <= GetHeight())
+                return;
 
             // move top
             if (diff > 0)
             { 
-                var lastRect = _directionOfAddingSlides == DirectionOfAddingSlides.FORWARD
-                    ? GetLastSlide().GetRect()
-                    : GetFirstSlide().GetRect();
-
-                var freeSpace = rect.Bottom - lastRect.Bottom;
+                var freeSpace = rect.Bottom - bottomRect.Bottom;
                 if (Math.Abs(diff) > freeSpace)
                     diff = Math.Sign(diff) * freeSpace;
             }
             // move bottom
             else
             {
-                var firstRect = _directionOfAddingSlides == DirectionOfAddingSlides.FORWARD
-                    ? GetFirstSlide().GetRect()
-                    : GetLastSlide().GetRect();
-
-                var freeSpace = firstRect.Top - rect.Top;
+                var freeSpace = topRect.Top - rect.Top;
                 if (Math.Abs(diff) > freeSpace)
                     diff = Math.Sign(diff) * freeSpace;
             }
@@ -359,27 +374,36 @@ namespace mFramework.UI
         {
             if (_slides.Count == 0)
                 return;
+
+            UIRect leftRect, rightRect;
+            if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
+            {
+                leftRect = GetFirstSliderItem().GetRect();
+                rightRect = GetLastSliderItem().GetRect();
+            }
+            else
+            {
+                leftRect = GetLastSliderItem().GetRect();
+                rightRect = GetFirstSliderItem().GetRect();
+            }
+
             var rect = GetRect();
+            var pureWidth = rightRect.Right - leftRect.Left;
+
+            if (pureWidth <= GetWidth())
+                return;
 
             // move right
             if (diff > 0)
             {
-                var firstRect = _directionOfAddingSlides == DirectionOfAddingSlides.FORWARD
-                    ? GetFirstSlide().GetRect()
-                    : GetLastSlide().GetRect();
-
-                var freeSpace = rect.Left - firstRect.Left;
+                var freeSpace = rect.Left - leftRect.Left;
                 if (Math.Abs(diff) > freeSpace)
                     diff = Math.Sign(diff) * freeSpace;
             }
             // move left
             else if (diff < 0)
             {
-                var lastRect = _directionOfAddingSlides == DirectionOfAddingSlides.FORWARD
-                    ? GetLastSlide().GetRect()
-                    : GetFirstSlide().GetRect();
-
-                var freeSpace = lastRect.Right - rect.Right;
+                var freeSpace = rightRect.Right - rect.Right;
                 if (Math.Abs(diff) > freeSpace)
                     diff = Math.Sign(diff) * freeSpace;
             }
