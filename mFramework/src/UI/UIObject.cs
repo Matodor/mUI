@@ -76,10 +76,15 @@ namespace mFramework.UI
 
             _parentObject.RemoveChildObject(this);
             _animations.ForEach(a => a.Remove());
-            _childsObjects.ForEach(o => o.Destroy());
+            DestroyChilds();
 
             mUI.Instance.RemoveUIObject(this);
             UnityEngine.Object.Destroy(_gameObject);
+        }
+
+        public void DestroyChilds()
+        {
+            _childsObjects.ForEach(o => o.Destroy());
         }
 
         public UIObject SetName(string name)
@@ -263,6 +268,10 @@ namespace mFramework.UI
             OnActiveChanged?.Invoke(this);
 
             _childsObjects.ForEach(o => o.VisibleChanged(visible));
+
+            var renderer = this as IUIRenderer;
+            if (renderer != null)
+                renderer.UIRenderer.enabled = visible;
         }
 
         private void ActiveChanged(bool active)

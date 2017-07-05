@@ -36,7 +36,13 @@ namespace mFramework.UI
                 Width = UICamera.PureWidth,
             }, null);
             
+            mCore.OnApplicationQuitEvent += OnApplicationQuitEvent;
             mCore.Log("[ui] created");
+        }
+
+        private void OnApplicationQuitEvent()
+        {
+            _baseView.DestroyChilds();
         }
 
         public static mUI Create()

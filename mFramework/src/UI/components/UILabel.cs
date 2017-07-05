@@ -53,6 +53,7 @@ namespace mFramework.UI
             _forceUpdate = false;
             _meshRenderer = _gameObject.AddComponent<MeshRenderer>();
             _meshFilter = _gameObject.AddComponent<MeshFilter>();
+            _meshFilter.mesh = new Mesh();
             _textPropertyBlock = new MaterialPropertyBlock();
             UIRenderer = _meshRenderer;
 
@@ -166,11 +167,10 @@ namespace mFramework.UI
             _fontStyle = labelSettings.FontStyle;
             _textAlignment = labelSettings.TextAlignment;
 
-            SetFont(labelSettings.Font);
-            ForceUpdate();
-
-            //mCore.Log("!!! _cachedFont = name: {0} | lineHeight: {1} | fontSize: {2}", _cachedFont.name, _cachedFont.lineHeight, _cachedFont.fontSize);
             base.ApplySettings(settings);
+
+            SetFont(labelSettings.Font);
+            UpdateMeshText(true);
         }
 
         internal void ForceUpdate()
@@ -178,9 +178,9 @@ namespace mFramework.UI
             _forceUpdate = true;
         }
         
-        internal void UpdateMeshText()
+        internal void UpdateMeshText(bool force = false)
         {
-            if (!IsVisible || !_forceUpdate || string.IsNullOrEmpty(_cachedText))
+            if (!force && (!IsVisible || !_forceUpdate || string.IsNullOrEmpty(_cachedText)))
                 return;
 
             _forceUpdate = false;
@@ -209,7 +209,6 @@ namespace mFramework.UI
             for (int i = 0; i < textLines.Length; i++)
             {
                 var lineWidth = 0f;
-                var lastLetterSpacing = 0f;
                 var charsInLine = 0;
 
                 var firstX = 0f;
@@ -294,6 +293,7 @@ namespace mFramework.UI
 
                 var pureWidth = Mathf.Abs(lastX - firstX);
                 var firstOffset = firstX - Position().x;
+                mCore.Log("firstOffset = {0} | {1}", firstOffset, _cachedText);
                 textHeight += lineHeight;
 
                 switch (_textAlignment)
@@ -359,18 +359,14 @@ namespace mFramework.UI
                 case TextAnchor.LowerRight:
                     break;
             }*/
-            
-            var textMesh = new Mesh
-            {
-                vertices = vertices,
-                colors32 = colors,
-                normals = normals,
-                uv = uv,
-                triangles = triangles
-            };
-            textMesh.RecalculateBounds();
 
-            _meshFilter.mesh = textMesh;
+            _meshFilter.mesh.vertices = vertices;
+            _meshFilter.mesh.colors32 = colors;
+            _meshFilter.mesh.normals = normals;
+            _meshFilter.mesh.uv = uv;
+            _meshFilter.mesh.triangles = triangles;
+            _meshFilter.mesh.RecalculateBounds();
+
             _meshRenderer.material = _cachedFont.material;
             _meshRenderer.SetPropertyBlock(_textPropertyBlock);
             Scale(localScale);

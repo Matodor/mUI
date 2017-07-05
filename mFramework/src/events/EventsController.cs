@@ -44,13 +44,9 @@ namespace mFramework
         public void Update()
         {
             if (Application.isMobilePlatform)
-            {
-
-            }
+                MobileEvents();
             else
-            {
                 DesktopEvents();
-            }
         }
 
         private void MouseWheelEvent(MouseEvent @event)
@@ -73,6 +69,65 @@ namespace mFramework
             _mouseEventListeners.ForEach(listener => listener.MouseDown(@event));
         }
 
+        private void MouseEvent(MouseEvent mouseEvent)
+        {
+            switch (mouseEvent.MouseEventType)
+            {
+                case MouseEventType.ScrollWheel:
+                    MouseWheelEvent(mouseEvent);
+                    break;
+                case MouseEventType.MouseDown:
+                    MouseDownEvent(mouseEvent);
+                    break;
+                case MouseEventType.MouseUp:
+                    MouseUpEvent(mouseEvent);
+                    break;
+                case MouseEventType.MouseDrag:
+                    MouseDragEvent(mouseEvent);
+                    break;
+            }
+        }
+
+        private void MobileEvents()
+        {
+            if (UnityEngine.Input.touchCount == 0)
+                return;
+
+            for (var i = 0; i < UnityEngine.Input.touchCount; ++i)
+            {
+                var touch = UnityEngine.Input.GetTouch(i);
+                var touchEvent = new TouchEvent
+                {
+                    Button = touch.fingerId,
+                    ClickCount = touch.tapCount,
+                    Delta = touch.deltaPosition,
+                    MouseScreenPos = touch.position,
+                    KeyCode = KeyCode.Mouse0
+                };
+                
+                switch (touch.phase)
+                {
+                    case TouchPhase.Began:
+                        touchEvent.MouseEventType = MouseEventType.MouseDown;
+                        break;
+                    case TouchPhase.Moved:
+                        touchEvent.MouseEventType = MouseEventType.MouseDrag;
+                        break;
+                    case TouchPhase.Stationary:
+                        touchEvent.MouseEventType = MouseEventType.NONE;
+                        break;
+                    case TouchPhase.Ended:
+                        touchEvent.MouseEventType = MouseEventType.MouseUp;
+                        break;
+                    case TouchPhase.Canceled:
+                        touchEvent.MouseEventType = MouseEventType.NONE;
+                        break;
+                }
+
+                MouseEvent(touchEvent);
+            }
+        }
+
         private void DesktopEvents()
         {
             while (Event.PopEvent(_currentEvent))
@@ -92,24 +147,22 @@ namespace mFramework
                     {
                         case EventType.ScrollWheel:
                             mouseEvent.MouseEventType = MouseEventType.ScrollWheel;
-                            MouseWheelEvent(mouseEvent);
                             break;
                         case EventType.MouseDown:
                             mouseEvent.MouseEventType = MouseEventType.MouseDown;
-                            MouseDownEvent(mouseEvent);
                             break;
                         case EventType.MouseUp:
                             mouseEvent.MouseEventType = MouseEventType.MouseUp;
-                            MouseUpEvent(mouseEvent);
                             break;
                         case EventType.MouseDrag:
                             mouseEvent.MouseEventType = MouseEventType.MouseDrag;
-                            MouseDragEvent(mouseEvent);
                             break;
                         default:
                             mouseEvent.MouseEventType = MouseEventType.NONE;
                             break;
                     }
+
+                    MouseEvent(mouseEvent);
                 }
                 else if (_currentEvent.isKey)
                 {
