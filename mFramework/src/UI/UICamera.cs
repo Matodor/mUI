@@ -42,8 +42,6 @@ namespace mFramework.UI
 
     public sealed class UICamera
     {
-        public event Action<UICamera> OnPostRenderEvent;
-
         public GameObject GameObject { get; }
         public Transform Transform { get; }
         public Camera Camera { get; }
@@ -65,7 +63,6 @@ namespace mFramework.UI
         private UICamera(UICameraSettings settings)
         {
             _cameraBehaviour = UICameraBehaviour.Create();
-            _cameraBehaviour.OnPostRenderEvent += OnPostRender;
             Camera = _cameraBehaviour.Camera;
             Camera.clearFlags = settings.CameraClearFlags;
             Camera.depth = settings.Depth;
@@ -76,11 +73,6 @@ namespace mFramework.UI
 
             Transform = _cameraBehaviour.transform; 
             GameObject = _cameraBehaviour.gameObject;
-        }
-
-        private void OnPostRender()
-        {
-            OnPostRenderEvent?.Invoke(this);
         }
 
         public static UICamera Create(UICameraSettings settings)

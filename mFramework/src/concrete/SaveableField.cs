@@ -18,11 +18,6 @@ namespace mFramework
             return new SaveableInt {Value = value};
         }
 
-        public ISaveableField LoadValue(object savedValue)
-        {
-            return new SaveableInt {Value = (int)savedValue};
-        }
-
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
             return bridge.Storage.SetInt(bridge.Key, Value);

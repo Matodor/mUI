@@ -14,6 +14,7 @@ namespace mFramework.UI
         public UIColor Color { get; set; } = UIColors.White;
         public FontStyle FontStyle { get; set; } = FontStyle.Normal;
         public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
+        public float LetterSpacing { get; set; } = 1;
     }
     
     public class UILabel : UIComponent, IUIRenderer, IColored
@@ -27,7 +28,7 @@ namespace mFramework.UI
 
         public Renderer UIRenderer { get; }
         public int FontSize { get { return _fontSize; } }
-        public int LetterSpacing { get { return _letterSpacing; } }
+        public float LetterSpacing { get { return _letterSpacing; } }
         public string Text { get { return _cachedText; } }
         public Color TextColor { get { return _color; } }
 
@@ -36,11 +37,10 @@ namespace mFramework.UI
         private readonly MeshFilter _meshFilter;
         private readonly MaterialPropertyBlock _textPropertyBlock;
 
-        private bool _forceUpdate;
         private string _fontName;
         private string _cachedText;
         private int _fontSize = 50;
-        private int _letterSpacing = 1;
+        private float _letterSpacing = 1;
 
         private TextAlignment _textAlignment;
         private TextAnchor _textAnchor;
@@ -50,7 +50,6 @@ namespace mFramework.UI
 
         protected UILabel(UIObject parent) : base(parent)
         {
-            _forceUpdate = false;
             _meshRenderer = _gameObject.AddComponent<MeshRenderer>();
             _meshFilter = _gameObject.AddComponent<MeshFilter>();
             _meshFilter.mesh = new Mesh();
@@ -63,77 +62,99 @@ namespace mFramework.UI
             };
         }
 
-        public UILabel SetFontStyle(FontStyle fontStyle)
+        public UILabel UpdateSettings(UILabelSettings settings)
+        {
+            SetFontStyle(settings.FontStyle, false);
+            SetVerticalAlign(settings.VerticalAlign, false);
+            SetLetterSpacing(settings.LetterSpacing, false);
+            SetFontSize(settings.Size, false);
+            SetTextAlignment(settings.TextAlignment, false);
+            SetText(settings.Text, false);
+            SetFont(settings.Font, false);
+
+            UpdateMeshText();
+            return this;
+        }
+
+        public UILabel SetFontStyle(FontStyle fontStyle, bool updateMesh = true)
         {
             if (_fontStyle != fontStyle)
             {
                 _fontStyle = fontStyle;
-                ForceUpdate();
+                if (updateMesh)
+                    UpdateMeshText();
             }
             return this;
         }
 
-        public UILabel SetVerticalAlign(VerticalAlign align)
+        public UILabel SetVerticalAlign(VerticalAlign align, bool updateMesh = true)
         {
             if (_verticalAlign != align)
             {
                 _verticalAlign = align;
-                ForceUpdate();
+                if (updateMesh)
+                    UpdateMeshText();
             }
             return this;
         }
 
-        public UILabel SetTetterSpacing(int spacing)
+        public UILabel SetLetterSpacing(float spacing, bool updateMesh = true)
         {
-            if (_letterSpacing != spacing)
+            if (Math.Abs(_letterSpacing - spacing) > 0.001f)
             {
                 _letterSpacing = spacing;
-                ForceUpdate();
+                if (updateMesh)
+                    UpdateMeshText();
             }
             return this;
         }
 
-        public UILabel SetFontSize(int size)
+        public UILabel SetFontSize(int size, bool updateMesh = true)
         {
             if (_fontSize != size)
             {
                 _fontSize = size;
-                ForceUpdate();
+                if (updateMesh)
+                    UpdateMeshText();
             }
             return this;
         }
 
-        public UILabel SetTextAlignment(TextAlignment alignment)
+        public UILabel SetTextAlignment(TextAlignment alignment, bool updateMesh = true)
         {
             if (_textAlignment != alignment)
             {
                 _textAlignment = alignment;
-                ForceUpdate();
+                if (updateMesh)
+                    UpdateMeshText();
             }
             return this;
         }
 
-        public UILabel SetText(string text)
+        public UILabel SetText(string text, bool updateMesh = true)
         {
             if (string.IsNullOrEmpty(text) || _cachedText == text)
                 return this;
 
             _cachedText = text;
-            ForceUpdate();
+            if (updateMesh)
+                UpdateMeshText();
             return this;
         }
 
-        public UILabel SetFont(string fontName)
+        public UILabel SetFont(string fontName, bool updateMesh = true)
         {
             if (_fontName != fontName)
             {
                 _fontName = fontName;
                 _cachedFont = mUI.GetFont(_fontName);
-
+                _meshRenderer.material = _cachedFont.material;
+                
                 if (_cachedFont == null)
                     throw new Exception("Not fount font: " + _fontName);
 
-                ForceUpdate();
+                if (updateMesh)
+                    UpdateMeshText();
             }
             return this;
         }
@@ -142,7 +163,6 @@ namespace mFramework.UI
         {
             if (font == _cachedFont)
             {
-                ForceUpdate();
                 UpdateMeshText();
             }
         }
@@ -166,24 +186,19 @@ namespace mFramework.UI
             _color = labelSettings.Color.Color32;
             _fontStyle = labelSettings.FontStyle;
             _textAlignment = labelSettings.TextAlignment;
+            _letterSpacing = labelSettings.LetterSpacing;
 
             base.ApplySettings(settings);
 
-            SetFont(labelSettings.Font);
-            UpdateMeshText(true);
-        }
-
-        internal void ForceUpdate()
-        {
-            _forceUpdate = true;
+            SetFont(labelSettings.Font, false);
+            UpdateMeshText();
         }
         
-        internal void UpdateMeshText(bool force = false)
+        internal void UpdateMeshText()
         {
-            if (!force && (!IsVisible || !_forceUpdate || string.IsNullOrEmpty(_cachedText)))
+            if (!IsActive || string.IsNullOrEmpty(_cachedText))
                 return;
 
-            _forceUpdate = false;
             _cachedFont.RequestCharactersInTexture(_cachedText, _fontSize, _fontStyle);
             var localScale = LocalScale();
             Scale(1, 1);
@@ -249,10 +264,10 @@ namespace mFramework.UI
 
                     if (k == 0)
                         firstX = vertices[charIndex + 0].x;
-                    if (k == textLines[i].Length - 1)
+                    else if (k == textLines[i].Length - 1)
                         lastX = vertices[charIndex + 3].x;
 
-                    lineWidth += characterInfo.advance / magic;
+                    lineWidth += (characterInfo.advance / magic) * _letterSpacing;
 
                     colors[charIndex + 0] = Color.white;
                     colors[charIndex + 1] = Color.white;
@@ -282,7 +297,7 @@ namespace mFramework.UI
                 }
 
                 var pureWidth = Mathf.Abs(lastX - firstX);
-                var firstOffset = firstX - Position().x;
+                var firstOffset = -firstX;
                 textHeight += lineHeight;
 
                 switch (_textAlignment)
@@ -354,9 +369,8 @@ namespace mFramework.UI
             _meshFilter.mesh.normals = normals;
             _meshFilter.mesh.uv = uv;
             _meshFilter.mesh.triangles = triangles;
-
-            _meshRenderer.material = _cachedFont.material;
-            _meshRenderer.SetPropertyBlock(_textPropertyBlock);
+            //_meshFilter.mesh.RecalculateNormals();
+            //_meshFilter.mesh.RecalculateBounds();
             Scale(localScale);
         }
 
@@ -371,14 +385,6 @@ namespace mFramework.UI
         public UIObject SetColor(UIColor color)
         {
             return SetColor(color.Color32);
-        }
-
-        internal override void OnPostRender()
-        {
-            if (_forceUpdate)
-                UpdateMeshText();
-
-            base.OnPostRender();
         }
     }
 }

@@ -24,6 +24,7 @@ namespace mFramework
 
         private static mCore _instance;
         private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
+        private readonly UnidirectionalList<RepeatAction> _repeatsActions;
 
         private delegate bool EditorGetBoolean();
 
@@ -37,7 +38,9 @@ namespace mFramework
         
         private mCore()
         {
+            _repeatsActions = UnidirectionalList<RepeatAction>.Create();
             _fieldDictionary = new Dictionary<Type, CachedFieldsInfo>();
+            
             var engine = new GameObject("mFramework").AddComponent<mEngine>();
             engine.transform.position = new Vector3(0, 0, 9999);
 
@@ -55,6 +58,16 @@ namespace mFramework
         internal void Init()
         {
             
+        }
+
+        internal bool RemoveRepeatAction(RepeatAction repeatAction)
+        {
+            return _repeatsActions.Remove(repeatAction);
+        }
+
+        internal void AddRepeatAction(RepeatAction repeatAction)
+        {
+            _repeatsActions.Add(repeatAction);
         }
 
         internal static void OnApplicationQuit()
@@ -196,8 +209,13 @@ namespace mFramework
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
             */
-
+            _repeatsActions.ForEach(ForEachRepeatAction);
             if (mUI.Instance != null) mUI.Instance.Tick();
+        }
+
+        private void ForEachRepeatAction(RepeatAction action)
+        {
+            action.Tick();
         }
 
         internal void FixedTick()

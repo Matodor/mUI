@@ -64,6 +64,7 @@
     <Compile Include="src\concrete\EasingFunctions.cs" />
     <Compile Include="src\concrete\Pair.cs" />
     <Compile Include="src\concrete\PlayerPrefsStorage.cs" />
+    <Compile Include="src\concrete\RepeatAction.cs" />
     <Compile Include="src\concrete\SaveableField.cs" />
     <Compile Include="src\concrete\SaveableFields.cs" />
     <Compile Include="src\concrete\UnidirectionalList.cs" />

@@ -25,7 +25,6 @@ namespace mFramework.UI
         {
             _uiCamera = UICamera.Create(settings.CameraSettings);
             _uiCamera.GameObject.SetParent(mEngine.Instance.gameObject);
-            _uiCamera.OnPostRenderEvent += OnPostRender;
 
             _instance = this;
             _fonts = new Dictionary<string, Font>();
@@ -113,11 +112,6 @@ namespace mFramework.UI
 
             _uiObjects.Add(obj.GUID, obj);
             return true;
-        }
-
-        internal void OnPostRender(UICamera camera)
-        {
-            BaseView.OnPostRender();
         }
 
         internal void Tick()

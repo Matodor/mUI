@@ -128,7 +128,8 @@ namespace mFramework.UI
             _animationTime = mMath.Clamp(_animationTime, 0, 1);
             _animationEasingTime = EasingFunctions.GetValue(EasingType, 1, _animationTime, 1);
 
-            OnAnimate();
+            if (_animatedObject.IsVisible)
+                OnAnimate();
 
             if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD ||
                 _animationTime <= 0 && _animationDirection == UIAnimationDirection.BACKWARD)

@@ -285,11 +285,6 @@ namespace mFramework.UI
             _childsObjects.ForEach(o => o.ActiveChanged(active));
         }
 
-        internal virtual void OnPostRender()
-        {
-            _childsObjects.ForEach(o => o.OnPostRender());
-        }
-
         internal virtual void Tick()
         {
             _animations.ForEach(a => a.Tick());
