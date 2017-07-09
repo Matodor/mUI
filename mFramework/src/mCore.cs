@@ -18,24 +18,15 @@ namespace mFramework
             get { return _instance ?? (_instance = new mCore()); }
         }
 
-        public static bool IsDebug { get; set; }
         public static bool IsEditor { get; private set; }
+        public static bool IsDebug { get; set; }
         public static event Action OnApplicationQuitEvent;
 
         private static mCore _instance;
         private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
         private readonly UnidirectionalList<RepeatAction> _repeatsActions;
+        private readonly EditorExtension _editorExtension;
 
-        private delegate bool EditorGetBoolean();
-
-        private Type _editorApplication, _callbackFunctionType;
-        private bool _editorIsLocked;
-        private EditorGetBoolean _editorIsPlaying;
-        private EditorGetBoolean _editorIsCompiling;
-        private Assembly _unityEditorAssembly;
-        private Delegate _playmodeStateChangedDelegate, _updateEditorDelegate;
-        private FieldInfo _playmodeStateChangedField, _updateField;
-        
         private mCore()
         {
             _repeatsActions = UnidirectionalList<RepeatAction>.Create();
@@ -45,14 +36,18 @@ namespace mFramework
             engine.transform.position = new Vector3(0, 0, 9999);
 
             if (Application.isEditor)
-                InejctEditor();
+            {
+                _editorExtension = new EditorExtension();
+                IsDebug = true;
+                IsEditor = true;
+            }
 
             Log("[mFramework] init");
         }
          
         ~mCore()
         {
-            _editorIsLocked = false;
+            Log("~mCore");
         }
 
         internal void Init()
@@ -73,74 +68,8 @@ namespace mFramework
         internal static void OnApplicationQuit()
         {
             OnApplicationQuitEvent?.Invoke();
+            Instance._editorExtension?.Detach();
             Log("[mCore] OnApplicationQuit");
-        }
-
-        private void InejctEditor()
-        {
-            _unityEditorAssembly = AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(assembly => assembly.GetName().Name == "UnityEditor");
-            if (_unityEditorAssembly == null)
-                return;
-
-            IsDebug = true;
-            IsEditor = true;
-
-            _editorApplication = _unityEditorAssembly.GetType("UnityEditor.EditorApplication");
-            Log(_editorApplication.FullName);
-            Log("[mFramework] InejctEditor");
-
-            var isCompilingProperty = _editorApplication.GetProperty("isCompiling",
-                        BindingFlags.Static | BindingFlags.Public);
-            var isPlayingProperty = _editorApplication.GetProperty("isPlaying", BindingFlags.Static | BindingFlags.Public);
-
-            _editorIsCompiling =
-                (EditorGetBoolean)
-                Delegate.CreateDelegate(typeof(EditorGetBoolean), isCompilingProperty.GetGetMethod());
-
-            _editorIsPlaying =
-                (EditorGetBoolean)
-                Delegate.CreateDelegate(typeof(EditorGetBoolean), isPlayingProperty.GetGetMethod());
-
-            _playmodeStateChangedField = _editorApplication.GetField("playmodeStateChanged", BindingFlags.Static | BindingFlags.Public);
-            _updateField = _editorApplication.GetField("update", BindingFlags.Static | BindingFlags.Public);
-
-            _callbackFunctionType = _editorApplication.GetNestedType("CallbackFunction", BindingFlags.Public);
-            _updateEditorDelegate = Delegate.CreateDelegate(_callbackFunctionType, this, "EditorUpdate", false);
-            _playmodeStateChangedDelegate = Delegate.CreateDelegate(_callbackFunctionType, this, "EditorPlaymodeStateChanged", false);
-            
-            _updateField?
-                .SetValue(null, Delegate.Combine((Delegate) _updateField.GetValue(null), _updateEditorDelegate));
-            _playmodeStateChangedField?
-                .SetValue(null, Delegate.Combine((Delegate)_playmodeStateChangedField.GetValue(null), _playmodeStateChangedDelegate));
-        }
-
-        private void EditorUpdate()
-        {
-            if (_editorIsCompiling() && !_editorIsLocked)
-            {
-                _editorIsLocked = true;
-                _editorApplication.GetMethod("LockReloadAssemblies", BindingFlags.Static | BindingFlags.Public).Invoke(null, null);
-                Log("[mFramework]: LockReloadAssemblies");
-            }
-
-        }
-
-        private void EditorPlaymodeStateChanged()
-        {
-            if (!_editorIsPlaying())
-            {
-                _playmodeStateChangedField?
-                    .SetValue(null, Delegate.Remove((Delegate)_playmodeStateChangedField.GetValue(null), _playmodeStateChangedDelegate));
-
-                if (_editorIsLocked)
-                {
-                    _editorApplication.GetMethod("UnlockReloadAssemblies", BindingFlags.Static | BindingFlags.Public).Invoke(null, null);
-                    var assetDatabaseType = _unityEditorAssembly.GetType("UnityEditor.AssetDatabase");
-                    assetDatabaseType.GetMethod("Refresh", new Type[] {}).Invoke(null, null);
-                    Log("[mFramework]: UnlockReloadAssemblies");
-                }
-            }
         }
 
         public static void Log(string format, params object[] obj)

@@ -73,6 +73,7 @@
     <Compile Include="src\events\EventsController.cs" />
     <Compile Include="src\events\MouseEventListener.cs" />
     <Compile Include="src\events\TouchEvent.cs" />
+    <Compile Include="src\extensions\EditorExtension.cs" />
     <Compile Include="src\extensions\SpriteExtension.cs" />
     <Compile Include="src\extensions\GameObjectExtension.cs" />
     <Compile Include="src\events\InputEvent.cs" />

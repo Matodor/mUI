@@ -88,7 +88,7 @@ namespace mFramework.UI
 
         public Vector2 ScreenToWorldPoint(Vector2 screenPos)
         {
-            if (Application.isEditor)
+            if (mCore.IsEditor)
                 screenPos.y = Screen.height - screenPos.y;
             return _cameraBehaviour.Camera.ScreenToWorldPoint(screenPos);
         }

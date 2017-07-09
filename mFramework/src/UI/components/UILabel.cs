@@ -15,6 +15,7 @@ namespace mFramework.UI
         public FontStyle FontStyle { get; set; } = FontStyle.Normal;
         public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
         public float LetterSpacing { get; set; } = 1;
+        public float WordSpacing { get; set; } = 1;
     }
     
     public class UILabel : UIComponent, IUIRenderer, IColored
@@ -41,6 +42,7 @@ namespace mFramework.UI
         private string _cachedText;
         private int _fontSize = 50;
         private float _letterSpacing = 1;
+        private float _wordSpacing = 1;
 
         private TextAlignment _textAlignment;
         private TextAnchor _textAnchor;
@@ -148,11 +150,10 @@ namespace mFramework.UI
             {
                 _fontName = fontName;
                 _cachedFont = mUI.GetFont(_fontName);
-                _meshRenderer.material = _cachedFont.material;
-                
+
                 if (_cachedFont == null)
                     throw new Exception("Not fount font: " + _fontName);
-
+              
                 if (updateMesh)
                     UpdateMeshText();
             }
@@ -187,6 +188,7 @@ namespace mFramework.UI
             _fontStyle = labelSettings.FontStyle;
             _textAlignment = labelSettings.TextAlignment;
             _letterSpacing = labelSettings.LetterSpacing;
+            _wordSpacing = labelSettings.WordSpacing;
 
             base.ApplySettings(settings);
 
@@ -196,6 +198,7 @@ namespace mFramework.UI
         
         internal void UpdateMeshText()
         {
+            // TODO BUG
             if (!IsActive || string.IsNullOrEmpty(_cachedText))
                 return;
 
@@ -267,7 +270,10 @@ namespace mFramework.UI
                     else if (k == textLines[i].Length - 1)
                         lastX = vertices[charIndex + 3].x;
 
-                    lineWidth += (characterInfo.advance / magic) * _letterSpacing;
+                    if (textLines[i][k] == ' ')
+                        lineWidth += (characterInfo.advance / magic) * _wordSpacing;
+                    else
+                        lineWidth += (characterInfo.advance / magic) * _letterSpacing;
 
                     colors[charIndex + 0] = Color.white;
                     colors[charIndex + 1] = Color.white;
@@ -364,13 +370,20 @@ namespace mFramework.UI
                     break;
             }*/
 
-            _meshFilter.mesh.vertices = vertices;
-            _meshFilter.mesh.colors32 = colors;
-            _meshFilter.mesh.normals = normals;
-            _meshFilter.mesh.uv = uv;
-            _meshFilter.mesh.triangles = triangles;
+            var mesh = new Mesh
+            {
+                vertices = vertices,
+                colors32 = colors,
+                normals = normals,
+                uv = uv,
+                triangles = triangles
+            };
+
+            _meshFilter.mesh = mesh;
             //_meshFilter.mesh.RecalculateNormals();
             //_meshFilter.mesh.RecalculateBounds();
+            _meshRenderer.material = _cachedFont.material;
+
             Scale(localScale);
         }
 
