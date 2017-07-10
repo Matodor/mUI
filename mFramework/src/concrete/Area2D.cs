@@ -17,6 +17,7 @@ namespace mFramework
         public Vector2 Center { get; set; }
         public float Rotation { get; set; }
         public Vector2 Scale { get; set; } = Vector2.one;
+        public float AdditionalScale = 1;
 
         public event Action<Area2D> Update;
 

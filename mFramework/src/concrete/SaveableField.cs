@@ -3,6 +3,35 @@ using System.Globalization;
 
 namespace mFramework
 {
+    // bool
+    public struct SaveableBoolean : ISaveableField
+    {
+        public bool Value;
+
+        public static implicit operator bool(SaveableBoolean field)
+        {
+            return field.Value;
+        }
+
+        public static implicit operator SaveableBoolean(bool value)
+        {
+            return new SaveableBoolean { Value = value };
+        }
+
+        public bool SaveValue(ISaveableFieldsBridge bridge)
+        {
+            return bridge.Storage.SetInt(bridge.Key, Value ? 1 : 0);
+        }
+
+        public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
+        {
+            int value;
+            if (bridge.Storage.GetInt(bridge.Key, out value))
+                return new SaveableBoolean { Value = value == 1 };
+            return new SaveableBoolean { Value = default(bool) };
+        }
+    }
+
     // int
     public struct SaveableInt : ISaveableField
     {

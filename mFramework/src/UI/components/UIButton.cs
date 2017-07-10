@@ -29,9 +29,11 @@ namespace mFramework.UI
         private UIClickable _clickableHandler;
         private StateableSprite _stateableSprite;
         private UISprite _uiSprite;
+        private bool _isMouseDown;
 
         protected UIButton(UIObject parent) : base(parent)
         {
+            _isMouseDown = false;
             ClickCondition = ClickCondition.BUTTON_UP;
         }
 
@@ -114,6 +116,7 @@ namespace mFramework.UI
 
         public void MouseDown(Vector2 worldPos)
         {
+            _isMouseDown = true;
             _stateableSprite.SetHighlighted();
 
             if ((OnMouseDown?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
@@ -123,9 +126,9 @@ namespace mFramework.UI
         public void MouseUp(Vector2 worldPos)
         {
             _stateableSprite.SetDefault();
-
-            if ((OnMouseUp?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
+            if ((OnMouseUp?.Invoke(this, worldPos) ?? true) && _isMouseDown && ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
                 OnClick?.Invoke(this);
+            _isMouseDown = false;
         }
 
         public void MouseDrag(Vector2 worldPos)

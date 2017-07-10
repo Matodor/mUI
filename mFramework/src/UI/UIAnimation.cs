@@ -26,6 +26,7 @@ namespace mFramework.UI
 
     public class UIAnimationSettings
     {
+        public ulong MaxRepeats = 0;
         public UIAnimationPlayType PlayType { get; set; } = UIAnimationPlayType.PLAY_ONCE;
         public EasingType EasingType { get; set; } = EasingType.linear;
         public bool DestroyUIObjectOnEnd { get; set; } = false;
@@ -44,14 +45,17 @@ namespace mFramework.UI
 
         public bool DestroyUIObjectOnEnd { get; set; }
         public float Duration { get; set; }
+        public ulong MaxRepeats { get; set; }
 
         public event Action<UIAnimation> OnAnimateEvent;
+        public event Action<UIAnimation> OnRepeatEvent;
         public event Action<UIAnimation> OnEndEvent;
         public event Action<UIAnimation> OnStartEvent;
 
         protected readonly UIObject _animatedObject;
 
         private static ulong _guid;
+        private ulong _repeats;
 
         private UIAnimationDirection _animationDirection;
         private float _animationStart;
@@ -64,6 +68,7 @@ namespace mFramework.UI
             _animationDirection = UIAnimationDirection.FORWARD;
             _animationTime = 0;
             _animationEasingTime = 0;
+            _repeats = 0;
 
             State = UIAnimationState.PLAYING;
             PlayType = UIAnimationPlayType.PLAY_ONCE;
@@ -98,6 +103,7 @@ namespace mFramework.UI
 
         protected virtual void ApplySettings(UIAnimationSettings settings)
         {
+            MaxRepeats = settings.MaxRepeats;
             DestroyUIObjectOnEnd = settings.DestroyUIObjectOnEnd;
             Duration = settings.Duration;
             EasingType = settings.EasingType;
@@ -112,6 +118,12 @@ namespace mFramework.UI
         protected virtual void OnStartAnimation()
         {
             OnStartEvent?.Invoke(this);
+        }
+
+        protected virtual void OnRepeatAnimation()
+        {
+            _repeats++;
+            OnRepeatEvent?.Invoke(this);
         }
 
         protected virtual void OnEndAnimation()
@@ -134,27 +146,28 @@ namespace mFramework.UI
             if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD ||
                 _animationTime <= 0 && _animationDirection == UIAnimationDirection.BACKWARD)
             {
-                OnEndAnimation();
-
                 if (PlayType == UIAnimationPlayType.END_RESET)
                 {
+                    OnRepeatAnimation();
                     _animationTime = 0;
                 }
                 else if (PlayType == UIAnimationPlayType.END_FLIP)
                 {
+                    OnRepeatAnimation();
                     _animationDirection = _animationDirection == UIAnimationDirection.FORWARD 
                         ? UIAnimationDirection.BACKWARD 
                         : UIAnimationDirection.FORWARD;
                 }
-                else if (PlayType == UIAnimationPlayType.PLAY_ONCE)
+
+                if (PlayType == UIAnimationPlayType.PLAY_ONCE ||
+                    MaxRepeats > 0 && _repeats >= MaxRepeats)
                 {
+                    OnEndAnimation();
                     State = UIAnimationState.STOPPED;
                     Remove();
 
                     if (DestroyUIObjectOnEnd)
-                    {
                         _animatedObject.Destroy();
-                    }
                 }
             }
         }

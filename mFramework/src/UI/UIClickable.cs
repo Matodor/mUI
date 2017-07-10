@@ -22,7 +22,7 @@ namespace mFramework.UI
                     {
                         area2d.Center = component.Position();
                         area2d.Rotation = component.Rotation();
-                        area2d.Scale = component.GlobalScale();
+                        area2d.Scale = component.GlobalScale() * area2d.AdditionalScale;
                     };
 
                     break;

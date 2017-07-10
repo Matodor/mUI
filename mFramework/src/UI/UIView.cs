@@ -20,7 +20,7 @@ namespace mFramework.UI
         {
         }
 
-        public T ChildView<T>(object[] @params = null) where T : UIView
+        public T ChildView<T>(params object[] @params) where T : UIView
         {
             return ChildView<T>(new UIViewSettings
             {

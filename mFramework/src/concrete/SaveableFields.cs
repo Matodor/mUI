@@ -11,6 +11,12 @@ namespace mFramework
         {
             Key = key;
         }
+
+        public virtual void BeforeSave() { }
+        public virtual void BeforeLoad() { }
+
+        public virtual void AfterSave() { }
+        public virtual void AfterLoad() { }
     }
 
     public struct SaveableFieldsBridge : ISaveableFieldsBridge
@@ -68,6 +74,7 @@ namespace mFramework
         {
             foreach (var saveableFieldsContainer in _fields)
             {
+                saveableFieldsContainer.Value.BeforeSave();
                 var type = saveableFieldsContainer.Value.GetType();
                 var fieldsInfo = mCore.GetCachedFields(type);
                 for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
@@ -78,6 +85,7 @@ namespace mFramework
 
                     saveableField.SaveValue(bridge);
                 }
+                saveableFieldsContainer.Value.AfterSave();
             }
             _storage.Save();
             return true;
@@ -87,6 +95,7 @@ namespace mFramework
         {
             foreach (var saveableFieldsContainer in _fields)
             {
+                saveableFieldsContainer.Value.BeforeLoad();
                 var type = saveableFieldsContainer.Value.GetType();
                 var fieldsInfo = mCore.GetCachedFields(type);
                 for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
@@ -97,6 +106,7 @@ namespace mFramework
                     var newValue = saveableField.LoadValue(bridge);
                     fieldsInfo.CachedFields[i].Setter(saveableFieldsContainer.Value, newValue);
                 }
+                saveableFieldsContainer.Value.AfterLoad();
             }
 
             return true;

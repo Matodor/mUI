@@ -49,6 +49,10 @@ namespace mFramework.UI
         private VerticalAlign _verticalAlign;
         private FontStyle _fontStyle;
         private Color _color;
+        private bool _needUpdate;
+
+        private float _textWidth;
+        private float _textHeight;
 
         protected UILabel(UIObject parent) : base(parent)
         {
@@ -61,6 +65,15 @@ namespace mFramework.UI
             OnSortingOrderChanged += o =>
             {
                 _meshRenderer.sortingOrder = SortingOrder();
+            };
+
+            OnActiveChanged += o =>
+            {
+                if (IsActive && _needUpdate)
+                {
+                    _needUpdate = false;
+                    UpdateMeshText();
+                }
             };
         }
 
@@ -198,8 +211,13 @@ namespace mFramework.UI
         
         internal void UpdateMeshText()
         {
-            // TODO BUG
-            if (!IsActive || string.IsNullOrEmpty(_cachedText))
+            if (!IsActive)
+            {
+                _needUpdate = true;
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_cachedText))
                 return;
 
             _cachedFont.RequestCharactersInTexture(_cachedText, _fontSize, _fontStyle);
@@ -220,12 +238,14 @@ namespace mFramework.UI
             var triangles = new int[charCount * 6];
 
             var textHeight = 0f;
-            var textWidth = 0f;
             var charIndex = 0;
             var trianglesIndex = 0;
 
+            _textWidth = 0;
             const float magic = 220f;
             var lineHeight = ((_fontSize / _cachedFont.fontSize) * _cachedFont.lineHeight) / magic;
+            var maxTop = 0f;
+            var minBottom = 0f;
 
             for (int i = 0; i < textLines.Length; i++)
             {
@@ -269,6 +289,11 @@ namespace mFramework.UI
                         firstX = vertices[charIndex + 0].x;
                     else if (k == textLines[i].Length - 1)
                         lastX = vertices[charIndex + 3].x;
+
+                    if (maxTop < vertices[charIndex + 1].y)
+                        maxTop = vertices[charIndex + 1].y;
+                    if (minBottom > vertices[charIndex + 0].y)
+                        minBottom = vertices[charIndex + 0].y;
 
                     if (textLines[i][k] == ' ')
                         lineWidth += (characterInfo.advance / magic) * _wordSpacing;
@@ -334,9 +359,11 @@ namespace mFramework.UI
                         break;
                 } 
 
-                if (pureWidth > textWidth)
-                    textWidth = pureWidth;
+                if (pureWidth > _textWidth)
+                    _textWidth = pureWidth;
             }
+
+            _textHeight = maxTop - minBottom;
 
             /*switch (_textAnchor)
             {
@@ -385,6 +412,16 @@ namespace mFramework.UI
             _meshRenderer.material = _cachedFont.material;
 
             Scale(localScale);
+        }
+
+        public override float GetHeight()
+        {
+            return _textHeight * GlobalScale().y;
+        }
+
+        public override float GetWidth()
+        {
+            return _textWidth * GlobalScale().x;
         }
 
         public UIObject SetColor(Color32 color)

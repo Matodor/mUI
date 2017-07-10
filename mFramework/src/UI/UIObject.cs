@@ -163,7 +163,12 @@ namespace mFramework.UI
 
             return this;
         }
-        
+
+        public int LocalSortingOrder()
+        {
+            return _sortingOrder;
+        }
+
         public int SortingOrder()
         {
             return (_parentObject?.SortingOrder() ?? 0) + _sortingOrder;
@@ -173,6 +178,11 @@ namespace mFramework.UI
         {
             OnSortingOrderChanged?.Invoke(this);
             _childsObjects.ForEach(o => o.SortingOrderChanged());
+        }
+
+        public UIObject Scale(float v)
+        {
+            return Scale(v, v);
         }
 
         public UIObject Scale(float x, float y)

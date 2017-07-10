@@ -60,7 +60,7 @@ namespace mFramework.UI
             _countSliders--;
         }
 
-        public T ChildView<T>(object[] @params = null) where T : UIView
+        public T ChildView<T>(params object[] @params) where T : UIView
         {
             return ChildView<T>(new UIViewSettings
             {
@@ -92,7 +92,7 @@ namespace mFramework.UI
                 sliderScreenHeightScale
             );
         }
-
+        
         private void SetupChildren(UIObject obj)
         {
             if (_sliderType == UIObjectOrientation.HORIZONTAL)

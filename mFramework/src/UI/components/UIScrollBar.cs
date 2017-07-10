@@ -59,9 +59,15 @@ namespace mFramework.UI
             if (scrollBarSettings.ButtonSettings == null)
                 throw new Exception("UIScrollBar: The given ButtonSettings is null");
 
+            if (scrollBarSettings.Default == 0)
+                scrollBarSettings.Default = 1f / DIVIDE;
+
             _orientation = scrollBarSettings.Orientation;
             _minValue = Mathf.Min(scrollBarSettings.Min, scrollBarSettings.Max);
             _maxValue = Mathf.Max(scrollBarSettings.Min, scrollBarSettings.Max);
+
+            base.ApplySettings(settings);
+            
             _value = mMath.Clamp(scrollBarSettings.Default, _minValue, _maxValue);
             _value01 = CalcValue01(_value, _minValue, _maxValue);
 
@@ -73,8 +79,7 @@ namespace mFramework.UI
             _barButton = Component<UIButton>(scrollBarSettings.ButtonSettings);
             _barButton.OnMouseDown += OnMouseDown;
             _barButton.OnMouseUp += OnMouseUp;
-
-
+            
             _bar.SortingOrder(0);
             _barButton.SortingOrder(1);
 
@@ -85,7 +90,6 @@ namespace mFramework.UI
             SetValue(_value);
 
             _movedPos = GetPointPos(_value01);
-            base.ApplySettings(settings);
         }
 
         public UIScrollBar SetStep(float step)
@@ -105,9 +109,13 @@ namespace mFramework.UI
         public UIScrollBar SetValue(float value)
         {
             value = mMath.Clamp(value, _minValue, _maxValue);
-            var value01 = CalcValue01(value, _minValue, _maxValue);
-            SetValue01(value01);
+            SetValue01(CalcValue01(value, _minValue, _maxValue));
             return this;
+        }
+
+        public void ScaleBarButton(float scale)
+        {
+            _barButton.UIClickable.Area2D.AdditionalScale = scale;
         }
 
         public void SetValue01(float value01)
@@ -124,7 +132,7 @@ namespace mFramework.UI
                 _value01 = _stepClamp * c + _stepClamp;
             _value01 = mMath.Clamp(_value01, 0f, 1f);
 
-            float prevValue = _value;
+            var prevValue = _value;
             _value = _minValue + (_maxValue - _minValue) * _value01;
 
             if (prevValue != _value)
@@ -197,7 +205,8 @@ namespace mFramework.UI
             {
                 return barRect.Left + (barRect.Right - barRect.Left) * value01;
             }
-            else if (_orientation == UIObjectOrientation.VERTICAL)
+
+            if (_orientation == UIObjectOrientation.VERTICAL)
             {
                 var top = mMath.GetRotatedPoint(barRect.Position, new Vector2(barRect.Right, barRect.Position.y), _bar.Rotation());
                 var bottom = mMath.GetRotatedPoint(barRect.Position, new Vector2(barRect.Left, barRect.Position.y), _bar.Rotation());

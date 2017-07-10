@@ -72,10 +72,10 @@ namespace mFramework
             Log("[mCore] OnApplicationQuit");
         }
 
-        public static void Log(string format, params object[] obj)
+        public static void Log(string format, params object[] @params)
         {
             if (IsEditor && IsDebug)
-                UnityEngine.Debug.Log(string.Format(format, obj));
+                UnityEngine.Debug.Log(string.Format(format, @params));
         }
 
         public static LateBoundFieldGet CreateFieldGetter(FieldInfo field)
