@@ -36,7 +36,7 @@ namespace mFramework.UI
         protected override void OnAnimate()
         {
             var newPos = BezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
-            _animatedObject.Position(newPos);
+            AnimatedObject.Position(newPos);
             base.OnAnimate();
         }
     }

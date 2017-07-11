@@ -144,15 +144,21 @@ namespace mFramework.UI
             return this;
         }
 
+        public UIObject Translate(float x, float y, float z)
+        {
+            TranslateImpl(x, y, z);
+            return this;
+        }
+
         public UIObject Translate(Vector2 translatePos)
         {
             TranslateImpl(translatePos.x, translatePos.y);
             return this;
         }
 
-        private void TranslateImpl(float x, float y)
+        private void TranslateImpl(float x, float y, float z = 0)
         {
-            _transform.Translate(x, y, 0, Space.World);
+            _transform.Translate(x, y, z, Space.World);
             OnTranslate?.Invoke(this);
         }
 
@@ -327,6 +333,15 @@ namespace mFramework.UI
             var animation = UIAnimation.Create<T>(this, settings);
             AddAnimation(animation);
             return animation;
+        }
+
+        public void RemoveAnimations<T>() where T : UIAnimation
+        {
+            _animations.ForEach(a =>
+            {
+                if (a.GetType() == typeof(T))
+                    a.Remove();
+            });
         }
 
         public void RemoveAnimations()

@@ -35,7 +35,7 @@ namespace mFramework.UI
         protected override void OnAnimate()
         {
             var newScale = BezierHelper.Linear(CurrentEasingTime, _startScale, _endScale);
-            _animatedObject.Scale(newScale.x, newScale.y);
+            AnimatedObject.Scale(newScale.x, newScale.y);
             base.OnAnimate();
         }
     }

@@ -34,7 +34,7 @@ namespace mFramework.UI
         protected override void OnAnimate()
         {
             var newAngle = BezierHelper.Linear(CurrentEasingTime, _fromAngle, _endAngle);
-            _animatedObject.Rotate(newAngle);
+            AnimatedObject.Rotate(newAngle);
             base.OnAnimate();
         }
     }

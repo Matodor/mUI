@@ -47,12 +47,14 @@ namespace mFramework.UI
         public float Duration { get; set; }
         public ulong MaxRepeats { get; set; }
 
+        public UIObject AnimatedObject { get { return _animatedObject; } }
+
         public event Action<UIAnimation> OnAnimateEvent;
         public event Action<UIAnimation> OnRepeatEvent;
         public event Action<UIAnimation> OnEndEvent;
         public event Action<UIAnimation> OnStartEvent;
 
-        protected readonly UIObject _animatedObject;
+        private readonly UIObject _animatedObject;
 
         private static ulong _guid;
         private ulong _repeats;

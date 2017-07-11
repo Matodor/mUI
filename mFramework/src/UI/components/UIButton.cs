@@ -17,8 +17,9 @@ namespace mFramework.UI
         BUTTON_PRESSED
     }
 
-    public class UIButton : UIComponent, IUIClickable
+    public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored
     {
+        public Renderer UIRenderer { get { return _uiSprite.UIRenderer; } }
         public UIClickable UIClickable { get { return _clickableHandler; } }
         public ClickCondition ClickCondition { get; set; }
         public StateableSprite StateableSprite { get { return _stateableSprite; } }
@@ -133,6 +134,18 @@ namespace mFramework.UI
 
         public void MouseDrag(Vector2 worldPos)
         {
+        }
+
+        public UIObject SetColor(Color32 color)
+        {
+            _uiSprite.SetColor(color);
+            return this;
+        }
+
+        public UIObject SetColor(UIColor color)
+        {
+            _uiSprite.SetColor(color);
+            return this;
         }
     }
 }

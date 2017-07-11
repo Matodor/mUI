@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -7,8 +8,9 @@ namespace mFramework.UI
         public bool DefaultSelected { get; set; } = false;
     }
 
-    public class UIToggle : UIComponent
+    public class UIToggle : UIComponent, IUIRenderer, IColored
     {
+        public Renderer UIRenderer { get { return _button.UIRenderer;} }
         public bool IsSelected { get { return _isSelected; } }
         public event Action<UIToggle> OnSelect, OnDeselect, OnChanged;
 
@@ -92,6 +94,18 @@ namespace mFramework.UI
         public override float GetHeight()
         {
             return _button.GetHeight();
+        }
+
+        public UIObject SetColor(Color32 color)
+        {
+            _button.SetColor(color);
+            return this;
+        }
+
+        public UIObject SetColor(UIColor color)
+        {
+            _button.SetColor(color);
+            return this;
         }
     }
 }

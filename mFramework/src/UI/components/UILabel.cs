@@ -287,7 +287,7 @@ namespace mFramework.UI
 
                     if (k == 0)
                         firstX = vertices[charIndex + 0].x;
-                    else if (k == textLines[i].Length - 1)
+                    if (k == textLines[i].Length - 1)
                         lastX = vertices[charIndex + 3].x;
 
                     if (maxTop < vertices[charIndex + 1].y)

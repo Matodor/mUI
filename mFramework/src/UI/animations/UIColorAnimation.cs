@@ -25,7 +25,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            _animatedObj = _animatedObject as IColored;
+            _animatedObj = AnimatedObject as IColored;
             if (_animatedObj == null)
                 throw new Exception("The animated object is not IColored");
 
