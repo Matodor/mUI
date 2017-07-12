@@ -32,7 +32,7 @@ namespace mFramework.UI
         public bool DestroyUIObjectOnEnd { get; set; } = false;
         public float Duration { get; set; } = 1f;
     }
-
+    
     public abstract class UIAnimation : IGlobalUniqueIdentifier
     {
         public float CurrentTime { get { return _animationTime; } }
@@ -49,11 +49,9 @@ namespace mFramework.UI
 
         public UIObject AnimatedObject { get { return _animatedObject; } }
 
-        public event Action<UIAnimation> OnAnimateEvent;
-        public event Action<UIAnimation> OnRepeatEvent;
-        public event Action<UIAnimation> OnEndEvent;
-        public event Action<UIAnimation> OnStartEvent;
-
+        public event EventHandler<AnimationEventArgs> AnimationRepeat;
+        public event EventHandler<AnimationEventArgs> AnimationEnded;
+        
         private readonly UIObject _animatedObject;
 
         private static ulong _guid;
@@ -95,7 +93,7 @@ namespace mFramework.UI
 
         public void SetStartOffset(float time)
         {
-            _animationStart = Time.time + time;
+            _animationStart = Time.realtimeSinceStartup + time;
         }
 
         public void SetAnimationPos(float time)
@@ -112,30 +110,22 @@ namespace mFramework.UI
             PlayType = settings.PlayType;
         }
 
-        protected virtual void OnAnimate()
-        {
-            OnAnimateEvent?.Invoke(this);
-        }
+        protected abstract void OnAnimate();
 
-        protected virtual void OnStartAnimation()
-        {
-            OnStartEvent?.Invoke(this);
-        }
-
-        protected virtual void OnRepeatAnimation()
+        private void OnRepeatAnimation()
         {
             _repeats++;
-            OnRepeatEvent?.Invoke(this);
+            AnimationRepeat?.Invoke(this, new AnimationEventArgs(this));
         }
 
-        protected virtual void OnEndAnimation()
+        private void OnEndAnimation()
         {
-            OnEndEvent?.Invoke(this);
+            AnimationEnded?.Invoke(this, new AnimationEventArgs(this));
         }
 
         internal void Tick()
         {
-            if (State == UIAnimationState.STOPPED || Time.time < _animationStart)
+            if (State == UIAnimationState.STOPPED || Time.realtimeSinceStartup < _animationStart)
                 return;
 
             _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1 : -1) * (Time.deltaTime / Duration);

@@ -35,7 +35,6 @@ namespace mFramework.UI
         {
             var newAngle = BezierHelper.Linear(CurrentEasingTime, _fromAngle, _endAngle);
             AnimatedObject.Rotate(newAngle);
-            base.OnAnimate();
         }
     }
 }

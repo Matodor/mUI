@@ -23,14 +23,15 @@ namespace mFramework.UI
         private UIRadioGroup(UIObject parent) : base(parent)
         {
             _toggles = new List<UIToggle>();
-            OnAddedChildren += CheckChildren;
+            AddedСhildObject += CheckChildren;
         }
 
-        private void CheckChildren(UIObject uiObject)
+        private void CheckChildren(UIObject sender, AddedСhildObjectEventArgs e)
         {
-            if (!(uiObject is UIToggle))
+            var toggle = e.AddedObject as UIToggle;
+            if (toggle == null)
                 return;
-            SetupToggle((UIToggle) uiObject);
+            SetupToggle(toggle);
         }
 
         protected override void ApplySettings(UIComponentSettings settings)

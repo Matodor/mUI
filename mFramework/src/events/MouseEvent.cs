@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace mFramework
 {
@@ -11,7 +12,7 @@ namespace mFramework
         ScrollWheel = 5,
     }
 
-    public class MouseEvent : InputEvent
+    public class MouseEvent : EventArgs
     {
         public MouseEventType MouseEventType { get; set; }
         public KeyCode KeyCode { get; set; }

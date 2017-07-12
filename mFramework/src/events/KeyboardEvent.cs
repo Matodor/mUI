@@ -5,7 +5,7 @@ using System.Text;
 
 namespace mFramework
 {
-    public class KeyboardEvent : InputEvent
+    public class KeyboardEvent : EventArgs
     {
     }
 }

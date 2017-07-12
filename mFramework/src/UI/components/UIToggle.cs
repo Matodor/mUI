@@ -32,12 +32,11 @@ namespace mFramework.UI
                 throw new ArgumentException("UIToggle: The given settings is not UIToggleSettings");
 
             _button = Component<UIButton>((UIButtonSettings) settings);
-            _button.OnClick += ButtonClick;
-            _button.OnMouseUp += (button, worldPos) =>
+            _button.Click += ButtonClick;
+            _button.ButtonUp += (s, e) =>
             {
                 if (_isSelected)
                     _button.StateableSprite.SetSelected();
-                return true;
             };
 
             if (toggleSettings.DefaultSelected)
@@ -46,7 +45,7 @@ namespace mFramework.UI
             base.ApplySettings(settings);
         }
 
-        private void ButtonClick(UIButton button)
+        private void ButtonClick(UIButton sender)
         {
             Toggle();
         }

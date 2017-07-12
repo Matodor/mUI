@@ -20,10 +20,7 @@ namespace mFramework.UI
         private UISprite(UIObject parent) : base(parent)
         {
             Renderer = _gameObject.AddComponent<SpriteRenderer>();
-            OnSortingOrderChanged += o =>
-            {
-                Renderer.sortingOrder = SortingOrder();
-            };
+            SortingOrderChanged += s => Renderer.sortingOrder = SortingOrder();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)

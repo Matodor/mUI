@@ -37,7 +37,6 @@ namespace mFramework.UI
         {
             var newPos = BezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
             AnimatedObject.Position(newPos);
-            base.OnAnimate();
         }
     }
 }

@@ -4,10 +4,10 @@ namespace mFramework
 {
     public class MouseEventListener : EventListener
     {
-        public event Action<MouseEvent> OnMouseDown;
-        public event Action<MouseEvent> OnMouseUp;
-        public event Action<MouseEvent> OnMouseDrag;
-        public event Action<MouseEvent> OnMouseWheel;
+        public event EventHandler<MouseEvent> OnMouseDown;
+        public event EventHandler<MouseEvent> OnMouseUp;
+        public event EventHandler<MouseEvent> OnMouseDrag;
+        public event EventHandler<MouseEvent> OnMouseWheel;
 
         private MouseEventListener()
         {
@@ -23,28 +23,32 @@ namespace mFramework
             Detach();
         }
 
-        public void MouseWheel(MouseEvent @event)
+        internal void MouseWheel(MouseEvent @event)
         {
-            OnMouseWheel?.Invoke(@event);
+            OnMouseWheel?.Invoke(this, @event);
         }
 
-        public void MouseDrag(MouseEvent @event)
+        internal void MouseDrag(MouseEvent @event)
         {
-            OnMouseDrag?.Invoke(@event);
+            OnMouseDrag?.Invoke(this, @event);
         }
 
-        public void MouseDown(MouseEvent @event)
+        internal void MouseDown(MouseEvent @event)
         {
-            OnMouseDown?.Invoke(@event);
+            OnMouseDown?.Invoke(this, @event);
         }
 
-        public void MouseUp(MouseEvent @event)
+        internal void MouseUp(MouseEvent @event)
         {
-            OnMouseUp?.Invoke(@event);
+            OnMouseUp?.Invoke(this, @event);
         }
 
         public override void Detach()
         {
+            OnMouseDown = null;
+            OnMouseUp = null;
+            OnMouseDrag = null;
+            OnMouseWheel = null;
             EventsController.RemoveMouseEventListener(this);
         }
     }

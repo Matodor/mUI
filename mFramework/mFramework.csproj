@@ -67,6 +67,16 @@
     <Compile Include="src\concrete\RepeatAction.cs" />
     <Compile Include="src\concrete\SaveableField.cs" />
     <Compile Include="src\concrete\SaveableFields.cs" />
+    <Compile Include="src\UI\events\AddedAnimationEventArgs.cs" />
+    <Compile Include="src\UI\events\AddedСhildObjectEventArgs.cs" />
+    <Compile Include="src\UI\events\AnimationEventArgs.cs" />
+    <Compile Include="src\UI\events\ButtonEventArgs.cs" />
+    <Compile Include="src\UI\events\RemovedСhildObjectEventArgs.cs" />
+    <Compile Include="src\UI\events\RotatedEventArgs.cs" />
+    <Compile Include="src\UI\events\ScaledEventArgs.cs" />
+    <Compile Include="src\UI\events\ScrollBarChangedEventArgs.cs" />
+    <Compile Include="src\UI\events\TranslatedEventArgs.cs" />
+    <Compile Include="src\UI\UIEventHandler.cs" />
     <Compile Include="src\concrete\UnidirectionalList.cs" />
     <Compile Include="src\concrete\RectangleArea2D.cs" />
     <Compile Include="src\events\EventListener.cs" />
@@ -76,7 +86,6 @@
     <Compile Include="src\extensions\EditorExtension.cs" />
     <Compile Include="src\extensions\SpriteExtension.cs" />
     <Compile Include="src\extensions\GameObjectExtension.cs" />
-    <Compile Include="src\events\InputEvent.cs" />
     <Compile Include="src\events\KeyboardEvent.cs" />
     <Compile Include="src\mEngine.cs" />
     <Compile Include="src\mCore.cs" />
@@ -93,6 +102,7 @@
     <Compile Include="src\UI\animations\UIScaleAnimation.cs" />
     <Compile Include="src\UI\components\UILabel.cs" />
     <Compile Include="src\UI\components\UIScrollBar.cs" />
+    <Compile Include="src\UI\events\RemovedAnimationEventArgs.cs" />
     <Compile Include="src\UI\fonts\TrueTypeFontReader.cs" />
     <Compile Include="src\UI\UIAnimation.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />

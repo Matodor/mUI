@@ -6,13 +6,18 @@ namespace mFramework.UI
     public class UIClickable
     {
         public Area2D Area2D { get; }
-        public event Func<IUIClickable, MouseEvent, bool> CanMouseDown, CanMouseUp, CanMouseDrag;
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseDown;
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseUp;
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseDrag;
 
+        private readonly UIObject _component;
         private readonly MouseEventListener _eventListener;
 
-        private UIClickable(UIObject component, IUIClickable handler, AreaType areaType)
+        private UIClickable(UIObject component, AreaType areaType)
         {
+            _component = component;
             _eventListener = MouseEventListener.Create();
+            _component.BeforeDestroy += sender => _eventListener.Detach();
 
             switch (areaType)
             {
@@ -20,46 +25,37 @@ namespace mFramework.UI
                     Area2D = new RectangleArea2D();
                     Area2D.Update += area2d =>
                     {
-                        area2d.Center = component.Position();
-                        area2d.Rotation = component.Rotation();
-                        area2d.Scale = component.GlobalScale() * area2d.AdditionalScale;
+                        area2d.Center = _component.Position();
+                        area2d.Rotation = _component.Rotation();
+                        area2d.Scale = _component.GlobalScale() * area2d.AdditionalScale;
                     };
-
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(areaType), areaType, null);
             }
 
-            _eventListener.OnMouseDown += @event =>
+            _eventListener.OnMouseDown += (s, e) =>
             {
-                if (!component.IsActive)
-                    return;
-                if (!CanMouseDown?.Invoke(handler, @event) ?? false)
+                if (!_component.IsActive || (!CanMouseDown?.Invoke((IUIClickable)_component, e) ?? false))
                     return;
 
-                var worldPos = mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos);
+                var worldPos = WorldPos(e);
                 if (Area2D.InArea(worldPos))
-                    handler.MouseDown(worldPos);
+                    ((IUIClickable)_component)?.MouseDown(worldPos);
             };
 
-            _eventListener.OnMouseUp += @event =>
+            _eventListener.OnMouseUp += (s, e) =>
             {
-                if (!component.IsActive)
+                if (!_component.IsActive || (!CanMouseUp?.Invoke((IUIClickable)_component, e) ?? false))
                     return;
-                if (!CanMouseUp?.Invoke(handler, @event) ?? false)
-                    return;
-
-                handler.MouseUp(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));
+                ((IUIClickable)_component)?.MouseUp(WorldPos(e));
             };
 
-            _eventListener.OnMouseDrag += @event =>
+            _eventListener.OnMouseDrag += (s, e) =>
             {
-                if (!component.IsActive)
+                if (!_component.IsActive || (!CanMouseDrag?.Invoke((IUIClickable)_component, e) ?? false))
                     return;
-                if (!CanMouseDrag?.Invoke(handler, @event) ?? false)
-                    return;
-
-                handler.MouseDrag(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos));
+                ((IUIClickable)_component)?.MouseDrag(WorldPos(e));
             };
         }
 
@@ -68,14 +64,16 @@ namespace mFramework.UI
             return Area2D.InArea(worldPos);
         }
 
-        public static Vector2 WorldPos(MouseEvent @event)
+        public static Vector2 WorldPos(MouseEvent e)
         {
-            return mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos);
+            return mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
         }
 
-        public static UIClickable Create(UIComponent component, IUIClickable handler, AreaType areaType)
+        public static UIClickable Create(UIComponent component, AreaType areaType)
         {
-            return new UIClickable(component, handler, areaType);
+            if (!(component is IUIClickable))
+                throw new Exception("The given component not a IUIClickable");
+            return new UIClickable(component, areaType);
         }
     }
 }

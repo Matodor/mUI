@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace mFramework
@@ -13,6 +10,16 @@ namespace mFramework
         public Sprite Selected { get; set; }
     }
 
+    public class StateableSpriteStateChangedEventArgs : EventArgs
+    {
+        public Sprite StateSprite { get; }
+
+        public StateableSpriteStateChangedEventArgs(Sprite stateSprite)
+        {
+            StateSprite = stateSprite;
+        }
+    }
+
     public class StateableSprite
     {
         public enum State
@@ -22,7 +29,7 @@ namespace mFramework
             SELECTED = 2
         }
 
-        public event Action<Sprite> OnStateChanged;
+        public event EventHandler<StateableSpriteStateChangedEventArgs> StateChanged;
         public State CurrentState { get { return _state; } }
         
         private readonly SpriteStates _spriteStates;
@@ -42,19 +49,19 @@ namespace mFramework
         public void SetDefault()
         {
             _state = State.DEFAULT;
-            OnStateChanged?.Invoke(_spriteStates.Default);
+            StateChanged?.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Default));
         }
 
         public void SetHighlighted()
         {
             _state = State.HIGHLIGHTED;
-            OnStateChanged?.Invoke(_spriteStates.Highlighted);
+            StateChanged?.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Highlighted));
         }
 
         public void SetSelected()
         {
             _state = State.SELECTED;
-            OnStateChanged?.Invoke(_spriteStates.Selected);
+            StateChanged?.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Selected));
         }
     }
 }

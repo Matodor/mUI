@@ -17,6 +17,8 @@ namespace mFramework.UI
         BUTTON_PRESSED
     }
 
+    public delegate bool CanButtonClickDelegate(UIButton sender, Vector2 worldPos);
+
     public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored
     {
         public Renderer UIRenderer { get { return _uiSprite.UIRenderer; } }
@@ -24,9 +26,12 @@ namespace mFramework.UI
         public ClickCondition ClickCondition { get; set; }
         public StateableSprite StateableSprite { get { return _stateableSprite; } }
 
-        public event Action<UIButton> OnClick;
-        public event Func<UIButton, Vector2, bool> OnMouseDown, OnMouseUp;
-        
+        public event UIEventHandler<UIButton> Click;
+        public event CanButtonClickDelegate CanButtonClick;
+
+        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown;
+        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp;
+
         private UIClickable _clickableHandler;
         private StateableSprite _stateableSprite;
         private UISprite _uiSprite;
@@ -57,14 +62,13 @@ namespace mFramework.UI
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            SetupClickableHandler();
 
             _uiSprite = Component<UISprite>(new UISpriteSettings { Sprite = buttonSettings.ButtonSpriteStates.Default });
             _stateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
-            _stateableSprite.OnStateChanged += sprite =>
+            _stateableSprite.StateChanged += (s, e) =>
             {
-                if (sprite != null && _uiSprite.Renderer.sprite != sprite)
-                    _uiSprite.SetSprite(sprite);
+                if (e.StateSprite != null && _uiSprite.Renderer.sprite != e.StateSprite)
+                    _uiSprite.SetSprite(e.StateSprite);
             };
 
             base.ApplySettings(buttonSettings);
@@ -77,7 +81,7 @@ namespace mFramework.UI
                 // remove
             }
 
-            _clickableHandler = UIClickable.Create(this, this, AreaType.RECTANGLE);
+            _clickableHandler = UIClickable.Create(this, AreaType.RECTANGLE);
             _clickableHandler.Area2D.Update += area2d =>
             {
                 var rect2d = area2d as RectangleArea2D;
@@ -88,16 +92,6 @@ namespace mFramework.UI
                     rect2d.Offset = _uiSprite.Renderer.sprite?.GetCenterOffset() ?? Vector2.zero;
                 }
             };
-        }
-
-        private void SetupClickableHandler()
-        {
-            if (_clickableHandler == null)
-                return;
-
-            _clickableHandler.CanMouseUp += (h, e) => IsActive;
-            _clickableHandler.CanMouseDown += (h, e) => IsActive;
-            _clickableHandler.CanMouseDrag += (h, e) => IsActive;
         }
 
         public override UIRect GetRect()
@@ -120,15 +114,22 @@ namespace mFramework.UI
             _isMouseDown = true;
             _stateableSprite.SetHighlighted();
 
-            if ((OnMouseDown?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
-                OnClick?.Invoke(this);
+            if ((CanButtonClick?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
+            {
+                Click?.Invoke(this);
+            }
+            ButtonDown?.Invoke(this, new ButtonEventArgs(worldPos));
         }
 
         public void MouseUp(Vector2 worldPos)
         {
             _stateableSprite.SetDefault();
-            if ((OnMouseUp?.Invoke(this, worldPos) ?? true) && _isMouseDown && ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos)) 
-                OnClick?.Invoke(this);
+            if ((CanButtonClick?.Invoke(this, worldPos) ?? true) && _isMouseDown &&
+                ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos))
+            {
+                Click?.Invoke(this);
+            }
+            ButtonUp?.Invoke(this, new ButtonEventArgs(worldPos));
             _isMouseDown = false;
         }
 

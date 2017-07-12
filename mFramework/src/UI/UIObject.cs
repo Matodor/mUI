@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -9,15 +7,18 @@ namespace mFramework.UI
     {
         public ulong GUID { get; }
 
-        public event Action<UIObject> OnActiveChanged, OnVisibleChanged;
-        public event Action<UIObject> OnSortingOrderChanged;
-        public event Action<UIObject> OnAddedChildren;
-        public event Action<UIObject> OnRemovedChildren;
-        public event Action<UIObject> OnAddedAnimation;
-        public event Action<UIObject> OnBeforeDestroy;
-        public event Action<UIObject> OnTranslate;
-        public event Action<UIObject> OnScale;
-        public event Action<UIObject> OnRotate;
+        public event UIEventHandler<UIObject> ActiveChanged; 
+        public event UIEventHandler<UIObject> VisibleChanged;
+        public event UIEventHandler<UIObject> SortingOrderChanged;
+        public event UIEventHandler<UIObject, AddedСhildObjectEventArgs> AddedСhildObject;
+        public event UIEventHandler<UIObject, RemovedСhildObjectEventArgs> RemovedСhildObject;
+        public event UIEventHandler<UIObject, RemovedAnimationEventArgs> AnimationRemoved;
+        public event UIEventHandler<UIObject, AddedAnimationEventArgs> AnimationAdded;
+        public event UIEventHandler<UIObject> BeforeDestroy;
+
+        public event UIEventHandler<UIObject, TranslateEventArgs> Translated;
+        public event UIEventHandler<UIObject, ScaledEventArgs> Scaled;
+        public event UIEventHandler<UIObject, RotatedEventArgs> Rotated;
 
         public UIObject Parent { get { return _parentObject; } }
         public bool IsActive { get { return _isActive; } }
@@ -37,6 +38,8 @@ namespace mFramework.UI
 
         protected UIObject(UIObject parentObject)
         {
+            GUID = ++_guid;
+
             _isActive = true;
             _isVisible = true;
             _sortingOrder = 0;
@@ -45,9 +48,7 @@ namespace mFramework.UI
             _transform = _gameObject.transform;
             _childsObjects = UnidirectionalList<UIObject>.Create();
             _animations = UnidirectionalList<UIAnimation>.Create();
-
-            GUID = ++_guid;
-
+            
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
             else
@@ -71,7 +72,7 @@ namespace mFramework.UI
             if (this is UIView && this == mUI.BaseView)
                 throw new Exception("Can't destroy BaseView");
 
-            OnBeforeDestroy?.Invoke(this);
+            BeforeDestroy?.Invoke(this);
             Hide();
 
             _parentObject.RemoveChildObject(this);
@@ -122,8 +123,9 @@ namespace mFramework.UI
 
         public UIObject Rotate(float x, float y, float z)
         {
+            var oldAngle = _transform.eulerAngles;
             _transform.eulerAngles = new Vector3(x, y, z);
-            OnRotate?.Invoke(this);
+            Rotated?.Invoke(this, new RotatedEventArgs(oldAngle, _transform.eulerAngles));
             return this;
         }
 
@@ -140,33 +142,27 @@ namespace mFramework.UI
 
         public UIObject Translate(float x, float y)
         {
-            TranslateImpl(x, y);
+            Translate(x, y, 0);
             return this;
         }
 
         public UIObject Translate(float x, float y, float z)
         {
-            TranslateImpl(x, y, z);
+            _transform.Translate(x, y, z, Space.World);
+            Translated?.Invoke(this, new TranslateEventArgs(new Vector3(x, y, z), _transform.position));
             return this;
         }
 
         public UIObject Translate(Vector2 translatePos)
         {
-            TranslateImpl(translatePos.x, translatePos.y);
+            Translate(translatePos.x, translatePos.y, 0);
             return this;
-        }
-
-        private void TranslateImpl(float x, float y, float z = 0)
-        {
-            _transform.Translate(x, y, z, Space.World);
-            OnTranslate?.Invoke(this);
         }
 
         public UIObject SortingOrder(int sortingOrder)
         {
             _sortingOrder = sortingOrder;
-            SortingOrderChanged();
-
+            OnSortingOrderChanged();
             return this;
         }
 
@@ -180,27 +176,30 @@ namespace mFramework.UI
             return (_parentObject?.SortingOrder() ?? 0) + _sortingOrder;
         }
 
-        internal void SortingOrderChanged()
+        internal void OnSortingOrderChanged()
         {
-            OnSortingOrderChanged?.Invoke(this);
-            _childsObjects.ForEach(o => o.SortingOrderChanged());
+            SortingOrderChanged?.Invoke(this);
+            _childsObjects.ForEach(o => o.OnSortingOrderChanged());
         }
 
         public UIObject Scale(float v)
         {
-            return Scale(v, v);
+            Scale(v, v);
+            return this;
         }
 
         public UIObject Scale(float x, float y)
         {
+            var oldScale = _transform.localScale;
             _transform.localScale = new Vector3(x, y, _transform.localScale.z);
-            OnScale?.Invoke(this);
+            Scaled?.Invoke(this, new ScaledEventArgs(oldScale, _transform.localScale));
             return this;
         }
 
         public UIObject Scale(Vector2 scale)
         {
-            return Scale(scale.x, scale.y);
+            Scale(scale.x, scale.y);
+            return this;
         }
 
         public Vector2 LocalScale()
@@ -231,7 +230,7 @@ namespace mFramework.UI
                 y = y,
                 z = _transform.position.z
             };
-            OnTranslate?.Invoke(this);
+            Translated?.Invoke(this, new TranslateEventArgs(Vector3.zero, _transform.position));
         }
 
         public void Position(Vector2 position)
@@ -248,7 +247,7 @@ namespace mFramework.UI
         {
             if (!_isVisible) return this;
 
-            ActiveChanged(true);
+            OnActiveChanged(true);
             return this;
         }
 
@@ -256,23 +255,23 @@ namespace mFramework.UI
         {
             if (!_isVisible) return this;
 
-            ActiveChanged(false);
+            OnActiveChanged(false);
             return this;
         }
 
         public UIObject Show()
         {
-            VisibleChanged(true);
+            OnVisibleChanged(true);
             return this;
         }
 
         public UIObject Hide()
         {
-            VisibleChanged(false);
+            OnVisibleChanged(false);
             return this;
         }
 
-        private void VisibleChanged(bool visible)
+        private void OnVisibleChanged(bool visible)
         {
             if (_isVisible == visible)
                 return;
@@ -280,25 +279,25 @@ namespace mFramework.UI
             _isVisible = visible;
             _isActive = visible;
 
-            OnVisibleChanged?.Invoke(this);
-            OnActiveChanged?.Invoke(this);
+            VisibleChanged?.Invoke(this);
+            ActiveChanged?.Invoke(this);
 
-            _childsObjects.ForEach(o => o.VisibleChanged(visible));
+            _childsObjects.ForEach(o => o.OnVisibleChanged(visible));
 
             var renderer = this as IUIRenderer;
             if (renderer != null)
                 renderer.UIRenderer.enabled = visible;
         }
 
-        private void ActiveChanged(bool active)
+        private void OnActiveChanged(bool active)
         {
             if (_isActive == active)
                 return;
             
             _isActive = active;
 
-            OnActiveChanged?.Invoke(this);
-            _childsObjects.ForEach(o => o.ActiveChanged(active));
+            ActiveChanged?.Invoke(this);
+            _childsObjects.ForEach(o => o.OnActiveChanged(active));
         }
 
         internal virtual void Tick()
@@ -351,25 +350,34 @@ namespace mFramework.UI
 
         internal bool RemoveAnimation(UIAnimation animation)
         {
-            return _animations.Remove(animation);
+            if (_animations.Remove(animation))
+            {
+                AnimationRemoved?.Invoke(this, new RemovedAnimationEventArgs(animation));
+                return true;
+            }
+            return false;
         }
 
         private void AddAnimation(UIAnimation animation)
         {
             _animations.Add(animation);
-            OnAddedAnimation?.Invoke(this);
+            AnimationAdded?.Invoke(this, new AddedAnimationEventArgs(animation));
         }
 
         private bool RemoveChildObject(UIObject @object)
         {
-            OnRemovedChildren?.Invoke(this);
-            return _childsObjects.Remove(@object);
+            if (_childsObjects.Remove(@object))
+            {
+                RemovedСhildObject?.Invoke(this, new RemovedСhildObjectEventArgs(@object));
+                return true;
+            }
+            return false;
         }
 
         internal void AddChildObject(UIObject @object)
         {
             _childsObjects.Add(@object);
-            OnAddedChildren?.Invoke(@object);
+            AddedСhildObject?.Invoke(this, new AddedСhildObjectEventArgs(@object));
         }
     }
 }

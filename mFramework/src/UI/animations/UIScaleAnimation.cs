@@ -36,7 +36,6 @@ namespace mFramework.UI
         {
             var newScale = BezierHelper.Linear(CurrentEasingTime, _startScale, _endScale);
             AnimatedObject.Scale(newScale.x, newScale.y);
-            base.OnAnimate();
         }
     }
 }

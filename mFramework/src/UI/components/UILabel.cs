@@ -62,12 +62,12 @@ namespace mFramework.UI
             _textPropertyBlock = new MaterialPropertyBlock();
             UIRenderer = _meshRenderer;
 
-            OnSortingOrderChanged += o =>
+            SortingOrderChanged += s =>
             {
                 _meshRenderer.sortingOrder = SortingOrder();
             };
 
-            OnActiveChanged += o =>
+            ActiveChanged += s =>
             {
                 if (IsActive && _needUpdate)
                 {
@@ -191,7 +191,7 @@ namespace mFramework.UI
                 throw new ArgumentException("UILabel: The given settings is not UILabelSettings");
 
             Font.textureRebuilt += FontRebuilt;
-            OnBeforeDestroy += o => Font.textureRebuilt -= FontRebuilt;
+            BeforeDestroy += s => Font.textureRebuilt -= FontRebuilt;
 
             _cachedText = labelSettings.Text;
             _fontSize = labelSettings.Size;

@@ -58,8 +58,6 @@ namespace mFramework.UI
                 _animatedObj.SetColor(new Color32((byte) n1, (byte) n2, (byte) n3, (byte) Alpha));
             else
                 _animatedObj.SetColor(UIColor.HSVToRGB(n1, n2, n3, Alpha));
-
-            base.OnAnimate();
         }
     }
 }

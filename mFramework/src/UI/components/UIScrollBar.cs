@@ -16,7 +16,7 @@ namespace mFramework.UI
 
     public class UIScrollBar : UIComponent
     {
-        public event Action<UIScrollBar> OnChanged;
+        public event UIEventHandler<UIScrollBar, ScrollBarChangedEventArgs> ValueChanged;
 
         public float Value { get { return _value; } }
         public float Value01 { get { return _value01; } }
@@ -77,8 +77,8 @@ namespace mFramework.UI
             });
 
             _barButton = Component<UIButton>(scrollBarSettings.ButtonSettings);
-            _barButton.OnMouseDown += OnMouseDown;
-            _barButton.OnMouseUp += OnMouseUp;
+            _barButton.ButtonDown += OnMouseDown;
+            _barButton.ButtonUp += OnMouseUp;
             
             _bar.SortingOrder(0);
             _barButton.SortingOrder(1);
@@ -141,16 +141,16 @@ namespace mFramework.UI
                     _barButton.Position(GetPointPos(_value01), _barButton.Position().y);
                 else if (_orientation == UIObjectOrientation.VERTICAL)
                     _barButton.Position(_barButton.Position().x, GetPointPos(_value01));
-                OnChanged?.Invoke(this);
+                ValueChanged?.Invoke(this, new ScrollBarChangedEventArgs(_value01, prevValue));
             }
         }
 
-        private void OnMouseDrag(MouseEvent mouseEvent)
+        private void OnMouseDrag(object sender, MouseEvent e)
         {
             if (!_isPressed)
                 return;
 
-            var worldPos = UIClickable.WorldPos(mouseEvent);
+            var worldPos = UIClickable.WorldPos(e);
             var diff = worldPos - _lastDragPos;
             _lastDragPos = worldPos;
             Move(_orientation == UIObjectOrientation.VERTICAL ? diff.y : diff.x);
@@ -215,19 +215,17 @@ namespace mFramework.UI
             return 0;
         }
 
-        private bool OnMouseUp(UIButton button, Vector2 worldPos)
+        private void OnMouseUp(UIButton sender, ButtonEventArgs e)
         {
-            _lastDragPos = worldPos;
+            _lastDragPos = e.ClickWorldPos;
             _isPressed = false;
-            return true;
         }
 
-        private bool OnMouseDown(UIButton button, Vector2 worldPos)
+        private void OnMouseDown(UIButton sender, ButtonEventArgs e)
         {
-            _lastDragPos = worldPos;
+            _lastDragPos = e.ClickWorldPos;
             _isPressed = true;
             _movedPos = GetPointPos(_value01);
-            return true;
         }
 
         public override float GetHeight()

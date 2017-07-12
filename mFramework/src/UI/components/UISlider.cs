@@ -52,7 +52,30 @@ namespace mFramework.UI
             _slides = new List<UIObject>();
             _clickNext = new List<Pair<IUIClickable, MouseEvent>>();
             
-            OnAddedChildren += SetupChildren;
+            AddedСhildObject += OnAddedСhildObject;
+        }
+
+        private void OnAddedСhildObject(UIObject sender, AddedСhildObjectEventArgs e)
+        {
+            if (_sliderType == UIObjectOrientation.HORIZONTAL)
+                SetupChildrenHorizontal(e.AddedObject);
+            else
+                SetupChildrenVertical(e.AddedObject);
+
+            _slides.Add(e.AddedObject);
+            SetupChilds(sender, e);
+        }
+
+        private void SetupChilds(UIObject sender, AddedСhildObjectEventArgs e)
+        {
+            var uiClickable = e.AddedObject as IUIClickable;
+            if (uiClickable != null)
+            {
+                uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
+                uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
+            }
+
+            e.AddedObject.AddedСhildObject += SetupChilds;
         }
 
         ~UISlider()
@@ -92,31 +115,7 @@ namespace mFramework.UI
                 sliderScreenHeightScale
             );
         }
-        
-        private void SetupChildren(UIObject obj)
-        {
-            if (_sliderType == UIObjectOrientation.HORIZONTAL)
-                SetupChildrenHorizontal(obj);
-            else
-                SetupChildrenVertical(obj);
-
-            _slides.Add(obj);
-            OnRecursiveAddedChildren(obj);
-        }
-
-        private void OnRecursiveAddedChildren(UIObject uiObject)
-        {
-            var uiClickable = uiObject as IUIClickable;
-            if (uiClickable != null)
-            {
-                uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
-                uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
-            }
-
-            uiObject.ForEachChildren(OnRecursiveAddedChildren);
-            uiObject.OnAddedChildren += OnRecursiveAddedChildren;
-        }
-
+      
         private static bool CanChildsMouseUp(IUIClickable handler, MouseEvent @event)
         {
             return false;
@@ -216,7 +215,7 @@ namespace mFramework.UI
             _width = sliderSettings.Width;
             _offset = sliderSettings.Offset;
 
-            _clickableHandler = UIClickable.Create(this, this, AreaType.RECTANGLE);
+            _clickableHandler = UIClickable.Create(this, AreaType.RECTANGLE);
             _clickableHandler.Area2D.Update += area2d =>
             {
                 var rect2d = area2d as RectangleArea2D;
@@ -241,7 +240,7 @@ namespace mFramework.UI
                 _gameObject.transform.position.z + _countSliders
             );
 
-            OnTranslate += (e) => UpdateViewport();
+            Translated += (s, e) => UpdateViewport();
             UpdateViewport();
 
             base.ApplySettings(settings);
