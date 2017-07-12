@@ -33,6 +33,8 @@ namespace mFramework.UI
         public string Text { get { return _cachedText; } }
         public Color TextColor { get { return _color; } }
 
+        public event UIEventHandler<UILabel> TextUpdated;
+        
         private Font _cachedFont;
         private readonly MeshRenderer _meshRenderer;
         private readonly MeshFilter _meshFilter;
@@ -412,6 +414,7 @@ namespace mFramework.UI
             _meshRenderer.material = _cachedFont.material;
 
             Scale(localScale);
+            TextUpdated?.Invoke(this);
         }
 
         public override float GetHeight()

@@ -19,7 +19,7 @@ namespace mFramework
 
         public static bool IsEditor { get; private set; }
         public static bool IsDebug { get; set; }
-        public static event Action OnApplicationQuitEvent;
+        public static event Action ApplicationQuitEvent;
 
         private static mCore _instance;
         private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
@@ -66,7 +66,7 @@ namespace mFramework
 
         internal static void OnApplicationQuit()
         {
-            OnApplicationQuitEvent?.Invoke();
+            ApplicationQuitEvent?.Invoke();
             Instance._editorExtension?.Detach();
             Log("[mCore] OnApplicationQuit");
         }

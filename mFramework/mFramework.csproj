@@ -56,6 +56,7 @@
     <Compile Include="src\abstract\ISaveableFields.cs" />
     <Compile Include="src\abstract\IUIClickable.cs" />
     <Compile Include="src\abstract\IUIRenderer.cs" />
+    <Compile Include="src\achievements\AchievementsHandler.cs" />
     <Compile Include="src\concrete\Area2D.cs" />
     <Compile Include="src\concrete\AES.cs" />
     <Compile Include="src\concrete\BezierHelper.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="src\concrete\RepeatAction.cs" />
     <Compile Include="src\concrete\SaveableField.cs" />
     <Compile Include="src\concrete\SaveableFields.cs" />
+    <Compile Include="src\concrete\SaveableFieldsHandler.cs" />
     <Compile Include="src\UI\events\AddedAnimationEventArgs.cs" />
     <Compile Include="src\UI\events\AddedСhildObjectEventArgs.cs" />
     <Compile Include="src\UI\events\AnimationEventArgs.cs" />
