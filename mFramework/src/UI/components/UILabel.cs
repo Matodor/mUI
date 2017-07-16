@@ -206,11 +206,12 @@ namespace mFramework.UI
             _wordSpacing = labelSettings.WordSpacing;
 
             base.ApplySettings(settings);
-
+             
             SetFont(labelSettings.Font, false);
             UpdateMeshText();
+            SetColor(_color);
         }
-        
+
         internal void UpdateMeshText()
         {
             if (!IsActive)

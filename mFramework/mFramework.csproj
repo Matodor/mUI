@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>mFramework</RootNamespace>
     <AssemblyName>mFramework</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -93,9 +96,6 @@
     <Compile Include="src\mCore.cs" />
     <Compile Include="src\events\MouseEvent.cs" />
     <Compile Include="src\mMath.cs" />
-    <None Include="mFramework\SpriteClipping.shader">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="src\concrete\SpritesRepository.cs" />
     <Compile Include="src\concrete\StateableSprite.cs" />
     <Compile Include="src\UI\animations\UIColorAnimation.cs" />
@@ -123,9 +123,6 @@
     <Compile Include="src\UI\UICamera.cs" />
     <Compile Include="src\UI\UIView.cs" />
     <Compile Include="src\UI\UIComponent.cs" />
-    <None Include="mFramework\Sprites-Default.shader" />
-    <None Include="mFramework\Sprites-Diffuse.shader" />
-    <None Include="mFramework\Sprites-Mask.shader" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -133,8 +130,4 @@
     <Content Include="libs\UnityEngine.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\mUI\Example 5.5.0f3\Assets\Plugins"
-copy "D:\Unity Develop\mUI\mFramework\bin\Debug\mFramework.dll" "D:\Unity Develop\KappaClicker\KappaClicker\Assets\Plugins"</PostBuildEvent>
-  </PropertyGroup>
 </Project>

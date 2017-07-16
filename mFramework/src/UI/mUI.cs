@@ -11,9 +11,9 @@ namespace mFramework.UI
 
     public sealed class mUI
     {
-        internal static mUI Instance { get { return _instance; } }
-        public static UIView BaseView { get { return _instance._baseView; } }
-        public static UICamera UICamera { get { return _instance._uiCamera; } }
+        internal static mUI Instance => _instance;
+        public static UIView BaseView => _instance._baseView;
+        public static UICamera UICamera => _instance._uiCamera;
 
         internal static Dictionary<string, Font> _fonts;
         private static mUI _instance;

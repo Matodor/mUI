@@ -12,10 +12,7 @@ namespace mFramework
 
     public sealed class mCore
     {
-        public static mCore Instance
-        {
-            get { return _instance ?? (_instance = new mCore()); }
-        }
+        public static mCore Instance => _instance ?? (_instance = new mCore());
 
         public static bool IsEditor { get; private set; }
         public static bool IsDebug { get; set; }
@@ -51,7 +48,6 @@ namespace mFramework
 
         internal void Init()
         {
-            
         }
 
         internal bool RemoveRepeatAction(RepeatAction repeatAction)
