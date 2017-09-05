@@ -4,13 +4,14 @@ namespace mFramework
 {
     public class UnidirectionalList<T> where T : IGlobalUniqueIdentifier
     {
-        internal class ListItem
+        public class ListItem
         {
             internal T Value;
             internal ListItem Prev;
         }
 
-        public uint Count { get { return _count; } }
+        public uint Count => _count;
+        public ListItem LastItem => _lastItem;
 
         private ListItem _lastItem;
         private uint _count;

@@ -31,7 +31,7 @@ namespace mFramework.UI
             if (toggleSettings == null)
                 throw new ArgumentException("UIToggle: The given settings is not UIToggleSettings");
 
-            _button = Component<UIButton>((UIButtonSettings) settings);
+            _button = this.Button((UIButtonSettings) settings);
             _button.Click += ButtonClick;
             _button.ButtonUp += (s, e) =>
             {

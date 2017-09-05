@@ -21,11 +21,13 @@ namespace mFramework
         private static mCore _instance;
         private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
         private readonly UnidirectionalList<RepeatAction> _repeatsActions;
+        private readonly UnidirectionalList<TimerAction> _timerActions;
         private readonly EditorExtension _editorExtension;
 
         private mCore()
         {
             _repeatsActions = UnidirectionalList<RepeatAction>.Create();
+            _timerActions = UnidirectionalList<TimerAction>.Create();
             _fieldDictionary = new Dictionary<Type, CachedFieldsInfo>();
             
             var engine = new GameObject("mFramework").AddComponent<mEngine>();
@@ -48,6 +50,16 @@ namespace mFramework
 
         internal void Init()
         {
+        }
+
+        internal bool RemoveTimerAction(TimerAction timerAction)
+        {
+            return _timerActions.Remove(timerAction);
+        }
+
+        internal void AddTimerAction(TimerAction timerAction)
+        {
+            _timerActions.Add(timerAction);
         }
 
         internal bool RemoveRepeatAction(RepeatAction repeatAction)
@@ -134,7 +146,13 @@ namespace mFramework
                 }
             */
             _repeatsActions.ForEach(ForEachRepeatAction);
+            _timerActions.ForEach(ForEachTimerAction);
             if (mUI.Instance != null) mUI.Instance.Tick();
+        }
+
+        private void ForEachTimerAction(TimerAction timerAction)
+        {
+            timerAction.Tick();
         }
 
         private void ForEachRepeatAction(RepeatAction action)
@@ -150,6 +168,24 @@ namespace mFramework
         internal void LateTick()
         {
             if (mUI.Instance != null) mUI.Instance.LateTick();
+        }
+
+        public static void DrawDebugCircle(Vector2 pos, float radius)
+        {
+            for (int i = 0; i < 360; i++)
+            {
+                var p1 = mMath.GetRotatedPoint(pos, new Vector2(radius, 0), i);
+                var p2 = mMath.GetRotatedPoint(pos, new Vector2(radius, 0), i + 1);
+                Debug.DrawLine(p1, p2);
+            }    
+        }
+
+        public static void DrawDebugBox(Vector2 boxPos, Vector2 boxSize)
+        {
+            Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2), boxPos + new Vector2(boxSize.x / 2, boxSize.y / 2));
+            Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, boxSize.y / 2), boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2));
+            Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2), boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2));
+            Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2), boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2));
         }
     }
 }

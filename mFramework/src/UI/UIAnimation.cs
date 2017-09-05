@@ -24,17 +24,19 @@ namespace mFramework.UI
         BACKWARD
     }
 
-    public class UIAnimationSettings
+    public abstract class UIAnimationSettings
     {
         public ulong MaxRepeats = 0;
-        public UIAnimationPlayType PlayType { get; set; } = UIAnimationPlayType.PLAY_ONCE;
-        public EasingType EasingType { get; set; } = EasingType.linear;
-        public bool DestroyUIObjectOnEnd { get; set; } = false;
-        public float Duration { get; set; } = 1f;
+        public UIAnimationPlayType PlayType = UIAnimationPlayType.PLAY_ONCE;
+        public EasingType EasingType = EasingType.linear;
+        public bool DestroyUIObjectOnEnd = false;
+        public float Duration = 1f;
     }
     
     public abstract class UIAnimation : IGlobalUniqueIdentifier
     {
+        internal bool MarkedForDestroy { get; private set; }
+
         public float CurrentTime { get { return _animationTime; } }
         public float CurrentEasingTime { get { return _animationEasingTime; } }
 
@@ -164,9 +166,9 @@ namespace mFramework.UI
             }
         }
 
-        public bool Remove()
+        public void Remove()
         {
-            return _animatedObject.RemoveAnimation(this);
+            MarkedForDestroy = true;
         }
     }
 }

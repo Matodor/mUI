@@ -16,30 +16,6 @@ namespace mFramework.UI
         public float OrthographicSize { get; set; } = 5;
     }
 
-    internal class UICameraBehaviour : MonoBehaviour
-    {
-        public Camera Camera;
-        public event Action OnPostRenderEvent;
-
-        private UICameraBehaviour()
-        {
-            
-        }
-
-        public void OnPostRender()
-        {
-            OnPostRenderEvent?.Invoke();
-        }
-
-        public static UICameraBehaviour Create()
-        {
-            var go = new GameObject("UICamera");
-            var cameraBehaviour = go.AddComponent<UICameraBehaviour>();
-            cameraBehaviour.Camera = go.AddComponent<Camera>();
-            return cameraBehaviour;
-        }
-    }
-
     public sealed class UICamera
     {
         public GameObject GameObject { get; }
@@ -48,8 +24,8 @@ namespace mFramework.UI
 
         public Vector2 Position { get { return Transform.position; } }
 
-        public float PureHeight { get { return _cameraBehaviour.Camera.orthographicSize * 2; } }
-        public float PureWidth { get { return _cameraBehaviour.Camera.orthographicSize * _cameraBehaviour.Camera.aspect * 2; } }
+        public float PureHeight { get { return Camera.orthographicSize * 2; } }
+        public float PureWidth { get { return Camera.orthographicSize * Camera.aspect * 2; } }
         public float Height { get { return PureHeight * Transform.lossyScale.y; } }
         public float Width { get { return PureWidth * Transform.lossyScale.x; } }
 
@@ -58,12 +34,9 @@ namespace mFramework.UI
         public float Top { get { return Transform.position.y + Height / 2; } }
         public float Bottom { get { return Transform.position.y - Height / 2; } }
 
-        private readonly UICameraBehaviour _cameraBehaviour;
-
         private UICamera(UICameraSettings settings)
         {
-            _cameraBehaviour = UICameraBehaviour.Create();
-            Camera = _cameraBehaviour.Camera;
+            Camera = new GameObject("UICamera").AddComponent<Camera>();
             Camera.clearFlags = settings.CameraClearFlags;
             Camera.depth = settings.Depth;
             Camera.orthographic = settings.Orthographic;
@@ -71,8 +44,8 @@ namespace mFramework.UI
             Camera.nearClipPlane = settings.NearClipPlane;
             Camera.orthographicSize = settings.OrthographicSize;
 
-            Transform = _cameraBehaviour.transform; 
-            GameObject = _cameraBehaviour.gameObject;
+            Transform = Camera.transform; 
+            GameObject = Camera.gameObject;
         }
 
         public static UICamera Create(UICameraSettings settings)
@@ -82,15 +55,20 @@ namespace mFramework.UI
 
         public UICamera SetOrthographicSize(float size)
         {
-            _cameraBehaviour.Camera.orthographicSize = size;
+            Camera.orthographicSize = size;
             return this;
+        }
+
+        public Vector3 WorldToScreenPoint(Vector3 worldPos)
+        {
+            return Camera.WorldToScreenPoint(worldPos);
         }
 
         public Vector2 ScreenToWorldPoint(Vector2 screenPos)
         {
             if (mCore.IsEditor)
                 screenPos.y = Screen.height - screenPos.y;
-            return _cameraBehaviour.Camera.ScreenToWorldPoint(screenPos);
+            return Camera.ScreenToWorldPoint(screenPos);
         }
     }
 }

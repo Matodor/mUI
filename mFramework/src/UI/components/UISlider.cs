@@ -19,7 +19,7 @@ namespace mFramework.UI
         BACKWARD = 1,
     }
 
-    public class UISlider : UIComponent, IUIClickable
+    public class UISlider : UIComponent, IUIClickable, IView
     {
         public UIClickable UIClickable { get { return _clickableHandler; } }
 
@@ -44,7 +44,7 @@ namespace mFramework.UI
         private static int _countSliders = 0;
         private readonly List<Pair<IUIClickable, MouseEvent>> _clickNext;
 
-        private UISlider(UIObject parent) : base(parent)
+        protected UISlider(UIObject parent) : base(parent)
         {
             _countSliders++;
             _lastMoveDiff = 0;
@@ -83,7 +83,7 @@ namespace mFramework.UI
             _countSliders--;
         }
 
-        public T ChildView<T>(params object[] @params) where T : UIView
+        /*public T ChildView<T>(params object[] @params) where T : UIView
         {
             return ChildView<T>(new UIViewSettings
             {
@@ -92,10 +92,10 @@ namespace mFramework.UI
             }, @params);
         }
 
-        public T ChildView<T>(UIViewSettings settings, params object[] @params) where T : UIView
+        public T ChildView<T>(UIViewSettings settings, params object[] @params) where T : UIView, new()
         {
             return UIView.Create<T>(settings, this, @params);
-        }
+        }*/
 
         private void UpdateViewport()
         {
@@ -320,6 +320,9 @@ namespace mFramework.UI
 
         internal override void Tick()
         {
+            if (!IsActive)
+                return;
+
             if (!_isPressed && Math.Abs(_lastMoveDiff) > SLIDER_MIN_DIFF_TO_MOVE)
                 Move(_lastMoveDiff * 0.99f * Time.deltaTime * 50);
             base.Tick();
@@ -367,6 +370,28 @@ namespace mFramework.UI
                 _slides[i].Translate(0, diff);
 
             _lastMoveDiff = diff;
+        }
+
+        private bool InSliderArea(UIRect rect)
+        {
+            var sliderRect = GetRect();
+
+            if (_sliderType == UIObjectOrientation.HORIZONTAL)
+            {
+                if (rect.Left > sliderRect.Right)
+                    return false;
+                if (rect.Right < sliderRect.Left)
+                    return false;
+            }
+            else 
+            {
+                if (rect.Bottom > sliderRect.Top)
+                    return false;
+                if (rect.Top < sliderRect.Bottom)
+                    return false;
+            }
+
+            return true;
         }
 
         private void HorizontalMove(float diff)

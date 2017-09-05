@@ -40,12 +40,12 @@ namespace mFramework.UI
 
         private const float DIVIDE = 10000f;
 
-
         protected UIScrollBar(UIObject parent) : base(parent)
         {
             _isPressed = false;
             _mouseEventListener = MouseEventListener.Create();
-            _mouseEventListener.OnMouseDrag += OnMouseDrag;
+            _mouseEventListener.MouseDrag += OnMouseDrag;
+            BeforeDestroy += o => _mouseEventListener.Detach();
         }
         
         protected override void ApplySettings(UIComponentSettings settings)
@@ -71,12 +71,12 @@ namespace mFramework.UI
             _value = mMath.Clamp(scrollBarSettings.Default, _minValue, _maxValue);
             _value01 = CalcValue01(_value, _minValue, _maxValue);
 
-            _bar = Component<UISprite>(new UISpriteSettings
+            _bar = this.Sprite(new UISpriteSettings
             {
                 Sprite = scrollBarSettings.BarSprite
             });
 
-            _barButton = Component<UIButton>(scrollBarSettings.ButtonSettings);
+            _barButton = this.Button(scrollBarSettings.ButtonSettings);
             _barButton.ButtonDown += OnMouseDown;
             _barButton.ButtonUp += OnMouseUp;
             

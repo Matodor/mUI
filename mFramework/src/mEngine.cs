@@ -22,10 +22,6 @@ namespace mFramework
             _instance = this;
         }
 
-        private void OnGUI()
-        {
-        }
-
         private void OnApplicationQuit()
         {
             mCore.OnApplicationQuit();

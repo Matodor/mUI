@@ -38,10 +38,10 @@ namespace mFramework.UI
             mCore.ApplicationQuitEvent += OnApplicationQuitEvent;
             mCore.Log("[ui] created");
         }
-
+         
         private void OnApplicationQuitEvent()
         {
-            _baseView.DestroyChilds();
+            _baseView.DestroyImpl();
         }
 
         public static mUI Create()
@@ -49,12 +49,26 @@ namespace mFramework.UI
             return Create(new UISettings());
         }
 
+        public static UIObject GetClickableObject(MouseEvent e)
+        {
+            foreach (var kvp in Instance._uiObjects)
+            {
+                var uiClickable = kvp.Value as IUIClickable;
+                if (uiClickable == null)
+                    continue;
+                if (uiClickable.UIClickable.InArea(e))
+                    return kvp.Value;
+            }
+            return null;
+        }
+
         public static mUI Create(UISettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
             if (_instance != null)
                 throw new Exception("UI already created");
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
             return new mUI(settings);
         }
 

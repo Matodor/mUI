@@ -51,22 +51,22 @@ namespace mFramework
 
         private void MouseWheelEvent(MouseEvent @event)
         {
-            _mouseEventListeners.ForEach(listener => listener.MouseWheel(@event));
+            _mouseEventListeners.ForEach(listener => listener.OnMouseWheel(@event));
         }
 
         private void MouseDragEvent(MouseEvent @event)
         {
-            _mouseEventListeners.ForEach(listener => listener.MouseDrag(@event));
+            _mouseEventListeners.ForEach(listener => listener.OnMouseDrag(@event));
         }
 
         private void MouseUpEvent(MouseEvent @event)
         {
-            _mouseEventListeners.ForEach(listener => listener.MouseUp(@event));
+            _mouseEventListeners.ForEach(listener => listener.OnMouseUp(@event));
         }
 
         private void MouseDownEvent(MouseEvent @event)
         {
-            _mouseEventListeners.ForEach(listener => listener.MouseDown(@event));
+            _mouseEventListeners.ForEach(listener => listener.OnMouseDown(@event));
         }
 
         private void MouseEvent(MouseEvent mouseEvent)

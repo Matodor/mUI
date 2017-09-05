@@ -10,7 +10,7 @@ namespace mFramework.UI
 
     public class UIColor
     {
-        public Color32 Color32 { get { return ToColor32(); } }
+        public Color32 Color32 => ToColor32();
 
         public UIColorType Type { get; }
         public float n1; // r, h

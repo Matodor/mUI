@@ -32,9 +32,9 @@ namespace mFramework.UI
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown;
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp;
 
-        private UIClickable _clickableHandler;
-        private StateableSprite _stateableSprite;
-        private UISprite _uiSprite;
+        protected UIClickable _clickableHandler;
+        protected StateableSprite _stateableSprite;
+        protected UISprite _uiSprite;
         private bool _isMouseDown;
 
         protected UIButton(UIObject parent) : base(parent)
@@ -63,7 +63,7 @@ namespace mFramework.UI
                     throw new ArgumentOutOfRangeException();
             }
 
-            _uiSprite = Component<UISprite>(new UISpriteSettings { Sprite = buttonSettings.ButtonSpriteStates.Default });
+            _uiSprite = this.Sprite(new UISpriteSettings { Sprite = buttonSettings.ButtonSpriteStates.Default });
             _stateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
             _stateableSprite.StateChanged += (s, e) =>
             {

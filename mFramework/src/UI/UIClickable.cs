@@ -10,12 +10,17 @@ namespace mFramework.UI
         public event Func<IUIClickable, MouseEvent, bool> CanMouseUp;
         public event Func<IUIClickable, MouseEvent, bool> CanMouseDrag;
 
+        private readonly IUIClickable _uiClickable;
         private readonly UIObject _component;
         private readonly MouseEventListener _eventListener;
 
-        private UIClickable(UIObject component, AreaType areaType)
+        private UIClickable(IUIClickable clickable, AreaType areaType)
         {
-            _component = component;
+            _uiClickable = clickable;
+            _component = clickable as UIObject;
+            if (_component == null)
+                throw new Exception("The given \"clickable\" parameter is not UIObject");
+            
             _eventListener = MouseEventListener.Create();
             _component.BeforeDestroy += sender => _eventListener.Detach();
 
@@ -34,31 +39,36 @@ namespace mFramework.UI
                     throw new ArgumentOutOfRangeException(nameof(areaType), areaType, null);
             }
 
-            _eventListener.OnMouseDown += (s, e) =>
+            _eventListener.MouseDown += (s, e) =>
             {
-                if (!_component.IsActive || (!CanMouseDown?.Invoke((IUIClickable)_component, e) ?? false))
+                if (!_component.IsActive || (!CanMouseDown?.Invoke(_uiClickable, e) ?? false))
                     return;
 
                 var worldPos = WorldPos(e);
                 if (Area2D.InArea(worldPos))
-                    ((IUIClickable)_component)?.MouseDown(worldPos);
+                    _uiClickable?.MouseDown(worldPos);
             };
 
-            _eventListener.OnMouseUp += (s, e) =>
+            _eventListener.MouseUp += (s, e) =>
             {
-                if (!_component.IsActive || (!CanMouseUp?.Invoke((IUIClickable)_component, e) ?? false))
+                if (!_component.IsActive || (!CanMouseUp?.Invoke(_uiClickable, e) ?? false))
                     return;
-                ((IUIClickable)_component)?.MouseUp(WorldPos(e));
+                _uiClickable?.MouseUp(WorldPos(e));
             };
 
-            _eventListener.OnMouseDrag += (s, e) =>
+            _eventListener.MouseDrag += (s, e) =>
             {
-                if (!_component.IsActive || (!CanMouseDrag?.Invoke((IUIClickable)_component, e) ?? false))
+                if (!_component.IsActive || (!CanMouseDrag?.Invoke(_uiClickable, e) ?? false))
                     return;
-                ((IUIClickable)_component)?.MouseDrag(WorldPos(e));
+                _uiClickable?.MouseDrag(WorldPos(e));
             };
         }
 
+        public bool InArea(MouseEvent e)
+        {
+            return Area2D.InArea(WorldPos(e));
+        }
+        
         public bool InArea(Vector2 worldPos)
         {
             return Area2D.InArea(worldPos);
@@ -69,11 +79,9 @@ namespace mFramework.UI
             return mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
         }
 
-        public static UIClickable Create(UIComponent component, AreaType areaType)
+        public static UIClickable Create(IUIClickable clickable, AreaType areaType)
         {
-            if (!(component is IUIClickable))
-                throw new Exception("The given component not a IUIClickable");
-            return new UIClickable(component, areaType);
+            return new UIClickable(clickable, areaType);
         }
     }
 }

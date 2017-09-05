@@ -4,13 +4,19 @@ namespace mFramework
 {
     public class MouseEventListener : EventListener
     {
-        public event EventHandler<MouseEvent> OnMouseDown;
-        public event EventHandler<MouseEvent> OnMouseUp;
-        public event EventHandler<MouseEvent> OnMouseDrag;
-        public event EventHandler<MouseEvent> OnMouseWheel;
+        public bool Enabled;
+
+        public event EventHandler<MouseEvent> MouseDown;
+        public event EventHandler<MouseEvent> MouseUp;
+        public event EventHandler<MouseEvent> MouseDrag;
+        public event EventHandler<MouseEvent> MouseWheel;
+
+        private bool _detached;
 
         private MouseEventListener()
         {
+            Enabled = true;
+            _detached = false;
         }
 
         public static MouseEventListener Create()
@@ -20,35 +26,36 @@ namespace mFramework
 
         ~MouseEventListener()
         {
-            Detach();
+            if (!_detached) Detach();
         }
 
-        internal void MouseWheel(MouseEvent @event)
+        internal void OnMouseWheel(MouseEvent @event)
         {
-            OnMouseWheel?.Invoke(this, @event);
+            if (Enabled) MouseWheel?.Invoke(this, @event);
         }
 
-        internal void MouseDrag(MouseEvent @event)
+        internal void OnMouseDrag(MouseEvent @event)
         {
-            OnMouseDrag?.Invoke(this, @event);
+            if (Enabled) MouseDrag?.Invoke(this, @event);
         }
 
-        internal void MouseDown(MouseEvent @event)
+        internal void OnMouseDown(MouseEvent @event)
         {
-            OnMouseDown?.Invoke(this, @event);
+            if (Enabled) MouseDown?.Invoke(this, @event);
         }
 
-        internal void MouseUp(MouseEvent @event)
+        internal void OnMouseUp(MouseEvent @event)
         {
-            OnMouseUp?.Invoke(this, @event);
+            if (Enabled) MouseUp?.Invoke(this, @event);
         }
 
         public override void Detach()
         {
-            OnMouseDown = null;
-            OnMouseUp = null;
-            OnMouseDrag = null;
-            OnMouseWheel = null;
+            _detached = true;
+            MouseDown = null;
+            MouseUp = null;
+            MouseDrag = null;
+            MouseWheel = null;
             EventsController.RemoveMouseEventListener(this);
         }
     }

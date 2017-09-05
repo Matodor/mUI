@@ -20,7 +20,7 @@ namespace mFramework.UI
         private UIToggle _currentSelected;
         private List<UIToggle> _toggles;
 
-        private UIRadioGroup(UIObject parent) : base(parent)
+        protected UIRadioGroup(UIObject parent) : base(parent)
         {
             _toggles = new List<UIToggle>();
             AddedСhildObject += CheckChildren;
@@ -51,7 +51,7 @@ namespace mFramework.UI
         public UIToggle AddToggle(UIToggleSettings toggleSettings)
         {
             toggleSettings.DefaultSelected = false;
-            var toggle = Component<UIToggle>(toggleSettings);
+            var toggle = this.Toggle(toggleSettings);
             SetupToggle(toggle);
             return toggle;
         }

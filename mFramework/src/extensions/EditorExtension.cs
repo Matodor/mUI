@@ -6,7 +6,7 @@ using System.Text;
 
 namespace mFramework
 {
-    public class EditorExtension
+    internal class EditorExtension
     {
         private delegate bool EditorGetBoolean();
 

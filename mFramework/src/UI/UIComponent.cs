@@ -1,17 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using UnityEngine;
 
 namespace mFramework.UI
 {
     public abstract class UIComponentSettings
     {
         
+    }
+
+    public static class NewComponent<T> where T : UIComponent
+    {
+        public static readonly Func<UIObject, T> Instance;
+
+        static NewComponent()
+        {
+            var constructor = typeof(T).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                new Type[] {typeof(UIObject)}, null);
+            var parameter = Expression.Parameter(typeof(UIObject), "parent");
+            var e = Expression.New(constructor, parameter);
+            Instance = Expression.Lambda<Func<UIObject, T>>(e, parameter).Compile();
+        } 
     }
 
     public abstract class UIComponent : UIObject
@@ -26,9 +35,11 @@ namespace mFramework.UI
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
 
-            var component = (T)
-                Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[] {parent}, CultureInfo.InvariantCulture);
+            var component = NewComponent<T>.Instance(parent);
+
+            //var component = (T)
+            //    Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,
+            //        new object[] {parent}, CultureInfo.InvariantCulture);
 
             component.ApplySettings(settings);
             component.SetName(typeof(T).Name);

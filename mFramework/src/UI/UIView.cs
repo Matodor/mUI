@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -9,7 +11,20 @@ namespace mFramework.UI
         public float Width { get; set; }
     }
 
-    public abstract class UIView : UIObject
+    public static class NewView<T> where T : UIView
+    {
+        public static readonly Func<T> Instance;
+
+        static NewView()
+        {
+            var constructor = typeof(T).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                new Type[0], null);
+            var e = Expression.New(constructor);
+            Instance = Expression.Lambda<Func<T>>(e).Compile();
+        }
+    }
+
+    public abstract class UIView : UIObject, IView
     {
         private float _height;
         private float _width;
@@ -19,25 +34,11 @@ namespace mFramework.UI
         protected UIView() : base(_nextParent)
         {
         }
-
-        public T ChildView<T>(params object[] @params) where T : UIView
-        {
-            return ChildView<T>(new UIViewSettings
-            {
-                Width = GetWidth(),
-                Height = GetHeight()
-            }, @params);
-        }
-
-        public T ChildView<T>(UIViewSettings settings, params object[] @params) where T : UIView
-        {
-            return Create<T>(settings, this, @params);
-        }
-
-        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
+        
+        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView, new()
         {
             _nextParent = parent;
-            var view = Activator.CreateInstance<T>();
+            var view = new T();
             _nextParent = null;
 
             view.SetName(typeof(T).Name);
@@ -57,8 +58,14 @@ namespace mFramework.UI
             _width = settings.Width;
         }
 
+        protected virtual void BeforeCreate()
+        {
+            
+        }
+
         private void Init(params object[] @params)
         {
+            BeforeCreate();
             CreateInterface(@params);
         }
 
