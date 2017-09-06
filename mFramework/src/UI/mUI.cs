@@ -49,6 +49,19 @@ namespace mFramework.UI
             return Create(new UISettings());
         }
 
+        public static UIObject GetClickableObject(MouseEvent e, Func<UIObject, bool> predicate)
+        {
+            foreach (var kvp in Instance._uiObjects)
+            {
+                var uiClickable = kvp.Value as IUIClickable;
+                if (uiClickable == null)
+                    continue;
+                if (uiClickable.UIClickable.InArea(e) && predicate(kvp.Value))
+                    return kvp.Value;
+            }
+            return null;
+        }
+
         public static UIObject GetClickableObject(MouseEvent e)
         {
             foreach (var kvp in Instance._uiObjects)
