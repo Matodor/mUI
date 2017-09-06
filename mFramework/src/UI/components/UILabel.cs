@@ -15,9 +15,9 @@ namespace mFramework.UI
         public UIColor Color = UIColors.White;
         public FontStyle FontStyle = FontStyle.Normal;
         public TextAlignment TextAlignment = TextAlignment.Left;
-        public float LetterSpacing = 1;
-        public float WordSpacing = 1;
-        public float Harshness = 4f;
+        public float LetterSpacing = 1f;
+        public float WordSpacing = 1f;
+        public float LinesSpacing = 1f;
     }
 
     public enum VerticalAlign
@@ -34,7 +34,7 @@ namespace mFramework.UI
         public float? LetterSpacing = null;
         public float? WordSpacing = null;
         public FontStyle? FontStyle = null;
-        public float? Harshness = null;
+        public float? LinesSpacing = null;
     }
 
     public class UILabel : UIComponent, IUIRenderer, IColored
@@ -53,7 +53,7 @@ namespace mFramework.UI
         private int _fontSize = 50;
         private float _letterSpacing = 1;
         private float _wordSpacing = 1;
-        private float _harshness = 4f;
+        private float _linesSpacing = 1f;
 
         private TextAlignment _textAlignment;
         private TextAnchor _textAnchor;
@@ -217,7 +217,7 @@ namespace mFramework.UI
             _textAlignment = labelSettings.TextAlignment;
             _letterSpacing = labelSettings.LetterSpacing;
             _wordSpacing = labelSettings.WordSpacing;
-            _harshness = labelSettings.Harshness;
+            _linesSpacing = labelSettings.LinesSpacing;
 
             base.ApplySettings(settings);
              
@@ -238,8 +238,8 @@ namespace mFramework.UI
                 formatting.WordSpacing = _wordSpacing;
             if (formatting.FontStyle == null)
                 formatting.FontStyle = _fontStyle;
-            if (formatting.Harshness == null)
-                formatting.Harshness = _harshness;
+            if (formatting.LinesSpacing == null)
+                formatting.LinesSpacing = _linesSpacing;
 
             if (_textFormatting.ContainsKey(index))
                 _textFormatting[index] = formatting;
@@ -250,7 +250,7 @@ namespace mFramework.UI
         }
 
         private static void AlignVertices(List<Vector3> vertices, TextAlignment alignment, 
-            int startIndex, int endIndex, float lineWidth, float yOffset = 0.0f)
+            int startIndex, int endIndex, float lineWidth, float yOffset = 0.0f, float xOffset = 0.0f)
         {
             switch (alignment)
             {
@@ -258,7 +258,7 @@ namespace mFramework.UI
                     for (int i = startIndex; i <= endIndex; i++)
                     {
                         vertices[i] = new Vector3(
-                            vertices[i].x - lineWidth / 2f,
+                            vertices[i].x - lineWidth / 2f + xOffset,
                             vertices[i].y + yOffset,
                             vertices[i].z
                         );
@@ -268,7 +268,7 @@ namespace mFramework.UI
                     for (int i = startIndex; i <= endIndex; i++)
                     {
                         vertices[i] = new Vector3(
-                            vertices[i].x - lineWidth,
+                            vertices[i].x - lineWidth + xOffset,
                             vertices[i].y + yOffset,
                             vertices[i].z
                         );
@@ -280,7 +280,7 @@ namespace mFramework.UI
                         for (int i = startIndex; i <= endIndex; i++)
                         {
                             vertices[i] = new Vector3(
-                                vertices[i].x,
+                                vertices[i].x + xOffset,
                                 vertices[i].y + yOffset,
                                 vertices[i].z
                             );
@@ -295,7 +295,7 @@ namespace mFramework.UI
         {
             // [=0]
             if (i + 3 < text.Length &&
-                text[i] == '[' &&
+                text[i + 0] == '[' &&
                 text[i + 1] == '=' &&
                 text[i + 3] == ']' &&
                 char.IsNumber(text[i + 2]))
@@ -322,7 +322,7 @@ namespace mFramework.UI
 
             // [=/]
             if (i + 3 < text.Length &&
-                text[i] == '[' &&
+                text[i + 0] == '[' &&
                 text[i + 1] == '=' &&
                 text[i + 2] == '/' &&
                 text[i + 3] == ']')
@@ -345,16 +345,19 @@ namespace mFramework.UI
             if (string.IsNullOrEmpty(_cachedText))
                 return;
 
+            const int maxSize = 256 / 2;
+            const int harshness = 3;
             const float pixelsPerWorldUnit = 100f;
-            var defaultLineHeightScale = _cachedFont.lineHeight / (float) _cachedFont.fontSize;
-            
-            _cachedFont.RequestCharactersInTexture(_cachedText, (int) (_fontSize * _harshness), _fontStyle);
+
+            _fontSize = mMath.Clamp(_fontSize, 1, maxSize);
+            _cachedFont.RequestCharactersInTexture(_cachedText, _fontSize * harshness, _fontStyle);
 
             foreach (var textFormatting in _textFormatting)
             {
-                _cachedFont.RequestCharactersInTexture(_cachedText,
-                    (int) (textFormatting.Value.Size.GetValueOrDefault(_fontSize) *
-                           textFormatting.Value.Harshness.GetValueOrDefault(_harshness)),
+                var size = textFormatting.Value.Size.GetValueOrDefault(_fontSize);
+                size = mMath.Clamp(size, 1, maxSize);
+
+                _cachedFont.RequestCharactersInTexture(_cachedText, size * harshness,
                     textFormatting.Value.FontStyle.GetValueOrDefault(_fontStyle));
             }
 
@@ -372,24 +375,24 @@ namespace mFramework.UI
             _textWidth = 0f;
 
             var currentFormatting = (TextFormatting) null;
-
             var textXOffset = 0f;
             var textYOffset = 0f;
             var lineHeight = 0f;
-            var prevLineHeight = 0f;
 
             var formattingIndex = -1;
             var startLineIndex = 0;
 
+            var leftX = 0f;
+            var rightX = 0f;
             var topY = 0f;
             var bottomY = 0f;
-
             var lines = 1;
 
             for (int i = 0; i < text.Length; i++)
             {
                 CharacterInfo characterInfo;
                 var currentCharacter = text[i];
+                var size = 0;
 
                 if (_textFormatting.Count > 0)
                 {
@@ -407,65 +410,76 @@ namespace mFramework.UI
                     if (formattingIndex != -1 && _textFormatting.ContainsKey(formattingIndex))
                     {
                         currentFormatting = _textFormatting[formattingIndex];
+                        size = currentFormatting.Size.GetValueOrDefault(_fontSize) * harshness;
+
                         if (!_cachedFont.GetCharacterInfo(currentCharacter, out characterInfo,
-                            (int) (currentFormatting.Size.GetValueOrDefault(_fontSize) *
-                                   currentFormatting.Harshness.GetValueOrDefault(_harshness)),
-                            currentFormatting.FontStyle.GetValueOrDefault(_fontStyle)))
+                            size, currentFormatting.FontStyle.GetValueOrDefault(_fontStyle)))
                         {
                             continue;
                         }
                     }
                     else
                     {
-                        if (!_cachedFont.GetCharacterInfo(currentCharacter, out characterInfo,
-                            (int) (_fontSize * _harshness), _fontStyle))
+                        currentFormatting = null;
+                        size = _fontSize * harshness;
+                        if (!_cachedFont.GetCharacterInfo(currentCharacter, 
+                            out characterInfo, size, _fontStyle))
                             continue;
                     }
                 }
                 else
                 {
-                    if (!_cachedFont.GetCharacterInfo(currentCharacter, out characterInfo,
-                        (int)(_fontSize * _harshness), _fontStyle))
+                    size = _fontSize * harshness;
+                    if (!_cachedFont.GetCharacterInfo(currentCharacter, 
+                        out characterInfo, size, _fontStyle))
                         continue;
                 }
 
-                var harshness = currentFormatting == null
-                    ? _harshness
-                    : currentFormatting.Harshness.GetValueOrDefault(_harshness);
+                //var normalizedHW = new Vector2(characterInfo.glyphWidth, characterInfo.glyphHeight).normalized;
+                //var scale = normalizedHW.y / characterInfo.glyphHeight;
+                //var scale2 = size / harshness / pixelsPerWorldUnit;
 
-                var offset = new Vector3(textXOffset, textYOffset);
-                var minX = characterInfo.minX / harshness / pixelsPerWorldUnit;
-                var maxX = characterInfo.maxX / harshness / pixelsPerWorldUnit;
-                var minY = characterInfo.minY / harshness / pixelsPerWorldUnit;
-                var maxY = characterInfo.maxY / harshness / pixelsPerWorldUnit;
+                var minX = characterInfo.minX / pixelsPerWorldUnit / harshness;
+                var maxX = characterInfo.maxX / pixelsPerWorldUnit / harshness;
+                var minY = characterInfo.minY / pixelsPerWorldUnit / harshness;
+                var maxY = characterInfo.maxY / pixelsPerWorldUnit / harshness;
 
-                if (lineHeight < (characterInfo.size / harshness / pixelsPerWorldUnit) * defaultLineHeightScale)
-                    lineHeight = (characterInfo.size / harshness / pixelsPerWorldUnit) * defaultLineHeightScale;
+                verticesList.Add(new Vector3(textXOffset + minX, minY));
+                verticesList.Add(new Vector3(textXOffset + minX, maxY));
+                verticesList.Add(new Vector3(textXOffset + maxX, maxY));
+                verticesList.Add(new Vector3(textXOffset + maxX, minY));
+
+                //mCore.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
+                //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
+                //  characterInfo.advance, characterInfo.bearing, characterInfo.size, characterInfo.glyphHeight, characterInfo.glyphWidth);
+
+                if (lineHeight < characterInfo.size / pixelsPerWorldUnit / harshness)
+                    lineHeight = characterInfo.size / pixelsPerWorldUnit / harshness;
 
                 if (currentCharacter == ' ')
                 {
-                    textXOffset += (characterInfo.advance / harshness / pixelsPerWorldUnit) *
+                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / harshness *
                                    (currentFormatting == null
                                        ? _wordSpacing
                                        : currentFormatting.WordSpacing.GetValueOrDefault(_wordSpacing));
                 }
                 else
                 {
-                    textXOffset += (characterInfo.advance / harshness / pixelsPerWorldUnit) *
+                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / harshness *
                                    (currentFormatting == null
                                        ? _letterSpacing
                                        : currentFormatting.LetterSpacing.GetValueOrDefault(_letterSpacing));
                 }
 
-                verticesList.Add(new Vector3(minX, minY) + offset);
-                verticesList.Add(new Vector3(minX, maxY) + offset);
-                verticesList.Add(new Vector3(maxX, maxY) + offset);
-                verticesList.Add(new Vector3(maxX, minY) + offset);
-
                 if (topY < verticesList[verticesList.Count - 2].y)
                     topY = verticesList[verticesList.Count - 2].y;
-                if (bottomY > verticesList[verticesList.Count - 1].y)
+                else if (bottomY > verticesList[verticesList.Count - 1].y)
                     bottomY = verticesList[verticesList.Count - 1].y;
+
+                if (leftX > verticesList[verticesList.Count - 4].x)
+                    leftX = verticesList[verticesList.Count - 4].x;
+                else if (rightX < verticesList[verticesList.Count - 1].x)
+                    rightX = verticesList[verticesList.Count - 1].x;
 
                 var color = currentFormatting == null 
                     ? (Color32) _color
@@ -502,14 +516,20 @@ namespace mFramework.UI
                     if (_textWidth < lineWidth)
                         _textWidth = lineWidth;
 
+                    if (lines > 1)
+                    {
+                        lineHeight = lineHeight * (currentFormatting == null
+                            ? _linesSpacing
+                            : currentFormatting.LinesSpacing.GetValueOrDefault(_linesSpacing));
+                        textYOffset -= lineHeight;
+                    }
+
                     AlignVertices(verticesList, _textAlignment, startLineIndex,
-                        verticesList.Count - 1, lineWidth, lines > 1 ? 0 : 0);
+                        verticesList.Count - 1, lineWidth, textYOffset, verticesList[startLineIndex].x);
 
                     if (i + 1 < text.Length && text[i + 1] == '\n')
                     {
-                        prevLineHeight = lineHeight;
                         textXOffset = 0f;
-                        textYOffset -= lineHeight;
                         lineHeight = 0f;
                         lines++;
 
@@ -518,7 +538,7 @@ namespace mFramework.UI
                     }
                 }
             }
-
+            
             _textHeight = topY - bottomY;
 
             _meshFilter.mesh.Clear();
