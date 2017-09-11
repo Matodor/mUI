@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Threading;
+using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -18,6 +20,41 @@ namespace mFramework.UI
         public float n3; // b, v
         public float Alpha; // alpha
 
+        public UIColor(string hexColor)
+        {
+            Type = UIColorType.RGBA;
+            Color color;
+
+            if (ColorUtility.TryParseHtmlString(hexColor, out color))
+            {
+                n1 = ((Color32)color).r;
+                n2 = ((Color32)color).g;
+                n3 = ((Color32)color).b;
+                Alpha = ((Color32)color).a;
+            }
+            else
+            {
+                throw new Exception("Can't parse hex color");
+            }
+        }
+
+        public UIColor(string hexColor, byte alpha)
+        {
+            Type = UIColorType.RGBA;
+            Color color;
+
+            if (ColorUtility.TryParseHtmlString(hexColor, out color))
+            {
+                n1 = ((Color32) color).r;
+                n2 = ((Color32)color).g;
+                n3 = ((Color32)color).b;
+                Alpha = alpha;
+            }
+            else
+            {
+                throw new Exception("Can't parse hex color");
+            }
+        }
 
         public UIColor(Color32 color, UIColorType t = UIColorType.RGBA)
         {

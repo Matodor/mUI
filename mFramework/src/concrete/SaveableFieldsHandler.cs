@@ -5,7 +5,6 @@ namespace mFramework
 {
     public static class SaveableFieldsHandler
     {
-
         private static readonly IKeyValueStorage _storage;
         private static readonly Dictionary<string, SaveableFields> _fields;
 

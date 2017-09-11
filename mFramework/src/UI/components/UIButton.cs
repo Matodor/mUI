@@ -21,10 +21,10 @@ namespace mFramework.UI
 
     public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored
     {
-        public Renderer UIRenderer { get { return _uiSprite.UIRenderer; } }
-        public UIClickable UIClickable { get { return _clickableHandler; } }
+        public Renderer UIRenderer => _uiSprite.UIRenderer;
+        public UIClickable UIClickable => _clickableHandler;
+        public StateableSprite StateableSprite => _stateableSprite;
         public ClickCondition ClickCondition { get; set; }
-        public StateableSprite StateableSprite { get { return _stateableSprite; } }
 
         public event UIEventHandler<UIButton> Click;
         public event CanButtonClickDelegate CanButtonClick;
@@ -90,6 +90,10 @@ namespace mFramework.UI
                     rect2d.Height = GetHeight();
                     rect2d.Width = GetWidth();
                     rect2d.Offset = _uiSprite.Renderer.sprite?.GetCenterOffset() ?? Vector2.zero;
+                    rect2d.Offset = new Vector2(
+                        rect2d.Offset.x * GlobalScale().x, 
+                        rect2d.Offset.y * GlobalScale().y
+                    );
                 }
             };
         }
@@ -125,7 +129,7 @@ namespace mFramework.UI
         {
             _stateableSprite.SetDefault();
             if ((CanButtonClick?.Invoke(this, worldPos) ?? true) && _isMouseDown &&
-                ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.Area2D.InArea(worldPos))
+                ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.InArea(worldPos))
             {
                 Click?.Invoke(this);
             }

@@ -32,7 +32,6 @@ namespace mFramework.UI
                     {
                         area2d.Center = _component.Position();
                         area2d.Rotation = _component.Rotation();
-                        area2d.Scale = _component.GlobalScale() * area2d.AdditionalScale;
                     };
                     break;
                 default:

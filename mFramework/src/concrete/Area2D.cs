@@ -16,17 +16,16 @@ namespace mFramework
         public Vector2 Offset { get; set; } = Vector2.zero;
         public Vector2 Center { get; set; }
         public float Rotation { get; set; }
-        public Vector2 Scale { get; set; } = Vector2.one;
         public float AdditionalScale = 1;
 
         public event Action<Area2D> Update;
 
-        public virtual bool InArea(Vector2 worldPoint)
+        public abstract bool InArea(Vector2 worldPoint);
+
+        protected void UpdateData()
         {
             Update?.Invoke(this);
-            return false;
         }
 
-        public virtual void Draw() { }
     }
 }

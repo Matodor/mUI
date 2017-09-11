@@ -226,7 +226,7 @@ namespace mFramework.UI
             SetColor(_color);
         }
 
-        public void TextFormatting(int index, TextFormatting formatting)
+        public UILabel TextFormatting(int index, TextFormatting formatting)
         {
             if (formatting.Size == null)
                 formatting.Size = _fontSize;
@@ -247,6 +247,7 @@ namespace mFramework.UI
                 _textFormatting.Add(index, formatting);
 
             UpdateMeshText();
+            return this;
         }
 
         private static void AlignVertices(List<Vector3> vertices, TextAlignment alignment, 
@@ -364,7 +365,10 @@ namespace mFramework.UI
             var localScale = LocalScale();
             Scale(1, 1);
 
-            var text = _cachedText.Replace('\t', ' ');
+            var text = _cachedText
+                .Replace('\t', ' ')
+                .TrimStart('\n');
+
             var verticesList = new List<Vector3>(text.Length * 4);
             var normalsList = new List<Vector3>(text.Length * 4);
             var uvList = new List<Vector2>(text.Length * 4);
@@ -400,8 +404,11 @@ namespace mFramework.UI
                     if (skip != 0)
                     {
                         i += skip;
-                        if (i >= text.Length)
+                        if (i >= text.Length || text[i] == '\n')
+                        {
+                            i--;
                             goto End;
+                        }
 
                         i--;
                         continue;

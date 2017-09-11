@@ -8,6 +8,9 @@ namespace mFramework.UI
     {
         internal bool MarkedForDestroy;
 
+        public int ChildsCount => _childsObjects.Count;
+        public UIObject this[int index] => _childsObjects[index];
+
         public ulong GUID { get; }
         public UIObject Parent { get; }
 
@@ -30,8 +33,8 @@ namespace mFramework.UI
         protected readonly GameObject _gameObject;
         protected readonly Transform _transform;
 
-        private readonly List<UIAnimation> _animations2;
-        private readonly List<UIObject> _childsObjects2;
+        private readonly List<UIAnimation> _animations;
+        private readonly List<UIObject> _childsObjects;
         private int _sortingOrder;
 
         private bool _tmpActive;
@@ -52,8 +55,8 @@ namespace mFramework.UI
             _sortingOrder = 0;
             _gameObject = new GameObject("UIObject");
             _transform = _gameObject.transform;
-            _childsObjects2 = new List<UIObject>();
-            _animations2 = new List<UIAnimation>();
+            _childsObjects = new List<UIObject>();
+            _animations = new List<UIAnimation>();
             
             if (parentObject == null)
                 _gameObject.SetParent(mUI.BaseView == null ? mUI.UICamera.GameObject : mUI.BaseView._gameObject);
@@ -80,10 +83,10 @@ namespace mFramework.UI
         {
             BeforeDestroy?.Invoke(this);
 
-            _animations2.Clear();
-            for (var i = 0; i < _childsObjects2.Count; i++)
-                _childsObjects2[i].DestroyImpl();
-            _childsObjects2.Clear();
+            _animations.Clear();
+            for (var i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].DestroyImpl();
+            _childsObjects.Clear();
 
             mUI.Instance.RemoveUIObject(this);
             UnityEngine.Object.Destroy(_gameObject);
@@ -179,8 +182,8 @@ namespace mFramework.UI
         internal void OnSortingOrderChanged()
         {
             SortingOrderChanged?.Invoke(this);
-            for (var i = 0; i < _childsObjects2.Count; i++)
-                _childsObjects2[i].OnSortingOrderChanged();
+            for (var i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].OnSortingOrderChanged();
         }
 
         public UIObject Scale(float v)
@@ -225,20 +228,33 @@ namespace mFramework.UI
             return this;
         }
 
-        public void Position(float x, float y)
+        public UIObject Position(float x, float y)
         {
-            _transform.position = new Vector3
-            {
-                x = x,
-                y = y,
-                z = _transform.position.z
-            };
+            _transform.position = new Vector3(x, y, _transform.position.z);
             Translated?.Invoke(this, new TranslateEventArgs(Vector3.zero, _transform.position));
+            return this;
         }
 
-        public void Position(Vector2 position)
+        public UIObject LocalPosition(float x, float y)
         {
-            Position(position.x, position.y);
+            _transform.localPosition = new Vector3(x, y, _transform.localPosition.z);
+            Translated?.Invoke(this, new TranslateEventArgs(Vector3.zero, _transform.position));
+            return this;
+        }
+
+        public UIObject LocalPosition(Vector2 position)
+        {
+            return LocalPosition(position.x, position.y);
+        }
+
+        public Vector2 LocalPosition()
+        {
+            return _transform.localPosition;
+        }
+
+        public UIObject Position(Vector2 position)
+        {
+            return Position(position.x, position.y);
         }
 
         public Vector2 Position()
@@ -292,8 +308,8 @@ namespace mFramework.UI
             VisibleChanged?.Invoke(this);
             ActiveChanged?.Invoke(this);
 
-            for (var i = 0; i < _childsObjects2.Count; i++)
-                _childsObjects2[i].OnVisibleChanged(visible);
+            for (var i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].OnVisibleChanged(visible);
             _gameObject.SetActive(visible);
         }
 
@@ -308,8 +324,8 @@ namespace mFramework.UI
             IsActive = active;
 
             ActiveChanged?.Invoke(this);
-            for (var i = 0; i < _childsObjects2.Count; i++)
-                _childsObjects2[i].OnActiveChanged(active);
+            for (var i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].OnActiveChanged(active);
         }
 
         public virtual void OnTick()
@@ -323,23 +339,23 @@ namespace mFramework.UI
 
             OnTick();
 
-            for (var i = _animations2.Count - 1; i >= 0; i--)
+            for (var i = _animations.Count - 1; i >= 0; i--)
             {
-                if (_animations2[i].MarkedForDestroy)
-                    _animations2.RemoveAt(i);
+                if (_animations[i].MarkedForDestroy)
+                    _animations.RemoveAt(i);
                 else 
-                    _animations2[i].Tick();
+                    _animations[i].Tick();
             }
 
-            for (var i = _childsObjects2.Count - 1; i >= 0; i--)
+            for (var i = _childsObjects.Count - 1; i >= 0; i--)
             {
-                if (_childsObjects2[i].MarkedForDestroy)
+                if (_childsObjects[i].MarkedForDestroy)
                 {
-                    _childsObjects2[i].DestroyImpl();
-                    _childsObjects2.RemoveAt(i);
+                    _childsObjects[i].DestroyImpl();
+                    _childsObjects.RemoveAt(i);
                 }
                 else
-                    _childsObjects2[i].Tick();
+                    _childsObjects[i].Tick();
             }
         }
 
@@ -354,15 +370,15 @@ namespace mFramework.UI
 
             OnFixedTick();
 
-            for (var i = _childsObjects2.Count - 1; i >= 0; i--)
+            for (var i = _childsObjects.Count - 1; i >= 0; i--)
             {
-                if (_childsObjects2[i].MarkedForDestroy)
+                if (_childsObjects[i].MarkedForDestroy)
                 {
-                    _childsObjects2[i].DestroyImpl();
-                    _childsObjects2.RemoveAt(i);
+                    _childsObjects[i].DestroyImpl();
+                    _childsObjects.RemoveAt(i);
                 }
                 else
-                    _childsObjects2[i].FixedTick();
+                    _childsObjects[i].FixedTick();
             }
         }
 
@@ -377,15 +393,15 @@ namespace mFramework.UI
 
             OnLateTick();
 
-            for (var i = _childsObjects2.Count - 1; i >= 0; i--)
+            for (var i = _childsObjects.Count - 1; i >= 0; i--)
             {
-                if (_childsObjects2[i].MarkedForDestroy)
+                if (_childsObjects[i].MarkedForDestroy)
                 {
-                    _childsObjects2[i].DestroyImpl();
-                    _childsObjects2.RemoveAt(i);
+                    _childsObjects[i].DestroyImpl();
+                    _childsObjects.RemoveAt(i);
                 }
                 else
-                    _childsObjects2[i].LateTick();
+                    _childsObjects[i].LateTick();
             }
         }
 
@@ -399,7 +415,7 @@ namespace mFramework.UI
         {
             var animation = UIAnimation.Create<T>(this, settings);
 
-            _animations2.Add(animation);
+            _animations.Add(animation);
             AnimationAdded?.Invoke(this, new AddedAnimationEventArgs(animation));
 
             return animation;
@@ -407,21 +423,21 @@ namespace mFramework.UI
 
         public void RemoveAnimations<T>() where T : UIAnimation
         {
-            for (var i = _animations2.Count - 1; i >= 0; i--)
+            for (var i = _animations.Count - 1; i >= 0; i--)
             {
-                if (_animations2[i].GetType() == typeof(T))
-                    _animations2[i].Remove();
+                if (_animations[i].GetType() == typeof(T))
+                    _animations[i].Remove();
             }
         }
 
         public void RemoveAnimations()
         {
-            _animations2.Clear();
+            _animations.Clear();
         }
 
         internal void AddChildObject(UIObject obj)
         {
-            _childsObjects2.Add(obj);
+            _childsObjects.Add(obj);
             AddedСhildObject?.Invoke(this, new AddedСhildObjectEventArgs(obj));
         }
     }

@@ -21,7 +21,9 @@ namespace mFramework.UI
 
     public class UISlider : UIComponent, IUIClickable, IView
     {
-        public UIClickable UIClickable { get { return _clickableHandler; } }
+        public UIClickable UIClickable => _clickableHandler;
+        public int Slides => _slides.Count;
+        public UIObject this[int index] => _slides[index]; 
 
         private const float SLIDER_MAX_PATH_TO_CLICK = 0.03f;
         private const float SLIDER_MIN_DIFF_TO_MOVE = 0.0001f;

@@ -75,6 +75,7 @@
     <Compile Include="src\concrete\SaveableFieldsHandler.cs" />
     <Compile Include="src\concrete\TimerAction.cs" />
     <Compile Include="src\extensions\UIObjectExtension.cs" />
+    <Compile Include="src\UI\components\UIContainer.cs" />
     <Compile Include="src\UI\events\AddedAnimationEventArgs.cs" />
     <Compile Include="src\UI\events\AddedСhildObjectEventArgs.cs" />
     <Compile Include="src\UI\events\AnimationEventArgs.cs" />

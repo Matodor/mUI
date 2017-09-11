@@ -13,7 +13,7 @@ namespace mFramework
 
         public override bool InArea(Vector2 worldPoint)
         {
-            base.InArea(worldPoint);
+            UpdateData();
             
             var cos = Mathf.Cos(Mathf.Deg2Rad * Rotation);
             var sin = Mathf.Sin(Mathf.Deg2Rad * Rotation);
@@ -22,23 +22,23 @@ namespace mFramework
             var heightDiv2 = Height / 2;
 
             // left top
-            var x = (-widthDiv2 + Offset.x) * Scale.x;
-            var y = (heightDiv2 + Offset.y) * Scale.y;
+            var x = (-widthDiv2 + Offset.x) * AdditionalScale;
+            var y = (heightDiv2 + Offset.y) * AdditionalScale;
             var leftTop = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // left bottom
-            x = (-widthDiv2 + Offset.x) * Scale.x;
-            y = (-heightDiv2 + Offset.y) * Scale.y;
+            x = (-widthDiv2 + Offset.x) * AdditionalScale;
+            y = (-heightDiv2 + Offset.y) * AdditionalScale;
             var leftBottom = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // right bottom
-            x = (widthDiv2 + Offset.x) * Scale.x;
-            y = (-heightDiv2 + Offset.y) * Scale.y;
+            x = (widthDiv2 + Offset.x) * AdditionalScale;
+            y = (-heightDiv2 + Offset.y) * AdditionalScale;
             var rightBottom = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // right top
-            x = (widthDiv2 + Offset.x) * Scale.x;
-            y = (heightDiv2 + Offset.y) * Scale.y;
+            x = (widthDiv2 + Offset.x) * AdditionalScale;
+            y = (heightDiv2 + Offset.y) * AdditionalScale;
             var rightTop = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             if (mCore.IsEditor && mCore.IsDebug)
