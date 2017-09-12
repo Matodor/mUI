@@ -37,8 +37,8 @@ namespace mFramework.UI
     {
         internal bool MarkedForDestroy { get; private set; }
 
-        public float CurrentTime { get { return _animationTime; } }
-        public float CurrentEasingTime { get { return _animationEasingTime; } }
+        public float CurrentTime => _animationTime;
+        public float CurrentEasingTime => _animationEasingTime;
 
         public ulong GUID { get; }
         public UIAnimationState State { get; set; }
@@ -48,8 +48,8 @@ namespace mFramework.UI
         public bool DestroyUIObjectOnEnd { get; set; }
         public float Duration { get; set; }
         public ulong MaxRepeats { get; set; }
-
-        public UIObject AnimatedObject { get { return _animatedObject; } }
+        public ulong RepeatsNumber => _repeats;
+        public UIObject AnimatedObject => _animatedObject;
 
         public event EventHandler<AnimationEventArgs> AnimationRepeat;
         public event EventHandler<AnimationEventArgs> AnimationEnded;

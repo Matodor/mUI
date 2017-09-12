@@ -10,8 +10,8 @@ namespace mFramework.UI
         public string Text;
         public string Font = "Arial";
         public int Size;
-        public VerticalAlign VerticalAlign = VerticalAlign.BASELINE;
-        public TextAnchor TextAnchor = TextAnchor.LowerLeft;
+        //public VerticalAlign VerticalAlign = VerticalAlign.BASELINE;
+        public TextAnchor? TextAnchor = null;
         public UIColor Color = UIColors.White;
         public FontStyle FontStyle = FontStyle.Normal;
         public TextAlignment TextAlignment = TextAlignment.Left;
@@ -56,7 +56,7 @@ namespace mFramework.UI
         private float _linesSpacing = 1f;
 
         private TextAlignment _textAlignment;
-        private TextAnchor _textAnchor;
+        private TextAnchor? _textAnchor;
         private VerticalAlign _verticalAlign;
         private FontStyle _fontStyle;
         private Color _color;
@@ -95,7 +95,7 @@ namespace mFramework.UI
         public UILabel UpdateSettings(UILabelSettings settings)
         {
             SetFontStyle(settings.FontStyle, false);
-            SetVerticalAlign(settings.VerticalAlign, false);
+            //SetVerticalAlign(settings.VerticalAlign, false);
             SetLetterSpacing(settings.LetterSpacing, false);
             SetFontSize(settings.Size, false);
             SetTextAlignment(settings.TextAlignment, false);
@@ -210,7 +210,7 @@ namespace mFramework.UI
 
             _cachedText = labelSettings.Text;
             _fontSize = labelSettings.Size;
-            _verticalAlign = labelSettings.VerticalAlign;
+            //_verticalAlign = labelSettings.VerticalAlign;
             _textAnchor = labelSettings.TextAnchor;
             _color = labelSettings.Color.Color32;
             _fontStyle = labelSettings.FontStyle;
@@ -545,8 +545,58 @@ namespace mFramework.UI
                     }
                 }
             }
-            
+
             _textHeight = topY - bottomY;
+
+            if (_textAnchor != null)
+            {
+                var anchorOffset = new Vector2(0, 0);
+
+                var xOffset = verticesList[0].x;
+                var yOffset = topY;
+
+                switch (_textAnchor)
+                {
+                    case TextAnchor.UpperLeft:
+                        anchorOffset = new Vector2(-_textWidth / 2, -_textHeight / 2);
+                        break;
+                    case TextAnchor.UpperCenter:
+                        anchorOffset = new Vector2(0, -_textHeight / 2);
+                        break;
+                    case TextAnchor.UpperRight:
+                        anchorOffset = new Vector2(_textWidth / 2, -_textHeight / 2);
+                        break;
+
+                    case TextAnchor.MiddleLeft:
+                        anchorOffset = new Vector2(-_textWidth / 2, 0);
+                        break;
+                    case TextAnchor.MiddleCenter:
+                        anchorOffset = new Vector2(0, 0);
+                        break;
+                    case TextAnchor.MiddleRight:
+                        anchorOffset = new Vector2(_textWidth / 2, 0);
+                        break;
+
+                    case TextAnchor.LowerLeft:
+                        anchorOffset = new Vector2(-_textWidth / 2, _textHeight / 2);
+                        break;
+                    case TextAnchor.LowerCenter:
+                        anchorOffset = new Vector2(0, _textHeight / 2);
+                        break;
+                    case TextAnchor.LowerRight:
+                        anchorOffset = new Vector2(_textWidth / 2, _textHeight / 2);
+                        break;
+                }
+
+                for (int i = 0; i < verticesList.Count; i++)
+                {
+                    verticesList[i] = new Vector3(
+                        verticesList[i].x - xOffset - _textWidth / 2 + anchorOffset.x,
+                        verticesList[i].y - yOffset + _textHeight / 2 + anchorOffset.y,
+                        verticesList[i].z
+                    );
+                }
+            }
 
             _meshFilter.mesh.Clear();
             _meshFilter.mesh.vertices = verticesList.ToArray();

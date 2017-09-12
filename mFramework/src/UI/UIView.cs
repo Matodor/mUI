@@ -26,6 +26,8 @@ namespace mFramework.UI
 
     public abstract class UIView : UIObject, IView
     {
+        public UIView ParentView => (UIView) Parent;
+
         private float _height;
         private float _width;
 

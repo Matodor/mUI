@@ -4,6 +4,63 @@ namespace mFramework
 {
     public static class mMath
     {
+        public static bool CheckBoxTriangleCollide(Vector2 boxPos, Vector2 boxSize, Vector2 vertex0, Vector2 vertex1, Vector2 vertex2)
+        {
+            var l = boxPos.x - boxSize.x / 2;
+            var r = boxPos.x + boxSize.x / 2;
+            var t = boxPos.y + boxSize.y / 2;
+            var b = boxPos.y - boxSize.y / 2;
+
+            var b0 = new Vector2(l, b);
+            var b1 = new Vector2(l, t);
+            var b2 = new Vector2(r, t);
+            var b3 = new Vector2(r, b);
+
+            return
+                IntersectsLines(b0, b1, vertex0, vertex1) ||
+                IntersectsLines(b0, b1, vertex1, vertex2) ||
+                IntersectsLines(b0, b1, vertex2, vertex0) ||
+
+                IntersectsLines(b1, b2, vertex0, vertex1) ||
+                IntersectsLines(b1, b2, vertex1, vertex2) ||
+                IntersectsLines(b1, b2, vertex2, vertex0) ||
+
+                IntersectsLines(b2, b3, vertex0, vertex1) ||
+                IntersectsLines(b2, b3, vertex1, vertex2) ||
+                IntersectsLines(b2, b3, vertex2, vertex0) ||
+
+                IntersectsLines(b3, b0, vertex0, vertex1) ||
+                IntersectsLines(b3, b0, vertex1, vertex2) ||
+                IntersectsLines(b3, b0, vertex2, vertex0);
+        }
+
+
+        public static bool IntersectsLines(Vector2 a1, Vector2 a2, Vector2 b1, Vector2 b2)
+        {
+            //intersection = Vector2.zero;
+
+            var b = a2 - a1;
+            var d = b2 - b1;
+            var bDotDPerp = b.x * d.y- b.y * d.x;
+
+            // if b dot d == 0, it means the lines are parallel so have infinite intersection points
+            if (bDotDPerp == 0)
+                return false;
+
+            var c = b1 - a1;
+            var t = (c.x * d.y - c.y * d.x) / bDotDPerp;
+            if (t < 0 || t > 1)
+                return false;
+
+            var u = (c.x * b.y - c.y * b.x) / bDotDPerp;
+            if (u < 0 || u > 1)
+                return false;
+
+            //intersection = a1 + t * b;
+
+            return true;
+        }
+
         public static bool CheckBoxCircleCollide(Vector2 circlePos, float circleRadius, Vector2 boxPos, Vector2 boxSize)
         {
             Vector2 circleDistance = new Vector2(
