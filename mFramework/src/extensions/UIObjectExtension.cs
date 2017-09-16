@@ -5,6 +5,7 @@ namespace mFramework
 {
     public static class UIObjectExtension
     {
+        // views
         public static T ChildView<T>(this IView view, params object[] @params) where T : UIView, new()
         {
             return ChildView<T>(view, new UIViewSettings
@@ -19,6 +20,7 @@ namespace mFramework
             return UIView.Create<T>(settings, (UIObject) view, @params);
         }
 
+        // components
         public static UIButton Button(this UIObject uiObject, UIButtonSettings settings)
         {
             return uiObject.Component<UIButton>(settings);
@@ -54,6 +56,7 @@ namespace mFramework
             return uiObject.Component<UIToggle>(settings);
         }
 
+        // animations
         public static UIColorAnimation ColorAnimation(this UIObject uiObject, UIColorAnimationSettings settings)
         {
             return uiObject.Animation<UIColorAnimation>(settings);

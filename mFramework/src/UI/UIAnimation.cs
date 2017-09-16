@@ -31,6 +31,7 @@ namespace mFramework.UI
         public EasingType EasingType = EasingType.linear;
         public bool DestroyUIObjectOnEnd = false;
         public float Duration = 1f;
+        public float AnimateEvery = 0f;
     }
     
     public abstract class UIAnimation : IGlobalUniqueIdentifier
@@ -45,6 +46,7 @@ namespace mFramework.UI
         public UIAnimationPlayType PlayType { get; set; }
         public EasingType EasingType { get; set; }
 
+        public float AnimateEvery { get; set; }
         public bool DestroyUIObjectOnEnd { get; set; }
         public float Duration { get; set; }
         public ulong MaxRepeats { get; set; }
@@ -59,6 +61,7 @@ namespace mFramework.UI
         private static ulong _guid;
         private ulong _repeats;
 
+        private float _nextAnimationFrame;
         private UIAnimationDirection _animationDirection;
         private float _animationStart;
         private float _animationTime;
@@ -71,6 +74,7 @@ namespace mFramework.UI
             _animationTime = 0;
             _animationEasingTime = 0;
             _repeats = 0;
+            _nextAnimationFrame = Time.realtimeSinceStartup;
 
             State = UIAnimationState.PLAYING;
             PlayType = UIAnimationPlayType.PLAY_ONCE;
@@ -110,6 +114,7 @@ namespace mFramework.UI
             Duration = settings.Duration;
             EasingType = settings.EasingType;
             PlayType = settings.PlayType;
+            AnimateEvery = settings.AnimateEvery;
         }
 
         protected abstract void OnAnimate();
@@ -127,15 +132,19 @@ namespace mFramework.UI
 
         internal void Tick()
         {
-            if (State == UIAnimationState.STOPPED || Time.realtimeSinceStartup < _animationStart)
+            if (State == UIAnimationState.STOPPED || 
+                Time.realtimeSinceStartup < _animationStart)
                 return;
 
-            _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1 : -1) * (Time.deltaTime / Duration);
-            _animationTime = mMath.Clamp(_animationTime, 0, 1);
-            _animationEasingTime = EasingFunctions.GetValue(EasingType, 1, _animationTime, 1);
+            _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
+            _animationTime = mMath.Clamp(_animationTime, 0f, 1f);
+            _animationEasingTime = EasingFunctions.GetValue(EasingType, 1f, _animationTime, 1f);
 
-            if (_animatedObject.IsVisible)
+            if (_animatedObject.IsVisible && _nextAnimationFrame <= Time.realtimeSinceStartup)
+            {
                 OnAnimate();
+                _nextAnimationFrame = Time.realtimeSinceStartup + AnimateEvery;
+            }
 
             if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD ||
                 _animationTime <= 0 && _animationDirection == UIAnimationDirection.BACKWARD)

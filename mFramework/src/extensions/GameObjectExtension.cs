@@ -1,4 +1,5 @@
 ﻿using System;
+using mFramework.UI;
 using UnityEngine;
 
 namespace mFramework
@@ -14,6 +15,12 @@ namespace mFramework
         public static GameObject SetParent(this GameObject gameObject, GameObject parent)
         {
             SetParentImpl(gameObject.transform, parent.transform);
+            return gameObject;
+        }
+
+        public static GameObject SetParent(this GameObject gameObject, UIObject parent)
+        {
+            SetParentImpl(gameObject.transform, parent.GameObject.transform);
             return gameObject;
         }
 

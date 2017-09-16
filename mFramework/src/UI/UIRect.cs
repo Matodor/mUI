@@ -9,5 +9,10 @@ namespace mFramework.UI
         public float Right;
         public float Left;
         public Vector2 Position;
+
+        public override string ToString()
+        {
+            return $"Pos={Position} Top={Top} Bottom={Bottom} Right={Right} Left={Left}";
+        }
     }
 }
