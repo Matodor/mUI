@@ -83,12 +83,20 @@ namespace mFramework.UI
 
         public override string ToString()
         {
-            return string.Format("Type: {0} | n1: {1} | n2: {2} | n3: {3}", Type, n1, n2, n3);
+            return $"Type: {Type} | n1: {n1} | n2: {n2} | n3: {n3} | Alpha: {Alpha}";
         }
 
         public UIColor Copy()
         {
             return new UIColor(n1, n2, n3, Alpha, Type);
+        }
+
+        public static Color FromHtmlString(string hexColor)
+        {
+            Color color;
+            if (ColorUtility.TryParseHtmlString(hexColor, out color))
+                return color;
+            return Color.white;
         }
 
         public static Color HSVToRGB(float H, float S, float V, float A)

@@ -107,6 +107,11 @@ namespace mFramework.UI
             _animationTime = mMath.Clamp(time, 0, 1);
         }
 
+        public void UpdateAnimation()
+        {
+            Tick();
+        }
+
         protected virtual void ApplySettings(UIAnimationSettings settings)
         {
             MaxRepeats = settings.MaxRepeats;
@@ -137,8 +142,18 @@ namespace mFramework.UI
                 return;
 
             _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
-            _animationTime = mMath.Clamp(_animationTime, 0f, 1f);
             _animationEasingTime = EasingFunctions.GetValue(EasingType, 1f, _animationTime, 1f);
+
+            if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD)
+            {
+                _animationEasingTime = 1f;
+                _animationTime = 1f;
+            }
+            else if (_animationTime <= 0 && _animationDirection == UIAnimationDirection.BACKWARD)
+            {
+                _animationEasingTime = 0f;
+                _animationTime = 0f;
+            }
 
             if (_animatedObject.IsVisible && _nextAnimationFrame <= Time.realtimeSinceStartup)
             {
