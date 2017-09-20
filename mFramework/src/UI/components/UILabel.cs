@@ -659,6 +659,11 @@ namespace mFramework.UI
             return _textWidth * GlobalScale().x;
         }
 
+        public Color GetColor()
+        {
+            return _color;
+        }
+
         public UIObject SetColor(Color32 color)
         {
             _color = color;

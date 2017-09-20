@@ -84,6 +84,11 @@ namespace mFramework.UI
             return this;
         }
 
+        public Color GetColor()
+        {
+            return Renderer.color;
+        }
+
         public UIObject SetColor(Color32 color)
         {
             Renderer.color = color;

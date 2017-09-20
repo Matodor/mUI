@@ -10,9 +10,12 @@ namespace mFramework.UI
 
     public class UIToggle : UIComponent, IUIRenderer, IColored
     {
-        public Renderer UIRenderer { get { return _button.UIRenderer;} }
-        public bool IsSelected { get { return _isSelected; } }
-        public event Action<UIToggle> OnSelect, OnDeselect, OnChanged;
+        public Renderer UIRenderer => _button.UIRenderer;
+        public bool IsSelected => _isSelected;
+
+        public event Action<UIToggle> OnSelect;
+        public event Action<UIToggle> OnDeselect;
+        public event Action<UIToggle> OnChanged;
 
         private bool _isSelected;
         private UIButton _button;
@@ -93,6 +96,11 @@ namespace mFramework.UI
         public override float GetHeight()
         {
             return _button.GetHeight();
+        }
+
+        public Color GetColor()
+        {
+            return _button.GetColor();
         }
 
         public UIObject SetColor(Color32 color)

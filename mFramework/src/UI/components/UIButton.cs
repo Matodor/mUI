@@ -141,6 +141,11 @@ namespace mFramework.UI
         {
         }
 
+        public Color GetColor()
+        {
+            return _uiSprite.GetColor();
+        }
+
         public UIObject SetColor(Color32 color)
         {
             _uiSprite.SetColor(color);
