@@ -64,7 +64,6 @@ namespace mFramework.UI
 
         private float _textWidth;
         private float _textHeight;
-        private Vector2 _anchorOffset;
 
         private float _left;
         private float _right;
@@ -274,8 +273,8 @@ namespace mFramework.UI
             if (_bottom > vertY) _bottom = vertY;
         }
 
-        private void AlignVertices(List<Vector3> vertices, TextAlignment alignment, 
-            int startIndex, int endIndex, float lineWidth, float yOffset = 0.0f, float xOffset = 0.0f)
+        private void AlignVertices(IList<Vector3> vertices, TextAlignment alignment, 
+            int startIndex, int endIndex, float lineWidth, float yOffset = 0.0f)
         {
             switch (alignment)
             {
@@ -283,7 +282,7 @@ namespace mFramework.UI
                     for (int i = startIndex; i <= endIndex; i++)
                     {
                         vertices[i] = new Vector3(
-                            vertices[i].x + xOffset - lineWidth / 2f,
+                            vertices[i].x - lineWidth / 2f,
                             vertices[i].y + yOffset,
                             vertices[i].z
                         );
@@ -295,7 +294,7 @@ namespace mFramework.UI
                     for (int i = startIndex; i <= endIndex; i++)
                     {
                         vertices[i] = new Vector3(
-                            vertices[i].x - xOffset - lineWidth,
+                            vertices[i].x - lineWidth,
                             vertices[i].y + yOffset,
                             vertices[i].z
                         );
@@ -306,7 +305,7 @@ namespace mFramework.UI
                     for (int i = startIndex; i <= endIndex; i++)
                     {
                         vertices[i] = new Vector3(
-                            vertices[i].x + xOffset,
+                            vertices[i].x,
                             vertices[i].y + yOffset,
                             vertices[i].z
                         );
@@ -472,6 +471,9 @@ namespace mFramework.UI
                 var minY = characterInfo.minY / pixelsPerWorldUnit / harshness;
                 var maxY = characterInfo.maxY / pixelsPerWorldUnit / harshness;
 
+                minX += minX * -1;
+                maxX += minX * -1;
+
                 verticesList.Add(new Vector3(textXOffset + minX, minY));
                 verticesList.Add(new Vector3(textXOffset + minX, maxY));
                 verticesList.Add(new Vector3(textXOffset + maxX, maxY));
@@ -551,19 +553,13 @@ namespace mFramework.UI
                         startIndex: startLineIndex,
                         endIndex: verticesList.Count - 1, 
                         lineWidth: lineWidth, 
-                        yOffset: textYOffset, 
-                        xOffset: verticesList[startLineIndex].x
+                        yOffset: textYOffset
                     );
 
-                    if (i + 1 < text.Length && text[i + 1] == '\n')
-                    {
-                        textXOffset = 0f;
-                        lineHeight = 0f;
-                        lines++;
-
-                        if (i + 2 < text.Length)
-                            startLineIndex = verticesList.Count;
-                    }
+                    textXOffset = 0f;
+                    lineHeight = 0f;
+                    lines++;
+                    startLineIndex = verticesList.Count;
                 }
             }
 
@@ -572,7 +568,7 @@ namespace mFramework.UI
 
             if (_textAnchor != null)
             {
-                _anchorOffset = new Vector2(0, 0);
+                var _anchorOffset = new Vector2(0, 0);
 
                 switch (_textAnchor)
                 {
@@ -606,12 +602,18 @@ namespace mFramework.UI
                         _anchorOffset = new Vector2(-_textWidth / 2, _textHeight / 2);
                         break;
                 }
+                
+                //mCore.Log("_left = {0}", _left);
+                //mCore.Log("_right = {0}", _right);
+
+                var xDiff = -_left - _textWidth / 2 + _anchorOffset.x;
+                var yDiff = _textHeight / 2 + _anchorOffset.y;
 
                 for (int i = 0; i < verticesList.Count; i++)
                 {
                     verticesList[i] = new Vector3(
-                        verticesList[i].x - _left - _textWidth / 2 + _anchorOffset.x,
-                        verticesList[i].y + _textHeight / 2 + _anchorOffset.y,
+                        verticesList[i].x + xDiff,
+                        verticesList[i].y + yDiff,
                         verticesList[i].z
                     );
                     CheckBoundingBox(verticesList[i].x, verticesList[i].y);
