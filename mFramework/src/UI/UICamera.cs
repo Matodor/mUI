@@ -22,17 +22,17 @@ namespace mFramework.UI
         public Transform Transform { get; }
         public Camera Camera { get; }
 
-        public Vector2 Position { get { return Transform.position; } }
+        public Vector2 Position => Transform.position;
 
-        public float PureHeight { get { return Camera.orthographicSize * 2; } }
-        public float PureWidth { get { return Camera.orthographicSize * Camera.aspect * 2; } }
-        public float Height { get { return PureHeight * Transform.lossyScale.y; } }
-        public float Width { get { return PureWidth * Transform.lossyScale.x; } }
+        public float PureHeight => Camera.orthographicSize * 2;
+        public float PureWidth => Camera.orthographicSize * Camera.aspect * 2;
+        public float Height => PureHeight * Transform.lossyScale.y;
+        public float Width => PureWidth * Transform.lossyScale.x;
 
-        public float Left { get { return Transform.position.x - Width / 2; } }
-        public float Right { get { return Transform.position.x + Width / 2; } }
-        public float Top { get { return Transform.position.y + Height / 2; } }
-        public float Bottom { get { return Transform.position.y - Height / 2; } }
+        public float Left => Transform.position.x - Width / 2;
+        public float Right => Transform.position.x + Width / 2;
+        public float Top => Transform.position.y + Height / 2;
+        public float Bottom => Transform.position.y - Height / 2;
 
         private UICamera(UICameraSettings settings)
         {

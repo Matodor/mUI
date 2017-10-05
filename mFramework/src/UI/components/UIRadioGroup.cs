@@ -14,15 +14,13 @@ namespace mFramework.UI
     public class UIRadioGroup : UIComponent
     {
         public event Action<UIRadioGroup> OnSelected;
-        public UIToggle CurrentSelected { get { return _currentSelected; } }
+        public UIToggle CurrentSelected => _currentSelected;
 
         private bool _canDeselectCurrent;
         private UIToggle _currentSelected;
-        private List<UIToggle> _toggles;
 
         protected UIRadioGroup(UIObject parent) : base(parent)
         {
-            _toggles = new List<UIToggle>();
             AddedСhildObject += CheckChildren;
         }
 
@@ -48,7 +46,13 @@ namespace mFramework.UI
             base.ApplySettings(settings);
         }
 
-        public UIToggle AddToggle(UIToggleSettings toggleSettings)
+        public UIToggle AddToggle(UIToggle toggle)
+        {
+            SetupToggle(toggle);
+            return toggle;
+        }
+
+        public UIToggle CreateToggle(UIToggleSettings toggleSettings)
         {
             toggleSettings.DefaultSelected = false;
             var toggle = this.Toggle(toggleSettings);
@@ -58,9 +62,8 @@ namespace mFramework.UI
 
         private void SetupToggle(UIToggle toggle)
         {
-            toggle.OnSelect += ToggleSelected;
-            toggle.OnDeselect += ToggleDeselected;
-            _toggles.Add(toggle);
+            toggle.Selected += ToggleSelected;
+            toggle.Deselected += ToggleDeselected;
         }
 
         private void ToggleDeselected(UIToggle toggle)

@@ -9,6 +9,7 @@ namespace mFramework.UI
     {
         public float Height { get; set; }
         public float Width { get; set; }
+        public int SortingOrder { get; set; }
     }
 
     public static class NewView<T> where T : UIView
@@ -58,6 +59,7 @@ namespace mFramework.UI
         {
             _height = settings.Height;
             _width = settings.Width;
+            SortingOrder(settings.SortingOrder);
         }
 
         protected virtual void BeforeCreate()

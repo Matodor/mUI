@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace mUIApp.Other
+namespace mFramework.Other
 {
     public static class AES
     {

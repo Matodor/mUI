@@ -22,8 +22,6 @@ namespace mFramework.UI
     public class UISlider : UIComponent, IUIClickable, IView
     {
         public UIClickable UIClickable => _clickableHandler;
-        public int Slides => _slides.Count;
-        public UIObject this[int index] => _slides[index]; 
 
         private const float SLIDER_MAX_PATH_TO_CLICK = 0.03f;
         private const float SLIDER_MIN_DIFF_TO_MOVE = 0.0001f;
@@ -104,8 +102,8 @@ namespace mFramework.UI
             var viewportPos = mUI.UICamera.Camera.WorldToViewportPoint(Position());
             var lb = new Vector2(mUI.UICamera.Left, mUI.UICamera.Bottom);
 
-            var sliderScreenWidthScale = GetWidth() / (mUI.UICamera.Right - mUI.UICamera.Left);
-            var sliderScreenHeightScale = GetHeight() / (mUI.UICamera.Top - mUI.UICamera.Bottom);
+            var sliderScreenWidthScale = GetWidth() / mUI.UICamera.Width;
+            var sliderScreenHeightScale = GetHeight() / mUI.UICamera.Height;
 
             var minViewport = mUI.UICamera.Camera.WorldToViewportPoint(
                 new Vector3(lb.x + GetWidth() / 2, lb.y + GetHeight() / 2, 0));
@@ -228,9 +226,9 @@ namespace mFramework.UI
                 rect2d.Width = GetWidth();
             };
 
-            _clickableHandler.CanMouseDown += (h, e) => IsActive;
-            _clickableHandler.CanMouseDrag += (h, e) => IsActive;
-            _clickableHandler.CanMouseUp += (h, e) => IsActive;
+            //_clickableHandler.CanMouseDown += (h, e) => IsActive;
+            //_clickableHandler.CanMouseDrag += (h, e) => IsActive;
+            //_clickableHandler.CanMouseUp += (h, e) => IsActive;
 
             _camera = UICamera.Create(new UICameraSettings());
             _camera.GameObject.SetParent(_gameObject);

@@ -34,10 +34,16 @@ namespace mFramework
 
             for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
             {
+                if (fieldsInfo.CachedFields[i].FieldInfo.FieldType.IsArray)
+                {
+                    throw new Exception($"Class '{fields}' has array field");
+                }
+
                 if (!typeof(ISaveableField).IsAssignableFrom(fieldsInfo.CachedFields[i].FieldInfo.FieldType))
-                    throw new Exception(string.Format(
-                        "Class '{0}' has field different type ({1}) from ISaveableField", fields,
-                        fieldsInfo.CachedFields[i].FieldInfo.FieldType));
+                {
+                    throw new Exception(
+                        $"Class '{fields}' has field different type ({fieldsInfo.CachedFields[i].FieldInfo.FieldType}) from ISaveableField");
+                }
             }
         }
 
@@ -83,10 +89,9 @@ namespace mFramework
             return true;
         }
 
-        public static string Key(string fieldsClassKey, string fieldName)
+        internal static string Key(string fieldsClassKey, string fieldName)
         {
-            return string.Format("{0}_{1}_{2}_{3}", fieldsClassKey, fieldsClassKey.GetHashCode(),
-                fieldName, fieldName.GetHashCode());
+            return $"{fieldsClassKey}_{fieldsClassKey.GetHashCode()}_{fieldName}_{fieldName.GetHashCode()}";
         }
     }
 }
