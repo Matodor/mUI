@@ -12,6 +12,10 @@ namespace mFramework.UI
     public sealed class mUI
     {
         internal static mUI Instance => _instance;
+
+        public static event Action<UIObject> UIObjectCreated;
+        public static event Action<UIObject> UIObjectRemoved;
+
         public static UIView BaseView => _instance._baseView;
         public static UICamera UICamera => _instance._uiCamera;
 
@@ -129,6 +133,8 @@ namespace mFramework.UI
                 return false;
 
             _uiObjects.Remove(obj.GUID);
+            UIObjectRemoved?.Invoke(obj);
+
             return true;
         }
 
@@ -138,6 +144,8 @@ namespace mFramework.UI
                 return false;
 
             _uiObjects.Add(obj.GUID, obj);
+            UIObjectCreated?.Invoke(obj);
+
             return true;
         }
 

@@ -12,17 +12,22 @@ namespace mFramework
 
     public sealed class mCore
     {
-        public static mCore Instance => _instance ?? (_instance = new mCore());
+        public static mCore Instance { get; }
 
         public static bool IsEditor { get; private set; }
         public static bool IsDebug { get; set; }
         public static event Action ApplicationQuitEvent;
 
-        private static mCore _instance;
         private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
         private readonly UnidirectionalList<RepeatAction> _repeatsActions;
         private readonly UnidirectionalList<TimerAction> _timerActions;
         private readonly EditorExtension _editorExtension;
+
+        static mCore()
+        {
+            if (Instance == null)
+                Instance = new mCore();
+        }
 
         private mCore()
         {

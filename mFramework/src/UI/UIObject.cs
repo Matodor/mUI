@@ -6,7 +6,7 @@ namespace mFramework.UI
 {
     public abstract class UIObject : IGlobalUniqueIdentifier
     {
-        internal GameObject GameObject => _gameObject;
+        public GameObject GameObject => _gameObject;
         internal bool MarkedForDestroy;
 
         public int ChildsCount => _childsObjects.Count;
