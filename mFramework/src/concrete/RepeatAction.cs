@@ -17,7 +17,7 @@ namespace mFramework
         {
             _repeatTime = repeatTime;
             _action = action;
-            _nextInvoke = Time.realtimeSinceStartup + repeatTime;
+            _nextInvoke = Time.time + repeatTime;
 
             GUID = ++_guid;
             mCore.Instance.AddRepeatAction(this);
@@ -30,9 +30,9 @@ namespace mFramework
 
         internal void Tick()
         {
-            if (Time.realtimeSinceStartup >= _nextInvoke)
+            if (Time.time >= _nextInvoke)
             {
-                _nextInvoke = Time.realtimeSinceStartup + _repeatTime;
+                _nextInvoke = Time.time + _repeatTime;
                 _action?.Invoke();
             }
         }

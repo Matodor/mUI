@@ -15,7 +15,7 @@ namespace mFramework
         private TimerAction(Action action, float timeToAction)
         {
             _action = action;
-            _actionTime = Time.realtimeSinceStartup + timeToAction;
+            _actionTime = Time.time + timeToAction;
 
             GUID = ++_guid;
             mCore.Instance.AddTimerAction(this);
@@ -28,7 +28,7 @@ namespace mFramework
 
         internal void Tick()
         {
-            if (_actionTime <= Time.realtimeSinceStartup)
+            if (_actionTime <= Time.time)
             {
                 _action?.Invoke();
                 Remove();

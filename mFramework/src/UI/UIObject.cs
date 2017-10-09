@@ -6,7 +6,9 @@ namespace mFramework.UI
 {
     public abstract class UIObject : MonoBehaviour, IGlobalUniqueIdentifier
     {
+        public IReadOnlyList<UIAnimation> Animations => _animations.AsReadOnly();
         public int ChildsCount => _childsObjects.Count;
+
         public UIObject this[int index] => _childsObjects[index];
 
         public ulong GUID { get; private set; }

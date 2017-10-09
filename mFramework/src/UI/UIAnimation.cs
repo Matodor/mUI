@@ -74,7 +74,7 @@ namespace mFramework.UI
             _animationTime = 0;
             _animationEasingTime = 0;
             _repeats = 0;
-            _nextAnimationFrame = Time.realtimeSinceStartup;
+            _nextAnimationFrame = Time.time;
 
             State = UIAnimationState.PLAYING;
             PlayType = UIAnimationPlayType.PLAY_ONCE;
@@ -99,7 +99,7 @@ namespace mFramework.UI
 
         public void SetStartOffset(float time)
         {
-            _animationStart = Time.realtimeSinceStartup + time;
+            _animationStart = Time.time + time;
         }
 
         public void SetAnimationPos(float time)
@@ -109,7 +109,7 @@ namespace mFramework.UI
 
         public void UpdateAnimation()
         {
-            Tick();
+            Animate(true);
         }
 
         protected virtual void ApplySettings(UIAnimationSettings settings)
@@ -135,13 +135,8 @@ namespace mFramework.UI
             AnimationEnded?.Invoke(this, new AnimationEventArgs(this));
         }
 
-        internal void Tick()
+        public void Animate(bool forcibly = false)
         {
-            if (State == UIAnimationState.STOPPED || 
-                Time.realtimeSinceStartup < _animationStart)
-                return;
-
-            _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
             _animationEasingTime = EasingFunctions.GetValue(EasingType, 1f, _animationTime, 1f);
 
             if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD)
@@ -155,10 +150,10 @@ namespace mFramework.UI
                 _animationTime = 0f;
             }
 
-            if (_animatedObject.IsActive && _nextAnimationFrame <= Time.realtimeSinceStartup)
+            if (forcibly || _animatedObject.IsActive && _nextAnimationFrame <= Time.time)
             {
                 OnAnimate();
-                _nextAnimationFrame = Time.realtimeSinceStartup + AnimateEvery;
+                _nextAnimationFrame = Time.time + AnimateEvery;
             }
 
             if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD ||
@@ -172,8 +167,8 @@ namespace mFramework.UI
                 else if (PlayType == UIAnimationPlayType.END_FLIP)
                 {
                     OnRepeatAnimation();
-                    _animationDirection = _animationDirection == UIAnimationDirection.FORWARD 
-                        ? UIAnimationDirection.BACKWARD 
+                    _animationDirection = _animationDirection == UIAnimationDirection.FORWARD
+                        ? UIAnimationDirection.BACKWARD
                         : UIAnimationDirection.FORWARD;
                 }
 
@@ -188,6 +183,15 @@ namespace mFramework.UI
                         _animatedObject.Destroy();
                 }
             }
+        }
+
+        internal void Tick()
+        {
+            if (State == UIAnimationState.STOPPED || Time.time < _animationStart)
+                return;
+
+            _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
+            Animate();
         }
 
         public void Remove()

@@ -4,17 +4,19 @@ using UnityEditor;
 namespace mFramework
 {
     [CustomEditor(typeof(UILabel), true)]
-    public class UILabelEditor : Editor
+    public class UILabelEditor : UIObjectEditor
     {
         private UILabel _label;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _label = (UILabel) target;
         }
 
         public override void OnInspectorGUI()
         {
+            base.OnInspectorGUI();
             DrawTextColor();
         }
 
