@@ -12,7 +12,7 @@ namespace mFramework.UI
         public ulong GUID { get; private set; }
         public UIObject Parent { get; private set; }
 
-        public bool IsActive => enabled;
+        public bool IsActive => enabled && gameObject.activeInHierarchy;
         public bool IsShowing => gameObject.activeInHierarchy;
 
         #region Events
@@ -111,7 +111,7 @@ namespace mFramework.UI
         {
             if (this == mUI.BaseView)
                 throw new Exception("Can't destroy BaseView");
-            UnityEngine.Object.Destroy(this);
+            UnityEngine.Object.Destroy(gameObject);
         }
 
         public UIObject SetName(string name)
@@ -284,13 +284,13 @@ namespace mFramework.UI
             return transform.position;
         }
 
-        public UIObject Enabled()
+        public UIObject Enable()
         {
             enabled = true;
             return this;
         }
 
-        public UIObject Disabled()
+        public UIObject Disable()
         {
             enabled = false;
             return this;
@@ -314,7 +314,7 @@ namespace mFramework.UI
 
         internal virtual void Tick()
         {
-            if (isActiveAndEnabled)
+            if (!IsActive)
                 return;
 
             OnTick();
@@ -339,7 +339,7 @@ namespace mFramework.UI
 
         internal virtual void FixedTick()
         {
-            if (isActiveAndEnabled)
+            if (!IsActive)
                 return;
 
             OnFixedTick();
@@ -356,7 +356,7 @@ namespace mFramework.UI
 
         internal virtual void LateTick()
         {
-            if (isActiveAndEnabled)
+            if (!IsActive)
                 return;
 
             OnLateTick();

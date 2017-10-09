@@ -155,7 +155,7 @@ namespace mFramework.UI
                 _animationTime = 0f;
             }
 
-            if (_animatedObject.isActiveAndEnabled && _nextAnimationFrame <= Time.realtimeSinceStartup)
+            if (_animatedObject.IsActive && _nextAnimationFrame <= Time.realtimeSinceStartup)
             {
                 OnAnimate();
                 _nextAnimationFrame = Time.realtimeSinceStartup + AnimateEvery;

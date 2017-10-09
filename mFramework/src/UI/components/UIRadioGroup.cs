@@ -77,13 +77,13 @@ namespace mFramework.UI
             if (_currentSelected != null && _currentSelected != toggle)
             {
                 if (!_canDeselectCurrent)
-                    _currentSelected.Enabled();
+                    _currentSelected.Enable();
                 _currentSelected.Deselect();
             }
 
             _currentSelected = toggle;
             if (!_canDeselectCurrent)
-                _currentSelected.Disabled();
+                _currentSelected.Disable();
 
             OnSelected?.Invoke(this);
         }

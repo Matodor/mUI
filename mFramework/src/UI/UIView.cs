@@ -31,15 +31,30 @@ namespace mFramework.UI
 
         private float _height;
         private float _width;
-        
-        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
+
+        public static UIView Create(Type viewType, UIViewSettings settings, UIObject parent, params object[] @params)
+        {
+            if (!typeof(UIView).IsAssignableFrom(viewType))
+                throw new Exception($"The given viewType paramater is not UIView");
+
+            var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
+            SetupView(view, settings, parent, @params);
+            return view;
+        }
+
+        public static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
         {
             var view = new GameObject(typeof(T).Name).AddComponent<T>();
+            SetupView(view, settings, parent, @params);
+            return view;
+        }
+
+        private static void SetupView(UIView view, UIViewSettings settings, UIObject parent, object[] @params)
+        {
             view.SetupParent(parent);
             view.SetupSettings(settings);
             view.InitCompleted();
             view.Create(@params);
-            return view;
         }
 
         protected abstract void CreateInterface(params object[] @params);

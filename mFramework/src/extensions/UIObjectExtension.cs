@@ -6,6 +6,20 @@ namespace mFramework
     public static class UIObjectExtension
     {
         // views
+        public static UIView ChildView(this IView view, Type viewType, params object[] @params)
+        {
+            return ChildView(view, viewType, new UIViewSettings
+            {
+                Width = ((UIObject)view).GetWidth(),
+                Height = ((UIObject)view).GetHeight()
+            }, @params);
+        }
+
+        public static UIView ChildView(this IView view, Type viewType, UIViewSettings settings, params object[] @params)
+        {
+            return UIView.Create(viewType, settings, (UIObject)view, @params);
+        }
+
         public static T ChildView<T>(this IView view, params object[] @params) where T : UIView, new()
         {
             return ChildView<T>(view, new UIViewSettings

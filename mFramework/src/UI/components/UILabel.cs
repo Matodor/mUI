@@ -668,10 +668,17 @@ namespace mFramework.UI
         {
             _color = color;
 
-            var colors = new Color[_meshFilter.mesh.colors.Length];
-            for (int i = 0; i < colors.Length; i++)
-                colors[i] = color;
-            _meshFilter.mesh.colors = colors;
+            if (_textFormatting.Count > 0)
+            {
+                UpdateMeshText();
+            }
+            else
+            {
+                var colors = new Color[_meshFilter.mesh.colors.Length];
+                for (int i = 0; i < colors.Length; i++)
+                    colors[i] = color;
+                _meshFilter.mesh.colors = colors;
+            }
 
             if (_meshRenderer.sharedMaterial != _cachedFont.material)
                 _meshRenderer.sharedMaterial = _cachedFont.material;
