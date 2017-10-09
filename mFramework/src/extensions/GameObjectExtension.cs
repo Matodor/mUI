@@ -6,25 +6,25 @@ namespace mFramework
 {
     public static class GameObjectExtension
     {
-        public static Transform SetParent(this Transform transform, Transform parent)
+        public static Transform SetParentTransform(this Transform transform, Transform parent)
         {
-            SetParentImpl(transform, parent);
+            SetParentTransformImpl(transform, parent);
             return transform;
         }
 
-        public static GameObject SetParent(this GameObject gameObject, GameObject parent)
+        public static GameObject SetParentTransform(this GameObject gameObject, GameObject parent)
         {
-            SetParentImpl(gameObject.transform, parent.transform);
+            SetParentTransformImpl(gameObject.transform, parent.transform);
             return gameObject;
         }
 
-        public static GameObject SetParent(this GameObject gameObject, UIObject parent)
+        public static GameObject SetParentTransform(this GameObject gameObject, UIObject parent)
         {
-            SetParentImpl(gameObject.transform, parent.GameObject.transform);
+            SetParentTransformImpl(gameObject.transform, parent.transform);
             return gameObject;
         }
 
-        private static void SetParentImpl(Transform transform, Transform parent)
+        private static void SetParentTransformImpl(Transform transform, Transform parent)
         {
             if (transform == null)
                 throw new ArgumentNullException(nameof(transform));

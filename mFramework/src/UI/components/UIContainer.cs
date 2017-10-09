@@ -11,7 +11,7 @@ namespace mFramework.UI
         private float _width;
         private float _height;
 
-        protected UIContainer(UIObject parent) : base(parent)
+        protected override void Init()
         {
         }
 

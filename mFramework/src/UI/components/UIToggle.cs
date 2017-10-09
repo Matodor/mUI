@@ -23,7 +23,7 @@ namespace mFramework.UI
         private bool _isSelected;
         private UIButton _button;
 
-        protected UIToggle(UIObject parent) : base(parent)
+        protected override void Init()
         {
             _isSelected = false;
         }

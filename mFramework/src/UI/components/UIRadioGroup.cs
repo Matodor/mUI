@@ -19,9 +19,9 @@ namespace mFramework.UI
         private bool _canDeselectCurrent;
         private UIToggle _currentSelected;
 
-        protected UIRadioGroup(UIObject parent) : base(parent)
+        protected override void Init()
         {
-            AddedСhildObject += CheckChildren;
+            СhildObjectAdded += CheckChildren;
         }
 
         private void CheckChildren(UIObject sender, AddedСhildObjectEventArgs e)
@@ -77,13 +77,13 @@ namespace mFramework.UI
             if (_currentSelected != null && _currentSelected != toggle)
             {
                 if (!_canDeselectCurrent)
-                    _currentSelected.Active();
+                    _currentSelected.Enabled();
                 _currentSelected.Deselect();
             }
 
             _currentSelected = toggle;
             if (!_canDeselectCurrent)
-                _currentSelected.Inactive();
+                _currentSelected.Disabled();
 
             OnSelected?.Invoke(this);
         }

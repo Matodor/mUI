@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -9,7 +10,7 @@ namespace mFramework.UI
         
     }
 
-    public static class NewComponent<T> where T : UIComponent
+    /*public static class NewComponent<T> where T : UIComponent
     {
         public static readonly Func<UIObject, T> Instance;
 
@@ -21,30 +22,19 @@ namespace mFramework.UI
             var e = Expression.New(constructor, parameter);
             Instance = Expression.Lambda<Func<UIObject, T>>(e, parameter).Compile();
         } 
-    }
+    }*/
 
     public abstract class UIComponent : UIObject
     {
-        protected UIComponent(UIObject parent) : base(parent)
-        {
-            SetName("UIComponent");
-        }
-        
         internal static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
 
-            var component = NewComponent<T>.Instance(parent);
-
-            //var component = (T)
-            //    Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,
-            //        new object[] {parent}, CultureInfo.InvariantCulture);
-
+            var component = new GameObject(typeof(T).Name).AddComponent<T>();
+            component.SetupParent(parent);
             component.ApplySettings(settings);
-            component.SetName(typeof(T).Name);
-            parent.AddChildObject(component);
-
+            component.InitCompleted();
             return component;
         }
 

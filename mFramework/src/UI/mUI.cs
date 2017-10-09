@@ -28,7 +28,7 @@ namespace mFramework.UI
         private mUI(UISettings settings)
         {
             _uiCamera = UICamera.Create(settings.CameraSettings);
-            _uiCamera.GameObject.SetParent(mEngine.Instance.gameObject);
+            _uiCamera.GameObject.SetParentTransform(mEngine.Instance.gameObject);
 
             _instance = this;
             _fonts = new Dictionary<string, Font>();
@@ -45,7 +45,7 @@ namespace mFramework.UI
          
         private void OnApplicationQuitEvent()
         {
-            _baseView.DestroyImpl();
+            UnityEngine.Object.Destroy(_baseView);
         }
 
         public static mUI Create()

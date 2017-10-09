@@ -40,7 +40,7 @@ namespace mFramework.UI
 
         private const float DIVIDE = 10000f;
 
-        protected UIScrollBar(UIObject parent) : base(parent)
+        protected override void Init()
         {
             _isPressed = false;
             _mouseEventListener = MouseEventListener.Create();

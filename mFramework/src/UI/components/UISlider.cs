@@ -26,7 +26,7 @@ namespace mFramework.UI
         private const float SLIDER_MAX_PATH_TO_CLICK = 0.03f;
         private const float SLIDER_MIN_DIFF_TO_MOVE = 0.0001f;
 
-        private readonly List<UIObject> _slides;
+        private List<UIObject> _slides;
         private UIClickable _clickableHandler;
         private UICamera _camera;
         private UIObjectOrientation _sliderType;
@@ -42,9 +42,9 @@ namespace mFramework.UI
         private Vector2 _lastMousePos;
 
         private static int _countSliders = 0;
-        private readonly List<Pair<IUIClickable, MouseEvent>> _clickNext;
+        private List<Pair<IUIClickable, MouseEvent>> _clickNext;
 
-        protected UISlider(UIObject parent) : base(parent)
+        protected override void Init()
         {
             _countSliders++;
             _lastMoveDiff = 0;
@@ -52,10 +52,10 @@ namespace mFramework.UI
             _slides = new List<UIObject>();
             _clickNext = new List<Pair<IUIClickable, MouseEvent>>();
             
-            AddedСhildObject += OnAddedСhildObject;
+            СhildObjectAdded += OnСhildObjectAdded;
         }
 
-        private void OnAddedСhildObject(UIObject sender, AddedСhildObjectEventArgs e)
+        private void OnСhildObjectAdded(UIObject sender, AddedСhildObjectEventArgs e)
         {
             if (_sliderType == UIObjectOrientation.HORIZONTAL)
                 SetupChildrenHorizontal(e.AddedObject);
@@ -75,7 +75,7 @@ namespace mFramework.UI
                 uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
             }
 
-            e.AddedObject.AddedСhildObject += SetupChilds;
+            e.AddedObject.СhildObjectAdded += SetupChilds;
         }
 
         ~UISlider()
@@ -231,13 +231,13 @@ namespace mFramework.UI
             //_clickableHandler.CanMouseUp += (h, e) => IsActive;
 
             _camera = UICamera.Create(new UICameraSettings());
-            _camera.GameObject.SetParent(_gameObject);
+            _camera.GameObject.SetParentTransform(gameObject);
             _camera.SetOrthographicSize(GetHeight() / 2);
             
-            _gameObject.transform.position = new Vector3(
-                _gameObject.transform.position.x,
-                _gameObject.transform.position.y,
-                _gameObject.transform.position.z + _countSliders
+            gameObject.transform.position = new Vector3(
+                gameObject.transform.position.x,
+                gameObject.transform.position.y,
+                gameObject.transform.position.z + _countSliders
             );
 
             Translated += (s, e) => UpdateViewport();

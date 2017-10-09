@@ -12,13 +12,13 @@ namespace mFramework.UI
     public class UISprite : UIComponent, IUIRenderer, IColored
     {
         public Renderer UIRenderer => Renderer;
-        public SpriteRenderer Renderer { get; }
+        public SpriteRenderer Renderer { get; private set; }
         public SpriteMask SpriteMask { get; private set; }
 
-        protected UISprite(UIObject parent) : base(parent)
+        protected override void Init()
         {
             SpriteMask = null;
-            Renderer = _gameObject.AddComponent<SpriteRenderer>();
+            Renderer = gameObject.AddComponent<SpriteRenderer>();
             SortingOrderChanged += s => Renderer.sortingOrder = SortingOrder();
         }
 
@@ -57,7 +57,7 @@ namespace mFramework.UI
             if (SpriteMask == null)
             {
                 SpriteMask = new GameObject("SpriteMask")
-                    .SetParent(_gameObject)
+                    .SetParentTransform(gameObject)
                     .AddComponent<SpriteMask>();
             }
 

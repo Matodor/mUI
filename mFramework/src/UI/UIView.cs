@@ -12,7 +12,7 @@ namespace mFramework.UI
         public int SortingOrder { get; set; }
     }
 
-    public static class NewView<T> where T : UIView
+    /*public static class NewView<T> where T : UIView
     {
         public static readonly Func<T> Instance;
 
@@ -23,7 +23,7 @@ namespace mFramework.UI
             var e = Expression.New(constructor);
             Instance = Expression.Lambda<Func<T>>(e).Compile();
         }
-    }
+    }*/
 
     public abstract class UIView : UIObject, IView
     {
@@ -31,25 +31,14 @@ namespace mFramework.UI
 
         private float _height;
         private float _width;
-
-        private static UIObject _nextParent;
         
-        protected UIView() : base(_nextParent)
+        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
         {
-        }
-        
-        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView, new()
-        {
-            _nextParent = parent;
-            var view = new T();
-            _nextParent = null;
-
-            view.SetName(typeof(T).Name);
+            var view = new GameObject(typeof(T).Name).AddComponent<T>();
+            view.SetupParent(parent);
             view.SetupSettings(settings);
-
-            parent?.AddChildObject(view);
-
-            view.Init(@params);
+            view.InitCompleted();
+            view.Create(@params);
             return view;
         }
 
@@ -67,7 +56,7 @@ namespace mFramework.UI
             
         }
 
-        private void Init(params object[] @params)
+        private void Create(params object[] @params)
         {
             BeforeCreate();
             CreateInterface(@params);

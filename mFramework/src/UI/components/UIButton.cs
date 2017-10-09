@@ -37,7 +37,7 @@ namespace mFramework.UI
         protected UISprite _uiSprite;
         private bool _isMouseDown;
 
-        protected UIButton(UIObject parent) : base(parent)
+        protected override void Init()
         {
             _isMouseDown = false;
             ClickCondition = ClickCondition.BUTTON_UP;

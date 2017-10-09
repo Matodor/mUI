@@ -39,14 +39,14 @@ namespace mFramework.UI
 
     public class UILabel : UIComponent, IUIRenderer, IColored
     {
-        public Renderer UIRenderer { get; }
+        public Renderer UIRenderer { get; private set; }
         public string Text => _cachedText;
         public event UIEventHandler<UILabel> TextUpdated;
         
         private Font _cachedFont;
-        private readonly MeshRenderer _meshRenderer;
-        private readonly MeshFilter _meshFilter;
-        //private readonly MaterialPropertyBlock _textPropertyBlock;
+        private MeshRenderer _meshRenderer;
+        private MeshFilter _meshFilter;
+        //private MaterialPropertyBlock _textPropertyBlock;
 
         private string _fontName;
         private string _cachedText;
@@ -70,13 +70,13 @@ namespace mFramework.UI
         private float _top;
         private float _bottom;
 
-        private readonly Dictionary<int, TextFormatting> _textFormatting;
+        private Dictionary<int, TextFormatting> _textFormatting;
 
-        protected UILabel(UIObject parent) : base(parent)
+        protected override void Init()
         {
             _textFormatting = new Dictionary<int, TextFormatting>();
-            _meshRenderer = _gameObject.AddComponent<MeshRenderer>();
-            _meshFilter = _gameObject.AddComponent<MeshFilter>();
+            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            _meshFilter = gameObject.AddComponent<MeshFilter>();
             _meshFilter.mesh = new Mesh();
             _meshFilter.mesh.Clear();
 
