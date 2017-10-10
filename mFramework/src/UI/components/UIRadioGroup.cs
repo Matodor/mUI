@@ -13,7 +13,7 @@ namespace mFramework.UI
 
     public class UIRadioGroup : UIComponent
     {
-        public event Action<UIRadioGroup> OnSelected;
+        public event Action<UIRadioGroup> Selected;
         public UIToggle CurrentSelected => _currentSelected;
 
         private bool _canDeselectCurrent;
@@ -62,30 +62,45 @@ namespace mFramework.UI
 
         private void SetupToggle(UIToggle toggle)
         {
+            toggle.BeforeDestroy += ToggleOnBeforeDestroy;
             toggle.Selected += ToggleSelected;
             toggle.Deselected += ToggleDeselected;
+            toggle.CanDeselect += ToggleOnCanDeselect;
+        }
+
+        private void ToggleOnBeforeDestroy(UIObject sender)
+        {
+            if ((UIToggle) sender == _currentSelected)
+                _currentSelected = null;
+        }
+
+        private bool ToggleOnCanDeselect(UIToggle toggle)
+        {
+            if (_canDeselectCurrent)
+            {
+                return true;
+            }
+
+            if (_currentSelected == toggle)
+                return false;
+            return true;
         }
 
         private void ToggleDeselected(UIToggle toggle)
         {
-            _currentSelected = null;
-            OnSelected?.Invoke(this);
+            if (_currentSelected == toggle)
+                _currentSelected = null;
         }
 
         private void ToggleSelected(UIToggle toggle)
         {
-            if (_currentSelected != null && _currentSelected != toggle)
-            {
-                if (!_canDeselectCurrent)
-                    _currentSelected.Enable();
-                _currentSelected.Deselect();
-            }
-
+            var prev = _currentSelected;
             _currentSelected = toggle;
-            if (!_canDeselectCurrent)
-                _currentSelected.Disable();
 
-            OnSelected?.Invoke(this);
+            if (prev != null && prev != toggle)
+                prev.Deselect();
+
+            Selected?.Invoke(this);
         }
     }
 }

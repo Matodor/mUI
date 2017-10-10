@@ -17,7 +17,9 @@ namespace mFramework
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            DrawTextColor();
+
+            _label.SetColor(EditorGUILayout.ColorField("Text color", _label.GetColor()));
+            _label.SetFontSize(EditorGUILayout.IntSlider("Text size", _label.Size, 1, 128));
         }
 
         private void DrawTextColor()

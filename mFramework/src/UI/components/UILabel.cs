@@ -41,6 +41,7 @@ namespace mFramework.UI
     {
         public Renderer UIRenderer { get; private set; }
         public string Text => _cachedText;
+        public int Size => _fontSize;
         public event UIEventHandler<UILabel> TextUpdated;
         
         private Font _cachedFont;

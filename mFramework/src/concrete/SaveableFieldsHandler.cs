@@ -81,6 +81,7 @@ namespace mFramework
 
                 saveableFieldsContainer.Value.AfterSave();
             }
+
             _storage.Save();
             return true;
         }
