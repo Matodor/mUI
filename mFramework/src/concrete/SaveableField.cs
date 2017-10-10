@@ -4,9 +4,9 @@ using System.Globalization;
 namespace mFramework
 {
     // bool
-    public struct SaveableBoolean : ISaveableField
+    public struct SaveableBoolean : ISaveableField<bool>
     {
-        public bool Value;
+        public bool Value { get; set; }
 
         public static implicit operator bool(SaveableBoolean field)
         {
@@ -33,9 +33,9 @@ namespace mFramework
     }
 
     // int
-    public struct SaveableInt : ISaveableField
+    public struct SaveableInt : ISaveableField<int>
     {
-        public int Value;
+        public int Value { get; set; }
 
         public static implicit operator int(SaveableInt field)
         {
@@ -62,9 +62,9 @@ namespace mFramework
     }
 
     // float
-    public struct SaveableFloat : ISaveableField
+    public struct SaveableFloat : ISaveableField<float>
     {
-        public float Value;
+        public float Value { get; set; }
 
         public static implicit operator float(SaveableFloat field)
         {
@@ -91,9 +91,9 @@ namespace mFramework
     }
 
     // string
-    public struct SaveableString : ISaveableField
+    public struct SaveableString : ISaveableField<string>
     {
-        public string Value;
+        public string Value { get; set; }
 
         public static implicit operator string(SaveableString field)
         {
@@ -120,9 +120,9 @@ namespace mFramework
     }
 
     // ulong
-    public struct SaveableUInt64 : ISaveableField
+    public struct SaveableUInt64 : ISaveableField<ulong>
     {
-        public ulong Value;
+        public ulong Value { get; set; }
 
         public static implicit operator ulong(SaveableUInt64 field)
         {
@@ -148,9 +148,9 @@ namespace mFramework
         }
     }
 
-    public struct SaveableDecimal : ISaveableField
+    public struct SaveableDecimal : ISaveableField<decimal>
     {
-        public decimal Value;
+        public decimal Value { get; set; }
 
         public static implicit operator decimal(SaveableDecimal field)
         {

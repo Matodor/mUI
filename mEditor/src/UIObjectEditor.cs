@@ -11,9 +11,9 @@ namespace mFramework
 
         protected virtual void Awake()
         {
-            EditorApplication.update += UpdateEditor;
+            //EditorApplication.update += UpdateEditor;
         }
-
+        /*
         private void UpdateEditor()
         {
             if (Event.current != null && Event.current.type == EventType.MouseUp)
@@ -66,6 +66,6 @@ namespace mFramework
                     EditorGUILayout.EndFadeGroup();
                 }
             }
-        }
+        }*/
     }
 }

@@ -21,30 +21,39 @@ namespace mFramework
             return _fields.Remove(fields.Key);
         }
 
-        public static void AddFields(SaveableFields fields)
+        public static void AddFields(IEnumerable<SaveableFields> fields)
         {
-            if (fields == null)
-                throw new ArgumentNullException(nameof(fields));
+            foreach (var f in fields)
+            {
+                AddFields(f);
+            }
+        }
 
-            if (_fields.ContainsKey(fields.Key))
-                throw new Exception("SaveableFieldsHandler already has fields with same key");
+        public static void AddFields(SaveableFields container)
+        {
+            if (container == null)
+                throw new ArgumentNullException(nameof(container));
 
-            _fields.Add(fields.Key, fields);
-            var fieldsInfo = mCore.GetCachedFields(fields.GetType());
+            if (_fields.ContainsKey(container.Key))
+                throw new Exception("SaveableFieldsHandler already has fields container with same key");
 
-            for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
+            _fields.Add(container.Key, container);
+            
+            //var fieldsInfo = mCore.GetCachedFields(container.GetType());
+
+            /*for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
             {
                 if (fieldsInfo.CachedFields[i].FieldInfo.FieldType.IsArray)
                 {
-                    throw new Exception($"Class '{fields}' has array field");
+                    //throw new Exception($"Class '{container}' has array field");
                 }
 
                 if (!typeof(ISaveableField).IsAssignableFrom(fieldsInfo.CachedFields[i].FieldInfo.FieldType))
                 {
-                    throw new Exception(
-                        $"Class '{fields}' has field different type ({fieldsInfo.CachedFields[i].FieldInfo.FieldType}) from ISaveableField");
+                    //throw new Exception(
+                    //    $"Class '{container}' has field different type ({fieldsInfo.CachedFields[i].FieldInfo.FieldType}) from ISaveableField");
                 }
-            }
+            }*/
         }
 
         public static bool Save()
@@ -52,16 +61,24 @@ namespace mFramework
             foreach (var saveableFieldsContainer in _fields)
             {
                 saveableFieldsContainer.Value.BeforeSave();
+
                 var type = saveableFieldsContainer.Value.GetType();
                 var fieldsInfo = mCore.GetCachedFields(type);
+
                 for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
                 {
+                    if (!typeof(ISaveableField).IsAssignableFrom(fieldsInfo.CachedFields[i].FieldInfo.FieldType))
+                    {
+                        continue;
+                    }
+
                     var key = Key(saveableFieldsContainer.Value.Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
                     var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(saveableFieldsContainer.Value);
                     var bridge = new SaveableFieldsBridge(key, PlayerPrefsStorage.Instance);
 
                     saveableField.SaveValue(bridge);
                 }
+
                 saveableFieldsContainer.Value.AfterSave();
             }
             _storage.Save();
@@ -73,10 +90,17 @@ namespace mFramework
             foreach (var saveableFieldsContainer in _fields)
             {
                 saveableFieldsContainer.Value.BeforeLoad();
+
                 var type = saveableFieldsContainer.Value.GetType();
                 var fieldsInfo = mCore.GetCachedFields(type);
+
                 for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
                 {
+                    if (!typeof(ISaveableField).IsAssignableFrom(fieldsInfo.CachedFields[i].FieldInfo.FieldType))
+                    {
+                        continue;
+                    }
+
                     var key = Key(saveableFieldsContainer.Value.Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
                     var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(saveableFieldsContainer.Value);
                     var bridge = new SaveableFieldsBridge(key, PlayerPrefsStorage.Instance);
