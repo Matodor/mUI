@@ -45,7 +45,7 @@ namespace mFramework.UI
          
         private void OnApplicationQuitEvent()
         {
-            UnityEngine.Object.Destroy(_baseView);
+            _baseView.DestroyWithoutChecks();
         }
 
         public static mUI Create()

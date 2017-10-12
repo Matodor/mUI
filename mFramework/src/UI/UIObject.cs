@@ -6,6 +6,8 @@ namespace mFramework.UI
 {
     public abstract class UIObject : MonoBehaviour, IGlobalUniqueIdentifier
     {
+        internal bool Destroyed;
+
         public IReadOnlyList<UIAnimation> Animations => _animations.AsReadOnly();
         public int ChildsCount => _childsObjects.Count;
 
@@ -84,17 +86,32 @@ namespace mFramework.UI
             }
         }
 
-        private void OnDestroy()
+        private void DestroyImpl(bool destroyObject)
         {
+            if (Destroyed)
+                return;
+         
+            Destroyed = true;
             BeforeDestroy?.Invoke(this);
+
+            for (var i = 0; i < _childsObjects.Count; i++)
+                _childsObjects[i].DestroyWithoutChecks();
+            _childsObjects.Clear();
+            _animations.Clear();
 
             Parent?.RemoveChild(this);
             mUI.Instance.RemoveUIObject(this);
 
-            _animations.Clear();
-            for (var i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].Destroy();
-            _childsObjects.Clear();
+            if (destroyObject)
+            {
+                UnityEngine.Object.Destroy(this);
+                UnityEngine.Object.Destroy(gameObject);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            DestroyImpl(false);
         }
 
         private void OnEnable()
@@ -109,16 +126,22 @@ namespace mFramework.UI
             ActiveChanged?.Invoke(this);
         }
 
+        internal void DestroyWithoutChecks()
+        {
+            DestroyImpl(true);
+        }
+
         public new void Destroy()
         {
             if (this == mUI.BaseView)
                 throw new Exception("Can't destroy BaseView");
-            UnityEngine.Object.Destroy(gameObject);
+
+            DestroyWithoutChecks();
         }
 
-        public UIObject SetName(string name)
+        public UIObject SetName(string newName)
         {
-            gameObject.name = name;
+            gameObject.name = newName;
             return this;
         }
 
@@ -300,12 +323,16 @@ namespace mFramework.UI
 
         public UIObject Show()
         {
+            if (Destroyed)
+                return this;
             gameObject.SetActive(true);
             return this;
         }
 
         public UIObject Hide()
         {
+            if (Destroyed)
+                return this;
             gameObject.SetActive(false);
             return this;
         }
