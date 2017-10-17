@@ -22,6 +22,13 @@ namespace mFramework.UI
         {
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshFilter = gameObject.AddComponent<MeshFilter>();
+
+            SortingOrderChanged += OnSortingOrderChanged;
+        }
+
+        private void OnSortingOrderChanged(UIObject sender)
+        {
+            _meshRenderer.sortingOrder = SortingOrder();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
