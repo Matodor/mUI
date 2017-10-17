@@ -35,6 +35,16 @@ namespace mFramework
         }
 
         // components
+        public static UIPageSlider PageSlider(this UIObject uiObject, UISliderSettings settings)
+        {
+            return uiObject.Component<UIPageSlider>(settings);
+        }
+
+        public static UIMesh Mesh(this UIObject uiObject, UIMeshSettings settings)
+        {
+            return uiObject.Component<UIMesh>(settings);
+        }
+
         public static UIButton Button(this UIObject uiObject, UIButtonSettings settings)
         {
             return uiObject.Component<UIButton>(settings);

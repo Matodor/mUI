@@ -14,6 +14,7 @@ namespace mFramework.UI
         private readonly UIObject _component;
         private readonly MouseEventListener _eventListener;
 
+        
         private UIClickable(IUIClickable clickable, AreaType areaType)
         {
             _uiClickable = clickable;

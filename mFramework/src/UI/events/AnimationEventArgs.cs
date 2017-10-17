@@ -2,13 +2,5 @@
 
 namespace mFramework.UI
 {
-    public class AnimationEventArgs : EventArgs
-    {
-        public UIAnimation Animation { get; }
-
-        public AnimationEventArgs(UIAnimation animation)
-        {
-            Animation = animation;
-        }
-    }
+    public delegate void UIAnimationEventHandler(UIAnimation sender);
 }

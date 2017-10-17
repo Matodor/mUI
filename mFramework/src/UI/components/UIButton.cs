@@ -48,8 +48,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var buttonSettings = settings as UIButtonSettings;
-            if (buttonSettings == null)
+            if (!(settings is UIButtonSettings buttonSettings))
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
 
             ClickCondition = buttonSettings.ClickCondition;
@@ -63,7 +62,7 @@ namespace mFramework.UI
                     throw new ArgumentOutOfRangeException();
             }
 
-            _uiSprite = this.Sprite(new UISpriteSettings { Sprite = buttonSettings.ButtonSpriteStates.Default });
+            _uiSprite = this.Sprite(new UISpriteSettings {Sprite = buttonSettings.ButtonSpriteStates.Default});
             _stateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
             _stateableSprite.StateChanged += (s, e) =>
             {
@@ -84,8 +83,7 @@ namespace mFramework.UI
             _clickableHandler = UIClickable.Create(this, AreaType.RECTANGLE);
             _clickableHandler.Area2D.Update += area2d =>
             {
-                var rect2d = area2d as RectangleArea2D;
-                if (rect2d != null)
+                if (area2d is RectangleArea2D rect2d)
                 {
                     rect2d.Height = GetHeight();
                     rect2d.Width = GetWidth();

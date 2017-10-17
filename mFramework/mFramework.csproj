@@ -78,6 +78,8 @@
     <Compile Include="src\extensions\UIObjectExtension.cs" />
     <Compile Include="src\extensions\VectorExtension.cs" />
     <Compile Include="src\UI\components\UIContainer.cs" />
+    <Compile Include="src\UI\components\UIMesh.cs" />
+    <Compile Include="src\UI\components\UIPageSlider.cs" />
     <Compile Include="src\UI\events\AddedAnimationEventArgs.cs" />
     <Compile Include="src\UI\events\AddedСhildObjectEventArgs.cs" />
     <Compile Include="src\UI\events\AnimationEventArgs.cs" />
@@ -130,6 +132,8 @@
     <Compile Include="src\UI\UIView.cs" />
     <Compile Include="src\UI\UIComponent.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="src\network\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
