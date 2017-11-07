@@ -7,9 +7,10 @@ namespace mFramework.UI
 {
     public sealed class UIViewSettings
     {
-        public float Height { get; set; }
-        public float Width { get; set; }
-        public int SortingOrder { get; set; }
+        public float? Height = null;
+        public float? Width = null;
+        public int? SortingOrder = null;
+        public Vector2? DefaultPos = null;
     }
 
     /*public static class NewView<T> where T : UIView
@@ -61,9 +62,17 @@ namespace mFramework.UI
 
         protected virtual void SetupSettings(UIViewSettings settings)
         {
-            _height = settings.Height;
-            _width = settings.Width;
-            SortingOrder(settings.SortingOrder);
+            if (settings.Height.HasValue)
+                _height = settings.Height.Value;
+
+            if (settings.Width.HasValue)
+                _width = settings.Width.Value;
+
+            if (settings.DefaultPos.HasValue)
+                Position(settings.DefaultPos.Value);
+
+            if (settings.SortingOrder.HasValue)
+                SortingOrder(settings.SortingOrder.Value);
         }
 
         protected virtual void BeforeCreate()

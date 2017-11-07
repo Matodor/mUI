@@ -6,8 +6,8 @@ namespace mFramework
     {
         public class ListItem
         {
-            internal T Value;
-            internal ListItem Prev;
+            public T Value { get; internal set; }
+            public ListItem Prev { get; internal set; }
         }
 
         public T this[int index]
@@ -48,7 +48,7 @@ namespace mFramework
             return new UnidirectionalList<T>();
         }
 
-        public void Add(T value)
+        internal void Add(T value)
         {
             if (value == null)
                 return;
@@ -66,12 +66,12 @@ namespace mFramework
             Count++;
         }
 
-        public bool Remove(T value)
+        internal bool Remove(T value)
         {
             return value != null && Remove(value.GUID);
         }
 
-        public bool Remove(ulong guid)
+        internal bool Remove(ulong guid)
         {
             if (Count == 0)
                 return false;
@@ -106,7 +106,7 @@ namespace mFramework
             return false;
         }
 
-        public void Clear()
+        internal void Clear()
         {
             ListItem lastIterated = null;
             var current = LastItem;

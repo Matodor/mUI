@@ -8,9 +8,8 @@ namespace mFramework.UI
     {
         internal bool Destroyed;
 
-        //public IReadOnlyList<UIAnimation> Animations => _animations.AsReadOnly();
-        protected UnidirectionalList<UIAnimation> Animations { get; private set; }
-        protected UnidirectionalList<UIObject> Childs { get; private set; }
+        public UnidirectionalList<UIAnimation> Animations { get; private set; }
+        public UnidirectionalList<UIObject> Childs { get; private set; }
 
         public ulong GUID { get; private set; }
         public UIObject Parent { get; private set; }
@@ -32,8 +31,6 @@ namespace mFramework.UI
         public event UIEventHandler<UIObject, RotatedEventArgs> Rotated;
         #endregion
 
-        //private List<UIAnimation> _animations;
-        //private List<UIObject> _childsObjects;
         private int _localSortingOrder;
         private static ulong _guid;
 
