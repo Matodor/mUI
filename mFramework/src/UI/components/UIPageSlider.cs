@@ -37,21 +37,21 @@ namespace mFramework.UI
             {
                 case DirectionOfAddingSlides.FORWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                     {
                         obj.Position(Position());
                         _currentIndex = 0;
                     }
                     else
                     {
-                        var last = this[ChildsCount - 2];
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = last.Position().x + GetWidth(),
                             y = rect.Position.y,
                         });
 
-                        if (ChildsCount > 2)
+                        if (Childs.Count > 2)
                             obj.Hide();
                     }
                 }
@@ -59,21 +59,21 @@ namespace mFramework.UI
 
                 case DirectionOfAddingSlides.BACKWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                     {
                         obj.Position(Position());
                         _currentIndex = 0;
                     }
                     else
                     {
-                        var last = this[ChildsCount - 2];
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = last.Position().x - GetWidth(),
                             y = rect.Position.y,
                         });
                         
-                        if (ChildsCount > 2)
+                        if (Childs.Count > 2)
                             obj.Hide();
                     }
                 }
@@ -88,21 +88,21 @@ namespace mFramework.UI
             {
                 case DirectionOfAddingSlides.FORWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                     {
                         obj.Position(Position());
                         _currentIndex = 0;
                     }
                     else
                     {
-                        var last = this[ChildsCount - 2];
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = rect.Position.x,
                             y = last.Position().y - GetHeight(),
                         });
                         
-                        if (ChildsCount > 2)
+                        if (Childs.Count > 2)
                             obj.Hide();
                     }
                 }
@@ -110,21 +110,21 @@ namespace mFramework.UI
 
                 case DirectionOfAddingSlides.BACKWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                     {
                         obj.Position(Position());
                         _currentIndex = 0;
                     }
                     else
                     {
-                        var last = this[ChildsCount - 2];
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = rect.Position.x,
                             y = last.Position().y + GetHeight(),
                         });
                         
-                        if (ChildsCount > 2)
+                        if (Childs.Count > 2)
                             obj.Hide();
                     }
                 }
@@ -139,7 +139,7 @@ namespace mFramework.UI
                 if (Mathf.Abs(_diff) < GetWidth() / 3)
                 {
                     _isAnimated = true;
-                    var current = this[_currentIndex];
+                    var current = Childs[_currentIndex];
                     var anim = current.LinearAnimation(new UILinearAnimationSettings
                     {
                         StartPos = current.Position(),
@@ -270,7 +270,7 @@ namespace mFramework.UI
                 _isAnimated = false;
                 /*UIObject afterNext = null;
 
-                if (_currentIndex + 2 < ChildsCount)
+                if (_currentIndex + 2 < Childs.Count)
                 {
                     afterNext = this[_currentIndex + 2];
                 }
@@ -312,11 +312,11 @@ namespace mFramework.UI
 
         private void MoveNext()
         {
-            if (_isAnimated || _currentIndex == ChildsCount - 1)
+            if (_isAnimated || _currentIndex == Childs.Count - 1)
                 return;
 
-            var current = this[_currentIndex];
-            var next = this[_currentIndex + 1];
+            var current = Childs[_currentIndex];
+            var next = Childs[_currentIndex + 1];
 
             Move(current, next, true);
         }
@@ -326,8 +326,8 @@ namespace mFramework.UI
             if (_isAnimated || _currentIndex == 0)
                 return;
 
-            var current = this[_currentIndex];
-            var next = this[_currentIndex - 1];
+            var current = Childs[_currentIndex];
+            var next = Childs[_currentIndex - 1];
 
             Move(current, next, false);
         }
@@ -362,7 +362,7 @@ namespace mFramework.UI
             }
 
             _diff += diff;
-            this[_currentIndex].Translate(diff, 0);
+            Childs[_currentIndex].Translate(diff, 0);
         }
 
         protected override void VerticalMove(float diff)
@@ -390,7 +390,7 @@ namespace mFramework.UI
             }
 
             _diff += diff;
-            this[_currentIndex].Translate(0, diff);
+            Childs[_currentIndex].Translate(0, diff);
         }
     }
 }

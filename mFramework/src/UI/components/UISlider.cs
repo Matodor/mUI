@@ -116,33 +116,35 @@ namespace mFramework.UI
             {
                 case DirectionOfAddingSlides.FORWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                         obj.Position(rect.Left + obj.GetWidth() / 2, rect.Position.y);
                     else
                     {
-                        var last = GetLastSliderItem();
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = last.GetRect().Right + obj.GetWidth() / 2 + _offset,
                             y = rect.Position.y,
                         });
                     }
-                } break;
+                }
+                break;
 
                 case DirectionOfAddingSlides.BACKWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                         obj.Position(rect.Right - obj.GetWidth() / 2, rect.Position.y);
                     else
                     {
-                        var last = GetLastSliderItem();
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = last.GetRect().Left - obj.GetWidth() / 2 - _offset,
                             y = rect.Position.y,
                         });
                     }
-                } break;
+                }
+                break;
             }
         }
 
@@ -153,11 +155,11 @@ namespace mFramework.UI
             {
                 case DirectionOfAddingSlides.FORWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                         obj.Position(rect.Position.x, rect.Top - obj.GetHeight() / 2);
                     else
                     {
-                        var last = GetLastSliderItem();
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = rect.Position.x,
@@ -169,11 +171,11 @@ namespace mFramework.UI
 
                 case DirectionOfAddingSlides.BACKWARD:
                 {
-                    if (ChildsCount <= 1)
+                    if (Childs.Count <= 1)
                         obj.Position(rect.Position.x, rect.Bottom + obj.GetHeight() / 2);
                     else
                     {
-                        var last = GetLastSliderItem();
+                        var last = Childs.LastItem.Prev.Value;
                         obj.Position(new Vector2
                         {
                             x = rect.Position.x,
@@ -220,7 +222,7 @@ namespace mFramework.UI
             gameObject.transform.position = new Vector3(
                 gameObject.transform.position.x,
                 gameObject.transform.position.y,
-                gameObject.transform.position.z + SortingOrder()
+                gameObject.transform.position.z + SortingOrder() + 1
             );
 
             Translated += (s, e) => UpdateViewport();
@@ -282,16 +284,6 @@ namespace mFramework.UI
             _lastMousePos = worldPos;
         }
 
-        protected UIObject GetFirstSliderItem()
-        {
-            return this[0];
-        }
-
-        protected UIObject GetLastSliderItem()
-        {
-            return this[ChildsCount - 1];
-        }
-
         public void Move(float diff)
         {
             if (_sliderOrientation == UIObjectOrientation.HORIZONTAL)
@@ -312,19 +304,19 @@ namespace mFramework.UI
 
         protected virtual void VerticalMove(float diff)
         {
-            if (ChildsCount == 0)
+            if (Childs.Count == 0)
                 return;
 
             UIRect topRect, bottomRect;
             if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
             {
-                topRect = GetFirstSliderItem().GetRect();
-                bottomRect = GetLastSliderItem().GetRect();
+                topRect = Childs.FirstItem.Value.GetRect();
+                bottomRect = Childs.LastItem.Value.GetRect();
             }
             else
             {
-                topRect = GetLastSliderItem().GetRect();
-                bottomRect = GetFirstSliderItem().GetRect();
+                topRect = Childs.LastItem.Value.GetRect();
+                bottomRect = Childs.FirstItem.Value.GetRect();
             }
 
             var rect = GetRect();
@@ -348,9 +340,7 @@ namespace mFramework.UI
                     diff = Math.Sign(diff) * freeSpace;
             }
 
-            for (int i = 0; i < ChildsCount; i++)
-                this[i].Translate(0, diff);
-
+            Childs.ForEach(c => c.Translate(0, diff));
             _lastMoveDiff = diff;
         }
 
@@ -378,19 +368,19 @@ namespace mFramework.UI
 
         protected virtual void HorizontalMove(float diff)
         {
-            if (ChildsCount == 0)
+            if (Childs.Count == 0)
                 return;
 
             UIRect leftRect, rightRect;
             if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
             {
-                leftRect = GetFirstSliderItem().GetRect();
-                rightRect = GetLastSliderItem().GetRect();
+                leftRect = Childs.FirstItem.Value.GetRect();
+                rightRect = Childs.LastItem.Value.GetRect();
             }
             else
             {
-                leftRect = GetLastSliderItem().GetRect();
-                rightRect = GetFirstSliderItem().GetRect();
+                leftRect = Childs.LastItem.Value.GetRect();
+                rightRect = Childs.FirstItem.Value.GetRect();
             }
 
             var rect = GetRect();
@@ -413,10 +403,8 @@ namespace mFramework.UI
                 if (Math.Abs(diff) > freeSpace)
                     diff = Math.Sign(diff) * freeSpace;
             }
-            
-            for (int i = 0; i < ChildsCount; i++)
-                this[i].Translate(diff, 0);
 
+            Childs.ForEach(c => c.Translate(diff, 0));
             _lastMoveDiff = diff;
         }
     }

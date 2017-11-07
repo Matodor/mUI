@@ -2,7 +2,7 @@
 using mFramework.UI;
 using UnityEngine;
 
-public class PageControllerView : UIView
+public class PageSliderView : UIView
 {
     private UIPageSlider _pageSlider;
 

@@ -23,8 +23,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var scaleSettings = settings as UIScaleAnimationSettings;
-            if (scaleSettings == null)
+            if (!(settings is UIScaleAnimationSettings scaleSettings))
                 throw new ArgumentException("UIScaleAnimation: The given settings is not UIScaleAnimationSettings");
 
             _startScale = scaleSettings.StartScale;

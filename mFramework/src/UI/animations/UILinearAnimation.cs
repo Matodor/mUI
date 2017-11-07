@@ -24,8 +24,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var linearSettings = settings as UILinearAnimationSettings;
-            if (linearSettings == null)
+            if (!(settings is UILinearAnimationSettings linearSettings))
                 throw new ArgumentException("UILinearAnimation: The given settings is not UILinearAnimationSettings");
 
             _startPos = linearSettings.StartPos;

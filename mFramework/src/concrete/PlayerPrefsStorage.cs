@@ -4,7 +4,7 @@ namespace mFramework
 {
     public class PlayerPrefsStorage : IKeyValueStorage
     {
-        public static PlayerPrefsStorage Instance => _instance ?? (_instance = new PlayerPrefsStorage());
+        public static PlayerPrefsStorage Instance { get; } = new PlayerPrefsStorage();
 
         private static PlayerPrefsStorage _instance;
 

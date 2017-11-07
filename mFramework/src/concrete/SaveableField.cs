@@ -3,176 +3,199 @@ using System.Globalization;
 
 namespace mFramework
 {
-    // bool
-    public struct SaveableBoolean : ISaveableField<bool>
+    public struct SaveableDateTime : ISaveableField
     {
-        public bool Value { get; set; }
+        private DateTime _value;
+
+        public override string ToString()
+        {
+            return _value.ToString("G");
+        }
+
+        public static implicit operator DateTime(SaveableDateTime field)
+        {
+            return field._value;
+        }
+
+        public static implicit operator SaveableDateTime(DateTime value)
+        {
+            return new SaveableDateTime {_value = value};
+        }
+
+        public bool SaveValue(ISaveableFieldsBridge bridge)
+        {
+            
+            return bridge.Storage.SetString(bridge.Key, Convert.ToString(_value.Ticks));
+        }
+
+        public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
+        {
+            if (bridge.Storage.GetString(bridge.Key, out var value))
+                return new SaveableDateTime {_value = new DateTime(Convert.ToInt64(value))};
+            return new SaveableDateTime { _value = default(DateTime) };
+        }
+
+    }
+
+    public struct SaveableBoolean : ISaveableField
+    {
+        private bool _value;
 
         public static implicit operator bool(SaveableBoolean field)
         {
-            return field.Value;
+            return field._value;
         }
 
         public static implicit operator SaveableBoolean(bool value)
         {
-            return new SaveableBoolean { Value = value };
+            return new SaveableBoolean {_value = value};
         }
 
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
-            return bridge.Storage.SetInt(bridge.Key, Value ? 1 : 0);
+            return bridge.Storage.SetInt(bridge.Key, _value ? 1 : 0);
         }
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            int value;
-            if (bridge.Storage.GetInt(bridge.Key, out value))
-                return new SaveableBoolean { Value = value == 1 };
-            return new SaveableBoolean { Value = default(bool) };
+            if (bridge.Storage.GetInt(bridge.Key, out var value))
+                return new SaveableBoolean { _value = value == 1 };
+            return new SaveableBoolean { _value = default(bool) };
         }
     }
 
-    // int
-    public struct SaveableInt : ISaveableField<int>
+    public struct SaveableInt : ISaveableField
     {
-        public int Value { get; set; }
+        private int _value;
 
         public static implicit operator int(SaveableInt field)
         {
-            return field.Value;
+            return field._value;
         }
 
         public static implicit operator SaveableInt(int value)
         {
-            return new SaveableInt {Value = value};
+            return new SaveableInt {_value = value};
         }
 
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
-            return bridge.Storage.SetInt(bridge.Key, Value);
+            return bridge.Storage.SetInt(bridge.Key, _value);
         }
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            int value;
-            if (bridge.Storage.GetInt(bridge.Key, out value))
-                return new SaveableInt {Value = value};
-            return new SaveableInt { Value = default(int) };
+            if (bridge.Storage.GetInt(bridge.Key, out var value))
+                return new SaveableInt {_value = value };
+            return new SaveableInt { _value = default(int) };
         }
     }
 
-    // float
-    public struct SaveableFloat : ISaveableField<float>
+    public struct SaveableFloat : ISaveableField
     {
-        public float Value { get; set; }
+        private float _value;
 
         public static implicit operator float(SaveableFloat field)
         {
-            return field.Value;
+            return field._value;
         }
 
         public static implicit operator SaveableFloat(float value)
         {
-            return new SaveableFloat {Value = value};
+            return new SaveableFloat {_value = value};
         }
 
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
-            return bridge.Storage.SetFloat(bridge.Key, Value);
+            return bridge.Storage.SetFloat(bridge.Key, _value);
         }
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            float value;
-            if (bridge.Storage.GetFloat(bridge.Key, out value))
-                return new SaveableFloat {Value = value};
-            return new SaveableFloat { Value = default(float) };
+            if (bridge.Storage.GetFloat(bridge.Key, out var value))
+                return new SaveableFloat {_value = value};
+            return new SaveableFloat { _value = default(float) };
         }
     }
 
-    // string
-    public struct SaveableString : ISaveableField<string>
+    public struct SaveableString : ISaveableField
     {
-        public string Value { get; set; }
+        private string _value;
 
         public static implicit operator string(SaveableString field)
         {
-            return field.Value;
+            return field._value;
         }
 
         public static implicit operator SaveableString(string value)
         {
-            return new SaveableString { Value = value };
+            return new SaveableString {_value = value};
         }
 
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
-            return bridge.Storage.SetString(bridge.Key, Value);
+            return bridge.Storage.SetString(bridge.Key, _value);
         }
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            string value;
-            if (bridge.Storage.GetString(bridge.Key, out value))
-                return new SaveableString { Value = value };
-            return new SaveableString { Value = default(string) };
+            if (bridge.Storage.GetString(bridge.Key, out var value))
+                return new SaveableString { _value = value };
+            return new SaveableString { _value = default(string) };
         }
     }
 
-    // ulong
-    public struct SaveableUInt64 : ISaveableField<ulong>
+    public struct SaveableUInt64 : ISaveableField
     {
-        public ulong Value { get; set; }
+        private ulong _value;
 
         public static implicit operator ulong(SaveableUInt64 field)
         {
-            return field.Value;
+            return field._value;
         }
 
         public static implicit operator SaveableUInt64(ulong value)
         {
-            return new SaveableUInt64 { Value = value };
+            return new SaveableUInt64 {_value = value};
         }
 
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
-            return bridge.Storage.SetString(bridge.Key, Convert.ToString(Value));
+            return bridge.Storage.SetString(bridge.Key, Convert.ToString(_value));
         }
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            string value;
-            if (bridge.Storage.GetString(bridge.Key, out value))
-                return new SaveableUInt64 {Value = Convert.ToUInt64(value)};
-            return new SaveableUInt64 { Value = default(ulong) };
+            if (bridge.Storage.GetString(bridge.Key, out var value))
+                return new SaveableUInt64 {_value = Convert.ToUInt64(value)};
+            return new SaveableUInt64 { _value = default(ulong) };
         }
     }
 
-    public struct SaveableDecimal : ISaveableField<decimal>
+    public struct SaveableDecimal : ISaveableField
     {
-        public decimal Value { get; set; }
+        private decimal _value;
 
         public static implicit operator decimal(SaveableDecimal field)
         {
-            return field.Value;
+            return field._value;
         }
 
         public static implicit operator SaveableDecimal(decimal value)
         {
-            return new SaveableDecimal { Value = value };
+            return new SaveableDecimal {_value = value};
         }
 
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
-            return bridge.Storage.SetString(bridge.Key, Convert.ToString(Value, CultureInfo.InvariantCulture));
+            return bridge.Storage.SetString(bridge.Key, Convert.ToString(_value, CultureInfo.InvariantCulture));
         }
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            string value;
-            if (bridge.Storage.GetString(bridge.Key, out value))
-                return new SaveableDecimal { Value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
-            return new SaveableDecimal { Value = default(decimal) };
+            if (bridge.Storage.GetString(bridge.Key, out var value))
+                return new SaveableDecimal { _value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
+            return new SaveableDecimal { _value = default(decimal) };
         }
     }
 }

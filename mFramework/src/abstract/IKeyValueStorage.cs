@@ -16,5 +16,6 @@ namespace mFramework
         bool SetString(string key, string value);
 
         void Save();
+        void Clear();
     }
 }

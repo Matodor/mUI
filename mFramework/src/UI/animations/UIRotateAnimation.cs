@@ -22,8 +22,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var rotateSettings = settings as UIRotateAnimationSettings;
-            if (rotateSettings == null)
+            if (!(settings is UIRotateAnimationSettings rotateSettings))
                 throw new ArgumentException("UILinearAnimation: The given settings is not UIRotateAnimationSettings");
 
             _fromAngle = rotateSettings.FromAngle;

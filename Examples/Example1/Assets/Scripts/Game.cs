@@ -1,4 +1,5 @@
-﻿using mFramework;
+﻿using Assets.Scripts.Views;
+using mFramework;
 using mFramework.UI;
 using UnityEngine;
 
@@ -22,6 +23,8 @@ public class Game : MonoBehaviour
         });
         mUI.UICamera.Camera.backgroundColor = Color.gray;
         mUI.LoadOSFont("Arial");
-        mUI.BaseView.ChildView<PageControllerView>();
+
+        mUI.BaseView.ChildView<TextBoxView>();
+        //mUI.BaseView.ChildView<PageSliderView>();
     }
 }

@@ -8,10 +8,9 @@ namespace mFramework.UI
     {
         internal bool Destroyed;
 
-        public IReadOnlyList<UIAnimation> Animations => _animations.AsReadOnly();
-        public int ChildsCount => _childsObjects.Count;
-
-        public UIObject this[int index] => _childsObjects[index];
+        //public IReadOnlyList<UIAnimation> Animations => _animations.AsReadOnly();
+        protected UnidirectionalList<UIAnimation> Animations { get; private set; }
+        protected UnidirectionalList<UIObject> Childs { get; private set; }
 
         public ulong GUID { get; private set; }
         public UIObject Parent { get; private set; }
@@ -33,8 +32,8 @@ namespace mFramework.UI
         public event UIEventHandler<UIObject, RotatedEventArgs> Rotated;
         #endregion
 
-        private List<UIAnimation> _animations;
-        private List<UIObject> _childsObjects;
+        //private List<UIAnimation> _animations;
+        //private List<UIObject> _childsObjects;
         private int _localSortingOrder;
         private static ulong _guid;
 
@@ -47,7 +46,7 @@ namespace mFramework.UI
         {
         }
 
-        protected void InitCompleted()
+        internal void InitCompleted()
         {
             Parent?.AddChild(this);
         }
@@ -56,10 +55,10 @@ namespace mFramework.UI
         {
             GUID = ++_guid;
             Parent = null;
+            Animations = UnidirectionalList<UIAnimation>.Create();
+            Childs = UnidirectionalList<UIObject>.Create();
 
             _localSortingOrder = 0;
-            _childsObjects = new List<UIObject>();
-            _animations = new List<UIAnimation>();
 
             mUI.Instance.AddUIObject(this);
             Init();
@@ -94,10 +93,9 @@ namespace mFramework.UI
             Destroyed = true;
             BeforeDestroy?.Invoke(this);
 
-            for (var i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].DestroyWithoutChecks();
-            _childsObjects.Clear();
-            _animations.Clear();
+            Childs.ForEach(c => c.DestroyWithoutChecks());
+            Childs.Clear();
+            Animations.Clear();
 
             Parent?.RemoveChild(this);
             mUI.Instance.RemoveUIObject(this);
@@ -229,8 +227,7 @@ namespace mFramework.UI
         private void OnSortingOrderChanged()
         {
             SortingOrderChanged?.Invoke(this);
-            for (var i = 0; i < _childsObjects.Count; i++)
-                _childsObjects[i].OnSortingOrderChanged();
+            Childs.ForEach(c => c.OnSortingOrderChanged());
         }
 
         public UIObject Scale(float v)
@@ -348,18 +345,15 @@ namespace mFramework.UI
 
             OnTick();
 
-            for (var i = _animations.Count - 1; i >= 0; i--)
+            Animations.ForEach(a =>
             {
-                if (_animations[i].MarkedForDestroy)
-                    _animations.RemoveAt(i);
+                if (a.MarkedForDestroy)
+                    Animations.Remove(a.GUID);
                 else 
-                    _animations[i].Tick();
-            }
+                    a.Tick();
+            });
 
-            for (var i = _childsObjects.Count - 1; i >= 0; i--)
-            {
-                _childsObjects[i].Tick();
-            }
+            Childs.ForEach(c => c.Tick());
         }
 
         public virtual void OnFixedTick()
@@ -373,10 +367,8 @@ namespace mFramework.UI
 
             OnFixedTick();
 
-            for (var i = _childsObjects.Count - 1; i >= 0; i--)
-            {
-                 _childsObjects[i].FixedTick();
-            }
+            Childs.ForEach(c => c.FixedTick());
+
         }
 
         public virtual void OnLateTick()
@@ -390,10 +382,7 @@ namespace mFramework.UI
 
             OnLateTick();
 
-            for (var i = _childsObjects.Count - 1; i >= 0; i--)
-            {
-                _childsObjects[i].LateTick();
-            }
+            Childs.ForEach(c => c.LateTick());
         }
 
         public T Component<T>(UIComponentSettings settings) where T : UIComponent
@@ -405,7 +394,7 @@ namespace mFramework.UI
         {
             var uiAnimation = UIAnimation.Create<T>(this, settings);
 
-            _animations.Add(uiAnimation);
+            Animations.Add(uiAnimation);
             AnimationAdded?.Invoke(this, new AddedAnimationEventArgs(uiAnimation));
 
             return uiAnimation;
@@ -413,21 +402,23 @@ namespace mFramework.UI
 
         public void RemoveAnimations<T>() where T : UIAnimation
         {
-            for (var i = _animations.Count - 1; i >= 0; i--)
+            Animations.ForEach(a =>
             {
-                if (_animations[i].GetType() == typeof(T))
-                    _animations[i].Remove();
-            }
+                if (a is T)
+                {
+                    a.Remove();
+                }
+            });
         }
 
         public void RemoveAnimations()
         {
-            _animations.Clear();
+            Animations.Clear();
         }
 
         internal void RemoveChild(UIObject obj)
         {
-            if (_childsObjects.Remove(obj))
+            if (Childs.Remove(obj))
             {
                 СhildObjectRemoved?.Invoke(this, new RemovedСhildObjectEventArgs(obj));       
             }
@@ -435,10 +426,7 @@ namespace mFramework.UI
 
         private void AddChild(UIObject obj)
         {
-            if (_childsObjects.Contains(obj))
-                return;
-
-            _childsObjects.Add(obj);
+            Childs.Add(obj);
             СhildObjectAdded?.Invoke(this, new AddedСhildObjectEventArgs(obj));
         }
     }

@@ -10,16 +10,37 @@ namespace mFramework
             internal ListItem Prev;
         }
 
-        public uint Count => _count;
-        public ListItem LastItem => _lastItem;
+        public T this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= Count)
+                    return default(T);
 
-        private ListItem _lastItem;
-        private uint _count;
+                var tmp = LastItem;
+                var i = 0;
+
+                while (tmp != null)
+                {
+                    if (i == index)
+                        return tmp.Value;
+                    tmp = tmp.Prev;
+                    i++;
+                }
+
+                return default(T);
+            }
+        }
+        
+        public int Count { get; private set; }
+        public ListItem LastItem { get; private set; }
+        public ListItem FirstItem { get; private set; }
 
         private UnidirectionalList()
         {
-            _count = 0;
-            _lastItem = null;
+            Count = 0;
+            LastItem = null;
+            FirstItem = null;
         }
 
         public static UnidirectionalList<T> Create()
@@ -35,11 +56,14 @@ namespace mFramework
             var item = new ListItem
             {
                 Value = value,
-                Prev = _lastItem
+                Prev = LastItem
             };
 
-            _lastItem = item;
-            _count++;
+            if (FirstItem == null)
+                FirstItem = item;
+
+            LastItem = item;
+            Count++;
         }
 
         public bool Remove(T value)
@@ -49,25 +73,29 @@ namespace mFramework
 
         public bool Remove(ulong guid)
         {
-            if (_lastItem == null)
+            if (Count == 0)
                 return false;
 
             ListItem lastIterated = null;
-            var current = _lastItem;
+            var current = LastItem;
             
             while (current != null)
             {
                 if (current.Value.GUID == guid)
                 {
                     if (lastIterated == null)
-                        _lastItem = current.Prev;
+                        LastItem = current.Prev;
                     else
                         lastIterated.Prev = current.Prev;
 
                     current.Value = default(T);
                     current.Prev = null;
                     current = null;
-                    _count--;
+                    Count--;
+
+                    if (Count == 0)
+                        FirstItem = null;
+
                     return true;
                 }
 
@@ -81,7 +109,7 @@ namespace mFramework
         public void Clear()
         {
             ListItem lastIterated = null;
-            var current = _lastItem;
+            var current = LastItem;
 
             while (current != null)
             {
@@ -95,13 +123,13 @@ namespace mFramework
                 current = current.Prev;
             }
 
-            _lastItem = null;
-            _count = 0;
+            LastItem = null;
+            Count = 0;
         }
 
         public bool Contains(T item)
         {
-            var current = _lastItem;
+            var current = LastItem;
             while (current != null)
             {
                 if (current.Value.GUID == item.GUID)
@@ -114,7 +142,7 @@ namespace mFramework
 
         public void ForEach(Action<T> action)
         {
-            var tmp = _lastItem;
+            var tmp = LastItem;
             while (tmp != null)
             {
                 action(tmp.Value);

@@ -5,8 +5,8 @@ namespace mFramework.UI
 {
     public class UIMeshSettings : UIComponentSettings
     {
-        public Mesh Mesh;
-        public Mesh SharedMesh;
+        public Mesh Mesh = null;
+        public Mesh SharedMesh = null;
     }
 
     public class UIMesh : UIComponent, IUIRenderer

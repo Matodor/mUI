@@ -35,6 +35,11 @@ namespace mFramework
         }
 
         // components
+        public static UITextBox TextBox(this UIObject uiObject, UITextBoxSettings settings)
+        {
+            return uiObject.Component<UITextBox>(settings);
+        }
+
         public static UIPageSlider PageSlider(this UIObject uiObject, UISliderSettings settings)
         {
             return uiObject.Component<UIPageSlider>(settings);
@@ -81,6 +86,12 @@ namespace mFramework
         }
 
         // animations
+        public static UIBezierQuadraticAnimation BezierQuadraticAnimation(this UIObject uiObject,
+            UIBezierQuadraticAnimationSettings settings)
+        {
+            return uiObject.Animation<UIBezierQuadraticAnimation>(settings);
+        }
+
         public static UIColorAnimation ColorAnimation(this UIObject uiObject, UIColorAnimationSettings settings)
         {
             return uiObject.Animation<UIColorAnimation>(settings);

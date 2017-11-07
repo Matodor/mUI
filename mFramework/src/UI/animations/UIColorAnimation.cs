@@ -29,8 +29,7 @@ namespace mFramework.UI
             if (_animatedObj == null)
                 throw new Exception("The animated object is not IColored");
 
-            var colorSettings = settings as UIColorAnimationSettings;
-            if (colorSettings == null)
+            if (!(settings is UIColorAnimationSettings colorSettings))
                 throw new ArgumentException("UIColorAnimation: The given settings is not UIColorAnimationSettings");
 
             if (colorSettings.FromColor.Type != colorSettings.ToColor.Type)
