@@ -1,7 +1,7 @@
 ﻿using mFramework.UI;
 using UnityEngine;
 
-namespace mFramework
+namespace mFramework.UI
 {
     public interface IColored
     {

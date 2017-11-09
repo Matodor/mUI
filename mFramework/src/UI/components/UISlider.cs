@@ -31,7 +31,7 @@ namespace mFramework.UI
         protected bool _isPressed;
 
         private UIClickable _clickableHandler;
-        private UICamera _camera;
+        //private UICamera _camera;
         private UIObjectOrientation _sliderOrientation;
 
         private float _height;
@@ -43,13 +43,55 @@ namespace mFramework.UI
         private Vector2 _lastMousePos;
 
         private List<Pair<IUIClickable, MouseEvent>> _clickNext;
+        private Material _writeStencilMaterial;
+        private Material _spritesMaterial;
+        private Material _textMaterial;
+
+        private static Sprite _backgroundMask;
 
         protected override void Init()
         {
             _lastMoveDiff = 0;
             _isPressed = false;
             _clickNext = new List<Pair<IUIClickable, MouseEvent>>();
-            
+
+            _spritesMaterial = new Material(Shader.Find("UI/Default"));
+            _spritesMaterial.SetFloat("_Stencil", 2);
+            _spritesMaterial.SetFloat("_StencilComp", 3);
+            _spritesMaterial.color = Color.white;
+
+            _textMaterial = new Material(Shader.Find("UI/Default Font"))
+            {
+                color = Color.white
+            };
+            _textMaterial.SetColor("_TextureSampleAdd", new Color32(255, 255, 255, 0));
+            _textMaterial.SetFloat("_Stencil", 2);
+            _textMaterial.SetFloat("_StencilComp", 3);
+
+            _writeStencilMaterial = new Material(Shader.Find("UI/Default"));
+            _writeStencilMaterial.SetFloat("_Stencil", 2);
+            _writeStencilMaterial.SetFloat("_StencilOp", 2);
+            _writeStencilMaterial.color = Color.white;
+
+            if (_backgroundMask == null)
+            {
+                var texture = new Texture2D(100, 100);
+                for (int i = 0; i < 100; i++)
+                {
+                    for (int j = 0; j < 100; j++)
+                    {
+                        texture.SetPixel(i, j, Color.black);
+                    }
+                }
+                texture.Apply();
+                
+                _backgroundMask = Sprite.Create(
+                    Texture2D.blackTexture,
+                    new Rect(0, 0, Texture2D.blackTexture.width, Texture2D.blackTexture.height),
+                    new Vector2(0.5f, 0.5f)
+                );
+            }
+
             СhildObjectAdded += OnСhildObjectAdded;
         }
 
@@ -65,16 +107,24 @@ namespace mFramework.UI
 
         private void SetupChilds(UIObject sender, AddedСhildObjectEventArgs e)
         {
+            if (e.AddedObject is IUIRenderer uiRenderer)
+            {
+                if (e.AddedObject is UILabel)
+                    uiRenderer.UIRenderer.sharedMaterial = _textMaterial;
+                else
+                    uiRenderer.UIRenderer.sharedMaterial = _spritesMaterial;
+            }
+
             if (e.AddedObject is IUIClickable uiClickable)
             {
                 uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
                 uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
             }
-
+            
             e.AddedObject.СhildObjectAdded += SetupChilds;
         }
         
-        private void UpdateViewport()
+        /*private void UpdateViewport()
         {
             var viewportPos = mUI.UICamera.Camera.WorldToViewportPoint(Position());
             var lb = new Vector2(mUI.UICamera.Left, mUI.UICamera.Bottom);
@@ -91,7 +141,7 @@ namespace mFramework.UI
                 sliderScreenWidthScale,
                 sliderScreenHeightScale
             );
-        }
+        }*/
       
         private static bool CanChildsMouseUp(IUIClickable handler, MouseEvent @event)
         {
@@ -211,22 +261,32 @@ namespace mFramework.UI
                 rect2d.Width = GetWidth();
             };
 
+            var bg = Parent.Sprite(new UISpriteSettings
+            {
+                Sprite = _backgroundMask
+            });
+            bg.Renderer.sharedMaterial = _writeStencilMaterial;
+            bg.Scale(_width / bg.GetWidth(), _height / bg.GetHeight());
+            bg.SortingOrder(-100);
+            bg.gameObject.SetParentTransform(gameObject);
+            BeforeDestroy += sender => { bg.Destroy(); };
+
             //_clickableHandler.CanMouseDown += (h, e) => IsActive;
             //_clickableHandler.CanMouseDrag += (h, e) => IsActive;
             //_clickableHandler.CanMouseUp += (h, e) => IsActive;
 
-            _camera = UICamera.Create(new UICameraSettings());
-            _camera.GameObject.SetParentTransform(gameObject);
-            _camera.SetOrthographicSize(GetHeight() / 2);
-            
-            gameObject.transform.position = new Vector3(
+            //_camera = UICamera.Create(new UICameraSettings());
+            //_camera.GameObject.SetParentTransform(gameObject);
+            //_camera.SetOrthographicSize(GetHeight() / 2);
+
+            /*gameObject.transform.position = new Vector3(
                 gameObject.transform.position.x,
                 gameObject.transform.position.y,
                 gameObject.transform.position.z + SortingOrder() + 1
-            );
+            );*/
 
-            Translated += (s, e) => UpdateViewport();
-            UpdateViewport();
+            //Translated += (s, e) => UpdateViewport();
+            //UpdateViewport();
 
             base.ApplySettings(settings);
         }

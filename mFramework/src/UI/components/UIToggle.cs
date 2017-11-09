@@ -8,10 +8,12 @@ namespace mFramework.UI
         public bool DefaultSelected { get; set; } = false;
     }
 
-    public class UIToggle : UIComponent, IUIRenderer, IColored
+    public class UIToggle : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable
     {
         public Renderer UIRenderer => _button.UIRenderer;
         public bool IsSelected => _isSelected;
+        public SpriteMask SpriteMask => _button.SpriteMask;
+        public UIClickable UIClickable => _button.UIClickable;
 
         public event Func<UIToggle, bool> CanSelect;
         public event Func<UIToggle, bool> CanDeselect;
@@ -22,7 +24,7 @@ namespace mFramework.UI
 
         private bool _isSelected;
         private UIButton _button;
-
+        
         protected override void Init()
         {
             _isSelected = false;
@@ -33,8 +35,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var toggleSettings = settings as UIToggleSettings;
-            if (toggleSettings == null)
+            if (!(settings is UIToggleSettings toggleSettings))
                 throw new ArgumentException("UIToggle: The given settings is not UIToggleSettings");
 
             _button = this.Button((UIButtonSettings) settings);
@@ -49,6 +50,16 @@ namespace mFramework.UI
                 Select();
 
             base.ApplySettings(settings);
+        }
+
+        public void RemoveMask()
+        {
+            _button.RemoveMask();
+        }
+
+        public SpriteMask SetMask(Sprite mask)
+        {
+            return _button.SetMask(mask);
         }
 
         private void ButtonClick(UIButton sender)
@@ -122,6 +133,18 @@ namespace mFramework.UI
         {
             _button.SetColor(color);
             return this;
+        }
+
+        public void MouseDown(Vector2 worldPos)
+        {
+        }
+
+        public void MouseUp(Vector2 worldPos)
+        {
+        }
+
+        public void MouseDrag(Vector2 worldPos)
+        {
         }
     }
 }

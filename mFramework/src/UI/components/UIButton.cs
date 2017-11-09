@@ -19,11 +19,12 @@ namespace mFramework.UI
 
     public delegate bool CanButtonClickDelegate(UIButton sender, Vector2 worldPos);
 
-    public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored
+    public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable
     {
         public Renderer UIRenderer => _uiSprite.UIRenderer;
         public UIClickable UIClickable => _clickableHandler;
         public StateableSprite StateableSprite => _stateableSprite;
+        public SpriteMask SpriteMask => _uiSprite.SpriteMask;
         public ClickCondition ClickCondition { get; set; }
 
         public event UIEventHandler<UIButton> Click;
@@ -154,6 +155,16 @@ namespace mFramework.UI
         {
             _uiSprite.SetColor(color);
             return this;
+        }
+
+        public void RemoveMask()
+        {
+            _uiSprite.RemoveMask();
+        }
+
+        public SpriteMask SetMask(Sprite mask)
+        {
+            return _uiSprite.SetMask(mask);
         }
     }
 }

@@ -9,17 +9,29 @@ namespace mFramework.UI
         public Color? Color { get; set; } = null;
     }
     
-    public class UISprite : UIComponent, IUIRenderer, IColored
+    public class UISprite : UIComponent, IUIRenderer, IColored, IMaskable
     {
+        public static Material DefaultMaterial { get; private set; }
+
         public Renderer UIRenderer => Renderer;
         public SpriteRenderer Renderer { get; private set; }
         public SpriteMask SpriteMask { get; private set; }
-
+        
         protected override void Init()
         {
+            if (DefaultMaterial == null)
+            {
+                DefaultMaterial = new Material(Shader.Find("UI/Default")) {color = Color.white};
+            }
+
             SpriteMask = null;
             Renderer = gameObject.AddComponent<SpriteRenderer>();
-            SortingOrderChanged += s => Renderer.sortingOrder = SortingOrder();
+            Renderer.sharedMaterial = DefaultMaterial;
+
+            SortingOrderChanged += s =>
+            {
+                Renderer.sortingOrder = SortingOrder();
+            };
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -27,8 +39,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var spriteSettings = settings as UISpriteSettings;
-            if (spriteSettings == null)
+            if (!(settings is UISpriteSettings spriteSettings))
                 throw new ArgumentException("UISPrite: The given settings is not UISpriteSettings");
           
             Renderer.sprite = spriteSettings.Sprite;
@@ -45,14 +56,16 @@ namespace mFramework.UI
             return this;
         }
 
-        public UISprite RemoveMask()
+        public void RemoveMask()
         {
             if (SpriteMask != null)
+            {
                 UnityEngine.Object.Destroy(SpriteMask.gameObject);
-            return this;
+                SpriteMask = null;
+            }
         }
 
-        public UISprite SetMask(Sprite mask)
+        public SpriteMask SetMask(Sprite mask)
         {
             if (SpriteMask == null)
             {
@@ -62,7 +75,7 @@ namespace mFramework.UI
             }
 
             SpriteMask.sprite = mask;
-            return this;
+            return SpriteMask;
         }
 
         public override float GetHeight()

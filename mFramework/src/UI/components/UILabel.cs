@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -39,6 +38,7 @@ namespace mFramework.UI
 
     public class UILabel : UIComponent, IUIRenderer, IColored
     {
+        public static Material DefaultMaterial { get; private set; }
         public Renderer UIRenderer { get; private set; }
         public string Text => _cachedText;
         public int Size => _fontSize;
@@ -72,11 +72,24 @@ namespace mFramework.UI
         private float _bottom;
 
         private Dictionary<int, TextFormatting> _textFormatting;
+        private MaterialPropertyBlock _propertyBlock;
 
         protected override void Init()
         {
+            if (DefaultMaterial == null)
+            {
+                DefaultMaterial = new Material(Shader.Find("UI/Default Font"))
+                {
+                    color = Color.white
+                };
+                DefaultMaterial.SetColor("_TextureSampleAdd", new Color32(255, 255, 255, 0));
+            }
+
+            _propertyBlock = new MaterialPropertyBlock();
             _textFormatting = new Dictionary<int, TextFormatting>();
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            _meshRenderer.sharedMaterial = DefaultMaterial;
+
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             _meshFilter.mesh = new Mesh();
             _meshFilter.mesh.Clear();
@@ -187,7 +200,7 @@ namespace mFramework.UI
 
                 if (_cachedFont == null)
                     throw new Exception("Not fount font: " + _fontName);
-              
+
                 if (updateMesh)
                     UpdateMeshText();
             }
@@ -198,6 +211,10 @@ namespace mFramework.UI
         {
             if (font == _cachedFont)
             {
+                _meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.material.mainTexture);
+                _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.material.mainTextureOffset);
+                _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.material.mainTextureScale);
+                
                 UpdateMeshText();
             }
         }
@@ -207,8 +224,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var labelSettings = settings as UILabelSettings;
-            if (labelSettings == null)
+            if (!(settings is UILabelSettings labelSettings))
                 throw new ArgumentException("UILabel: The given settings is not UILabelSettings");
 
             Font.textureRebuilt += FontRebuilt;
@@ -628,8 +644,9 @@ namespace mFramework.UI
             _meshFilter.mesh.normals = normalsList.ToArray();
             _meshFilter.mesh.uv = uvList.ToArray();
 
-            if (_meshRenderer.sharedMaterial != _cachedFont.material)
-                _meshRenderer.sharedMaterial = _cachedFont.material;
+            _meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.material.mainTexture);
+            _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.material.mainTextureOffset);
+            _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.material.mainTextureScale);
 
             Scale(localScale);
             TextUpdated?.Invoke(this);
@@ -680,9 +697,6 @@ namespace mFramework.UI
                     colors[i] = color;
                 _meshFilter.mesh.colors = colors;
             }
-
-            if (_meshRenderer.sharedMaterial != _cachedFont.material)
-                _meshRenderer.sharedMaterial = _cachedFont.material;
 
             return this;
         }

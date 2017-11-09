@@ -46,6 +46,7 @@ namespace mFramework.UI
         internal void InitCompleted()
         {
             Parent?.AddChild(this);
+            OnSortingOrderChanged();
         }
 
         private void Awake()
