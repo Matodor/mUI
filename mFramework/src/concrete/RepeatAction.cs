@@ -6,18 +6,18 @@ namespace mFramework
     public class RepeatAction : IGlobalUniqueIdentifier
     {
         public ulong GUID { get; }
+        public float Interval { get; set; }
 
         private readonly Action _action;
-        private readonly float _repeatTime;
         private float _nextInvoke;
 
         private static ulong _guid;
 
-        private RepeatAction(Action action, float repeatTime)
+        private RepeatAction(Action action, float interval)
         {
-            _repeatTime = repeatTime;
+            Interval = interval;
             _action = action;
-            _nextInvoke = Time.time + repeatTime;
+            _nextInvoke = Time.time + interval;
 
             GUID = ++_guid;
             mCore.Instance.AddRepeatAction(this);
@@ -32,7 +32,7 @@ namespace mFramework
         {
             if (Time.time >= _nextInvoke)
             {
-                _nextInvoke = Time.time + _repeatTime;
+                _nextInvoke = Time.time + Interval;
                 _action?.Invoke();
             }
         }

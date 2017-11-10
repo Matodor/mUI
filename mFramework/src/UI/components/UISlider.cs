@@ -58,6 +58,8 @@ namespace mFramework.UI
             _spritesMaterial = new Material(Shader.Find("UI/Default"));
             _spritesMaterial.SetFloat("_Stencil", 2);
             _spritesMaterial.SetFloat("_StencilComp", 3);
+            _spritesMaterial.SetFloat("_StencilWriteMask", 8);
+            _spritesMaterial.SetFloat("_StencilReadMask", 8);
             _spritesMaterial.color = Color.white;
 
             _textMaterial = new Material(Shader.Find("UI/Default Font"))
@@ -67,10 +69,14 @@ namespace mFramework.UI
             _textMaterial.SetColor("_TextureSampleAdd", new Color32(255, 255, 255, 0));
             _textMaterial.SetFloat("_Stencil", 2);
             _textMaterial.SetFloat("_StencilComp", 3);
+            _textMaterial.SetFloat("_StencilWriteMask", 8);
+            _textMaterial.SetFloat("_StencilReadMask", 8);
 
             _writeStencilMaterial = new Material(Shader.Find("UI/Default"));
             _writeStencilMaterial.SetFloat("_Stencil", 2);
             _writeStencilMaterial.SetFloat("_StencilOp", 2);
+            _writeStencilMaterial.SetFloat("_StencilWriteMask", 8);
+            _writeStencilMaterial.SetFloat("_StencilReadMask", 8);
             _writeStencilMaterial.color = Color.white;
 
             if (_backgroundMask == null)
