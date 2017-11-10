@@ -69,6 +69,7 @@
     <Compile Include="src\concrete\CachedFieldInfo.cs" />
     <Compile Include="src\concrete\djb2Hash.cs" />
     <Compile Include="src\concrete\EasingFunctions.cs" />
+    <Compile Include="src\concrete\ObjectPool.cs" />
     <Compile Include="src\concrete\Pair.cs" />
     <Compile Include="src\concrete\PlayerPrefsStorage.cs" />
     <Compile Include="src\concrete\RepeatAction.cs" />
