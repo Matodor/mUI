@@ -8,7 +8,7 @@ namespace mFramework.UI
 {
     public class UIRadioGroupSettings : UIComponentSettings
     {
-        public bool CanDeselectCurrent { get; set; }
+        public bool CanDeselectCurrent;
     }
 
     public class UIRadioGroup : UIComponent
@@ -37,8 +37,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var radioGroupSettings = settings as UIRadioGroupSettings;
-            if (radioGroupSettings == null)
+            if (!(settings is UIRadioGroupSettings radioGroupSettings))
                 throw new ArgumentException("UIRadioGroup: The given settings is not UIRadioGroupSettings");
 
             _canDeselectCurrent = radioGroupSettings.CanDeselectCurrent;

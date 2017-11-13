@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace mFramework
@@ -18,13 +15,13 @@ namespace mFramework
         public float Rotation { get; set; }
         public float AdditionalScale = 1;
 
-        public event Action<Area2D> Update;
+        public event Action<Area2D> Update = _ => {};
 
         public abstract bool InArea(Vector2 worldPoint);
 
         protected void UpdateData()
         {
-            Update?.Invoke(this);
+            Update.Invoke(this);
         }
 
     }

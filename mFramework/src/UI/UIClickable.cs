@@ -28,11 +28,14 @@ namespace mFramework.UI
             switch (areaType)
             {
                 case AreaType.RECTANGLE:
-                    Area2D = new RectangleArea2D();
-                    Area2D.Update += area2d =>
+                    var area = new RectangleArea2D();
+                    Area2D = area;
+                    Area2D.Update += _ =>
                     {
-                        area2d.Center = _component.Position();
-                        area2d.Rotation = _component.Rotation();
+                        area.Center = _component.Position();
+                        area.Rotation = _component.Rotation();
+                        area.Width = _component.GetWidth();
+                        area.Height = _component.GetHeight();
                     };
                     break;
                 default:

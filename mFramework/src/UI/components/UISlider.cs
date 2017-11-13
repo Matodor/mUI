@@ -58,8 +58,8 @@ namespace mFramework.UI
             _spritesMaterial = new Material(Shader.Find("UI/Default"));
             _spritesMaterial.SetFloat("_Stencil", 2);
             _spritesMaterial.SetFloat("_StencilComp", 3);
-            _spritesMaterial.SetFloat("_StencilWriteMask", 8);
-            _spritesMaterial.SetFloat("_StencilReadMask", 8);
+            _spritesMaterial.SetFloat("_StencilWriteMask", 255);
+            _spritesMaterial.SetFloat("_StencilReadMask", 255);
             _spritesMaterial.color = Color.white;
 
             _textMaterial = new Material(Shader.Find("UI/Default Font"))
@@ -69,14 +69,14 @@ namespace mFramework.UI
             _textMaterial.SetColor("_TextureSampleAdd", new Color32(255, 255, 255, 0));
             _textMaterial.SetFloat("_Stencil", 2);
             _textMaterial.SetFloat("_StencilComp", 3);
-            _textMaterial.SetFloat("_StencilWriteMask", 8);
-            _textMaterial.SetFloat("_StencilReadMask", 8);
+            _textMaterial.SetFloat("_StencilWriteMask", 255);
+            _textMaterial.SetFloat("_StencilReadMask", 255);
 
             _writeStencilMaterial = new Material(Shader.Find("UI/Default"));
             _writeStencilMaterial.SetFloat("_Stencil", 2);
             _writeStencilMaterial.SetFloat("_StencilOp", 2);
-            _writeStencilMaterial.SetFloat("_StencilWriteMask", 8);
-            _writeStencilMaterial.SetFloat("_StencilReadMask", 8);
+            _writeStencilMaterial.SetFloat("_StencilWriteMask", 255);
+            _writeStencilMaterial.SetFloat("_StencilReadMask", 255);
             _writeStencilMaterial.color = Color.white;
 
             if (_backgroundMask == null)
@@ -258,14 +258,6 @@ namespace mFramework.UI
             _offset = sliderSettings.Offset;
 
             _clickableHandler = UIClickable.Create(this, AreaType.RECTANGLE);
-            _clickableHandler.Area2D.Update += area2d =>
-            {
-                if (!(area2d is RectangleArea2D rect2d))
-                    return;
-
-                rect2d.Height = GetHeight();
-                rect2d.Width = GetWidth();
-            };
 
             var bg = Parent.Sprite(new UISpriteSettings
             {
@@ -273,7 +265,7 @@ namespace mFramework.UI
             });
             bg.Renderer.sharedMaterial = _writeStencilMaterial;
             bg.Scale(_width / bg.GetWidth(), _height / bg.GetHeight());
-            bg.SortingOrder(-100);
+            bg.SortingOrder(LocalSortingOrder());
             bg.gameObject.SetParentTransform(gameObject);
             BeforeDestroy += sender => { bg.Destroy(); };
 

@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace mFramework
 {
-    public struct SpriteStates
+    public class SpriteStates
     {
-        public Sprite Default { get; set; }
-        public Sprite Highlighted { get; set; }
-        public Sprite Selected { get; set; }
+        public Sprite Default;
+        public Sprite Highlighted;
+        public Sprite Selected;
     }
 
     public class StateableSpriteStateChangedEventArgs : EventArgs

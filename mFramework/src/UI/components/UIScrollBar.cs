@@ -5,22 +5,22 @@ namespace mFramework.UI
 {
     public class UIScrollBarSettings : UIComponentSettings
     {
-        public UIButtonSettings ButtonSettings { get; set; }
-        public UnityEngine.Sprite BarSprite { get; set; }  
-        public UIObjectOrientation Orientation { get; set; }
-        public float Min { get; set; } = 0;
-        public float Max { get; set; } = 1;
-        public float Default { get; set; } = 0.5f;
-        public float Step { get; set; } = 0.2f;
+        public readonly UIButtonSettings ButtonSettings = new UIButtonSettings();
+        public Sprite BarSprite;
+        public UIObjectOrientation Orientation;
+        public float Min = 0;
+        public float Max = 1;
+        public float Default = 0.5f;
+        public float Step = 0.2f;
     }
 
     public class UIScrollBar : UIComponent
     {
         public event UIEventHandler<UIScrollBar, ScrollBarChangedEventArgs> ValueChanged;
 
-        public float Value { get { return _value; } }
-        public float Value01 { get { return _value01; } }
-        public float Step { get { return _step; } }
+        public float Value => _value;
+        public float Value01 => _value01;
+        public float Step => _step;
 
         private UIObjectOrientation _orientation;
         private UIButton _barButton;
@@ -53,13 +53,12 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            var scrollBarSettings = settings as UIScrollBarSettings;
-            if (scrollBarSettings == null)
+            if (!(settings is UIScrollBarSettings scrollBarSettings))
                 throw new ArgumentException("UIScrollBar: The given settings is not UIScrollBarSettings");
             if (scrollBarSettings.ButtonSettings == null)
                 throw new Exception("UIScrollBar: The given ButtonSettings is null");
 
-            if (scrollBarSettings.Default == 0)
+            if (scrollBarSettings.Default == 0.0f)
                 scrollBarSettings.Default = 1f / DIVIDE;
 
             _orientation = scrollBarSettings.Orientation;

@@ -5,7 +5,7 @@ namespace mFramework.UI
 {
     public class UIToggleSettings : UIButtonSettings
     {
-        public bool DefaultSelected { get; set; } = false;
+        public bool DefaultSelected = false;
     }
 
     public class UIToggle : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable

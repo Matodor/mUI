@@ -5,9 +5,9 @@ namespace mFramework.UI
 {
     public class UIButtonSettings : UIComponentSettings
     {
-        public ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
-        public SpriteStates ButtonSpriteStates { get; set; }
-        public AreaType ButtonAreaType { get; set; } = AreaType.RECTANGLE;
+        public ClickCondition ClickCondition = ClickCondition.BUTTON_UP;
+        public readonly SpriteStates ButtonSpriteStates = new SpriteStates();
+        public AreaType ButtonAreaType = AreaType.RECTANGLE;
     }
 
     public enum ClickCondition
@@ -22,9 +22,10 @@ namespace mFramework.UI
     public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable
     {
         public Renderer UIRenderer => _uiSprite.UIRenderer;
-        public UIClickable UIClickable => _clickableHandler;
-        public StateableSprite StateableSprite => _stateableSprite;
         public SpriteMask SpriteMask => _uiSprite.SpriteMask;
+
+        public UIClickable UIClickable { get; protected set; }
+        public StateableSprite StateableSprite { get; protected set; }
         public ClickCondition ClickCondition { get; set; }
 
         public event UIEventHandler<UIButton> Click;
@@ -33,8 +34,6 @@ namespace mFramework.UI
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown;
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp;
 
-        protected UIClickable _clickableHandler;
-        protected StateableSprite _stateableSprite;
         protected UISprite _uiSprite;
         private bool _isMouseDown;
 
@@ -64,8 +63,8 @@ namespace mFramework.UI
             }
 
             _uiSprite = this.Sprite(new UISpriteSettings {Sprite = buttonSettings.ButtonSpriteStates.Default});
-            _stateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
-            _stateableSprite.StateChanged += (s, e) =>
+            StateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
+            StateableSprite.StateChanged += (s, e) =>
             {
                 if (e.StateSprite != null && _uiSprite.Renderer.sprite != e.StateSprite)
                     _uiSprite.SetSprite(e.StateSprite);
@@ -76,24 +75,20 @@ namespace mFramework.UI
 
         private void SetupRectangleHandler()
         {
-            if (_clickableHandler != null)
+            if (UIClickable != null)
             {
                 // remove
             }
 
-            _clickableHandler = UIClickable.Create(this, AreaType.RECTANGLE);
-            _clickableHandler.Area2D.Update += area2d =>
+            UIClickable = UIClickable.Create(this, AreaType.RECTANGLE);
+            var area = (RectangleArea2D) UIClickable.Area2D;
+            UIClickable.Area2D.Update += area2d =>
             {
-                if (area2d is RectangleArea2D rect2d)
-                {
-                    rect2d.Height = GetHeight();
-                    rect2d.Width = GetWidth();
-                    rect2d.Offset = _uiSprite.Renderer.sprite?.GetCenterOffset() ?? Vector2.zero;
-                    rect2d.Offset = new Vector2(
-                        rect2d.Offset.x * GlobalScale().x, 
-                        rect2d.Offset.y * GlobalScale().y
-                    );
-                }
+                area.Offset = _uiSprite.Renderer.sprite?.GetCenterOffset() ?? Vector2.zero;
+                area.Offset = new Vector2(
+                    area.Offset.x * GlobalScale().x,
+                    area.Offset.y * GlobalScale().y
+                );
             };
         }
 
@@ -115,7 +110,7 @@ namespace mFramework.UI
         public void MouseDown(Vector2 worldPos)
         {
             _isMouseDown = true;
-            _stateableSprite.SetHighlighted();
+            StateableSprite.SetHighlighted();
 
             if ((CanButtonClick?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
             {
@@ -126,9 +121,9 @@ namespace mFramework.UI
 
         public void MouseUp(Vector2 worldPos)
         {
-            _stateableSprite.SetDefault();
+            StateableSprite.SetDefault();
             if ((CanButtonClick?.Invoke(this, worldPos) ?? true) && _isMouseDown &&
-                ClickCondition == ClickCondition.BUTTON_UP && _clickableHandler.InArea(worldPos))
+                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.InArea(worldPos))
             {
                 Click?.Invoke(this);
             }

@@ -11,26 +11,28 @@ namespace mFramework.UI
 
     public sealed class mUI
     {
-        internal static mUI Instance => _instance;
+        internal static mUI Instance { get; private set; }
 
         public static event Action<UIObject> UIObjectCreated;
         public static event Action<UIObject> UIObjectRemoved;
 
-        public static UIView BaseView => _instance._baseView;
-        public static UICamera UICamera => _instance._uiCamera;
+        public static UIView BaseView => Instance._baseView;
+        public static UICamera UICamera => Instance._uiCamera;
 
         internal static Dictionary<string, Font> _fonts;
-        private static mUI _instance;
         private readonly BaseView _baseView;
         private readonly UICamera _uiCamera;
         private readonly Dictionary<ulong, UIObject> _uiObjects;
 
         private mUI(UISettings settings)
         {
+            if (Instance != null)
+                throw new Exception("mUI already created");
+
             _uiCamera = UICamera.Create(settings.CameraSettings);
             _uiCamera.GameObject.SetParentTransform(mEngine.Instance.gameObject);
 
-            _instance = this;
+            Instance = this;
             _fonts = new Dictionary<string, Font>();
             _uiObjects = new Dictionary<ulong, UIObject>();
             _baseView = UIView.Create<BaseView>(new UIViewSettings
@@ -40,7 +42,7 @@ namespace mFramework.UI
             }, null);
             
             mCore.ApplicationQuitEvent += OnApplicationQuitEvent;
-            mCore.Log("[ui] created");
+            mCore.Log("[mFramework][UI] created");
         }
          
         private void OnApplicationQuitEvent()
@@ -51,6 +53,16 @@ namespace mFramework.UI
         public static mUI Create()
         {
             return Create(new UISettings());
+        }
+
+        public static mUI Create(UISettings settings)
+        {
+            if (Instance != null)
+                throw new Exception("UI already created");
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
+            return new mUI(settings);
         }
 
         public static UIObject GetClickableObject(MouseEvent e, Func<UIObject, bool> predicate)
@@ -77,16 +89,6 @@ namespace mFramework.UI
                     return kvp.Value;
             }
             return null;
-        }
-
-        public static mUI Create(UISettings settings)
-        {
-            if (_instance != null)
-                throw new Exception("UI already created");
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            return new mUI(settings);
         }
 
         public static Font GetFont(string font)
