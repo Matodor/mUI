@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace mFramework.UI
 {
     public abstract class UIObject : MonoBehaviour, IGlobalUniqueIdentifier
     {
-        internal bool Destroyed;
-
+        internal IView InternalParentView { get; private set; }
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
         public UnidirectionalList<UIObject> Childs { get; private set; }
 
@@ -33,6 +31,7 @@ namespace mFramework.UI
 
         private int _localSortingOrder;
         private static ulong _guid;
+        private bool _destroyed;
 
         protected UIObject()
         {
@@ -46,7 +45,7 @@ namespace mFramework.UI
         internal void InitCompleted()
         {
             Parent?.AddChild(this);
-            OnSortingOrderChanged();
+            SortingOrderChanged?.Invoke(this);
         }
 
         private void Awake()
@@ -62,7 +61,7 @@ namespace mFramework.UI
             Init();
         }
 
-        public void ChangeParent(UIObject parent)
+        private void ChangeParent(UIObject parent)
         {
             SetupParent(parent);
             Parent?.AddChild(this);
@@ -72,6 +71,11 @@ namespace mFramework.UI
         {
             Parent?.RemoveChild(this);
             Parent = parent;
+
+            if (parent is IView parentView)
+                InternalParentView = parentView;
+            else
+                InternalParentView = parent?.InternalParentView;
 
             if (Parent == null)
             {
@@ -85,10 +89,10 @@ namespace mFramework.UI
 
         private void DestroyImpl(bool destroyObject)
         {
-            if (Destroyed)
+            if (_destroyed)
                 return;
          
-            Destroyed = true;
+            _destroyed = true;
             BeforeDestroy?.Invoke(this);
 
             Childs.ForEach(c => c.DestroyWithoutChecks());
@@ -165,6 +169,14 @@ namespace mFramework.UI
         public virtual float GetHeight()
         {
             return 0;
+        }
+
+        public UIObject LocalRotate(float x, float y, float z)
+        {
+            var oldAngle = transform.eulerAngles;
+            transform.eulerAngles = new Vector3(x, y, z);
+            Rotated?.Invoke(this, new RotatedEventArgs(oldAngle, transform.eulerAngles));
+            return this;
         }
 
         public UIObject Rotate(float x, float y, float z)
@@ -318,7 +330,7 @@ namespace mFramework.UI
 
         public UIObject Show()
         {
-            if (Destroyed)
+            if (_destroyed)
                 return this;
             gameObject.SetActive(true);
             return this;
@@ -326,7 +338,7 @@ namespace mFramework.UI
 
         public UIObject Hide()
         {
-            if (Destroyed)
+            if (_destroyed)
                 return this;
             gameObject.SetActive(false);
             return this;

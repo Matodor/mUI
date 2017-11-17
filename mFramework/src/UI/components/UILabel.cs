@@ -6,10 +6,9 @@ namespace mFramework.UI
 {
     public class UILabelSettings : UIComponentSettings
     {
-        public string Text;
+        public string Text = string.Empty;
         public string Font = "Arial";
-        public int Size;
-        //public VerticalAlign VerticalAlign = VerticalAlign.BASELINE;
+        public int Size = 40;
         public TextAnchor? TextAnchor = null;
         public UIColor Color = UIColors.White;
         public FontStyle FontStyle = FontStyle.Normal;
@@ -38,7 +37,6 @@ namespace mFramework.UI
 
     public class UILabel : UIComponent, IUIRenderer, IColored
     {
-        public static Material DefaultMaterial { get; private set; }
         public Renderer UIRenderer { get; private set; }
         public string Text => _cachedText;
         public int Size => _fontSize;
@@ -76,20 +74,10 @@ namespace mFramework.UI
 
         protected override void Init()
         {
-            if (DefaultMaterial == null)
-            {
-                DefaultMaterial = new Material(Shader.Find("UI/Default Font"))
-                {
-                    color = Color.white
-                };
-                DefaultMaterial.SetColor("_TextureSampleAdd", new Color32(255, 255, 255, 0));
-            }
-
             _propertyBlock = new MaterialPropertyBlock();
             _textFormatting = new Dictionary<int, TextFormatting>();
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            _meshRenderer.sharedMaterial = DefaultMaterial;
 
+            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshFilter = gameObject.AddComponent<MeshFilter>();
             _meshFilter.mesh = new Mesh();
             _meshFilter.mesh.Clear();
@@ -98,7 +86,7 @@ namespace mFramework.UI
 
             SortingOrderChanged += s =>
             {
-                _meshRenderer.sortingOrder = SortingOrder();
+                UIRenderer.sortingOrder = SortingOrder();
             };
 
             ActiveChanged += s =>
@@ -109,12 +97,13 @@ namespace mFramework.UI
                     UpdateMeshText();
                 }
             };
+
+            base.Init();
         }
 
         public UILabel UpdateSettings(UILabelSettings settings)
         {
             SetFontStyle(settings.FontStyle, false);
-            //SetVerticalAlign(settings.VerticalAlign, false);
             SetLetterSpacing(settings.LetterSpacing, false);
             SetFontSize(settings.Size, false);
             SetTextAlignment(settings.TextAlignment, false);
@@ -230,9 +219,10 @@ namespace mFramework.UI
             Font.textureRebuilt += FontRebuilt;
             BeforeDestroy += s => Font.textureRebuilt -= FontRebuilt;
 
+            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0).TextMaterial;
+
             _cachedText = labelSettings.Text;
             _fontSize = labelSettings.Size;
-            //_verticalAlign = labelSettings.VerticalAlign;
             _textAnchor = labelSettings.TextAnchor;
             _color = labelSettings.Color.Color32;
             _fontStyle = labelSettings.FontStyle;
@@ -250,12 +240,12 @@ namespace mFramework.UI
                 else if (_textAlignment == TextAlignment.Right)
                     _textAnchor = TextAnchor.LowerRight;
             }
-
-            base.ApplySettings(settings);
              
             SetFont(labelSettings.Font, false);
             UpdateMeshText();
             SetColor(_color);
+
+            base.ApplySettings(settings);
         }
 
         public UILabel TextFormatting(int index, TextFormatting formatting)
@@ -341,8 +331,7 @@ namespace mFramework.UI
                 text[i + 3] == ']' &&
                 char.IsNumber(text[i + 2]))
             {
-                int index;
-                if (int.TryParse(text.Substring(i + 2, 1), out index))
+                if (int.TryParse(text.Substring(i + 2, 1), out var index))
                     formattingIndex = index;
                 return 4;
             }
@@ -355,8 +344,7 @@ namespace mFramework.UI
                 char.IsNumber(text[i + 2]) &&
                 char.IsNumber(text[i + 3]))
             {
-                int index;
-                if (int.TryParse(text.Substring(i + 2, 2), out index))
+                if (int.TryParse(text.Substring(i + 2, 2), out var index))
                     formattingIndex = index;
                 return 5;
             }

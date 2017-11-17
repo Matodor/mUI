@@ -12,7 +12,7 @@ namespace mFramework.UI
     {
         public Renderer UIRenderer => _button.UIRenderer;
         public bool IsSelected => _isSelected;
-        public SpriteMask SpriteMask => _button.SpriteMask;
+        public UISprite SpriteMask => _button.SpriteMask;
         public UIClickable UIClickable => _button.UIClickable;
 
         public event Func<UIToggle, bool> CanSelect;
@@ -57,9 +57,9 @@ namespace mFramework.UI
             _button.RemoveMask();
         }
 
-        public SpriteMask SetMask(Sprite mask)
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
-            return _button.SetMask(mask);
+            return _button.SetMask(mask, useAlphaClip);
         }
 
         private void ButtonClick(UIButton sender)

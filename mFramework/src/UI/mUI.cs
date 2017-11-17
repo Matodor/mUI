@@ -39,6 +39,9 @@ namespace mFramework.UI
             {
                 Height = UICamera.PureHeight,
                 Width = UICamera.PureWidth,
+                SortingOrder = 0,
+                StencilId = 0,
+                DefaultPos = Vector2.zero
             }, null);
             
             mCore.ApplicationQuitEvent += OnApplicationQuitEvent;

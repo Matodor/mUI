@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
-using System.Reflection;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -11,6 +9,7 @@ namespace mFramework.UI
         public float? Width = null;
         public int? SortingOrder = null;
         public Vector2? DefaultPos = null;
+        public ushort? StencilId = null;
     }
 
     /*public static class NewView<T> where T : UIView
@@ -28,62 +27,69 @@ namespace mFramework.UI
 
     public abstract class UIView : UIObject, IView
     {
+        public ushort? StencilId => _stencilId ?? InternalParentView.StencilId;
         public UIView ParentView => (UIView) Parent;
 
         private float _height;
         private float _width;
+        private ushort? _stencilId;
 
-        public static UIView Create(Type viewType, UIViewSettings settings, UIObject parent, params object[] @params)
+        internal static UIView Create(Type viewType, UIViewSettings settings, UIObject parent, params object[] @params)
         {
             if (!typeof(UIView).IsAssignableFrom(viewType))
-                throw new Exception($"The given viewType paramater is not UIView");
+                throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
-            SetupView(view, settings, parent, @params);
+            view.SetupView(settings, parent, @params);
             return view;
         }
 
-        public static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
+        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
         {
             var view = new GameObject(typeof(T).Name).AddComponent<T>();
-            SetupView(view, settings, parent, @params);
+            view.SetupView(settings, parent, @params);
             return view;
         }
-
-        private static void SetupView(UIView view, UIViewSettings settings, UIObject parent, object[] @params)
+        
+        private void SetupView(UIViewSettings settings, UIObject parent, object[] @params)
         {
-            view.SetupParent(parent);
-            view.SetupSettings(settings);
-            view.InitCompleted();
-            view.Create(@params);
+            SetupParent(parent);
+            SetupSettings(settings, parent);
+            InitCompleted();
+            CreateInterface(@params);
+
+            if (_stencilId.HasValue)
+            {
+                UIStencilMaterials.CreateMesh(this);
+            }
         }
 
-        protected abstract void CreateInterface(params object[] @params);
+        protected abstract void CreateInterface(object[] @params);
 
-        protected virtual void SetupSettings(UIViewSettings settings)
+        protected virtual void SetupSettings(UIViewSettings settings, UIObject parent)
         {
-            if (settings.Height.HasValue)
-                _height = settings.Height.Value;
-
-            if (settings.Width.HasValue)
-                _width = settings.Width.Value;
+            _stencilId = settings.StencilId;
+            _height = settings.Height ?? parent.GetHeight();
+            _width = settings.Width ?? parent.GetWidth();
 
             if (settings.DefaultPos.HasValue)
                 Position(settings.DefaultPos.Value);
 
             if (settings.SortingOrder.HasValue)
                 SortingOrder(settings.SortingOrder.Value);
-        }
 
-        protected virtual void BeforeCreate()
-        {
-            
-        }
+            if (_stencilId.HasValue && _stencilId.Value != 0)
+            {
+                var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId.Value).CanvasMaterial;
+                meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
+                meshRenderer.sortingOrder = SortingOrder();
 
-        private void Create(params object[] @params)
-        {
-            BeforeCreate();
-            CreateInterface(@params);
+                SortingOrderChanged += sender =>
+                {
+                    meshRenderer.sortingOrder = SortingOrder();
+                };
+            }
         }
 
         public float RelativeX(float x)

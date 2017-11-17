@@ -22,7 +22,7 @@ namespace mFramework.UI
     public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable
     {
         public Renderer UIRenderer => _uiSprite.UIRenderer;
-        public SpriteMask SpriteMask => _uiSprite.SpriteMask;
+        public UISprite SpriteMask => _uiSprite.SpriteMask;
 
         public UIClickable UIClickable { get; protected set; }
         public StateableSprite StateableSprite { get; protected set; }
@@ -157,9 +157,9 @@ namespace mFramework.UI
             _uiSprite.RemoveMask();
         }
 
-        public SpriteMask SetMask(Sprite mask)
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
-            return _uiSprite.SetMask(mask);
+            return _uiSprite.SetMask(mask, useAlphaClip);
         }
     }
 }

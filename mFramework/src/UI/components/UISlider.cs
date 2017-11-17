@@ -11,6 +11,7 @@ namespace mFramework.UI
         public float Offset = 0;
         public DirectionOfAddingSlides DirectionOfAddingSlides = DirectionOfAddingSlides.FORWARD;
         public UIObjectOrientation SliderType = UIObjectOrientation.HORIZONTAL;
+        public ushort StencilId = 4;
     }
 
     public enum DirectionOfAddingSlides
@@ -21,6 +22,7 @@ namespace mFramework.UI
 
     public class UISlider : UIComponent, IUIClickable, IView
     {
+        public ushort? StencilId => _stencilId;
         public UIObjectOrientation Orientation => _sliderOrientation;
         public UIClickable UIClickable => _clickableHandler;
 
@@ -30,8 +32,8 @@ namespace mFramework.UI
         protected DirectionOfAddingSlides _directionOfAddingSlides;
         protected bool _isPressed;
 
+        private ushort _stencilId;
         private UIClickable _clickableHandler;
-        //private UICamera _camera;
         private UIObjectOrientation _sliderOrientation;
 
         private float _height;
@@ -41,62 +43,13 @@ namespace mFramework.UI
         private float _dragPath;
 
         private Vector2 _lastMousePos;
-
         private List<Pair<IUIClickable, MouseEvent>> _clickNext;
-        private Material _writeStencilMaterial;
-        private Material _spritesMaterial;
-        private Material _textMaterial;
-
-        private static Sprite _backgroundMask;
 
         protected override void Init()
         {
             _lastMoveDiff = 0;
             _isPressed = false;
             _clickNext = new List<Pair<IUIClickable, MouseEvent>>();
-
-            _spritesMaterial = new Material(Shader.Find("UI/Default"));
-            _spritesMaterial.SetFloat("_Stencil", 2);
-            _spritesMaterial.SetFloat("_StencilComp", 3);
-            _spritesMaterial.SetFloat("_StencilWriteMask", 255);
-            _spritesMaterial.SetFloat("_StencilReadMask", 255);
-            _spritesMaterial.color = Color.white;
-
-            _textMaterial = new Material(Shader.Find("UI/Default Font"))
-            {
-                color = Color.white
-            };
-            _textMaterial.SetColor("_TextureSampleAdd", new Color32(255, 255, 255, 0));
-            _textMaterial.SetFloat("_Stencil", 2);
-            _textMaterial.SetFloat("_StencilComp", 3);
-            _textMaterial.SetFloat("_StencilWriteMask", 255);
-            _textMaterial.SetFloat("_StencilReadMask", 255);
-
-            _writeStencilMaterial = new Material(Shader.Find("UI/Default"));
-            _writeStencilMaterial.SetFloat("_Stencil", 2);
-            _writeStencilMaterial.SetFloat("_StencilOp", 2);
-            _writeStencilMaterial.SetFloat("_StencilWriteMask", 255);
-            _writeStencilMaterial.SetFloat("_StencilReadMask", 255);
-            _writeStencilMaterial.color = Color.white;
-
-            if (_backgroundMask == null)
-            {
-                var texture = new Texture2D(100, 100);
-                for (int i = 0; i < 100; i++)
-                {
-                    for (int j = 0; j < 100; j++)
-                    {
-                        texture.SetPixel(i, j, Color.black);
-                    }
-                }
-                texture.Apply();
-                
-                _backgroundMask = Sprite.Create(
-                    Texture2D.blackTexture,
-                    new Rect(0, 0, Texture2D.blackTexture.width, Texture2D.blackTexture.height),
-                    new Vector2(0.5f, 0.5f)
-                );
-            }
 
             СhildObjectAdded += OnСhildObjectAdded;
         }
@@ -113,14 +66,6 @@ namespace mFramework.UI
 
         private void SetupChilds(UIObject sender, AddedСhildObjectEventArgs e)
         {
-            if (e.AddedObject is IUIRenderer uiRenderer)
-            {
-                if (e.AddedObject is UILabel)
-                    uiRenderer.UIRenderer.sharedMaterial = _textMaterial;
-                else
-                    uiRenderer.UIRenderer.sharedMaterial = _spritesMaterial;
-            }
-
             if (e.AddedObject is IUIClickable uiClickable)
             {
                 uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
@@ -202,6 +147,8 @@ namespace mFramework.UI
                 }
                 break;
             }
+
+            CheckHRect(obj, ref rect);
         }
 
         protected virtual void SetupChildrenVertical(UIObject obj)
@@ -241,15 +188,19 @@ namespace mFramework.UI
                 }
                 break;
             }
+
+            CheckVRect(obj, ref rect);
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
-        {
+        { 
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
             if (!(settings is UISliderSettings sliderSettings))
                 throw new ArgumentException("UISlider: The given settings is not UIComponentSettings");
+
+            _stencilId = sliderSettings.StencilId;
 
             _sliderOrientation = sliderSettings.SliderType;
             _directionOfAddingSlides = sliderSettings.DirectionOfAddingSlides;
@@ -259,32 +210,16 @@ namespace mFramework.UI
 
             _clickableHandler = UIClickable.Create(this, AreaType.RECTANGLE);
 
-            var bg = Parent.Sprite(new UISpriteSettings
+            var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+            meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId).CanvasMaterial;
+            meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
+            meshRenderer.sortingOrder = SortingOrder();
+            UIStencilMaterials.CreateMesh(this);
+
+            SortingOrderChanged += sender =>
             {
-                Sprite = _backgroundMask
-            });
-            bg.Renderer.sharedMaterial = _writeStencilMaterial;
-            bg.Scale(_width / bg.GetWidth(), _height / bg.GetHeight());
-            bg.SortingOrder(LocalSortingOrder());
-            bg.gameObject.SetParentTransform(gameObject);
-            BeforeDestroy += sender => { bg.Destroy(); };
-
-            //_clickableHandler.CanMouseDown += (h, e) => IsActive;
-            //_clickableHandler.CanMouseDrag += (h, e) => IsActive;
-            //_clickableHandler.CanMouseUp += (h, e) => IsActive;
-
-            //_camera = UICamera.Create(new UICameraSettings());
-            //_camera.GameObject.SetParentTransform(gameObject);
-            //_camera.SetOrthographicSize(GetHeight() / 2);
-
-            /*gameObject.transform.position = new Vector3(
-                gameObject.transform.position.x,
-                gameObject.transform.position.y,
-                gameObject.transform.position.z + SortingOrder() + 1
-            );*/
-
-            //Translated += (s, e) => UpdateViewport();
-            //UpdateViewport();
+                meshRenderer.sortingOrder = SortingOrder();
+            };
 
             base.ApplySettings(settings);
         }
@@ -398,30 +333,41 @@ namespace mFramework.UI
                     diff = Math.Sign(diff) * freeSpace;
             }
 
-            Childs.ForEach(c => c.Translate(0, diff));
+            Childs.ForEach(c =>
+            {
+                c.Translate(0, diff);
+                CheckVRect(c, ref rect);
+            });
+
             _lastMoveDiff = diff;
         }
 
-        private bool InSliderArea(UIRect rect)
+        private static void CheckVRect(UIObject c, ref UIRect sliderRect)
         {
-            var sliderRect = GetRect();
-
-            if (_sliderOrientation == UIObjectOrientation.HORIZONTAL)
+            var r = c.GetRect();
+            if (r.Bottom > sliderRect.Top || r.Top < sliderRect.Bottom)
             {
-                if (rect.Left > sliderRect.Right)
-                    return false;
-                if (rect.Right < sliderRect.Left)
-                    return false;
+                if (c.gameObject.activeSelf)
+                    c.Hide();
             }
-            else 
+            else if (!c.gameObject.activeSelf)
             {
-                if (rect.Bottom > sliderRect.Top)
-                    return false;
-                if (rect.Top < sliderRect.Bottom)
-                    return false;
+                c.Show();
             }
+        }
 
-            return true;
+        private static void CheckHRect(UIObject c, ref UIRect sliderRect)
+        {
+            var r = c.GetRect();
+            if (r.Right < sliderRect.Left || r.Left > sliderRect.Right)
+            {
+                if (c.gameObject.activeSelf)
+                    c.Hide();
+            }
+            else if (!c.gameObject.activeSelf)
+            {
+                c.Show();
+            }
         }
 
         protected virtual void HorizontalMove(float diff)
@@ -462,7 +408,12 @@ namespace mFramework.UI
                     diff = Math.Sign(diff) * freeSpace;
             }
 
-            Childs.ForEach(c => c.Translate(diff, 0));
+            Childs.ForEach(c =>
+            {
+                c.Translate(diff, 0);
+                CheckHRect(c, ref rect);
+            });
+
             _lastMoveDiff = diff;
         }
     }

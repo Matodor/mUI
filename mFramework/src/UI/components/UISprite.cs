@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace mFramework.UI
 {
@@ -11,22 +12,14 @@ namespace mFramework.UI
     
     public class UISprite : UIComponent, IUIRenderer, IColored, IMaskable
     {
-        public static Material DefaultMaterial { get; private set; }
-
         public Renderer UIRenderer => Renderer;
         public SpriteRenderer Renderer { get; private set; }
-        public SpriteMask SpriteMask { get; private set; }
+        public UISprite SpriteMask { get; private set; }
         
         protected override void Init()
         {
-            if (DefaultMaterial == null)
-            {
-                DefaultMaterial = new Material(Shader.Find("UI/Default")) {color = Color.white};
-            }
-
             SpriteMask = null;
             Renderer = gameObject.AddComponent<SpriteRenderer>();
-            Renderer.sharedMaterial = DefaultMaterial;
 
             SortingOrderChanged += s =>
             {
@@ -43,6 +36,8 @@ namespace mFramework.UI
                 throw new ArgumentException("UISPrite: The given settings is not UISpriteSettings");
           
             Renderer.sprite = spriteSettings.Sprite;
+            Renderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0).SpritesMaterial;
+
             if (spriteSettings.Color.HasValue)
                 SetColor(spriteSettings.Color.Value);
 
@@ -65,16 +60,25 @@ namespace mFramework.UI
             }
         }
 
-        public SpriteMask SetMask(Sprite mask)
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             if (SpriteMask == null)
             {
-                SpriteMask = new GameObject("SpriteMask")
-                    .SetParentTransform(gameObject)
-                    .AddComponent<SpriteMask>();
+                SpriteMask = this.Sprite(new UISpriteSettings
+                {
+                    Sprite = mask,
+                });
+
+                var layer = UIStencilMaterials.Create(1, 
+                    insideMask ? CompareFunction.Equal : CompareFunction.NotEqual, StencilOp.Replace, 1, 1);
+
+                SpriteMask.Renderer.material = layer.CanvasMaterial;
+                SpriteMask.Renderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
+                SpriteMask.Renderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
+                SpriteMask.Renderer.color = new Color32(255, 255, 255, 1);
+                Renderer.material = layer.SpritesMaterial;
             }
 
-            SpriteMask.sprite = mask;
             return SpriteMask;
         }
 

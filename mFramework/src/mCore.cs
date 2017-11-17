@@ -80,7 +80,11 @@ namespace mFramework
         internal static void OnApplicationQuit()
         {
             ApplicationQuitEvent?.Invoke();
+
+            Instance._repeatsActions.Clear();
+            Instance._timerActions.Clear();
             Instance._editorExtension?.Detach();
+
             Log("[mCore] OnApplicationQuit");
         }
 
@@ -126,10 +130,9 @@ namespace mFramework
 
         public static CachedFieldsInfo GetCachedFields(Type type)
         {
-            CachedFieldsInfo cachedFieldsInfo;
-            if (Instance._fieldDictionary.TryGetValue(type, out cachedFieldsInfo) == false)
+            if (Instance._fieldDictionary.TryGetValue(type, out var cachedFieldsInfo) == false)
             {
-                var fields = type.GetFields();
+                var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public);
                 cachedFieldsInfo = new CachedFieldsInfo(fields.Length);
                 for (int i = 0; i < fields.Length; i++)
                 {
@@ -152,6 +155,7 @@ namespace mFramework
             */
             _repeatsActions.ForEach(ForEachRepeatAction);
             _timerActions.ForEach(ForEachTimerAction);
+
             if (mUI.Instance != null) mUI.Instance.Tick();
         }
 

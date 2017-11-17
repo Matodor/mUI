@@ -23,12 +23,10 @@ namespace mFramework.UI
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshFilter = gameObject.AddComponent<MeshFilter>();
 
-            SortingOrderChanged += OnSortingOrderChanged;
-        }
-
-        private void OnSortingOrderChanged(UIObject sender)
-        {
-            _meshRenderer.sortingOrder = SortingOrder();
+            SortingOrderChanged += s =>
+            {
+                UIRenderer.sortingOrder = SortingOrder();
+            };
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -39,6 +37,8 @@ namespace mFramework.UI
             if (!(settings is UIMeshSettings meshSettings))
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
+            _meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0).SpritesMaterial;
+            
             if (meshSettings.Mesh != null)
                 _meshFilter.mesh = meshSettings.Mesh;
             if (meshSettings.SharedMesh != null)
