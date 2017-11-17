@@ -24,7 +24,7 @@ namespace mFramework.UI
         BACKWARD
     }
 
-    public abstract class UIAnimationSettings
+    public class UIAnimationSettings
     {
         public ulong MaxRepeats = 0;
         public UIAnimationPlayType PlayType = UIAnimationPlayType.PLAY_ONCE;
@@ -191,6 +191,8 @@ namespace mFramework.UI
                 return;
 
             _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
+            _animationTime = mMath.Clamp(_animationTime, 0f, 1f);
+
             Animate();
         }
 

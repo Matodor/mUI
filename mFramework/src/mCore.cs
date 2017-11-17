@@ -132,7 +132,7 @@ namespace mFramework
         {
             if (Instance._fieldDictionary.TryGetValue(type, out var cachedFieldsInfo) == false)
             {
-                var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public);
+                var fields = type.GetFields();
                 cachedFieldsInfo = new CachedFieldsInfo(fields.Length);
                 for (int i = 0; i < fields.Length; i++)
                 {

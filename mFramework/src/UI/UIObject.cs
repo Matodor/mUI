@@ -350,19 +350,19 @@ namespace mFramework.UI
 
         internal virtual void Tick()
         {
-            if (!IsActive)
-                return;
-
-            OnTick();
-
             Animations.ForEach(a =>
             {
                 if (a.MarkedForDestroy)
                     Animations.Remove(a.GUID);
-                else 
+                else
                     a.Tick();
             });
 
+            if (!IsActive)
+                return;
+
+            OnTick();
+            
             Childs.ForEach(c => c.Tick());
         }
 
@@ -408,17 +408,6 @@ namespace mFramework.UI
             AnimationAdded?.Invoke(this, new AddedAnimationEventArgs(uiAnimation));
 
             return uiAnimation;
-        }
-
-        public void RemoveAnimations<T>() where T : UIAnimation
-        {
-            Animations.ForEach(a =>
-            {
-                if (a is T)
-                {
-                    a.Remove();
-                }
-            });
         }
 
         public void RemoveAnimations()
