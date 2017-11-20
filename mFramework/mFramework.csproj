@@ -62,6 +62,7 @@
     <Compile Include="src\abstract\IUIRenderer.cs" />
     <Compile Include="src\abstract\IView.cs" />
     <Compile Include="src\achievements\AchievementsHandler.cs" />
+    <Compile Include="src\analytics\mAnalytics.cs" />
     <Compile Include="src\concrete\Area2D.cs" />
     <Compile Include="src\concrete\AES.cs" />
     <Compile Include="src\concrete\B64X.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="src\concrete\CachedFieldInfo.cs" />
     <Compile Include="src\concrete\djb2Hash.cs" />
     <Compile Include="src\concrete\EasingFunctions.cs" />
+    <Compile Include="src\concrete\NtpClient.cs" />
     <Compile Include="src\concrete\ObjectPool.cs" />
     <Compile Include="src\concrete\Pair.cs" />
     <Compile Include="src\concrete\PlayerPrefsStorage.cs" />
@@ -79,6 +81,9 @@
     <Compile Include="src\concrete\TimerAction.cs" />
     <Compile Include="src\extensions\UIObjectExtension.cs" />
     <Compile Include="src\extensions\VectorExtension.cs" />
+    <Compile Include="src\gamefunnels\Event.cs" />
+    <Compile Include="src\gamefunnels\mGameFunnels.cs" />
+    <Compile Include="src\remotesettings\mRemoteSettings.cs" />
     <Compile Include="src\UI\animations\UIBezierQuadraticAnimation.cs" />
     <Compile Include="src\UI\components\UIContainer.cs" />
     <Compile Include="src\UI\components\UIMesh.cs" />

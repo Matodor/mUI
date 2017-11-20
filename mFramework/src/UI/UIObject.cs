@@ -376,9 +376,7 @@ namespace mFramework.UI
                 return;
 
             OnFixedTick();
-
             Childs.ForEach(c => c.FixedTick());
-
         }
 
         public virtual void OnLateTick()

@@ -150,7 +150,7 @@ namespace mFramework.UI
                 _animationTime = 0f;
             }
 
-            if (forcibly || _animatedObject.IsActive && _nextAnimationFrame <= Time.time)
+            if (forcibly || _animatedObject.IsShowing && _nextAnimationFrame <= Time.time)
             {
                 OnAnimate();
                 _nextAnimationFrame = Time.time + AnimateEvery;

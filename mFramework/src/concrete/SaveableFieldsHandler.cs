@@ -86,29 +86,35 @@ namespace mFramework
             return true;
         }
 
+        public static void Load(SaveableFields fields)
+        {
+            fields.BeforeLoad();
+
+            var type = fields.GetType();
+            var fieldsInfo = mCore.GetCachedFields(type);
+
+            for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
+            {
+                if (!typeof(ISaveableField).IsAssignableFrom(fieldsInfo.CachedFields[i].FieldInfo.FieldType))
+                {
+                    continue;
+                }
+
+                var key = Key(fields.Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
+                var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(fields);
+                var bridge = new SaveableFieldsBridge(key, PlayerPrefsStorage.Instance);
+                var newValue = saveableField.LoadValue(bridge);
+                fieldsInfo.CachedFields[i].Setter(fields, newValue);
+            }
+
+            fields.AfterLoad();
+        }
+
         public static bool Load()
         {
-            foreach (var saveableFieldsContainer in _fields)
+            foreach (var kvp in _fields)
             {
-                saveableFieldsContainer.Value.BeforeLoad();
-
-                var type = saveableFieldsContainer.Value.GetType();
-                var fieldsInfo = mCore.GetCachedFields(type);
-
-                for (int i = 0; i < fieldsInfo.CachedFields.Length; i++)
-                {
-                    if (!typeof(ISaveableField).IsAssignableFrom(fieldsInfo.CachedFields[i].FieldInfo.FieldType))
-                    {
-                        continue;
-                    }
-
-                    var key = Key(saveableFieldsContainer.Value.Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
-                    var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(saveableFieldsContainer.Value);
-                    var bridge = new SaveableFieldsBridge(key, PlayerPrefsStorage.Instance);
-                    var newValue = saveableField.LoadValue(bridge);
-                    fieldsInfo.CachedFields[i].Setter(saveableFieldsContainer.Value, newValue);
-                }
-                saveableFieldsContainer.Value.AfterLoad();
+                Load(kvp.Value);
             }
 
             return true;

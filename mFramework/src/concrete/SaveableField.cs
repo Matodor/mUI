@@ -41,6 +41,11 @@ namespace mFramework
     {
         private bool _value;
 
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
+
         public static implicit operator bool(SaveableBoolean field)
         {
             return field._value;
@@ -67,6 +72,11 @@ namespace mFramework
     public struct SaveableInt : ISaveableField
     {
         private int _value;
+
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
 
         public static implicit operator int(SaveableInt field)
         {
@@ -95,6 +105,11 @@ namespace mFramework
     {
         private float _value;
 
+        public override string ToString()
+        {
+            return _value.ToString("G");
+        }
+
         public static implicit operator float(SaveableFloat field)
         {
             return field._value;
@@ -121,6 +136,11 @@ namespace mFramework
     public struct SaveableString : ISaveableField
     {
         private string _value;
+
+        public override string ToString()
+        {
+            return _value;
+        }
 
         public static implicit operator string(SaveableString field)
         {
@@ -149,6 +169,11 @@ namespace mFramework
     {
         private ulong _value;
 
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
+
         public static implicit operator ulong(SaveableUInt64 field)
         {
             return field._value;
@@ -175,6 +200,11 @@ namespace mFramework
     public struct SaveableDecimal : ISaveableField
     {
         private decimal _value;
+
+        public override string ToString()
+        {
+            return _value.ToString("G");
+        }
 
         public static implicit operator decimal(SaveableDecimal field)
         {
