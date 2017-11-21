@@ -26,6 +26,15 @@ namespace mFramework
             _list = new Dictionary<ulong, ListItem>();
         }
 
+        public void ForEach(Action<T> action, Func<ListItem, bool> predicate = null)
+        {
+            foreach (var item in _list)
+            {
+                if (predicate == null || predicate(item.Value))
+                    action(item.Value.Object);
+            }
+        }
+
         public void Clear(Action<T> onClearAction)
         {
             if (onClearAction != null)

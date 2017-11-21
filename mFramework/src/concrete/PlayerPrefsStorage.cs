@@ -35,7 +35,7 @@ namespace mFramework
                 return true;
             }
 
-            value = 0;
+            value = default(int);
             return false;
         }
 
@@ -47,7 +47,7 @@ namespace mFramework
                 return true;
             }
 
-            value = 0;
+            value = default(float);
             return false;
         }
 
@@ -59,7 +59,7 @@ namespace mFramework
                 return true;
             }
 
-            value = null;
+            value = default(string);
             return false;
         }
 

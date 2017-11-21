@@ -108,13 +108,14 @@ namespace mFramework
 
             gen.Emit(OpCodes.Ret);
 
-            var callback = (LateBoundFieldGet)method.CreateDelegate(typeof(LateBoundFieldGet));
+            var callback = (LateBoundFieldGet) method.CreateDelegate(typeof(LateBoundFieldGet));
             return callback;
         }
 
         public static LateBoundFieldSet CreateFieldSetter(FieldInfo field)
         {
-            var method = new DynamicMethod("Set" + field.Name, null, new[] { typeof(object), typeof(object) }, field.DeclaringType, true);
+            var method = new DynamicMethod("Set" + field.Name, null, new[] { typeof(object), typeof(object) }, 
+                field.DeclaringType, true);
             var gen = method.GetILGenerator();
 
             gen.Emit(OpCodes.Ldarg_0); // Load target to stack
@@ -132,7 +133,7 @@ namespace mFramework
         {
             if (Instance._fieldDictionary.TryGetValue(type, out var cachedFieldsInfo) == false)
             {
-                var fields = type.GetFields();
+                var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
                 cachedFieldsInfo = new CachedFieldsInfo(fields.Length);
                 for (int i = 0; i < fields.Length; i++)
                 {

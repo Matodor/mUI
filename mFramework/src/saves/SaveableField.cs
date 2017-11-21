@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace mFramework
+namespace mFramework.Saves
 {
     public struct SaveableDateTime : ISaveableField
     {
@@ -32,7 +32,7 @@ namespace mFramework
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
                 return new SaveableDateTime {_value = new DateTime(Convert.ToInt64(value))};
-            return new SaveableDateTime { _value = default(DateTime) };
+            return new SaveableDateTime { _value = this._value };
         }
 
     }
@@ -65,7 +65,7 @@ namespace mFramework
         {
             if (bridge.Storage.GetInt(bridge.Key, out var value))
                 return new SaveableBoolean { _value = value == 1 };
-            return new SaveableBoolean { _value = default(bool) };
+            return new SaveableBoolean { _value = this._value };
         }
     }
 
@@ -97,7 +97,7 @@ namespace mFramework
         {
             if (bridge.Storage.GetInt(bridge.Key, out var value))
                 return new SaveableInt {_value = value };
-            return new SaveableInt { _value = default(int) };
+            return new SaveableInt { _value = this._value };
         }
     }
 
@@ -129,7 +129,7 @@ namespace mFramework
         {
             if (bridge.Storage.GetFloat(bridge.Key, out var value))
                 return new SaveableFloat {_value = value};
-            return new SaveableFloat { _value = default(float) };
+            return new SaveableFloat { _value = this._value };
         }
     }
 
@@ -161,7 +161,7 @@ namespace mFramework
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
                 return new SaveableString { _value = value };
-            return new SaveableString { _value = default(string) };
+            return new SaveableString { _value = this._value };
         }
     }
 
@@ -193,7 +193,7 @@ namespace mFramework
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
                 return new SaveableUInt64 {_value = Convert.ToUInt64(value)};
-            return new SaveableUInt64 { _value = default(ulong) };
+            return new SaveableUInt64 { _value = this._value };
         }
     }
 
@@ -225,7 +225,7 @@ namespace mFramework
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
                 return new SaveableDecimal { _value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
-            return new SaveableDecimal { _value = default(decimal) };
+            return new SaveableDecimal { _value = this._value };
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
+using mFramework.Saves;
 
-namespace mFramework.GameFunnels
+namespace mFramework.GameEvents
 {
-    public static partial class mGameFunnels
+    public static partial class mGameEvents
     {
         public class EventArgs
         {
@@ -20,15 +21,16 @@ namespace mFramework.GameFunnels
             public SaveableInt BeforeEventCounter; 
             public SaveableInt EventCounter; 
             public SaveableBoolean Enabled;
+            public SaveableDateTime LastEvent;
             /*---------SAVEABLE DATA---------*/
 
             public Event(Enum eventKey) : base($"mSaveableEvent_{eventKey}")
             {
                 EventKey = eventKey;
                 Enabled = true;
+                LastEvent = DateTime.MinValue;
 
-                SaveableFieldsHandler.AddFields(this);
-                SaveableFieldsHandler.Load(this);
+                Load();
             }
 
             public override void BeforeLoad()
@@ -56,6 +58,7 @@ namespace mFramework.GameFunnels
                 if (BeforeInvoke(this))
                 {
                     EventCounter++;
+                    LastEvent = DateTime.Now;
                     OnEvent(this, new EventArgs
                     {
                         Payload = payload

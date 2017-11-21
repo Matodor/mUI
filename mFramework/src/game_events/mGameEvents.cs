@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using mFramework.Saves;
 
-namespace mFramework.GameFunnels
+namespace mFramework.GameEvents
 {
-    public static partial class mGameFunnels
+    public static partial class mGameEvents
     {
         public static int EventsCount => _events.Count;
 
@@ -11,9 +12,15 @@ namespace mFramework.GameFunnels
 
         private static readonly Dictionary<Enum, Event> _events;
 
-        static mGameFunnels()
+        static mGameEvents()
         {
             _events = new Dictionary<Enum, Event>();
+            mCore.ApplicationQuitEvent += SaveGameEvents;
+        }
+
+        private static void SaveGameEvents()
+        {
+            _events.Values.Save();
         }
 
         public static Event GetEvent(Enum key)

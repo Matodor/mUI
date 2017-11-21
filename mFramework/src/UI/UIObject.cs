@@ -131,7 +131,7 @@ namespace mFramework.UI
             DestroyImpl(true);
         }
 
-        public new void Destroy()
+        public void Destroy()
         {
             if (this == mUI.BaseView)
                 throw new Exception("Can't destroy BaseView");
