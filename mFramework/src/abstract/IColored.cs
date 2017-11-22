@@ -1,5 +1,4 @@
-﻿using mFramework.UI;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace mFramework.UI
 {

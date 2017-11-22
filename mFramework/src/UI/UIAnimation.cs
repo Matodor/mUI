@@ -45,6 +45,7 @@ namespace mFramework.UI
         public UIAnimationState State { get; set; }
         public UIAnimationPlayType PlayType { get; set; }
         public EasingType EasingType { get; set; }
+        public UIAnimationDirection Direction { get; set; }
 
         public float AnimateEvery { get; set; }
         public bool DestroyUIObjectOnEnd { get; set; }
@@ -62,7 +63,6 @@ namespace mFramework.UI
         private ulong _repeats;
 
         private float _nextAnimationFrame;
-        private UIAnimationDirection _animationDirection;
         private float _animationStart;
         private float _animationTime;
         private float _animationEasingTime;
@@ -70,7 +70,7 @@ namespace mFramework.UI
         protected UIAnimation(UIObject animatedObject)
         {
             _animatedObject = animatedObject;
-            _animationDirection = UIAnimationDirection.FORWARD;
+            Direction = UIAnimationDirection.FORWARD;
             _animationTime = 0;
             _animationEasingTime = 0;
             _repeats = 0;
@@ -139,12 +139,12 @@ namespace mFramework.UI
         {
             _animationEasingTime = EasingFunctions.GetValue(EasingType, 1f, _animationTime, 1f);
 
-            if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD)
+            if (_animationTime >= 1 && Direction == UIAnimationDirection.FORWARD)
             {
                 _animationEasingTime = 1f;
                 _animationTime = 1f;
             }
-            else if (_animationTime <= 0 && _animationDirection == UIAnimationDirection.BACKWARD)
+            else if (_animationTime <= 0 && Direction == UIAnimationDirection.BACKWARD)
             {
                 _animationEasingTime = 0f;
                 _animationTime = 0f;
@@ -156,8 +156,8 @@ namespace mFramework.UI
                 _nextAnimationFrame = Time.time + AnimateEvery;
             }
 
-            if (_animationTime >= 1 && _animationDirection == UIAnimationDirection.FORWARD ||
-                _animationTime <= 0 && _animationDirection == UIAnimationDirection.BACKWARD)
+            if (_animationTime >= 1 && Direction == UIAnimationDirection.FORWARD ||
+                _animationTime <= 0 && Direction == UIAnimationDirection.BACKWARD)
             {
                 if (PlayType == UIAnimationPlayType.END_RESET)
                 {
@@ -167,7 +167,7 @@ namespace mFramework.UI
                 else if (PlayType == UIAnimationPlayType.END_FLIP)
                 {
                     OnRepeatAnimation();
-                    _animationDirection = _animationDirection == UIAnimationDirection.FORWARD
+                    Direction = Direction == UIAnimationDirection.FORWARD
                         ? UIAnimationDirection.BACKWARD
                         : UIAnimationDirection.FORWARD;
                 }
@@ -190,7 +190,7 @@ namespace mFramework.UI
             if (State == UIAnimationState.STOPPED || Time.time < _animationStart)
                 return;
 
-            _animationTime += (_animationDirection == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
+            _animationTime += (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
             _animationTime = mMath.Clamp(_animationTime, 0f, 1f);
 
             Animate();

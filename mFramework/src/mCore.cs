@@ -91,7 +91,9 @@ namespace mFramework
         public static void Log(string format, params object[] @params)
         {
             if (IsEditor && IsDebug)
-                UnityEngine.Debug.Log(string.Format(format, @params));
+            {
+                UnityEngine.Debug.Log(@params.Length > 0 ? string.Format(format, @params) : format);
+            }
         }
 
         public static LateBoundFieldGet CreateFieldGetter(FieldInfo field)

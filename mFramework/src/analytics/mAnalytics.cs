@@ -1,33 +1,9 @@
-﻿using System;
-using mFramework.Saves;
-using UnityEngine;
-
-namespace mFramework.Analytics
+﻿namespace mFramework.Analytics
 {
-    internal class AnalyticsStats : SaveableFields
-    {
-        public SaveableString GUID;
-
-        public AnalyticsStats() : base("mAnalytics_stats")
-        {
-            GUID = null;
-        }
-
-        public override void BeforeLoad()
-        {
-            if (string.IsNullOrWhiteSpace(GUID))
-                GUID = Guid.NewGuid().ToString();
-        }
-
-        public override void AfterLoad()
-        {
-            if (string.IsNullOrWhiteSpace(GUID))
-                GUID = Guid.NewGuid().ToString();
-        }
-    }
-
     public static class mAnalytics
     {
+        public static string GUID => _analyticsStats.GUID;
+
         private static readonly AnalyticsStats _analyticsStats;
 
         static mAnalytics()

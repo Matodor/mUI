@@ -17,6 +17,10 @@ namespace mFramework
         {
             EditorGUILayout.Toggle("IsActive", _object.IsActive);
             EditorGUILayout.Toggle("IsShowing", _object.IsShowing);
+
+            EditorGUILayout.IntField("Sorting order", _object.SortingOrder());
+            var s = EditorGUILayout.IntField("Local sorting order", _object.LocalSortingOrder());
+            _object.SortingOrder(s);
         }
     }
 }
