@@ -87,7 +87,6 @@ namespace mFramework.RemoteSettings
         {
             using (var webClient = new WebClient())
             {
-                mCore.Log("FORCE UPDATE");
                 webClient.DownloadStringAsync(new Uri(RemoteUrl));
                 webClient.DownloadStringCompleted += WebClientOnDownloadStringCompleted;
             }

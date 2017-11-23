@@ -41,6 +41,7 @@ namespace mFramework.UI
         private float _offset;
         private float _lastMoveDiff;
         private float _dragPath;
+        private float _lastFreeSpace;
 
         private Vector2 _lastMousePos;
         private List<Pair<IUIClickable, MouseEvent>> _clickNext;
@@ -279,6 +280,9 @@ namespace mFramework.UI
 
         public void Move(float diff)
         {
+            if (Mathf.Abs(diff) < SLIDER_MIN_DIFF_TO_MOVE)
+                return;
+            
             if (_sliderOrientation == UIObjectOrientation.HORIZONTAL)
                 HorizontalMove(diff);
             else
@@ -290,8 +294,45 @@ namespace mFramework.UI
             if (!IsActive)
                 return;
 
-            if (!_isPressed && Math.Abs(_lastMoveDiff) > SLIDER_MIN_DIFF_TO_MOVE)
-                Move(_lastMoveDiff * 0.99f * Time.deltaTime * 50);
+            if (!_isPressed)
+            {
+                var rect = GetRect();
+                UIRect firstRect, secondRect;
+                if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
+                {
+                    firstRect = Childs.FirstItem.Value.GetRect();
+                    secondRect = Childs.LastItem.Value.GetRect();
+                }
+                else
+                {
+                    firstRect = Childs.LastItem.Value.GetRect();
+                    secondRect = Childs.FirstItem.Value.GetRect();
+                }
+                float firstFreeSpace;
+                float secondFreeSpace;
+
+                if (_sliderOrientation == UIObjectOrientation.VERTICAL)
+                {
+                    firstFreeSpace = rect.Bottom - secondRect.Bottom;
+                    secondFreeSpace = firstRect.Top - rect.Top;
+                }
+                else
+                {
+                    firstFreeSpace = rect.Left - firstRect.Left;
+                    secondFreeSpace = secondRect.Right - rect.Right;
+                }
+
+                if (firstFreeSpace < 0)
+                {
+                    Move(-Mathf.Abs(firstFreeSpace) * 0.1f * Time.deltaTime * 50);
+                }
+                else if (secondFreeSpace < 0)
+                {
+                    Move(Mathf.Abs(secondFreeSpace) * 0.1f * Time.deltaTime * 50);
+                }
+                else if (Math.Abs(_lastMoveDiff) > SLIDER_MIN_DIFF_TO_MOVE)
+                    Move(_lastMoveDiff * 0.99f * Time.deltaTime * 50);
+            }
             base.Tick();
         }
 
@@ -300,37 +341,51 @@ namespace mFramework.UI
             if (Childs.Count == 0)
                 return;
 
-            UIRect topRect, bottomRect;
+            UIRect topItemRect, bottomItemRect;
             if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
             {
-                topRect = Childs.FirstItem.Value.GetRect();
-                bottomRect = Childs.LastItem.Value.GetRect();
+                topItemRect = Childs.FirstItem.Value.GetRect();
+                bottomItemRect = Childs.LastItem.Value.GetRect();
             }
             else
             {
-                topRect = Childs.LastItem.Value.GetRect();
-                bottomRect = Childs.FirstItem.Value.GetRect();
+                topItemRect = Childs.LastItem.Value.GetRect();
+                bottomItemRect = Childs.FirstItem.Value.GetRect();
             }
 
             var rect = GetRect();
-            var pureHeight = topRect.Top - bottomRect.Bottom;
+            var pureHeight = topItemRect.Top - bottomItemRect.Bottom;
 
             if (pureHeight <= GetHeight())
                 return;
 
+            float freeSpace;
+
             // move top
+            // check bottom space
             if (diff > 0)
             { 
-                var freeSpace = rect.Bottom - bottomRect.Bottom;
-                if (Math.Abs(diff) > freeSpace)
-                    diff = Math.Sign(diff) * freeSpace;
+                freeSpace = rect.Bottom - bottomItemRect.Bottom;
+                freeSpace -= diff;
             }
             // move bottom
+            // check top space
             else
             {
-                var freeSpace = topRect.Top - rect.Top;
-                if (Math.Abs(diff) > freeSpace)
-                    diff = Math.Sign(diff) * freeSpace;
+                freeSpace = topItemRect.Top - rect.Top;
+                freeSpace += diff;
+            }
+
+            // if freeSpace > 0 outside slider
+            // if freeSpace < 0 inside slider
+
+            if (freeSpace < 0)
+            {
+                var absFreeSpace = Mathf.Abs(freeSpace);
+                var t = mMath.Clamp(absFreeSpace / (GetHeight() / 3f), 0f, 1f);
+
+                if (Mathf.Abs(_lastFreeSpace) < absFreeSpace)
+                    diff *= mMath.Clamp(1f - t, 0f, 1f);
             }
 
             Childs.ForEach(c =>
@@ -340,6 +395,7 @@ namespace mFramework.UI
             });
 
             _lastMoveDiff = diff;
+            _lastFreeSpace = freeSpace;
         }
 
         private static void CheckVRect(UIObject c, ref UIRect sliderRect)
@@ -393,19 +449,31 @@ namespace mFramework.UI
             if (pureWidth <= GetWidth())
                 return;
 
+            float freeSpace;
+
             // move right
             if (diff > 0)
             {
-                var freeSpace = rect.Left - leftRect.Left;
-                if (Math.Abs(diff) > freeSpace)
-                    diff = Math.Sign(diff) * freeSpace;
+                freeSpace = rect.Left - leftRect.Left;
+                freeSpace -= diff;
             }
             // move left
-            else if (diff < 0)
+            else
             {
-                var freeSpace = rightRect.Right - rect.Right;
-                if (Math.Abs(diff) > freeSpace)
-                    diff = Math.Sign(diff) * freeSpace;
+                freeSpace = rightRect.Right - rect.Right;
+                freeSpace += diff;
+            }
+
+            // if freeSpace > 0 outside slider
+            // if freeSpace < 0 inside slider
+
+            if (freeSpace < 0)
+            {
+                var absFreeSpace = Mathf.Abs(freeSpace);
+                var t = mMath.Clamp(absFreeSpace / (GetWidth() / 3f), 0f, 1f);
+
+                if (Mathf.Abs(_lastFreeSpace) < absFreeSpace)
+                    diff *= mMath.Clamp(1f - t, 0f, 1f);
             }
 
             Childs.ForEach(c =>
@@ -415,6 +483,7 @@ namespace mFramework.UI
             });
 
             _lastMoveDiff = diff;
+            _lastFreeSpace = freeSpace;
         }
     }
 }
