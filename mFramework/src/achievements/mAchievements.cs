@@ -1,6 +1,7 @@
 ﻿namespace mFramework.Achievements
 {
-    public class AchievementsHandler
+    public static class mAchievements
     {
+
     }
 }

@@ -12,22 +12,16 @@ namespace mFramework
 
     public sealed class mCore
     {
-        public static mCore Instance { get; }
+        public static mCore Instance { get; } = new mCore();
 
         public static bool IsEditor { get; private set; }
         public static bool IsDebug { get; set; }
-        public static event Action ApplicationQuitEvent;
+        public static event Action ApplicationQuitEvent = delegate {};
 
         private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
         private readonly UnidirectionalList<RepeatAction> _repeatsActions;
         private readonly UnidirectionalList<TimerAction> _timerActions;
         private readonly EditorExtension _editorExtension;
-
-        static mCore()
-        {
-            if (Instance == null)
-                Instance = new mCore();
-        }
 
         private mCore()
         {
@@ -79,7 +73,7 @@ namespace mFramework
 
         internal static void OnApplicationQuit()
         {
-            ApplicationQuitEvent?.Invoke();
+            ApplicationQuitEvent.Invoke();
 
             Instance._repeatsActions.Clear();
             Instance._timerActions.Clear();

@@ -61,7 +61,7 @@
     <Compile Include="src\abstract\IUIClickable.cs" />
     <Compile Include="src\abstract\IUIRenderer.cs" />
     <Compile Include="src\abstract\IView.cs" />
-    <Compile Include="src\achievements\AchievementsHandler.cs" />
+    <Compile Include="src\achievements\mAchievements.cs" />
     <Compile Include="src\analytics\AnalyticsStats.cs" />
     <Compile Include="src\analytics\mAnalytics.cs" />
     <Compile Include="src\concrete\Area2D.cs" />
@@ -125,7 +125,6 @@
     <Compile Include="src\UI\components\UILabel.cs" />
     <Compile Include="src\UI\components\UIScrollBar.cs" />
     <Compile Include="src\UI\ui_events\RemovedAnimationEventArgs.cs" />
-    <Compile Include="src\UI\fonts\TrueTypeFontReader.cs" />
     <Compile Include="src\UI\UIAnimation.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
     <Compile Include="src\UI\components\UIRadioGroup.cs" />

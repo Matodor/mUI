@@ -13,7 +13,7 @@ namespace mFramework.UI
 
     public class UIRadioGroup : UIComponent
     {
-        public event Action<UIRadioGroup> Selected;
+        public event Action<UIRadioGroup> Selected = delegate { };
         public UIToggle CurrentSelected => _currentSelected;
 
         private bool _canDeselectCurrent;
@@ -99,7 +99,7 @@ namespace mFramework.UI
             if (prev != null && prev != toggle)
                 prev.Deselect();
 
-            Selected?.Invoke(this);
+            Selected.Invoke(this);
         }
     }
 }

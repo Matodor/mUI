@@ -16,17 +16,14 @@ namespace mFramework.UI
         public bool IsShowing => gameObject.activeInHierarchy;
 
         #region Events
-        public event UIEventHandler<UIObject> ActiveChanged; 
-        public event UIEventHandler<UIObject> VisibleChanged;
-        public event UIEventHandler<UIObject> SortingOrderChanged;
-        public event UIEventHandler<UIObject> BeforeDestroy;
+        public event UIEventHandler<UIObject> ActiveChanged = delegate { };
+        public event UIEventHandler<UIObject> VisibleChanged = delegate { };
+        public event UIEventHandler<UIObject> SortingOrderChanged = delegate { };
+        public event UIEventHandler<UIObject> BeforeDestroy = delegate { };
 
-        public event UIEventHandler<UIObject, RemovedСhildObjectEventArgs> СhildObjectRemoved;
-        public event UIEventHandler<UIObject, AddedСhildObjectEventArgs> СhildObjectAdded;
-        public event UIEventHandler<UIObject, AddedAnimationEventArgs> AnimationAdded;
-        public event UIEventHandler<UIObject, TranslateEventArgs> Translated;
-        public event UIEventHandler<UIObject, ScaledEventArgs> Scaled;
-        public event UIEventHandler<UIObject, RotatedEventArgs> Rotated;
+        public event UIEventHandler<UIObject, RemovedСhildObjectEventArgs> СhildObjectRemoved = delegate { };
+        public event UIEventHandler<UIObject, AddedСhildObjectEventArgs> СhildObjectAdded = delegate { };
+        public event UIEventHandler<UIObject, AddedAnimationEventArgs> AnimationAdded = delegate { };
         #endregion
 
         private int _localSortingOrder;
@@ -45,7 +42,7 @@ namespace mFramework.UI
         internal void InitCompleted()
         {
             Parent?.AddChild(this);
-            SortingOrderChanged?.Invoke(this);
+            SortingOrderChanged.Invoke(this);
         }
 
         private void Awake()
@@ -93,7 +90,7 @@ namespace mFramework.UI
                 return;
          
             _destroyed = true;
-            BeforeDestroy?.Invoke(this);
+            BeforeDestroy.Invoke(this);
 
             Childs.ForEach(c => c.DestroyWithoutChecks());
             Childs.Clear();
@@ -116,14 +113,14 @@ namespace mFramework.UI
 
         private void OnEnable()
         {
-            VisibleChanged?.Invoke(this);
-            ActiveChanged?.Invoke(this);
+            VisibleChanged.Invoke(this);
+            ActiveChanged.Invoke(this);
         }
 
         private void OnDisable()
         {
-            VisibleChanged?.Invoke(this);
-            ActiveChanged?.Invoke(this);
+            VisibleChanged.Invoke(this);
+            ActiveChanged.Invoke(this);
         }
 
         internal void DestroyWithoutChecks()
@@ -173,17 +170,13 @@ namespace mFramework.UI
 
         public UIObject LocalRotate(float x, float y, float z)
         {
-            var oldAngle = transform.eulerAngles;
-            transform.eulerAngles = new Vector3(x, y, z);
-            Rotated?.Invoke(this, new RotatedEventArgs(oldAngle, transform.eulerAngles));
+            transform.localEulerAngles = new Vector3(x, y, z);
             return this;
         }
 
         public UIObject Rotate(float x, float y, float z)
         {
-            var oldAngle = transform.eulerAngles;
             transform.eulerAngles = new Vector3(x, y, z);
-            Rotated?.Invoke(this, new RotatedEventArgs(oldAngle, transform.eulerAngles));
             return this;
         }
 
@@ -207,7 +200,6 @@ namespace mFramework.UI
         public UIObject Translate(float x, float y, float z)
         {
             transform.Translate(x, y, z, Space.World);
-            Translated?.Invoke(this, new TranslateEventArgs(new Vector3(x, y, z), transform.position));
             return this;
         }
 
@@ -236,7 +228,7 @@ namespace mFramework.UI
 
         private void OnSortingOrderChanged()
         {
-            SortingOrderChanged?.Invoke(this);
+            SortingOrderChanged.Invoke(this);
             Childs.ForEach(c => c.OnSortingOrderChanged());
         }
 
@@ -248,9 +240,7 @@ namespace mFramework.UI
 
         public UIObject Scale(float x, float y)
         {
-            var oldScale = transform.localScale;
             transform.localScale = new Vector3(x, y, transform.localScale.z);
-            Scaled?.Invoke(this, new ScaledEventArgs(oldScale, transform.localScale));
             return this;
         }
 
@@ -285,14 +275,12 @@ namespace mFramework.UI
         public UIObject Position(float x, float y)
         {
             transform.position = new Vector3(x, y, transform.position.z);
-            Translated?.Invoke(this, new TranslateEventArgs(Vector3.zero, transform.position));
             return this;
         }
 
         public UIObject LocalPosition(float x, float y)
         {
             transform.localPosition = new Vector3(x, y, transform.localPosition.z);
-            Translated?.Invoke(this, new TranslateEventArgs(Vector3.zero, transform.position));
             return this;
         }
 
@@ -403,7 +391,7 @@ namespace mFramework.UI
             var uiAnimation = UIAnimation.Create<T>(this, settings);
 
             Animations.Add(uiAnimation);
-            AnimationAdded?.Invoke(this, new AddedAnimationEventArgs(uiAnimation));
+            AnimationAdded.Invoke(this, new AddedAnimationEventArgs(uiAnimation));
 
             return uiAnimation;
         }
@@ -417,14 +405,14 @@ namespace mFramework.UI
         {
             if (Childs.Remove(obj))
             {
-                СhildObjectRemoved?.Invoke(this, new RemovedСhildObjectEventArgs(obj));       
+                СhildObjectRemoved.Invoke(this, new RemovedСhildObjectEventArgs(obj));       
             }
         }
 
         private void AddChild(UIObject obj)
         {
             Childs.Add(obj);
-            СhildObjectAdded?.Invoke(this, new AddedСhildObjectEventArgs(obj));
+            СhildObjectAdded.Invoke(this, new AddedСhildObjectEventArgs(obj));
         }
     }
 }

@@ -4,7 +4,7 @@ namespace mFramework.UI
 {
     public class UIPageSlider : UISlider
     {
-        public event UIEventHandler<UIPageSlider> PageChanged;
+        public event UIEventHandler<UIPageSlider> PageChanged = delegate { };
 
         public EasingType BackEasingType = EasingType.easeOutBack;
         public EasingType NextPageEasingType = EasingType.easeOutBack;
@@ -303,7 +303,7 @@ namespace mFramework.UI
                 */
 
                 _currentIndex = toNext ? _currentIndex + 1 : _currentIndex - 1;
-                PageChanged?.Invoke(this);
+                PageChanged.Invoke(this);
             };
 
             _isAnimated = true;

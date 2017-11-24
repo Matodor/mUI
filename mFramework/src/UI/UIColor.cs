@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -23,9 +22,8 @@ namespace mFramework.UI
         public UIColor(string hexColor)
         {
             Type = UIColorType.RGBA;
-            Color color;
 
-            if (ColorUtility.TryParseHtmlString(hexColor, out color))
+            if (ColorUtility.TryParseHtmlString(hexColor, out var color))
             {
                 n1 = ((Color32)color).r;
                 n2 = ((Color32)color).g;
@@ -41,9 +39,8 @@ namespace mFramework.UI
         public UIColor(string hexColor, byte alpha)
         {
             Type = UIColorType.RGBA;
-            Color color;
 
-            if (ColorUtility.TryParseHtmlString(hexColor, out color))
+            if (ColorUtility.TryParseHtmlString(hexColor, out var color))
             {
                 n1 = ((Color32) color).r;
                 n2 = ((Color32)color).g;
@@ -93,8 +90,7 @@ namespace mFramework.UI
 
         public static Color FromHtmlString(string hexColor)
         {
-            Color color;
-            if (ColorUtility.TryParseHtmlString(hexColor, out color))
+            if (ColorUtility.TryParseHtmlString(hexColor, out var color))
                 return color;
             return Color.white;
         }

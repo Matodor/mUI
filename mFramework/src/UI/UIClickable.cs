@@ -6,9 +6,9 @@ namespace mFramework.UI
     public class UIClickable
     {
         public Area2D Area2D { get; }
-        public event Func<IUIClickable, MouseEvent, bool> CanMouseDown;
-        public event Func<IUIClickable, MouseEvent, bool> CanMouseUp;
-        public event Func<IUIClickable, MouseEvent, bool> CanMouseDrag;
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseDown = delegate { return true; };
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseUp = delegate { return true; };
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseDrag = delegate { return true; };
 
         private readonly IUIClickable _uiClickable;
         private readonly UIObject _component;
@@ -44,7 +44,7 @@ namespace mFramework.UI
 
             _eventListener.MouseDown += (s, e) =>
             {
-                if (!_component.IsActive || (!CanMouseDown?.Invoke(_uiClickable, e) ?? false))
+                if (!_component.IsActive || !CanMouseDown.Invoke(_uiClickable, e))
                     return;
 
                 var worldPos = WorldPos(e);
@@ -54,14 +54,14 @@ namespace mFramework.UI
 
             _eventListener.MouseUp += (s, e) =>
             {
-                if (!_component.IsActive || (!CanMouseUp?.Invoke(_uiClickable, e) ?? false))
+                if (!_component.IsActive || !CanMouseUp.Invoke(_uiClickable, e))
                     return;
                 _uiClickable?.MouseUp(WorldPos(e));
             };
 
             _eventListener.MouseDrag += (s, e) =>
             {
-                if (!_component.IsActive || (!CanMouseDrag?.Invoke(_uiClickable, e) ?? false))
+                if (!_component.IsActive || !CanMouseDrag.Invoke(_uiClickable, e))
                     return;
                 _uiClickable?.MouseDrag(WorldPos(e));
             };

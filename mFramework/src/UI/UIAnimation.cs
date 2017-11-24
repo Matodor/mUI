@@ -54,9 +54,9 @@ namespace mFramework.UI
         public ulong RepeatsNumber => _repeats;
         public UIObject AnimatedObject => _animatedObject;
 
-        public event UIAnimationEventHandler AnimationRepeat;
-        public event UIAnimationEventHandler AnimationEnded;
-        
+        public event UIAnimationEventHandler AnimationRepeat = delegate { };
+        public event UIAnimationEventHandler AnimationEnded = delegate { };
+
         private readonly UIObject _animatedObject;
 
         private static ulong _guid;
@@ -127,12 +127,12 @@ namespace mFramework.UI
         private void OnRepeatAnimation()
         {
             _repeats++;
-            AnimationRepeat?.Invoke(this);
+            AnimationRepeat.Invoke(this);
         }
 
         private void OnEndAnimation()
         {
-            AnimationEnded?.Invoke(this);
+            AnimationEnded.Invoke(this);
         }
 
         public void Animate(bool forcibly = false)

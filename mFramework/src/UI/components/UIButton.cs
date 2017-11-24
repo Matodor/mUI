@@ -28,11 +28,11 @@ namespace mFramework.UI
         public StateableSprite StateableSprite { get; protected set; }
         public ClickCondition ClickCondition { get; set; }
 
-        public event UIEventHandler<UIButton> Click;
-        public event CanButtonClickDelegate CanButtonClick;
+        public event UIEventHandler<UIButton> Click = delegate { };
+        public event CanButtonClickDelegate CanButtonClick = delegate { return true; };
 
-        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown;
-        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp;
+        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown = delegate { };
+        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp = delegate { };
 
         protected UISprite _uiSprite;
         private bool _isMouseDown;
@@ -112,22 +112,22 @@ namespace mFramework.UI
             _isMouseDown = true;
             StateableSprite.SetHighlighted();
 
-            if ((CanButtonClick?.Invoke(this, worldPos) ?? true) && ClickCondition == ClickCondition.BUTTON_DOWN)
+            if (CanButtonClick.Invoke(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
             {
-                Click?.Invoke(this);
+                Click.Invoke(this);
             }
-            ButtonDown?.Invoke(this, new ButtonEventArgs(worldPos));
+            ButtonDown.Invoke(this, new ButtonEventArgs(worldPos));
         }
 
         public void MouseUp(Vector2 worldPos)
         {
             StateableSprite.SetDefault();
-            if ((CanButtonClick?.Invoke(this, worldPos) ?? true) && _isMouseDown &&
+            if (CanButtonClick.Invoke(this, worldPos) && _isMouseDown &&
                 ClickCondition == ClickCondition.BUTTON_UP && UIClickable.InArea(worldPos))
             {
-                Click?.Invoke(this);
+                Click.Invoke(this);
             }
-            ButtonUp?.Invoke(this, new ButtonEventArgs(worldPos));
+            ButtonUp.Invoke(this, new ButtonEventArgs(worldPos));
             _isMouseDown = false;
         }
 

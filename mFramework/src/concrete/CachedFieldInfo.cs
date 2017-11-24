@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 
 namespace mFramework
 {
@@ -18,9 +14,9 @@ namespace mFramework
 
     public class CachedFieldInfo
     {
-        public FieldInfo FieldInfo { get; }
-        public LateBoundFieldSet Setter { get; }
-        public LateBoundFieldGet Getter { get; }
+        public readonly FieldInfo FieldInfo;
+        public readonly LateBoundFieldSet Setter;
+        public readonly LateBoundFieldGet Getter;
 
         public CachedFieldInfo(FieldInfo fieldInfo, LateBoundFieldSet setter, LateBoundFieldGet getter)
         {

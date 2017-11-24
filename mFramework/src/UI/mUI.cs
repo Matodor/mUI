@@ -13,13 +13,13 @@ namespace mFramework.UI
     {
         internal static mUI Instance { get; private set; }
 
-        public static event Action<UIObject> UIObjectCreated;
-        public static event Action<UIObject> UIObjectRemoved;
+        public static event Action<UIObject> UIObjectCreated = delegate { };
+        public static event Action<UIObject> UIObjectRemoved = delegate { };
 
         public static UIView BaseView => Instance._baseView;
         public static UICamera UICamera => Instance._uiCamera;
 
-        internal static Dictionary<string, Font> _fonts;
+        private readonly Dictionary<string, Font> _fonts;
         private readonly BaseView _baseView;
         private readonly UICamera _uiCamera;
         private readonly Dictionary<ulong, UIObject> _uiObjects;
@@ -96,9 +96,9 @@ namespace mFramework.UI
 
         public static Font GetFont(string font)
         {
-            if (!_fonts.ContainsKey(font))
+            if (!Instance._fonts.ContainsKey(font))
                 return null;
-            return _fonts[font];
+            return Instance._fonts[font];
         }
 
         public static bool LoadOSFont(string fontName)
@@ -107,17 +107,17 @@ namespace mFramework.UI
             if (font == null)
                 return false;
 
-            _fonts.Add(fontName, font);
+            Instance._fonts.Add(fontName, font);
             return true;
         }
 
         public static bool LoadFont(string path)
         {
             var font = Resources.Load<Font>(path);
-            if (font == null || _fonts.ContainsKey(font.name))
+            if (font == null || Instance._fonts.ContainsKey(font.name))
                 return false;
-            
-            _fonts.Add(font.name, font);
+
+            Instance._fonts.Add(font.name, font);
             mCore.Log("Loaded font: {0} ", font.name);
             return true;
         }
@@ -138,7 +138,7 @@ namespace mFramework.UI
                 return false;
 
             _uiObjects.Remove(obj.GUID);
-            UIObjectRemoved?.Invoke(obj);
+            UIObjectRemoved.Invoke(obj);
 
             return true;
         }
@@ -149,7 +149,7 @@ namespace mFramework.UI
                 return false;
 
             _uiObjects.Add(obj.GUID, obj);
-            UIObjectCreated?.Invoke(obj);
+            UIObjectCreated.Invoke(obj);
 
             return true;
         }

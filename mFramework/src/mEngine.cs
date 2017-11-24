@@ -2,7 +2,7 @@
 
 namespace mFramework
 {
-    public sealed class mEngine : MonoBehaviour
+    internal sealed class mEngine : MonoBehaviour
     {
         public static mEngine Instance
         {
@@ -15,6 +15,11 @@ namespace mFramework
         }
 
         private static mEngine _instance;
+
+        private mEngine()
+        {
+            
+        }
 
         public void Awake()
         {

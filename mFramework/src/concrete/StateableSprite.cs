@@ -29,9 +29,9 @@ namespace mFramework
             SELECTED = 2
         }
 
-        public event EventHandler<StateableSpriteStateChangedEventArgs> StateChanged;
-        public State CurrentState { get { return _state; } }
-        
+        public event EventHandler<StateableSpriteStateChangedEventArgs> StateChanged = delegate { };
+        public State CurrentState => _state;
+
         private readonly SpriteStates _spriteStates;
         private State _state;
 
@@ -49,19 +49,19 @@ namespace mFramework
         public void SetDefault()
         {
             _state = State.DEFAULT;
-            StateChanged?.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Default));
+            StateChanged.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Default));
         }
 
         public void SetHighlighted()
         {
             _state = State.HIGHLIGHTED;
-            StateChanged?.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Highlighted));
+            StateChanged.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Highlighted));
         }
 
         public void SetSelected()
         {
             _state = State.SELECTED;
-            StateChanged?.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Selected));
+            StateChanged.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Selected));
         }
     }
 }

@@ -15,12 +15,12 @@ namespace mFramework.UI
         public UISprite SpriteMask => _button.SpriteMask;
         public UIClickable UIClickable => _button.UIClickable;
 
-        public event Func<UIToggle, bool> CanSelect;
-        public event Func<UIToggle, bool> CanDeselect;
+        public event Func<UIToggle, bool> CanSelect = delegate { return true; };
+        public event Func<UIToggle, bool> CanDeselect = delegate { return true; };
 
-        public event Action<UIToggle> Selected;
-        public event Action<UIToggle> Deselected;
-        public event Action<UIToggle> Changed;
+        public event Action<UIToggle> Selected = delegate { };
+        public event Action<UIToggle> Deselected = delegate { };
+        public event Action<UIToggle> Changed = delegate { };
 
         private bool _isSelected;
         private UIButton _button;
@@ -79,27 +79,27 @@ namespace mFramework.UI
 
         public UIToggle Select()
         {
-            if (CanSelect != null && !CanSelect(this))
+            if (!CanSelect(this))
                 return this;
 
             _isSelected = true;
             _button.StateableSprite.SetSelected();
 
-            Selected?.Invoke(this);
-            Changed?.Invoke(this);
+            Selected.Invoke(this);
+            Changed.Invoke(this);
             return this;
         }
 
         public UIToggle Deselect()
         {
-            if (CanDeselect != null && !CanDeselect(this))
+            if (!CanDeselect(this))
                 return this;
 
             _isSelected = false;
             _button.StateableSprite.SetDefault();
 
-            Deselected?.Invoke(this);
-            Changed?.Invoke(this);
+            Deselected.Invoke(this);
+            Changed.Invoke(this);
             return this;
         }
 

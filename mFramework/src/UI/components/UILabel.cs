@@ -40,7 +40,7 @@ namespace mFramework.UI
         public Renderer UIRenderer { get; private set; }
         public string Text => _cachedText;
         public int Size => _fontSize;
-        public event UIEventHandler<UILabel> TextUpdated;
+        public event UIEventHandler<UILabel> TextUpdated = delegate { };
         
         private Font _cachedFont;
         private MeshRenderer _meshRenderer;
@@ -637,7 +637,7 @@ namespace mFramework.UI
             _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.material.mainTextureScale);
 
             Scale(localScale);
-            TextUpdated?.Invoke(this);
+            TextUpdated.Invoke(this);
         }
 
         public override UIRect GetRect()

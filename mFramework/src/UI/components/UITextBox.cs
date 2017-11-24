@@ -22,8 +22,8 @@ namespace mFramework.UI
 
     public class UITextBox : UIComponent, IUIClickable
     {
-        public event UIEventHandler<UITextBox> Selected;
-        public event UIEventHandler<UITextBox> Deselected;
+        public event UIEventHandler<UITextBox> Selected = delegate { };
+        public event UIEventHandler<UITextBox> Deselected = delegate { };
 
         public UIClickable UIClickable => Background.UIClickable;
         public UILabel Label { get; private set; }
@@ -93,7 +93,7 @@ namespace mFramework.UI
                 );
             }
 
-            Selected?.Invoke(this);
+            Selected.Invoke(this);
         }
 
         public override void OnFixedTick()
@@ -117,7 +117,7 @@ namespace mFramework.UI
 
         private void TextBoxDeselected()
         {
-            Deselected?.Invoke(this);
+            Deselected.Invoke(this);
             _keyboard = null;
         }
 
