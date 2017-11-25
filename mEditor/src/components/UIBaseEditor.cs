@@ -11,6 +11,7 @@ namespace mFramework
         public virtual void Awake()
         {
             _object = target as UIObject;
+            mCore.Log($"_object = {_object}");
         }
 
         public override void OnInspectorGUI()

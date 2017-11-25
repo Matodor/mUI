@@ -18,9 +18,9 @@ namespace mFramework.UI
         public event Func<UIToggle, bool> CanSelect = delegate { return true; };
         public event Func<UIToggle, bool> CanDeselect = delegate { return true; };
 
-        public event Action<UIToggle> Selected = delegate { };
-        public event Action<UIToggle> Deselected = delegate { };
-        public event Action<UIToggle> Changed = delegate { };
+        public event UIEventHandler<UIToggle> Selected = delegate { };
+        public event UIEventHandler<UIToggle> Deselected = delegate { };
+        public event UIEventHandler<UIToggle> Changed = delegate { };
 
         private bool _isSelected;
         private UIButton _button;
