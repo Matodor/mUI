@@ -91,6 +91,7 @@
     <Compile Include="src\UI\components\UIMesh.cs" />
     <Compile Include="src\UI\components\UIPageSlider.cs" />
     <Compile Include="src\UI\components\UITextBox.cs" />
+    <Compile Include="src\UI\UIFont.cs" />
     <Compile Include="src\UI\UIStencilMaterials.cs" />
     <Compile Include="src\UI\ui_events\AddedAnimationEventArgs.cs" />
     <Compile Include="src\UI\ui_events\AddedСhildObjectEventArgs.cs" />

@@ -19,7 +19,7 @@ namespace mFramework.UI
         public static UIView BaseView => Instance._baseView;
         public static UICamera UICamera => Instance._uiCamera;
 
-        private readonly Dictionary<string, Font> _fonts;
+        private readonly Dictionary<string, UIFont> _fonts;
         private readonly BaseView _baseView;
         private readonly UICamera _uiCamera;
         private readonly Dictionary<ulong, UIObject> _uiObjects;
@@ -33,7 +33,7 @@ namespace mFramework.UI
             _uiCamera.GameObject.SetParentTransform(mEngine.Instance.gameObject);
 
             Instance = this;
-            _fonts = new Dictionary<string, Font>();
+            _fonts = new Dictionary<string, UIFont>();
             _uiObjects = new Dictionary<ulong, UIObject>();
             _baseView = UIView.Create<BaseView>(new UIViewSettings
             {
@@ -94,30 +94,30 @@ namespace mFramework.UI
             return null;
         }
 
-        public static Font GetFont(string font)
+        public static UIFont GetFont(string font)
         {
             if (!Instance._fonts.ContainsKey(font))
                 return null;
             return Instance._fonts[font];
         }
 
-        public static bool LoadOSFont(string fontName)
+        public static bool LoadOSFont(string fontName, float harshness = UILabel.DEFAULT_HARSHNESS)
         {
             var font = Font.CreateDynamicFontFromOSFont(fontName, 10);
             if (font == null)
                 return false;
 
-            Instance._fonts.Add(fontName, font);
+            Instance._fonts.Add(fontName, new UIFont(harshness, font));
             return true;
         }
 
-        public static bool LoadFont(string path)
+        public static bool LoadFont(string path, float harshness = UILabel.DEFAULT_HARSHNESS)
         {
             var font = Resources.Load<Font>(path);
             if (font == null || Instance._fonts.ContainsKey(font.name))
                 return false;
 
-            Instance._fonts.Add(font.name, font);
+            Instance._fonts.Add(font.name, new UIFont(harshness, font));
             mCore.Log("Loaded font: {0} ", font.name);
             return true;
         }

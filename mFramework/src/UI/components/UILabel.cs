@@ -37,12 +37,15 @@ namespace mFramework.UI
 
     public class UILabel : UIComponent, IUIRenderer, IColored
     {
+        public const float DEFAULT_HARSHNESS = 3;
+
+
         public Renderer UIRenderer { get; private set; }
         public string Text => _cachedText;
         public int Size => _fontSize;
         public event UIEventHandler<UILabel> TextUpdated = delegate { };
         
-        private Font _cachedFont;
+        private UIFont _cachedFont;
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
         //private MaterialPropertyBlock _textPropertyBlock;
@@ -198,11 +201,11 @@ namespace mFramework.UI
 
         private void FontRebuilt(Font font)
         {
-            if (font == _cachedFont)
+            if (font == _cachedFont.Font)
             {
-                _meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.material.mainTexture);
-                _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.material.mainTextureOffset);
-                _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.material.mainTextureScale);
+                _meshRenderer.sharedMaterial.SetTexture("_MainTex", font.material.mainTexture);
+                _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", font.material.mainTextureOffset);
+                _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", font.material.mainTextureScale);
                 
                 UpdateMeshText();
             }
@@ -375,18 +378,17 @@ namespace mFramework.UI
                 return;
 
             const int maxSize = 256 / 2;
-            const int harshness = 3;
             const float pixelsPerWorldUnit = 100f;
-
+            
             _fontSize = mMath.Clamp(_fontSize, 1, maxSize);
-            _cachedFont.RequestCharactersInTexture(_cachedText, _fontSize * harshness, _fontStyle);
+            _cachedFont.Font.RequestCharactersInTexture(_cachedText, (int) (_fontSize * _cachedFont.Harshness), _fontStyle);
 
             foreach (var textFormatting in _textFormatting)
             {
                 var size = textFormatting.Value.Size.GetValueOrDefault(_fontSize);
                 size = mMath.Clamp(size, 1, maxSize);
 
-                _cachedFont.RequestCharactersInTexture(_cachedText, size * harshness,
+                _cachedFont.Font.RequestCharactersInTexture(_cachedText, (int) (size * _cachedFont.Harshness),
                     textFormatting.Value.FontStyle.GetValueOrDefault(_fontStyle));
             }
 
@@ -446,9 +448,9 @@ namespace mFramework.UI
                     if (formattingIndex != -1 && _textFormatting.ContainsKey(formattingIndex))
                     {
                         currentFormatting = _textFormatting[formattingIndex];
-                        size = currentFormatting.Size.GetValueOrDefault(_fontSize) * harshness;
+                        size = (int) (currentFormatting.Size.GetValueOrDefault(_fontSize) * _cachedFont.Harshness);
 
-                        if (!_cachedFont.GetCharacterInfo(currentCharacter, out characterInfo,
+                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, out characterInfo,
                             size, currentFormatting.FontStyle.GetValueOrDefault(_fontStyle)))
                         {
                             continue;
@@ -457,24 +459,24 @@ namespace mFramework.UI
                     else
                     {
                         currentFormatting = null;
-                        size = _fontSize * harshness;
-                        if (!_cachedFont.GetCharacterInfo(currentCharacter, 
+                        size = (int) (_fontSize * _cachedFont.Harshness);
+                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, 
                             out characterInfo, size, _fontStyle))
                             continue;
                     }
                 }
                 else
                 {
-                    size = _fontSize * harshness;
-                    if (!_cachedFont.GetCharacterInfo(currentCharacter, 
+                    size = (int) (_fontSize * _cachedFont.Harshness);
+                    if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, 
                         out characterInfo, size, _fontStyle))
                         continue;
                 }
 
-                var minX = characterInfo.minX / pixelsPerWorldUnit / harshness;
-                var maxX = characterInfo.maxX / pixelsPerWorldUnit / harshness;
-                var minY = characterInfo.minY / pixelsPerWorldUnit / harshness;
-                var maxY = characterInfo.maxY / pixelsPerWorldUnit / harshness;
+                var minX = characterInfo.minX / pixelsPerWorldUnit / _cachedFont.Harshness;
+                var maxX = characterInfo.maxX / pixelsPerWorldUnit / _cachedFont.Harshness;
+                var minY = characterInfo.minY / pixelsPerWorldUnit / _cachedFont.Harshness;
+                var maxY = characterInfo.maxY / pixelsPerWorldUnit / _cachedFont.Harshness;
 
                 minX += minX * -1;
                 maxX += minX * -1;
@@ -488,19 +490,19 @@ namespace mFramework.UI
                 //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
                 //  characterInfo.advance, characterInfo.bearing, characterInfo.size, characterInfo.glyphHeight, characterInfo.glyphWidth);
 
-                if (lineHeight < characterInfo.size / pixelsPerWorldUnit / harshness)
-                    lineHeight = characterInfo.size / pixelsPerWorldUnit / harshness;
+                if (lineHeight < characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness)
+                    lineHeight = characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness;
 
                 if (currentCharacter == ' ')
                 {
-                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / harshness *
+                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness *
                                    (currentFormatting == null
                                        ? _wordSpacing
                                        : currentFormatting.WordSpacing.GetValueOrDefault(_wordSpacing));
                 }
                 else
                 {
-                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / harshness *
+                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness *
                                    (currentFormatting == null
                                        ? _letterSpacing
                                        : currentFormatting.LetterSpacing.GetValueOrDefault(_letterSpacing));
@@ -632,9 +634,9 @@ namespace mFramework.UI
             _meshFilter.mesh.normals = normalsList.ToArray();
             _meshFilter.mesh.uv = uvList.ToArray();
 
-            _meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.material.mainTexture);
-            _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.material.mainTextureOffset);
-            _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.material.mainTextureScale);
+            _meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.Font.material.mainTexture);
+            _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.Font.material.mainTextureOffset);
+            _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.Font.material.mainTextureScale);
 
             Scale(localScale);
             TextUpdated.Invoke(this);
