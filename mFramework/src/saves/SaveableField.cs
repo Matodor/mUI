@@ -24,15 +24,23 @@ namespace mFramework.Saves
 
         public bool SaveValue(ISaveableFieldsBridge bridge)
         {
-            
             return bridge.Storage.SetString(bridge.Key, Convert.ToString(_value.Ticks));
         }
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
-                return new SaveableDateTime {_value = new DateTime(Convert.ToInt64(value))};
-            return new SaveableDateTime { _value = this._value };
+            {
+                try
+                {
+                    return new SaveableDateTime {_value = new DateTime(Convert.ToInt64(value)) };
+                }
+                catch
+                {
+                    return this;
+                }
+            }
+            return this;
         }
 
     }
@@ -65,7 +73,7 @@ namespace mFramework.Saves
         {
             if (bridge.Storage.GetInt(bridge.Key, out var value))
                 return new SaveableBoolean { _value = value == 1 };
-            return new SaveableBoolean { _value = this._value };
+            return this;
         }
     }
 
@@ -96,8 +104,8 @@ namespace mFramework.Saves
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
             if (bridge.Storage.GetInt(bridge.Key, out var value))
-                return new SaveableInt {_value = value };
-            return new SaveableInt { _value = this._value };
+                return new SaveableInt { _value = value };
+            return this;
         }
     }
 
@@ -129,7 +137,7 @@ namespace mFramework.Saves
         {
             if (bridge.Storage.GetFloat(bridge.Key, out var value))
                 return new SaveableFloat {_value = value};
-            return new SaveableFloat { _value = this._value };
+            return this;
         }
     }
 
@@ -161,9 +169,51 @@ namespace mFramework.Saves
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
                 return new SaveableString { _value = value };
-            return new SaveableString { _value = this._value };
+            return this;
         }
     }
+
+    public struct SaveableInt64 : ISaveableField
+    {
+        private long _value;
+
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
+
+        public static implicit operator long(SaveableInt64 field)
+        {
+            return field._value;
+        }
+
+        public static implicit operator SaveableInt64(long value)
+        {
+            return new SaveableInt64 { _value = value };
+        }
+
+        public bool SaveValue(ISaveableFieldsBridge bridge)
+        {
+            return bridge.Storage.SetString(bridge.Key, Convert.ToString(_value));
+        }
+
+        public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
+        {
+            if (bridge.Storage.GetString(bridge.Key, out var value))
+            {
+                try
+                {
+                    return new SaveableInt64 { _value = Convert.ToInt64(value) };
+                }
+                catch
+                {
+                    return this;
+                }
+            }
+            return this;
+        }
+    }
+
 
     public struct SaveableUInt64 : ISaveableField
     {
@@ -192,8 +242,17 @@ namespace mFramework.Saves
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
-                return new SaveableUInt64 {_value = Convert.ToUInt64(value)};
-            return new SaveableUInt64 { _value = this._value };
+            {
+                try
+                {
+                    return new SaveableUInt64 { _value = Convert.ToUInt64(value) };
+                }
+                catch
+                {
+                    return this;
+                }
+            }
+            return this;
         }
     }
 
@@ -224,8 +283,17 @@ namespace mFramework.Saves
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
             if (bridge.Storage.GetString(bridge.Key, out var value))
-                return new SaveableDecimal { _value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
-            return new SaveableDecimal { _value = this._value };
+            {
+                try
+                {
+                    return new SaveableDecimal { _value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
+                }
+                catch
+                {
+                    return this;
+                }
+            }
+            return this;
         }
     }
 }
