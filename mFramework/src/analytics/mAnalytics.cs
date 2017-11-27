@@ -3,6 +3,7 @@
     public static class mAnalytics
     {
         public static string GUID => _analyticsStats.GUID;
+        public static string RemoteUrl = "";
 
         private static readonly AnalyticsStats _analyticsStats;
 

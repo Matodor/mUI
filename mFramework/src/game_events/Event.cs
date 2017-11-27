@@ -15,7 +15,7 @@ namespace mFramework.GameEvents
             public Func<Event, bool> BeforeInvoke { get; set; } = _ => true;
             public OnEvent OnEvent { get; set; } = (s, e) => { };
             
-            public readonly Enum EventKey;
+            public readonly string EventKey;
 
             /*---------SAVEABLE DATA---------*/
             public SaveableInt BeforeEventCounter; 
@@ -24,7 +24,7 @@ namespace mFramework.GameEvents
             public SaveableDateTime LastEvent;
             /*---------SAVEABLE DATA---------*/
 
-            public Event(Enum eventKey) : base($"mSaveableEvent_{eventKey}")
+            public Event(string eventKey) : base($"mSaveableEvent_{eventKey}")
             {
                 EventKey = eventKey;
                 Enabled = true;

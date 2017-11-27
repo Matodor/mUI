@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using mFramework.Saves;
 
 namespace mFramework.GameEvents
@@ -10,11 +9,11 @@ namespace mFramework.GameEvents
 
         public delegate void OnEvent(Event sender, EventArgs eventData);
 
-        private static readonly Dictionary<Enum, Event> _events;
+        private static readonly Dictionary<string, Event> _events;
 
         static mGameEvents()
         {
-            _events = new Dictionary<Enum, Event>();
+            _events = new Dictionary<string, Event>();
             mCore.ApplicationQuitEvent += SaveGameEvents;
         }
 
@@ -23,14 +22,14 @@ namespace mFramework.GameEvents
             _events.Values.Save();
         }
 
-        public static Event GetEvent(Enum key)
+        public static Event GetEvent(string key)
         {
             if (_events.TryGetValue(key, out var @event))
                 return @event;
             return null;
         }
 
-        public static bool DetachEvent(Enum key)
+        public static bool DetachEvent(string key)
         {
             return _events.Remove(key);
         }
@@ -42,7 +41,7 @@ namespace mFramework.GameEvents
             _events.Add(e.EventKey, e);
         }
 
-        public static void InvokeEvent(Enum key, object payload = null)
+        public static void InvokeEvent(string key, object payload = null)
         {
             if (!_events.ContainsKey(key))
                 return;

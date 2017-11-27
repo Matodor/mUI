@@ -32,6 +32,9 @@ namespace mFramework.RemoteSettings
             }
         }
 
+        public static DateTime LastUpdated { get; private set; }
+        public static JSONNode JSON { get; private set; }
+
         public static string RemoteUrl = "";
         public static int SettingsCount => _settings.Count;
 
@@ -41,6 +44,7 @@ namespace mFramework.RemoteSettings
 
         static mRemoteSettings()
         {
+            JSON = null;
             _requested = false;
             _settings = new Dictionary<string, JSONNode>();
         }
@@ -66,7 +70,7 @@ namespace mFramework.RemoteSettings
             return failureValue;
         }
 
-        public static float GetFloat(string key, float failureValue = 0)
+        public static float GetFloat(string key, float failureValue = 0f)
         {
             if (HasKey(key) && float.TryParse(_settings[key].Value, out var value))
                 return value;
@@ -97,25 +101,26 @@ namespace mFramework.RemoteSettings
             if (e.Cancelled)
                 return;
 
-            var obj = SimpleJSON.JSON.Parse(e.Result);
-            if (obj != null && obj["settings"] != null)
+            LastUpdated = DateTime.Now;
+            JSON = SimpleJSON.JSON.Parse(e.Result);
+
+            if (JSON == null || JSON["settings"] == null || !JSON["settings"].IsArray)
+                return;
+
+            foreach (var property in JSON["settings"].Children)
             {
-                foreach (var property in obj["settings"].Children)
-                {
-                    if (property["key"] == null || property["value"] == null)
-                        continue;
+                if (property["key"] == null || property["value"] == null)
+                    continue;
 
-                    // not used
-                    // var settingType = property["type"].Value;
-                    var settingKey = property["key"].Value;
-                    var settingValue = property["value"];
+                // not used
+                // var settingType = property["type"].Value;
+                var settingKey = property["key"].Value;
+                var settingValue = property["value"];
 
-                    _settings.Add(settingKey, settingValue);
-                }
+                _settings.Add(settingKey, settingValue);
             }
 
-            if (SettingsCount > 0)
-                _updated?.Invoke();
+            _updated?.Invoke();
         }
     }
 }
