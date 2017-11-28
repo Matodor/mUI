@@ -96,7 +96,7 @@ namespace mFramework.UI
             Selected.Invoke(this);
         }
 
-        public override void OnFixedTick()
+        protected override void OnFixedTick()
         {
             if (_keyboard == null)
                 return;
@@ -113,6 +113,7 @@ namespace mFramework.UI
                 _isSelected = false;
                 TextBoxDeselected();
             }
+            base.OnFixedTick();
         }
 
         private void TextBoxDeselected()

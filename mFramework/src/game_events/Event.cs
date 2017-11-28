@@ -12,7 +12,7 @@ namespace mFramework.GameEvents
 
         public class Event : SaveableFields
         {
-            public Func<Event, bool> BeforeInvoke { get; set; } = _ => true;
+            public Func<Event, EventArgs, bool> BeforeInvoke { get; set; } = (_, __) => true;
             public OnEvent OnEvent { get; set; } = (s, e) => { };
             
             public readonly string EventKey;
@@ -24,7 +24,7 @@ namespace mFramework.GameEvents
             public SaveableDateTime LastEvent;
             /*---------SAVEABLE DATA---------*/
 
-            public Event(string eventKey) : base($"mSaveableEvent_{eventKey}")
+            public Event(string eventKey) : base($"mSE_{eventKey}")
             {
                 EventKey = eventKey;
                 Enabled = true;
@@ -55,7 +55,10 @@ namespace mFramework.GameEvents
                     return;
 
                 BeforeEventCounter++;
-                if (BeforeInvoke(this))
+                if (BeforeInvoke(this, new EventArgs
+                {
+                    Payload = payload
+                }))
                 {
                     EventCounter++;
                     LastEvent = DateTime.Now;

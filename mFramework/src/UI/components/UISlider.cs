@@ -289,13 +289,13 @@ namespace mFramework.UI
                 VerticalMove(diff);
         }
 
-        internal override void Tick()
+        protected override void OnTick()
         {
-            if (!IsActive)
-                return;
-
             if (!_isPressed)
             {
+                if (Childs.Count == 0)
+                    return;
+
                 var rect = GetRect();
                 UIRect firstRect, secondRect;
                 if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
@@ -333,7 +333,7 @@ namespace mFramework.UI
                 else if (Math.Abs(_lastMoveDiff) > SLIDER_MIN_DIFF_TO_MOVE)
                     Move(_lastMoveDiff * 0.99f * Time.deltaTime * 50);
             }
-            base.Tick();
+            base.OnTick();
         }
 
         protected virtual void VerticalMove(float diff)

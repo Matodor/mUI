@@ -1,7 +1,8 @@
 ﻿namespace mFramework.Analytics
 {
-    public static class AnalyticsEvents
+    public class AnalyticsEvents
     {
-        
+        public const string
+            INIT = "a_INIT";
     }
 }

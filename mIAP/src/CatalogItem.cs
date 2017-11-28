@@ -7,23 +7,23 @@ namespace mFramework.IAP
 {
     public class CatalogItem
     {
-        internal Action<Product> OnPurchase { get; }
-
-        public string Id { get; internal set; }
+        public string Id { get; }
         public ProductType Type { get; internal set; }
         public IDs StoreIDs { get; internal set; }
         public IEnumerable<PayoutDefinition> Payouts { get; internal set; }
         public bool Enabled { get; internal set; }
-        
+        public string DiscountText { get; internal set; }
+        public string Event { get; internal set; }
+
         public CatalogItem(string id, ProductType type, IDs storeIDs, IEnumerable<PayoutDefinition> payouts, 
-            bool enabled = true, Action<Product> onPurchase = null)
+            bool enabled = true, string @event = "")
         {
             Id = id;
             Type = type;
             StoreIDs = storeIDs;
             Payouts = payouts;
             Enabled = enabled;
-            OnPurchase = onPurchase;
+            Event = @event;
         }
 
         public override string ToString()

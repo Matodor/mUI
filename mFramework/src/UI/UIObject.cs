@@ -1,4 +1,5 @@
 ﻿using System;
+using SimpleJSON;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -332,11 +333,11 @@ namespace mFramework.UI
             return this;
         }
 
-        public virtual void OnTick()
+        protected virtual void OnTick()
         {
         }
 
-        internal virtual void Tick()
+        internal void Tick()
         {
             Animations.ForEach(a =>
             {
@@ -350,15 +351,14 @@ namespace mFramework.UI
                 return;
 
             OnTick();
-            
             Childs.ForEach(c => c.Tick());
         }
 
-        public virtual void OnFixedTick()
+        protected virtual void OnFixedTick()
         {
         }
 
-        internal virtual void FixedTick()
+        internal void FixedTick()
         {
             if (!IsActive)
                 return;
@@ -367,17 +367,16 @@ namespace mFramework.UI
             Childs.ForEach(c => c.FixedTick());
         }
 
-        public virtual void OnLateTick()
+        protected virtual void OnLateTick()
         {
         }
 
-        internal virtual void LateTick()
+        internal void LateTick()
         {
             if (!IsActive)
                 return;
 
             OnLateTick();
-
             Childs.ForEach(c => c.LateTick());
         }
 

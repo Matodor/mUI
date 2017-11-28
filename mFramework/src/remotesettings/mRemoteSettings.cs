@@ -91,14 +91,14 @@ namespace mFramework.RemoteSettings
         {
             using (var webClient = new WebClient())
             {
-                webClient.DownloadStringAsync(new Uri(RemoteUrl));
                 webClient.DownloadStringCompleted += WebClientOnDownloadStringCompleted;
+                webClient.DownloadStringAsync(new Uri(RemoteUrl));
             }
         }
 
         private static void WebClientOnDownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
-            if (e.Cancelled)
+            if (e.Cancelled || e.Error != null)
                 return;
 
             LastUpdated = DateTime.Now;

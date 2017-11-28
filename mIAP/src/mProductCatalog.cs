@@ -1,12 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using mFramework.GameEvents;
 using UnityEngine.Purchasing;
 
 namespace mFramework.IAP
 {
+    public struct RequestProductsState
+    {
+        public Action OnSuccess;
+        public Action<Exception> OnFail;
+    }
+
     public static class mProductCatalog
     {
+        public static event Action Updated;
+
+        public static string RemoteUrl = "";
         public static IEnumerable<CatalogItem> Items => _shopItems.Values;
 
         private static readonly Dictionary<string, CatalogItem> _shopItems;
@@ -16,66 +26,38 @@ namespace mFramework.IAP
             _shopItems = new Dictionary<string, CatalogItem>();
         }
 
-        public static void OnSuccessPurchase(Product product)
+        public static CatalogItem GetItem(string id)
         {
-            if (_shopItems.ContainsKey(product.definition.id))
-                _shopItems[product.definition.id].OnPurchase?.Invoke(product);
+            if (_shopItems.ContainsKey(id))
+                return _shopItems[id];
+            return null;
         }
 
-        public static void GetProductsRemote(string remoteUrl, Action onSuccess, Action onFail)
+        public static void OnSuccessPurchase(Product product)
+        {
+            if (_shopItems.ContainsKey(product.definition.id) && !string.IsNullOrWhiteSpace(_shopItems[product.definition.id].Event))
+            {
+                mGameEvents.InvokeEvent(_shopItems[product.definition.id].Event, product);
+            }
+        }
+
+        public static void GetProductsRemote(RequestProductsState state)
         {
             using (var webClient = new WebClient())
             {
-                webClient.DownloadStringAsync(new Uri(remoteUrl), new [] {onSuccess, onFail});
                 webClient.DownloadStringCompleted += WebClientOnDownloadStringCompleted;
+                webClient.DownloadStringAsync(new Uri(RemoteUrl), state);
             }
         }
 
         private static void WebClientOnDownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
-            if (e.Cancelled)
+            var state = (RequestProductsState) e.UserState;
+            if (e.Error != null || e.Cancelled)
             {
-                var onFail = ((Action[]) e.UserState)[1];
-                onFail?.Invoke();
+                state.OnFail?.Invoke(e.Error);
                 return;
             }
-
-            /*
-                {
-                    "shopItems": [
-                        {
-                            "id": "viewers.1000",
-                            "enabled": "false",
-                            "productType": "Consumable",
-                            "storesIds": [
-                                {
-                                    "store": "GooglePlay",
-                                    "id": "googleplay.viewers.1000"
-                                },
-                                {
-                                    "store": "AppleAppStore",
-                                    "id": "appstore.viewers.1000"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "viewers.9999",
-                            "enabled": "true",
-                            "productType": "Consumable",
-                            "storesIds": [
-                                {
-                                    "store": "GooglePlay",
-                                    "id": "googleplay.viewers.9999"
-                                },
-                                {
-                                    "store": "AppleAppStore",
-                                    "id": "appstore.viewers.9999"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            */
 
             var json = SimpleJSON.JSON.Parse(e.Result);
             if (json == null || json["shopItems"] == null || !json["shopItems"].IsArray)
@@ -86,10 +68,12 @@ namespace mFramework.IAP
                 if (property["id"] == null)
                     continue;
 
-                var id = property["id"].Value;
+                var id = property["id"].Value?.Trim();
                 var enabled = property["enabled"]?.AsBool ?? true;
+                var discountText = property["discount_text"]?.Value ?? string.Empty;
+                var @event = property ["event"]?.Value ?? string.Empty;
 
-                if (string.IsNullOrWhiteSpace(id) || !_shopItems.ContainsKey(id))
+                if (string.IsNullOrWhiteSpace(id))
                     continue;
                 
                 if (property["productType"] == null ||
@@ -112,14 +96,26 @@ namespace mFramework.IAP
                     }
                 }
 
-                _shopItems[id].Type = type;
-                _shopItems[id].StoreIDs = ids;
-                _shopItems[id].Payouts = null;
-                _shopItems[id].Enabled = enabled;
+                if (_shopItems.ContainsKey(id))
+                {
+                    _shopItems[id].Type = type;
+                    _shopItems[id].StoreIDs = ids;
+                    _shopItems[id].Payouts = null;
+                    _shopItems[id].Enabled = enabled;
+                    _shopItems[id].DiscountText = discountText;
+                    _shopItems[id].Event = @event;
+                }
+                else
+                {
+                    AddProduct(new CatalogItem(id, type, ids, null, enabled, @event)
+                    {
+                        DiscountText = discountText
+                    });
+                }
             }
 
-            var onSuccess = ((Action[]) e.UserState)[0];
-            onSuccess?.Invoke();
+            state.OnSuccess?.Invoke();
+            Updated?.Invoke();
         }
 
         public static void AddProducts(IEnumerable<CatalogItem> items)

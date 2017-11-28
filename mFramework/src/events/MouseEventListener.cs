@@ -6,10 +6,10 @@ namespace mFramework
     {
         public bool Enabled;
 
-        public event EventHandler<MouseEvent> MouseDown;
-        public event EventHandler<MouseEvent> MouseUp;
-        public event EventHandler<MouseEvent> MouseDrag;
-        public event EventHandler<MouseEvent> MouseWheel;
+        public event EventHandler<MouseEvent> MouseDown = delegate { };
+        public event EventHandler<MouseEvent> MouseUp = delegate { };
+        public event EventHandler<MouseEvent> MouseDrag = delegate { };
+        public event EventHandler<MouseEvent> MouseWheel = delegate { };
 
         private bool _detached;
 
@@ -26,27 +26,31 @@ namespace mFramework
 
         ~MouseEventListener()
         {
-            if (!_detached) Detach();
+            if (!_detached)
+                Detach();
         }
 
         internal void OnMouseWheel(MouseEvent @event)
         {
-            if (Enabled) MouseWheel?.Invoke(this, @event);
+            if (Enabled)
+                MouseWheel.Invoke(this, @event);
         }
 
         internal void OnMouseDrag(MouseEvent @event)
         {
-            if (Enabled) MouseDrag?.Invoke(this, @event);
+            if (Enabled)
+                MouseDrag.Invoke(this, @event);
         }
 
         internal void OnMouseDown(MouseEvent @event)
         {
-            if (Enabled) MouseDown?.Invoke(this, @event);
+            if (Enabled)
+                MouseDown?.Invoke(this, @event);
         }
 
         internal void OnMouseUp(MouseEvent @event)
         {
-            if (Enabled) MouseUp?.Invoke(this, @event);
+            if (Enabled) MouseUp.Invoke(this, @event);
         }
 
         public override void Detach()

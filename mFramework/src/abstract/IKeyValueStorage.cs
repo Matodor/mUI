@@ -10,6 +10,7 @@
         bool SetFloat(string key, float value);
         bool SetString(string key, string value);
 
+        void RemoveKey(string key);
         void Save();
         void Clear();
     }

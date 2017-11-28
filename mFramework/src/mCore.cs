@@ -84,7 +84,7 @@ namespace mFramework
 
         public static void Log(string format, params object[] @params)
         {
-            if (IsEditor && IsDebug)
+            if (IsDebug)
             {
                 UnityEngine.Debug.Log(@params.Length > 0 ? string.Format(format, @params) : format);
             }

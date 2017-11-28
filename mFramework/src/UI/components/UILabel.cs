@@ -16,6 +16,7 @@ namespace mFramework.UI
         public float LetterSpacing = 1f;
         public float WordSpacing = 1f;
         public float LinesSpacing = 1f;
+        public float? MaxWidth = null;
     }
 
     public enum VerticalAlign
@@ -57,6 +58,7 @@ namespace mFramework.UI
         private float _wordSpacing = 1;
         private float _linesSpacing = 1f;
 
+        private float? _maxWidth = null;
         private TextAlignment _textAlignment;
         private TextAnchor? _textAnchor;
         private VerticalAlign _verticalAlign;
@@ -224,6 +226,7 @@ namespace mFramework.UI
 
             UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0).TextMaterial;
 
+            _maxWidth = labelSettings.MaxWidth;
             _cachedText = labelSettings.Text;
             _fontSize = labelSettings.Size;
             _textAnchor = labelSettings.TextAnchor;
@@ -277,10 +280,17 @@ namespace mFramework.UI
 
         private void CheckBoundingBox(float vertX, float vertY)
         {
-            if (_left > vertX)   _left = vertX;
-            if (_right < vertX)  _right = vertX;
-            if (_top < vertY)    _top = vertY;
-            if (_bottom > vertY) _bottom = vertY;
+            if (_left > vertX)
+                _left = vertX;
+
+            if (_right < vertX)
+                _right = vertX;
+
+            if (_top < vertY)
+                _top = vertY;
+
+            if (_bottom > vertY)
+                _bottom = vertY;
         }
 
         private void AlignVertices(IList<Vector3> vertices, TextAlignment alignment, 
@@ -425,6 +435,7 @@ namespace mFramework.UI
 
             for (int i = 0; i < text.Length; i++)
             {
+                var forceNewLine = false;
                 CharacterInfo characterInfo;
                 var currentCharacter = text[i];
                 var size = 0;
@@ -480,6 +491,13 @@ namespace mFramework.UI
 
                 minX += minX * -1;
                 maxX += minX * -1;
+
+                if (_maxWidth.HasValue && textXOffset + maxX > _maxWidth)
+                {
+                    i--;
+                    forceNewLine = true;
+                    goto End;
+                }
 
                 verticesList.Add(new Vector3(textXOffset + minX, minY));
                 verticesList.Add(new Vector3(textXOffset + minX, maxY));
@@ -538,15 +556,15 @@ namespace mFramework.UI
                 trianglesList.Add(verticesList.Count - 4); // 0
 
                 // new line
-                End:
-                if (i + 1 >= text.Length || i + 1 < text.Length && text[i + 1] == '\n')
+            End:
+                if (forceNewLine || i + 1 >= text.Length || i + 1 < text.Length && text[i + 1] == '\n')
                 {
                     var lineWidth = verticesList[verticesList.Count - 1].x - verticesList[startLineIndex].x;
                     if (lines > 1)
                     {
                         lineHeight = lineHeight * (currentFormatting == null
-                                         ? _linesSpacing
-                                         : currentFormatting.LinesSpacing.GetValueOrDefault(_linesSpacing));
+                                            ? _linesSpacing
+                                            : currentFormatting.LinesSpacing.GetValueOrDefault(_linesSpacing));
                         textYOffset -= lineHeight;
                     }
                     else
@@ -555,11 +573,11 @@ namespace mFramework.UI
                     }
 
                     AlignVertices(
-                        vertices: verticesList, 
-                        alignment: _textAlignment, 
+                        vertices: verticesList,
+                        alignment: _textAlignment,
                         startIndex: startLineIndex,
-                        endIndex: verticesList.Count - 1, 
-                        lineWidth: lineWidth, 
+                        endIndex: verticesList.Count - 1,
+                        lineWidth: lineWidth,
                         yOffset: textYOffset
                     );
 
