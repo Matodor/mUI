@@ -1,15 +1,62 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace mFramework.UI
 {
     public class UIStencilMaterials
     {
+        public class TextMaterials
+        {
+            public Material this[string fontName]
+            {
+                get
+                {
+                    if (_materials.ContainsKey(fontName))
+                        return _materials[fontName];
+
+                    var material = CreateTextMaterial(_layer.StencilId, _layer.CompFunc, _layer.WriteMask, _layer.ReadMask);
+                    _materials.Add(fontName, material);
+                    return material;
+                }
+            }
+
+            private readonly Layer _layer;
+            private readonly Dictionary<string, Material> _materials;
+
+            public TextMaterials(Layer layer)
+            {
+                _layer = layer;
+                _materials = new Dictionary<string, Material>();
+            }
+        }
+
         public class Layer
         {
-            public Material CanvasMaterial;
-            public Material SpritesMaterial;
-            public Material TextMaterial;
+            public readonly int StencilId;
+            public readonly CompareFunction CompFunc;
+            public readonly StencilOp OpFunc;
+            public readonly int WriteMask;
+            public readonly int ReadMask;
+
+            public readonly Material CanvasMaterial;
+            public readonly Material SpritesMaterial;
+            public readonly TextMaterials TextMaterials;
+
+            public Layer(int stencilId, CompareFunction compFunc, StencilOp opFunc,
+                int writeMask = 255, int readMask = 255)
+            {
+                StencilId = stencilId;
+
+                CompFunc = compFunc;
+                OpFunc = opFunc;
+                WriteMask = writeMask;
+                ReadMask = readMask;
+
+                TextMaterials = new TextMaterials(this);
+                CanvasMaterial = CreateCanvasMaterial(stencilId, opFunc, writeMask, readMask);
+                SpritesMaterial = CreateSpriteMaterial(stencilId, compFunc, writeMask, readMask);
+            }
         }
 
         public const int MAX_LAYERS = byte.MaxValue;
@@ -30,8 +77,7 @@ namespace mFramework.UI
             //_layers[1] = Create(1, CompareFunction.Equal, StencilOp.Replace, 255, 255);
         }
 
-        public static Layer Create(int stencilId, CompareFunction compFunc, StencilOp opFunc, 
-            int writeMask = 255, int readMask = 255)
+        public static Material CreateSpriteMaterial(int stencilId, CompareFunction compFunc, int writeMask = 255, int readMask = 255)
         {
             var spritesMaterial = new Material(Shader.Find("UI/Default"));
             spritesMaterial.SetFloat("_Stencil", stencilId);
@@ -40,6 +86,24 @@ namespace mFramework.UI
             spritesMaterial.SetFloat("_StencilReadMask", readMask);
             spritesMaterial.color = Color.white;
 
+            return spritesMaterial;
+        }
+
+        public static Material CreateCanvasMaterial(int stencilId, StencilOp opFunc, int writeMask = 255, int readMask = 255)
+        {
+            var canvasMaterial = new Material(Shader.Find("UI/Default"));
+            canvasMaterial.SetFloat("_Stencil", stencilId);
+            canvasMaterial.SetFloat("_StencilOp", (float)opFunc);
+            canvasMaterial.SetFloat("_StencilComp", (float)CompareFunction.Always);
+            canvasMaterial.SetFloat("_StencilWriteMask", writeMask);
+            canvasMaterial.SetFloat("_StencilReadMask", readMask);
+            canvasMaterial.color = Color.white;
+
+            return canvasMaterial;
+        }
+
+        public static Material CreateTextMaterial(int stencilId, CompareFunction compFunc, int writeMask = 255, int readMask = 255)
+        {
             var textMaterial = new Material(Shader.Find("UI/Default Font"));
             textMaterial.SetColor("_TextureSampleAdd", new Color32(255, 255, 255, 0));
             textMaterial.SetFloat("_Stencil", stencilId);
@@ -48,20 +112,13 @@ namespace mFramework.UI
             textMaterial.SetFloat("_StencilReadMask", readMask);
             textMaterial.color = Color.white;
 
-            var canvasMaterial = new Material(Shader.Find("UI/Default"));
-            canvasMaterial.SetFloat("_Stencil", stencilId);
-            canvasMaterial.SetFloat("_StencilOp", (float)opFunc);
-            canvasMaterial.SetFloat("_StencilComp", (float) CompareFunction.Always);
-            canvasMaterial.SetFloat("_StencilWriteMask", writeMask);
-            canvasMaterial.SetFloat("_StencilReadMask", readMask);
-            canvasMaterial.color = Color.white;
+            return textMaterial;
+        }
 
-            return new Layer
-            {
-                CanvasMaterial = canvasMaterial,
-                SpritesMaterial = spritesMaterial,
-                TextMaterial = textMaterial
-            };
+        public static Layer Create(int stencilId, CompareFunction compFunc, StencilOp opFunc, 
+            int writeMask = 255, int readMask = 255)
+        {
+            return new Layer(stencilId, compFunc, opFunc, writeMask, readMask);
         }
 
         public static Layer GetOrCreate(int stencilId)

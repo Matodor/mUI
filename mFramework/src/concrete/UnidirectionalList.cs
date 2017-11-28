@@ -140,6 +140,19 @@ namespace mFramework
             return false;
         }
 
+        public T Find(Func<T, bool> predicate)
+        {
+            var tmp = LastItem;
+            while (tmp != null)
+            {
+                if (predicate(tmp.Value))
+                    return tmp.Value;
+                tmp = tmp.Prev;
+            }
+
+            return default(T);
+        }
+
         public void ForEach(Action<T> action)
         {
             var tmp = LastItem;

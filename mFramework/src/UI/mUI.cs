@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -70,28 +71,28 @@ namespace mFramework.UI
 
         public static UIObject GetClickableObject(MouseEvent e, Func<UIObject, bool> predicate)
         {
-            foreach (var kvp in Instance._uiObjects)
+            bool FindPredicate(UIObject o)
             {
-                var uiClickable = kvp.Value as IUIClickable;
-                if (uiClickable == null)
-                    continue;
-                if (uiClickable.UIClickable.InArea(e) && predicate(kvp.Value))
-                    return kvp.Value;
+                var clickable = o as IUIClickable;
+                if (clickable != null && clickable.UIClickable.InArea(e) && predicate(o))
+                    return o;
+                return o.Childs.Find(FindPredicate);
             }
-            return null;
+
+            return BaseView.Childs.Find(FindPredicate);
         }
 
         public static UIObject GetClickableObject(MouseEvent e)
         {
-            foreach (var kvp in Instance._uiObjects)
+            bool FindPredicate(UIObject o)
             {
-                var uiClickable = kvp.Value as IUIClickable;
-                if (uiClickable == null)
-                    continue;
-                if (uiClickable.UIClickable.InArea(e))
-                    return kvp.Value;
+                var clickable = o as IUIClickable;
+                if (clickable != null && clickable.UIClickable.InArea(e))
+                    return o;
+                return o.Childs.Find(FindPredicate);
             }
-            return null;
+
+            return BaseView.Childs.Find(FindPredicate);
         }
 
         public static UIFont GetFont(string font)

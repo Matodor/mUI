@@ -38,21 +38,20 @@ namespace mFramework.UI
 
     public class UILabel : UIComponent, IUIRenderer, IColored
     {
-        public const float DEFAULT_HARSHNESS = 3;
-
+        public const float DEFAULT_HARSHNESS = 2;
 
         public Renderer UIRenderer { get; private set; }
         public string Text => _cachedText;
         public int Size => _fontSize;
         public event UIEventHandler<UILabel> TextUpdated = delegate { };
-        
+
+        private MaterialPropertyBlock _propertyBlock;
         private UIFont _cachedFont;
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
-        //private MaterialPropertyBlock _textPropertyBlock;
 
-        private string _fontName;
         private string _cachedText;
+
         private int _fontSize = 50;
         private float _letterSpacing = 1;
         private float _wordSpacing = 1;
@@ -64,6 +63,7 @@ namespace mFramework.UI
         private VerticalAlign _verticalAlign;
         private FontStyle _fontStyle;
         private Color _color;
+
         private bool _needUpdate;
 
         private float _textWidth;
@@ -75,7 +75,6 @@ namespace mFramework.UI
         private float _bottom;
 
         private Dictionary<int, TextFormatting> _textFormatting;
-        private MaterialPropertyBlock _propertyBlock;
 
         protected override void Init()
         {
@@ -99,119 +98,20 @@ namespace mFramework.UI
                 if (IsActive && _needUpdate)
                 {
                     _needUpdate = false;
-                    UpdateMeshText();
+                    CreateMesh();
                 }
             };
 
             base.Init();
         }
 
-        public UILabel UpdateSettings(UILabelSettings settings)
+        /*static UILabel()
         {
-            SetFontStyle(settings.FontStyle, false);
-            SetLetterSpacing(settings.LetterSpacing, false);
-            SetFontSize(settings.Size, false);
-            SetTextAlignment(settings.TextAlignment, false);
-            SetText(settings.Text, false);
-            SetFont(settings.Font, false);
-
-            UpdateMeshText();
-            return this;
-        }
-
-        public UILabel SetFontStyle(FontStyle fontStyle, bool updateMesh = true)
-        {
-            if (_fontStyle != fontStyle)
+            Font.textureRebuilt += font =>
             {
-                _fontStyle = fontStyle;
-                if (updateMesh)
-                    UpdateMeshText();
-            }
-            return this;
-        }
-
-        public UILabel SetVerticalAlign(VerticalAlign align, bool updateMesh = true)
-        {
-            if (_verticalAlign != align)
-            {
-                _verticalAlign = align;
-                if (updateMesh)
-                    UpdateMeshText();
-            }
-            return this;
-        }
-
-        public UILabel SetLetterSpacing(float spacing, bool updateMesh = true)
-        {
-            if (Math.Abs(_letterSpacing - spacing) > 0.001f)
-            {
-                _letterSpacing = spacing;
-                if (updateMesh)
-                    UpdateMeshText();
-            }
-            return this;
-        }
-
-        public UILabel SetFontSize(int size, bool updateMesh = true)
-        {
-            if (_fontSize != size)
-            {
-                _fontSize = size;
-                if (updateMesh)
-                    UpdateMeshText();
-            }
-            return this;
-        }
-
-        public UILabel SetTextAlignment(TextAlignment alignment, bool updateMesh = true)
-        {
-            if (_textAlignment != alignment)
-            {
-                _textAlignment = alignment;
-                if (updateMesh)
-                    UpdateMeshText();
-            }
-            return this;
-        }
-
-        public UILabel SetText(string text, bool updateMesh = true)
-        {
-            if (string.IsNullOrEmpty(text) || _cachedText == text)
-                return this;
-
-            _cachedText = text;
-            if (updateMesh)
-                UpdateMeshText();
-            return this;
-        }
-
-        public UILabel SetFont(string fontName, bool updateMesh = true)
-        {
-            if (_fontName != fontName)
-            {
-                _fontName = fontName;
-                _cachedFont = mUI.GetFont(_fontName);
-
-                if (_cachedFont == null)
-                    throw new Exception("Not fount font: " + _fontName);
-
-                if (updateMesh)
-                    UpdateMeshText();
-            }
-            return this;
-        }
-
-        private void FontRebuilt(Font font)
-        {
-            if (font == _cachedFont.Font)
-            {
-                _meshRenderer.sharedMaterial.SetTexture("_MainTex", font.material.mainTexture);
-                _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", font.material.mainTextureOffset);
-                _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", font.material.mainTextureScale);
-                
-                UpdateMeshText();
-            }
-        }
+                mCore.Log($"Font rebuilt: {font.name}");
+            };
+        }*/
 
         protected override void ApplySettings(UIComponentSettings settings)
         {
@@ -223,9 +123,7 @@ namespace mFramework.UI
 
             Font.textureRebuilt += FontRebuilt;
             BeforeDestroy += s => Font.textureRebuilt -= FontRebuilt;
-
-            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0).TextMaterial;
-
+            
             _maxWidth = labelSettings.MaxWidth;
             _cachedText = labelSettings.Text;
             _fontSize = labelSettings.Size;
@@ -246,12 +144,170 @@ namespace mFramework.UI
                 else if (_textAlignment == TextAlignment.Right)
                     _textAnchor = TextAnchor.LowerRight;
             }
-             
-            SetFont(labelSettings.Font, false);
-            UpdateMeshText();
+
+            _cachedFont = mUI.GetFont(labelSettings.Font);
+
+            if (_cachedFont == null)
+                throw new Exception("Not fount font: " + labelSettings.Font);
+
+            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0)
+                .TextMaterials[labelSettings.Font];
+
+            RequestCharactersInFont();
+            UpdateMaterial(_cachedFont.Font);
+            CreateMesh();
             SetColor(_color);
 
             base.ApplySettings(settings);
+        }
+
+        private void FontRebuilt(Font font)
+        {
+            if (_cachedFont.Font == font)
+            {
+                RequestCharactersInFont();
+                UpdateMaterial(font);
+                CreateMesh();
+            }
+        }
+
+        private void RequestCharactersInFont()
+        {
+            var formattingIndex = -1;
+            var text = _cachedText
+                .Replace('\t', ' ')
+                .TrimStart('\n');
+            
+            for (int i = 0; i < text.Length; i++)
+            {
+                CharacterInfo characterInfo;
+                var currentCharacter = text[i];
+                var size = 0;
+
+                if (_textFormatting.Count > 0)
+                {
+                    var skip = ParseFormatting(i, text, ref formattingIndex);
+                    if (skip != 0)
+                    {
+                        i += skip;
+                        i--;
+                        continue;
+                    }
+
+                    if (formattingIndex != -1 && _textFormatting.ContainsKey(formattingIndex))
+                    {
+                        var currentFormatting = _textFormatting[formattingIndex];
+                        size = (int)(currentFormatting.Size.GetValueOrDefault(_fontSize) * _cachedFont.Harshness);
+
+                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, out characterInfo,
+                            size, currentFormatting.FontStyle.GetValueOrDefault(_fontStyle)))
+                        {
+                            _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(),
+                                size, currentFormatting.FontStyle.GetValueOrDefault(_fontStyle));
+                        }
+                    }
+                    else
+                    {
+                        size = (int)(_fontSize * _cachedFont.Harshness);
+
+                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
+                            out characterInfo, size, _fontStyle))
+                        {
+                            _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), size, _fontStyle);
+                        }
+                    }
+                }
+                else
+                {
+                    size = (int)(_fontSize * _cachedFont.Harshness);
+
+                    if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
+                        out characterInfo, size, _fontStyle))
+                    {
+                        _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), size, _fontStyle);
+                    }
+                }
+            }
+        }
+
+        public UILabel SetFontStyle(FontStyle fontStyle, bool updateMesh = true)
+        {
+            if (_fontStyle != fontStyle)
+            {
+                _fontStyle = fontStyle;
+                RequestCharactersInFont();
+
+                if (updateMesh)
+                    CreateMesh();
+            }
+            return this;
+        }
+
+        public UILabel SetVerticalAlign(VerticalAlign align, bool updateMesh = true)
+        {
+            if (_verticalAlign != align)
+            {
+                _verticalAlign = align;
+                if (updateMesh)
+                    CreateMesh();
+            }
+            return this;
+        }
+
+        public UILabel SetLetterSpacing(float spacing, bool updateMesh = true)
+        {
+            if (Math.Abs(_letterSpacing - spacing) > 0.001f)
+            {
+                _letterSpacing = spacing;
+                if (updateMesh)
+                    CreateMesh();
+            }
+            return this;
+        }
+
+        public UILabel SetFontSize(int size, bool updateMesh = true)
+        {
+            if (_fontSize != size)
+            {
+                _fontSize = size;
+                RequestCharactersInFont();
+                
+                if (updateMesh)
+                    CreateMesh();
+            }
+            return this;
+        }
+
+        public UILabel SetTextAlignment(TextAlignment alignment, bool updateMesh = true)
+        {
+            if (_textAlignment != alignment)
+            {
+                _textAlignment = alignment;
+
+                if (updateMesh)
+                    CreateMesh();
+            }
+            return this;
+        }
+
+        public UILabel SetText(string text, bool updateMesh = true)
+        {
+            if (string.IsNullOrEmpty(text) || _cachedText == text)
+                return this;
+
+            _cachedText = text;
+            RequestCharactersInFont();
+
+            if (updateMesh)
+                CreateMesh();
+            return this;
+        }
+
+        private void UpdateMaterial(Font font)
+        {
+            _meshRenderer.sharedMaterial.SetTexture("_MainTex", font.material.mainTexture);
+            _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", font.material.mainTextureOffset);
+            _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", font.material.mainTextureScale);
         }
 
         public UILabel TextFormatting(int index, TextFormatting formatting)
@@ -274,7 +330,8 @@ namespace mFramework.UI
             else
                 _textFormatting.Add(index, formatting);
 
-            UpdateMeshText();
+            RequestCharactersInFont();
+            CreateMesh();
             return this;
         }
 
@@ -376,7 +433,7 @@ namespace mFramework.UI
             return 0;
         }
 
-        internal void UpdateMeshText()
+        internal void CreateMesh()
         {
             if (!IsActive)
             {
@@ -391,16 +448,6 @@ namespace mFramework.UI
             const float pixelsPerWorldUnit = 100f;
             
             _fontSize = mMath.Clamp(_fontSize, 1, maxSize);
-            _cachedFont.Font.RequestCharactersInTexture(_cachedText, (int) (_fontSize * _cachedFont.Harshness), _fontStyle);
-
-            foreach (var textFormatting in _textFormatting)
-            {
-                var size = textFormatting.Value.Size.GetValueOrDefault(_fontSize);
-                size = mMath.Clamp(size, 1, maxSize);
-
-                _cachedFont.Font.RequestCharactersInTexture(_cachedText, (int) (size * _cachedFont.Harshness),
-                    textFormatting.Value.FontStyle.GetValueOrDefault(_fontStyle));
-            }
 
             var localScale = LocalScale();
             Scale(1, 1);
@@ -471,14 +518,18 @@ namespace mFramework.UI
                     {
                         currentFormatting = null;
                         size = (int) (_fontSize * _cachedFont.Harshness);
-                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, 
+
+                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
                             out characterInfo, size, _fontStyle))
+                        {
                             continue;
+                        }
                     }
                 }
                 else
                 {
                     size = (int) (_fontSize * _cachedFont.Harshness);
+
                     if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, 
                         out characterInfo, size, _fontStyle))
                         continue;
@@ -652,9 +703,9 @@ namespace mFramework.UI
             _meshFilter.mesh.normals = normalsList.ToArray();
             _meshFilter.mesh.uv = uvList.ToArray();
 
-            _meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.Font.material.mainTexture);
-            _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.Font.material.mainTextureOffset);
-            _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.Font.material.mainTextureScale);
+            //_meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.Font.material.mainTexture);
+            //_meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.Font.material.mainTextureOffset);
+            //_meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.Font.material.mainTextureScale);
 
             Scale(localScale);
             TextUpdated.Invoke(this);
@@ -696,7 +747,7 @@ namespace mFramework.UI
 
             if (_textFormatting.Count > 0)
             {
-                UpdateMeshText();
+                CreateMesh();
             }
             else
             {
