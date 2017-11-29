@@ -2,16 +2,8 @@
 {
     public abstract class SaveableFields
     {
-        public static IKeyValueStorage Storage { get; set; } = PlayerPrefsStorage.Instance;
+        public static IKeyValueStorage Storage { get; } = new PlayerPrefsStorage();
         public string Key { get; }
-
-        static SaveableFields()
-        {
-            mCore.ApplicationQuitEvent += () =>
-            {
-                Storage.Save();
-            };
-        }
 
         protected SaveableFields(string key)
         {
@@ -40,8 +32,7 @@
 
                 var key = GetKey(Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
                 var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(this);
-                var bridge = new SaveableFieldsBridge(key, PlayerPrefsStorage.Instance);
-
+                var bridge = new SaveableFieldsBridge(key, Storage);
                 saveableField.SaveValue(bridge);
             }
 
@@ -64,7 +55,7 @@
 
                 var key = GetKey(Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
                 var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(this);
-                var bridge = new SaveableFieldsBridge(key, PlayerPrefsStorage.Instance);
+                var bridge = new SaveableFieldsBridge(key, Storage);
                 var newValue = saveableField.LoadValue(bridge);
                 fieldsInfo.CachedFields[i].Setter(this, newValue);
             }

@@ -41,7 +41,7 @@ namespace mFramework
 
             var b = a2 - a1;
             var d = b2 - b1;
-            var bDotDPerp = b.x * d.y- b.y * d.x;
+            var bDotDPerp = b.x * d.y - b.y * d.x;
 
             // if b dot d == 0, it means the lines are parallel so have infinite intersection points
             if (bDotDPerp == 0)

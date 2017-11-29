@@ -12,29 +12,40 @@ namespace mFramework
 
     public sealed class mCore
     {
-        public static mCore Instance { get; } = new mCore();
+        internal static mBehaviour Behaviour { get; private set; }
 
         public static bool IsEditor { get; private set; }
         public static bool IsDebug { get; set; }
         public static event Action ApplicationQuitEvent = delegate {};
+        public static event Action<bool> ApplicationPaused = delegate {};
 
-        private readonly Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
-        private readonly UnidirectionalList<RepeatAction> _repeatsActions;
-        private readonly UnidirectionalList<TimerAction> _timerActions;
-        private readonly EditorExtension _editorExtension;
+        private static Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
+        private static UnidirectionalList<RepeatAction> _repeatsActions;
+        private static UnidirectionalList<TimerAction> _timerActions;
+        private static mCore _instance;
+
+        static mCore()
+        {
+            if (_instance == null)
+                _instance = new mCore();
+        }
+
+        ~mCore()
+        {
+            Log("~mCore");
+        }
 
         private mCore()
         {
+            Behaviour = new GameObject("mFramework").AddComponent<mBehaviour>();
+            Behaviour.transform.position = new Vector3(0, 0, 9999);
+
             _repeatsActions = UnidirectionalList<RepeatAction>.Create();
             _timerActions = UnidirectionalList<TimerAction>.Create();
             _fieldDictionary = new Dictionary<Type, CachedFieldsInfo>();
             
-            var engine = new GameObject("mFramework").AddComponent<mEngine>();
-            engine.transform.position = new Vector3(0, 0, 9999);
-
             if (Application.isEditor)
             {
-                _editorExtension = new EditorExtension();
                 IsDebug = true;
                 IsEditor = true;
             }
@@ -42,31 +53,22 @@ namespace mFramework
             Log("[mFramework] init");
         }
          
-        ~mCore()
-        {
-            Log("~mCore");
-        }
-
-        internal void Init()
-        {
-        }
-
-        internal bool RemoveTimerAction(TimerAction timerAction)
+        internal static bool RemoveTimerAction(TimerAction timerAction)
         {
             return _timerActions.Remove(timerAction);
         }
 
-        internal void AddTimerAction(TimerAction timerAction)
+        internal static void AddTimerAction(TimerAction timerAction)
         {
             _timerActions.Add(timerAction);
         }
 
-        internal bool RemoveRepeatAction(RepeatAction repeatAction)
+        internal static bool RemoveRepeatAction(RepeatAction repeatAction)
         {
             return _repeatsActions.Remove(repeatAction);
         }
 
-        internal void AddRepeatAction(RepeatAction repeatAction)
+        internal static void AddRepeatAction(RepeatAction repeatAction)
         {
             _repeatsActions.Add(repeatAction);
         }
@@ -74,12 +76,11 @@ namespace mFramework
         internal static void OnApplicationQuit()
         {
             ApplicationQuitEvent.Invoke();
-
-            Instance._repeatsActions.Clear();
-            Instance._timerActions.Clear();
-            Instance._editorExtension?.Detach();
-
             Log("[mCore] OnApplicationQuit");
+
+            _repeatsActions.Clear();
+            _timerActions.Clear();
+            _instance = null;
         }
 
         public static void Log(string format, params object[] @params)
@@ -127,7 +128,7 @@ namespace mFramework
 
         public static CachedFieldsInfo GetCachedFields(Type type)
         {
-            if (Instance._fieldDictionary.TryGetValue(type, out var cachedFieldsInfo) == false)
+            if (_fieldDictionary.TryGetValue(type, out var cachedFieldsInfo) == false)
             {
                 var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
                 cachedFieldsInfo = new CachedFieldsInfo(fields.Length);
@@ -136,44 +137,37 @@ namespace mFramework
                     cachedFieldsInfo.CachedFields[i] = new CachedFieldInfo(
                         fields[i], CreateFieldSetter(fields[i]), CreateFieldGetter(fields[i]));
                 }
-                Instance._fieldDictionary.Add(type, cachedFieldsInfo);
+                _fieldDictionary.Add(type, cachedFieldsInfo);
             }
             return cachedFieldsInfo;
         }
 
-        internal void Tick()
-        {
-            /*
-                if (UnityEditor.EditorApplication.isCompiling && (UnityEditor.EditorApplication.isPlaying || UnityEditor.EditorApplication.isPaused))
-                {
-                    Debug.Log("[mFramework] Compiled during play");
-                    UnityEditor.EditorApplication.isPlaying = false;
-                }
-            */
-            _repeatsActions.ForEach(ForEachRepeatAction);
-            _timerActions.ForEach(ForEachTimerAction);
-
-            if (mUI.Instance != null) mUI.Instance.Tick();
-        }
-
-        private void ForEachTimerAction(TimerAction timerAction)
+        private static void ForEachTimerAction(TimerAction timerAction)
         {
             timerAction.Tick();
         }
 
-        private void ForEachRepeatAction(RepeatAction action)
+        private static void ForEachRepeatAction(RepeatAction action)
         {
             action.Tick();
         }
 
-        internal void FixedTick()
+        internal static void Tick()
         {
-            if (mUI.Instance != null) mUI.Instance.FixedTick();
+            _repeatsActions.ForEach(ForEachRepeatAction);
+            _timerActions.ForEach(ForEachTimerAction);
+
+            mUI.Tick();
         }
 
-        internal void LateTick()
+        internal static void FixedTick()
         {
-            if (mUI.Instance != null) mUI.Instance.LateTick();
+            mUI.FixedTick();
+        }
+
+        internal static void LateTick()
+        {
+            mUI.LateTick();
         }
 
         public static void DrawDebugCircle(Vector2 pos, float radius)
@@ -192,6 +186,11 @@ namespace mFramework
             Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, boxSize.y / 2), boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2));
             Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2), boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2));
             Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2), boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2));
+        }
+
+        internal static void OnApplicationPause(bool pauseState)
+        {
+            ApplicationPaused(pauseState);
         }
     }
 }

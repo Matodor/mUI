@@ -76,7 +76,7 @@ namespace mFramework
             if (Count == 0)
                 return false;
 
-            ListItem lastIterated = null;
+            var lastIterated = (ListItem) null;
             var current = LastItem;
             
             while (current != null)
@@ -123,6 +123,7 @@ namespace mFramework
                 current = current.Prev;
             }
 
+            FirstItem = null;
             LastItem = null;
             Count = 0;
         }

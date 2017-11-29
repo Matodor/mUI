@@ -2,19 +2,12 @@
 
 namespace mFramework
 {
-    internal class EventsController
+    internal static class EventsController
     {
-        public static EventsController Instance { get; }
-
-        private readonly Event _currentEvent;
-        private readonly UnidirectionalList<MouseEventListener> _mouseEventListeners;
+        private static readonly Event _currentEvent;
+        private static readonly UnidirectionalList<MouseEventListener> _mouseEventListeners;
 
         static EventsController()
-        {
-            Instance = new EventsController();
-        }
-
-        private EventsController()
         {
             _currentEvent = new Event();
             _mouseEventListeners = UnidirectionalList<MouseEventListener>.Create();
@@ -22,20 +15,20 @@ namespace mFramework
 
         public static bool RemoveMouseEventListener(MouseEventListener listener)
         {
-            return Instance._mouseEventListeners.Remove(listener.GUID);
+            return _mouseEventListeners.Remove(listener.GUID);
         }
 
         public static MouseEventListener AddMouseEventListener(MouseEventListener listener)
         {
-            if (!Instance._mouseEventListeners.Contains(listener))
+            if (!_mouseEventListeners.Contains(listener))
             {
-                Instance._mouseEventListeners.Add(listener);
+                _mouseEventListeners.Add(listener);
                 return listener;
             }
             return null;
         }
 
-        public void Update()
+        public static void Update()
         {
             if (Application.isMobilePlatform)
                 MobileEvents();
@@ -43,27 +36,27 @@ namespace mFramework
                 DesktopEvents();
         }
 
-        private void MouseWheelEvent(MouseEvent @event)
+        private static void MouseWheelEvent(MouseEvent @event)
         {
             _mouseEventListeners.ForEach(listener => listener.OnMouseWheel(@event));
         }
 
-        private void MouseDragEvent(MouseEvent @event)
+        private static void MouseDragEvent(MouseEvent @event)
         {
             _mouseEventListeners.ForEach(listener => listener.OnMouseDrag(@event));
         }
 
-        private void MouseUpEvent(MouseEvent @event)
+        private static void MouseUpEvent(MouseEvent @event)
         {
             _mouseEventListeners.ForEach(listener => listener.OnMouseUp(@event));
         }
 
-        private void MouseDownEvent(MouseEvent @event)
+        private static void MouseDownEvent(MouseEvent @event)
         {
             _mouseEventListeners.ForEach(listener => listener.OnMouseDown(@event));
         }
 
-        private void MouseEvent(MouseEvent mouseEvent)
+        private static void MouseEvent(MouseEvent mouseEvent)
         {
             switch (mouseEvent.MouseEventType)
             {
@@ -82,7 +75,7 @@ namespace mFramework
             }
         }
 
-        private void MobileEvents()
+        private static void MobileEvents()
         {
             if (UnityEngine.Input.touchCount == 0)
                 return;
@@ -122,7 +115,7 @@ namespace mFramework
             }
         }
 
-        private void DesktopEvents()
+        private static void DesktopEvents()
         {
             while (Event.PopEvent(_currentEvent))
             {

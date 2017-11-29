@@ -31,6 +31,9 @@ namespace mFramework.UI
         private static ulong _guid;
         private bool _destroyed;
 
+        private new GameObject gameObject;
+        private new Transform transform;
+
         protected UIObject()
         {
             
@@ -48,14 +51,18 @@ namespace mFramework.UI
 
         private void Awake()
         {
+            gameObject = base.gameObject;
+            transform = base.transform;
+
             GUID = ++_guid;
             Parent = null;
             Animations = UnidirectionalList<UIAnimation>.Create();
             Childs = UnidirectionalList<UIObject>.Create();
 
+            _destroyed = false;
             _localSortingOrder = 0;
 
-            mUI.Instance.AddUIObject(this);
+            mUI.AddUIObject(this);
             Init();
         }
 
@@ -85,7 +92,7 @@ namespace mFramework.UI
             }
         }
 
-        private void DestroyImpl(bool destroyObject)
+        private void DestroyImpl()
         {
             if (_destroyed)
                 return;
@@ -93,23 +100,19 @@ namespace mFramework.UI
             _destroyed = true;
             BeforeDestroy.Invoke(this);
 
-            Childs.ForEach(c => c.DestroyWithoutChecks());
+            Childs.ForEach(c => c.DestroyImpl());
             Childs.Clear();
             Animations.Clear();
 
             Parent?.RemoveChild(this);
-            mUI.Instance.RemoveUIObject(this);
+            mUI.RemoveUIObject(this);
 
-            if (destroyObject)
-            {
-                UnityEngine.Object.Destroy(this);
-                UnityEngine.Object.Destroy(gameObject);
-            }
+            UnityEngine.Object.Destroy(gameObject);
         }
 
         private void OnDestroy()
         {
-            DestroyImpl(false);
+            DestroyImpl();
         }
 
         private void OnEnable()
@@ -126,7 +129,7 @@ namespace mFramework.UI
 
         internal void DestroyWithoutChecks()
         {
-            DestroyImpl(true);
+            DestroyImpl();
         }
 
         public void Destroy()

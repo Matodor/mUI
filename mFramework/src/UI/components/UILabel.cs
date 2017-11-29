@@ -292,7 +292,7 @@ namespace mFramework.UI
 
         public UILabel SetText(string text, bool updateMesh = true)
         {
-            if (string.IsNullOrEmpty(text) || _cachedText == text)
+            if (text == null || _cachedText == text)
                 return this;
 
             _cachedText = text;
@@ -743,6 +743,8 @@ namespace mFramework.UI
 
         public UIObject SetColor(Color32 color)
         {
+            if (_color == color)
+                return this;
             _color = color;
 
             if (_textFormatting.Count > 0)

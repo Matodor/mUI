@@ -18,12 +18,12 @@ namespace mFramework
             _actionTime = Time.time + timeToAction;
 
             GUID = ++_guid;
-            mCore.Instance.AddTimerAction(this);
+            mCore.AddTimerAction(this);
         }
 
         public void Remove()
         {
-            mCore.Instance.RemoveTimerAction(this);
+            mCore.RemoveTimerAction(this);
         }
 
         internal void Tick()

@@ -20,12 +20,12 @@ namespace mFramework
             _nextInvoke = Time.time + interval;
 
             GUID = ++_guid;
-            mCore.Instance.AddRepeatAction(this);
+            mCore.AddRepeatAction(this);
         }
 
         public void Remove()
         {
-            mCore.Instance.RemoveRepeatAction(this);
+            mCore.RemoveRepeatAction(this);
         }
 
         internal void Tick()

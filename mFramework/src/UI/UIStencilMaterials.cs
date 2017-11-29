@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -8,6 +9,8 @@ namespace mFramework.UI
     {
         public class TextMaterials
         {
+            public IReadOnlyDictionary<string, Material> Materials => _materials;
+
             public Material this[string fontName]
             {
                 get
@@ -73,8 +76,13 @@ namespace mFramework.UI
         private UIStencilMaterials()
         {
             _layers = new Layer[MAX_LAYERS];
-            _layers[0] = Create(0, CompareFunction.Always, StencilOp.Keep, 255, 255);
+            //_layers[0] = Create(0, CompareFunction.Always, StencilOp.Keep, 255, 255);
             //_layers[1] = Create(1, CompareFunction.Equal, StencilOp.Replace, 255, 255);
+        }
+
+        public static Layer[] Layers()
+        {
+            return _instance._layers.Where(l => l != null).ToArray();
         }
 
         public static Material CreateSpriteMaterial(int stencilId, CompareFunction compFunc, int writeMask = 255, int readMask = 255)

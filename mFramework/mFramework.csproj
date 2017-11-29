@@ -63,6 +63,7 @@
     <Compile Include="src\abstract\IView.cs" />
     <Compile Include="src\achievements\mAchievements.cs" />
     <Compile Include="src\analytics\AnalyticsEvents.cs" />
+    <Compile Include="src\analytics\AnalyticsHelper.cs" />
     <Compile Include="src\analytics\AnalyticsStats.cs" />
     <Compile Include="src\analytics\mAnalytics.cs" />
     <Compile Include="src\concrete\Area2D.cs" />
@@ -111,11 +112,10 @@
     <Compile Include="src\events\EventsController.cs" />
     <Compile Include="src\events\MouseEventListener.cs" />
     <Compile Include="src\events\TouchEvent.cs" />
-    <Compile Include="src\editor\EditorExtension.cs" />
     <Compile Include="src\extensions\SpriteExtension.cs" />
     <Compile Include="src\extensions\GameObjectExtension.cs" />
     <Compile Include="src\events\KeyboardEvent.cs" />
-    <Compile Include="src\mEngine.cs" />
+    <Compile Include="src\mBehaviour.cs" />
     <Compile Include="src\mCore.cs" />
     <Compile Include="src\events\MouseEvent.cs" />
     <Compile Include="src\mMath.cs" />

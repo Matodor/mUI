@@ -12,30 +12,49 @@ namespace mFramework.UI
 
     public sealed class mUI
     {
-        internal static mUI Instance { get; private set; }
-
         public static event Action<UIObject> UIObjectCreated = delegate { };
         public static event Action<UIObject> UIObjectRemoved = delegate { };
 
-        public static UIView BaseView => Instance._baseView;
-        public static UICamera UICamera => Instance._uiCamera;
+        public static UIView BaseView => _baseView;
+        public static UICamera UICamera => _uiCamera;
 
-        private readonly Dictionary<string, UIFont> _fonts;
-        private readonly BaseView _baseView;
-        private readonly UICamera _uiCamera;
-        private readonly Dictionary<ulong, UIObject> _uiObjects;
+        private static Dictionary<string, UIFont> _fonts;
+        private static BaseView _baseView;
+        private static UICamera _uiCamera;
+        private static Dictionary<ulong, UIObject> _uiObjects;
+        private static mUI _instance;
+        private static bool _isCreated = false;
 
-        private mUI(UISettings settings)
+        static mUI()
         {
-            if (Instance != null)
-                throw new Exception("mUI already created");
+            if (_instance == null)
+                _instance = new mUI();
+        }
 
-            _uiCamera = UICamera.Create(settings.CameraSettings);
-            _uiCamera.GameObject.SetParentTransform(mEngine.Instance.gameObject);
+        ~mUI()
+        {
+            mCore.Log("~mUI");
+        }
 
-            Instance = this;
+        private mUI()
+        {
             _fonts = new Dictionary<string, UIFont>();
             _uiObjects = new Dictionary<ulong, UIObject>();
+        }
+
+        public static void Create()
+        {
+            Create(new UISettings());
+        }
+
+        public static void Create(UISettings settings)
+        {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
+            _uiCamera = UICamera.Create(settings.CameraSettings);
+            _uiCamera.Transform.SetParentTransform(mCore.Behaviour.transform);
+            _isCreated = true;
             _baseView = UIView.Create<BaseView>(new UIViewSettings
             {
                 Height = UICamera.PureHeight,
@@ -49,26 +68,12 @@ namespace mFramework.UI
             mCore.Log("[mFramework][UI] created");
         }
          
-        private void OnApplicationQuitEvent()
+        private static void OnApplicationQuitEvent()
         {
             _baseView.DestroyWithoutChecks();
+            _instance = null;
         }
-
-        public static mUI Create()
-        {
-            return Create(new UISettings());
-        }
-
-        public static mUI Create(UISettings settings)
-        {
-            if (Instance != null)
-                throw new Exception("UI already created");
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            return new mUI(settings);
-        }
-
+        
         public static UIObject GetClickableObject(MouseEvent e, Func<UIObject, bool> predicate)
         {
             bool FindPredicate(UIObject o)
@@ -97,9 +102,9 @@ namespace mFramework.UI
 
         public static UIFont GetFont(string font)
         {
-            if (!Instance._fonts.ContainsKey(font))
+            if (!_fonts.ContainsKey(font))
                 return null;
-            return Instance._fonts[font];
+            return _fonts[font];
         }
 
         public static bool LoadOSFont(string fontName, float harshness = UILabel.DEFAULT_HARSHNESS)
@@ -108,17 +113,17 @@ namespace mFramework.UI
             if (font == null)
                 return false;
 
-            Instance._fonts.Add(fontName, new UIFont(harshness, font));
+            _fonts.Add(fontName, new UIFont(harshness, font));
             return true;
         }
 
         public static bool LoadFont(string path, float harshness = UILabel.DEFAULT_HARSHNESS)
         {
             var font = Resources.Load<Font>(path);
-            if (font == null || Instance._fonts.ContainsKey(font.name))
+            if (font == null || _fonts.ContainsKey(font.name))
                 return false;
 
-            Instance._fonts.Add(font.name, new UIFont(harshness, font));
+            _fonts.Add(font.name, new UIFont(harshness, font));
             mCore.Log("Loaded font: {0} ", font.name);
             return true;
         }
@@ -133,7 +138,7 @@ namespace mFramework.UI
             return BaseView.GetHeight();
         }
 
-        internal bool RemoveUIObject(UIObject obj)
+        internal static bool RemoveUIObject(UIObject obj)
         {
             if (!_uiObjects.ContainsKey(obj.GUID))
                 return false;
@@ -144,7 +149,7 @@ namespace mFramework.UI
             return true;
         }
 
-        internal bool AddUIObject(UIObject obj)
+        internal static bool AddUIObject(UIObject obj)
         {
             if (_uiObjects.ContainsKey(obj.GUID))
                 return false;
@@ -155,18 +160,24 @@ namespace mFramework.UI
             return true;
         }
 
-        internal void Tick()
+        internal static void Tick()
         {
+            if (!_isCreated)
+                return;
             BaseView.Tick();
         }
 
-        internal void FixedTick()
+        internal static void FixedTick()
         {
+            if (!_isCreated)
+                return;
             BaseView.FixedTick();
         }
 
-        internal void LateTick()
+        internal static void LateTick()
         {
+            if (!_isCreated) 
+                return;
             BaseView.LateTick();
         }
     }

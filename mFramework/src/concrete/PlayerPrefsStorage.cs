@@ -2,11 +2,9 @@
 
 namespace mFramework
 {
-    public class PlayerPrefsStorage : IKeyValueStorage
+    public sealed class PlayerPrefsStorage : IKeyValueStorage
     {
-        public static PlayerPrefsStorage Instance { get; } = new PlayerPrefsStorage();
-        
-        private PlayerPrefsStorage()
+        public PlayerPrefsStorage()
         {
             
         }
