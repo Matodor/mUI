@@ -17,10 +17,11 @@ namespace mFramework.UI
         BUTTON_PRESSED
     }
 
-    public delegate bool CanButtonClickDelegate(UIButton sender, Vector2 worldPos);
 
     public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable
     {
+        public delegate bool CanClick(UIButton sender, Vector2 worldPos);
+        
         public Renderer UIRenderer => _uiSprite.UIRenderer;
         public UISprite SpriteMask => _uiSprite.SpriteMask;
 
@@ -29,7 +30,7 @@ namespace mFramework.UI
         public ClickCondition ClickCondition { get; set; }
 
         public event UIEventHandler<UIButton> Click = delegate { };
-        public event CanButtonClickDelegate CanButtonClick = delegate { return true; };
+        public event CanClick CanButtonClick = delegate { return true; };
 
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown = delegate { };
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp = delegate { };
@@ -75,11 +76,6 @@ namespace mFramework.UI
 
         private void SetupRectangleHandler()
         {
-            if (UIClickable != null)
-            {
-                // remove
-            }
-
             UIClickable = UIClickable.Create(this, AreaType.RECTANGLE);
             var area = (RectangleArea2D) UIClickable.Area2D;
             UIClickable.Area2D.Update += area2d =>

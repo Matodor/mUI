@@ -5,7 +5,8 @@ namespace mFramework.UI
 {
     public class UIClickable
     {
-        public Area2D Area2D { get; }
+        public Area2D Area2D { get; set; }
+
         public event Func<IUIClickable, MouseEvent, bool> CanMouseDown = delegate { return true; };
         public event Func<IUIClickable, MouseEvent, bool> CanMouseUp = delegate { return true; };
         public event Func<IUIClickable, MouseEvent, bool> CanMouseDrag = delegate { return true; };
@@ -82,7 +83,7 @@ namespace mFramework.UI
             return mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
         }
 
-        public static UIClickable Create(IUIClickable clickable, AreaType areaType)
+        public static UIClickable Create<T>(T clickable, AreaType areaType) where T : IUIClickable
         {
             return new UIClickable(clickable, areaType);
         }

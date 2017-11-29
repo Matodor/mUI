@@ -35,6 +35,16 @@ namespace mFramework
         }
 
         // components
+        public static UIContainer Container(this UIObject uiObject)
+        {
+            return uiObject.Component<UIContainer>(null);
+        }
+
+        public static UIRectAreaButton RectAreaButton(this UIObject uiObject, UIRectAreaButtonSettings settings)
+        {
+            return uiObject.Component<UIRectAreaButton>(settings);
+        }
+
         public static UITextBox TextBox(this UIObject uiObject, UITextBoxSettings settings)
         {
             return uiObject.Component<UITextBox>(settings);

@@ -89,6 +89,7 @@
     <Compile Include="src\game_events\mGameEvents.cs" />
     <Compile Include="src\remotesettings\mRemoteSettings.cs" />
     <Compile Include="src\UI\animations\UIBezierQuadraticAnimation.cs" />
+    <Compile Include="src\UI\components\UIRectAreaButton.cs" />
     <Compile Include="src\UI\components\UIContainer.cs" />
     <Compile Include="src\UI\components\UIMesh.cs" />
     <Compile Include="src\UI\components\UIPageSlider.cs" />
