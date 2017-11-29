@@ -75,7 +75,6 @@
     <Compile Include="src\concrete\EasingFunctions.cs" />
     <Compile Include="src\concrete\NtpClient.cs" />
     <Compile Include="src\concrete\ObjectPool.cs" />
-    <Compile Include="src\concrete\OnlineCheck.cs" />
     <Compile Include="src\concrete\Pair.cs" />
     <Compile Include="src\concrete\PlayerPrefsStorage.cs" />
     <Compile Include="src\concrete\RepeatAction.cs" />

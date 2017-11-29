@@ -30,7 +30,7 @@ namespace mFramework
         {
             if (_actionTime <= Time.time)
             {
-                _action?.Invoke();
+                _action.Invoke();
                 Remove();
             }
         }

@@ -254,7 +254,7 @@ namespace mFramework.UI
                     _clickNext.ForEach(e => e.First.MouseUp(new Vector2(float.MinValue, float.MinValue))); // fake pos
                 _clickNext.Clear();
             }
-
+        
             _dragPath = 0;
         }
 

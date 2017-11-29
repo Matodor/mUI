@@ -45,12 +45,13 @@ namespace mFramework
         internal void OnMouseDown(MouseEvent @event)
         {
             if (Enabled)
-                MouseDown?.Invoke(this, @event);
+                MouseDown.Invoke(this, @event);
         }
 
         internal void OnMouseUp(MouseEvent @event)
         {
-            if (Enabled) MouseUp.Invoke(this, @event);
+            if (Enabled)
+                MouseUp.Invoke(this, @event);
         }
 
         public override void Detach()

@@ -33,7 +33,7 @@ namespace mFramework
             if (Time.time >= _nextInvoke)
             {
                 _nextInvoke = Time.time + Interval;
-                _action?.Invoke();
+                _action.Invoke();
             }
         }
 
