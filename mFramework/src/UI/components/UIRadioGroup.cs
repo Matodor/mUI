@@ -21,7 +21,8 @@ namespace mFramework.UI
 
         protected override void Init()
         {
-            СhildObjectAdded += CheckChildren;
+            ChildObjectAdded += CheckChildren;
+            base.Init();
         }
 
         private void CheckChildren(UIObject sender, AddedСhildObjectEventArgs e)

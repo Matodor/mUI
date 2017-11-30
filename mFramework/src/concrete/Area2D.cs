@@ -17,7 +17,7 @@ namespace mFramework
 
         public event Action<Area2D> Update = _ => { };
 
-        public abstract bool InArea(Vector2 worldPoint);
+        public abstract bool InArea(Vector2 worldPos);
 
         protected void UpdateData()
         {

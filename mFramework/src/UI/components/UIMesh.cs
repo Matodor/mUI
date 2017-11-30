@@ -27,6 +27,8 @@ namespace mFramework.UI
             {
                 UIRenderer.sortingOrder = SortingOrder();
             };
+
+            base.Init();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)

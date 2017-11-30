@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -52,20 +53,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\abstract\IColored.cs" />
     <Compile Include="src\abstract\IGlobalUniqueIdentifier.cs" />
     <Compile Include="src\abstract\IKeyValueStorage.cs" />
-    <Compile Include="src\abstract\IMaskable.cs" />
     <Compile Include="src\abstract\ISaveableFieldBridge.cs" />
     <Compile Include="src\abstract\ISaveableFields.cs" />
-    <Compile Include="src\abstract\IUIClickable.cs" />
-    <Compile Include="src\abstract\IUIRenderer.cs" />
+    <Compile Include="src\UI\abstract\IUIClickable.cs" />
     <Compile Include="src\abstract\IView.cs" />
     <Compile Include="src\achievements\mAchievements.cs" />
     <Compile Include="src\analytics\AnalyticsEvents.cs" />
     <Compile Include="src\analytics\AnalyticsHelper.cs" />
     <Compile Include="src\analytics\AnalyticsStats.cs" />
     <Compile Include="src\analytics\mAnalytics.cs" />
+    <Compile Include="src\analytics\ScreenSession.cs" />
     <Compile Include="src\concrete\Area2D.cs" />
     <Compile Include="src\concrete\AES.cs" />
     <Compile Include="src\concrete\B64X.cs" />
@@ -88,6 +87,10 @@
     <Compile Include="src\game_events\Event.cs" />
     <Compile Include="src\game_events\mGameEvents.cs" />
     <Compile Include="src\remotesettings\mRemoteSettings.cs" />
+    <Compile Include="src\UI\abstract\IUIColored.cs" />
+    <Compile Include="src\UI\abstract\IUIRenderer.cs" />
+    <Compile Include="src\UI\abstract\IUISpriteRenderer.cs" />
+    <Compile Include="src\UI\common\UISpriteRenderer.cs" />
     <Compile Include="src\UI\animations\UIBezierQuadraticAnimation.cs" />
     <Compile Include="src\UI\components\UIRectAreaButton.cs" />
     <Compile Include="src\UI\components\UIContainer.cs" />

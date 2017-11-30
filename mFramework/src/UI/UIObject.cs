@@ -10,29 +10,30 @@ namespace mFramework.UI
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
         public UnidirectionalList<UIObject> Childs { get; private set; }
 
+        public new GameObject gameObject { get; private set; }
+        public new Transform transform { get; private set; }
+        public new virtual string tag { get; set; }
+
         public ulong GUID { get; private set; }
         public UIObject Parent { get; private set; }
 
         public bool IsActive => enabled && gameObject.activeInHierarchy;
         public bool IsShowing => gameObject.activeInHierarchy;
-
+        
         #region Events
         public event UIEventHandler<UIObject> ActiveChanged = delegate { };
         public event UIEventHandler<UIObject> VisibleChanged = delegate { };
         public event UIEventHandler<UIObject> SortingOrderChanged = delegate { };
         public event UIEventHandler<UIObject> BeforeDestroy = delegate { };
 
-        public event UIEventHandler<UIObject, RemovedСhildObjectEventArgs> СhildObjectRemoved = delegate { };
-        public event UIEventHandler<UIObject, AddedСhildObjectEventArgs> СhildObjectAdded = delegate { };
+        public event UIEventHandler<UIObject, RemovedСhildObjectEventArgs> ChildObjectRemoved = delegate { };
+        public event UIEventHandler<UIObject, AddedСhildObjectEventArgs> ChildObjectAdded = delegate { };
         public event UIEventHandler<UIObject, AddedAnimationEventArgs> AnimationAdded = delegate { };
         #endregion
 
         private int _localSortingOrder;
         private static ulong _guid;
         private bool _destroyed;
-
-        private new GameObject gameObject;
-        private new Transform transform;
 
         protected UIObject()
         {
@@ -407,14 +408,14 @@ namespace mFramework.UI
         {
             if (Childs.Remove(obj))
             {
-                СhildObjectRemoved.Invoke(this, new RemovedСhildObjectEventArgs(obj));       
+                ChildObjectRemoved.Invoke(this, new RemovedСhildObjectEventArgs(obj));       
             }
         }
 
         private void AddChild(UIObject obj)
         {
             Childs.Add(obj);
-            СhildObjectAdded.Invoke(this, new AddedСhildObjectEventArgs(obj));
+            ChildObjectAdded.Invoke(this, new AddedСhildObjectEventArgs(obj));
         }
     }
 }

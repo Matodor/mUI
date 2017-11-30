@@ -23,8 +23,9 @@ namespace mFramework.UI
     public class UISlider : UIComponent, IUIClickable, IView
     {
         public ushort? StencilId => _stencilId;
-        public UIObjectOrientation Orientation => _sliderOrientation;
-        public UIClickable UIClickable => _clickableHandler;
+
+        public UIObjectOrientation Orientation { get; private set; }
+        public UIClickable UIClickable { get; private set; }
 
         public const float SLIDER_MAX_PATH_TO_CLICK = 0.03f;
         public const float SLIDER_MIN_DIFF_TO_MOVE = 0.0001f;
@@ -33,8 +34,6 @@ namespace mFramework.UI
         protected bool _isPressed;
 
         private ushort _stencilId;
-        private UIClickable _clickableHandler;
-        private UIObjectOrientation _sliderOrientation;
 
         private float _height;
         private float _width;
@@ -52,12 +51,13 @@ namespace mFramework.UI
             _isPressed = false;
             _clickNext = new List<Pair<IUIClickable, MouseEvent>>();
 
-            СhildObjectAdded += OnСhildObjectAdded;
+            ChildObjectAdded += OnChildObjectAdded;
+            base.Init();
         }
 
-        protected virtual void OnСhildObjectAdded(UIObject sender, AddedСhildObjectEventArgs e)
+        protected virtual void OnChildObjectAdded(UIObject sender, AddedСhildObjectEventArgs e)
         {
-            if (_sliderOrientation == UIObjectOrientation.HORIZONTAL)
+            if (Orientation == UIObjectOrientation.HORIZONTAL)
                 SetupChildrenHorizontal(e.AddedObject);
             else
                 SetupChildrenVertical(e.AddedObject);
@@ -73,7 +73,7 @@ namespace mFramework.UI
                 uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
             }
             
-            e.AddedObject.СhildObjectAdded += SetupChilds;
+            e.AddedObject.ChildObjectAdded += SetupChilds;
         }
         
         /*private void UpdateViewport()
@@ -102,7 +102,7 @@ namespace mFramework.UI
 
         private bool CanChildsMouseDown(IUIClickable handler, MouseEvent @event)
         {
-            if (_clickableHandler.InArea(UIClickable.WorldPos(@event)) &&
+            if (UIClickable.Area2D.InArea(mUI.UICamera.ScreenToWorldPoint(@event.MouseScreenPos)) &&
                 _dragPath < SLIDER_MAX_PATH_TO_CLICK)
             {
                 _clickNext.Add(new Pair<IUIClickable, MouseEvent>(handler, @event));
@@ -203,13 +203,20 @@ namespace mFramework.UI
 
             _stencilId = sliderSettings.StencilId;
 
-            _sliderOrientation = sliderSettings.SliderType;
+            Orientation = sliderSettings.SliderType;
             _directionOfAddingSlides = sliderSettings.DirectionOfAddingSlides;
             _height = sliderSettings.Height;
             _width = sliderSettings.Width;
             _offset = sliderSettings.Offset;
 
-            _clickableHandler = UIClickable.Create(this, AreaType.RECTANGLE);
+            var area = new RectangleArea2D();
+            area.Update += a =>
+            {
+                area.Width = GetWidth();
+                area.Height = GetHeight();
+            };
+
+            UIClickable = new UIClickable(this, area);
 
             var meshRenderer = gameObject.AddComponent<MeshRenderer>();
             meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId).CanvasMaterial;
@@ -264,7 +271,7 @@ namespace mFramework.UI
                 return;
 
             var diff = worldPos - _lastMousePos;
-            if (_sliderOrientation == UIObjectOrientation.HORIZONTAL)
+            if (Orientation == UIObjectOrientation.HORIZONTAL)
             {
                 _dragPath += Math.Abs(diff.x);
                 HorizontalMove(diff.x);
@@ -283,7 +290,7 @@ namespace mFramework.UI
             if (Mathf.Abs(diff) < SLIDER_MIN_DIFF_TO_MOVE)
                 return;
             
-            if (_sliderOrientation == UIObjectOrientation.HORIZONTAL)
+            if (Orientation == UIObjectOrientation.HORIZONTAL)
                 HorizontalMove(diff);
             else
                 VerticalMove(diff);
@@ -311,7 +318,7 @@ namespace mFramework.UI
                 float firstFreeSpace;
                 float secondFreeSpace;
 
-                if (_sliderOrientation == UIObjectOrientation.VERTICAL)
+                if (Orientation == UIObjectOrientation.VERTICAL)
                 {
                     firstFreeSpace = rect.Bottom - secondRect.Bottom;
                     secondFreeSpace = firstRect.Top - rect.Top;

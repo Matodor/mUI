@@ -149,8 +149,9 @@ namespace mFramework.UI
             if (!_isPressed)
                 return;
 
-            var worldPos = UIClickable.WorldPos(e);
+            var worldPos = mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
             var diff = worldPos - _lastDragPos;
+
             _lastDragPos = worldPos;
             Move(_orientation == UIObjectOrientation.VERTICAL ? diff.y : diff.x);
         }

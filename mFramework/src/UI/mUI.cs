@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -12,8 +11,8 @@ namespace mFramework.UI
 
     public sealed class mUI
     {
-        public static event Action<UIObject> UIObjectCreated = delegate { };
-        public static event Action<UIObject> UIObjectRemoved = delegate { };
+        public static event Action<UIObject> UIObjectCreated = delegate {};
+        public static event Action<UIObject> UIObjectRemoved = delegate {};
 
         public static UIView BaseView => _baseView;
         public static UICamera UICamera => _uiCamera;
@@ -79,8 +78,12 @@ namespace mFramework.UI
             bool FindPredicate(UIObject o)
             {
                 var clickable = o as IUIClickable;
-                if (clickable != null && clickable.UIClickable.InArea(e) && predicate(o))
+                if (clickable != null &&
+                    clickable.UIClickable.Area2D.InArea(UICamera.ScreenToWorldPoint(e.MouseScreenPos)) &&
+                    predicate(o))
+                {
                     return o;
+                }
                 return o.Childs.Find(FindPredicate);
             }
 
@@ -92,8 +95,11 @@ namespace mFramework.UI
             bool FindPredicate(UIObject o)
             {
                 var clickable = o as IUIClickable;
-                if (clickable != null && clickable.UIClickable.InArea(e))
+                if (clickable != null &&
+                    clickable.UIClickable.Area2D.InArea(UICamera.ScreenToWorldPoint(e.MouseScreenPos)))
+                {
                     return o;
+                }
                 return o.Childs.Find(FindPredicate);
             }
 

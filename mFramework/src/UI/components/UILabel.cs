@@ -36,7 +36,7 @@ namespace mFramework.UI
         public float? LinesSpacing = null;
     }
 
-    public class UILabel : UIComponent, IUIRenderer, IColored
+    public class UILabel : UIComponent, IUIColored, IUIRenderer
     {
         public const float DEFAULT_HARSHNESS = 2;
 
@@ -741,10 +741,10 @@ namespace mFramework.UI
             return _color;
         }
 
-        public UIObject SetColor(Color32 color)
+        public void SetColor(Color32 color)
         {
             if (_color == color)
-                return this;
+                return;
             _color = color;
 
             if (_textFormatting.Count > 0)
@@ -758,14 +758,11 @@ namespace mFramework.UI
                     colors[i] = color;
                 _meshFilter.mesh.colors = colors;
             }
-
-            return this;
         }
 
-        public UIObject SetColor(UIColor color)
+        public void SetColor(UIColor color)
         {
             SetColor(color.Color32);
-            return this;
         }
     }
 }

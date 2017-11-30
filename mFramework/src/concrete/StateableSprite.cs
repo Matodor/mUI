@@ -10,16 +10,6 @@ namespace mFramework
         public Sprite Selected;
     }
 
-    public class StateableSpriteStateChangedEventArgs : EventArgs
-    {
-        public Sprite StateSprite { get; }
-
-        public StateableSpriteStateChangedEventArgs(Sprite stateSprite)
-        {
-            StateSprite = stateSprite;
-        }
-    }
-
     public class StateableSprite
     {
         public enum State
@@ -29,7 +19,7 @@ namespace mFramework
             SELECTED = 2
         }
 
-        public event EventHandler<StateableSpriteStateChangedEventArgs> StateChanged = delegate { };
+        public event Action<StateableSprite, Sprite> StateChanged = delegate { };
         public State CurrentState => _state;
 
         private readonly SpriteStates _spriteStates;
@@ -49,19 +39,19 @@ namespace mFramework
         public void SetDefault()
         {
             _state = State.DEFAULT;
-            StateChanged.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Default));
+            StateChanged.Invoke(this, _spriteStates.Default);
         }
 
         public void SetHighlighted()
         {
             _state = State.HIGHLIGHTED;
-            StateChanged.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Highlighted));
+            StateChanged.Invoke(this, _spriteStates.Highlighted);
         }
 
         public void SetSelected()
         {
             _state = State.SELECTED;
-            StateChanged.Invoke(this, new StateableSpriteStateChangedEventArgs(_spriteStates.Selected));
+            StateChanged.Invoke(this, _spriteStates.Selected);
         }
     }
 }

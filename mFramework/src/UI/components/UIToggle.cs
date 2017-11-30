@@ -8,13 +8,20 @@ namespace mFramework.UI
         public bool DefaultSelected = false;
     }
 
-    public class UIToggle : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable
+    public class UIToggle : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable, IUIRenderer
     {
-        public Renderer UIRenderer => _button.UIRenderer;
-        public bool IsSelected => _isSelected;
-        public UISprite SpriteMask => _button.SpriteMask;
-        public UIClickable UIClickable => _button.UIClickable;
+        public UIClickable UIClickable { get; private set; }
+        public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
+        public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
+        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
+
+        public StateableSprite StateableSprite { get; private set; }
+        public ClickCondition ClickCondition { get; set; }
+
+        public bool IsSelected => _isSelected;
+
+        public event Func<UIToggle, Vector2, bool> CanToggleClick = delegate { return true; };
         public event Func<UIToggle, bool> CanSelect = delegate { return true; };
         public event Func<UIToggle, bool> CanDeselect = delegate { return true; };
 
@@ -23,11 +30,14 @@ namespace mFramework.UI
         public event UIEventHandler<UIToggle> Changed = delegate { };
 
         private bool _isSelected;
-        private UIButton _button;
-        
+        private bool _isMouseDown;
+
+        private UISpriteRenderer _uiSpriteRenderer;
+
         protected override void Init()
         {
             _isSelected = false;
+            _isMouseDown = false;
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -38,33 +48,41 @@ namespace mFramework.UI
             if (!(settings is UIToggleSettings toggleSettings))
                 throw new ArgumentException("UIToggle: The given settings is not UIToggleSettings");
 
-            _button = this.Button((UIButtonSettings) settings);
-            _button.Click += ButtonClick;
-            _button.ButtonUp += (s, e) =>
+            ClickCondition = toggleSettings.ClickCondition;
+
+            if (toggleSettings.ButtonAreaType == AreaType.RECTANGLE)
             {
-                if (_isSelected)
-                    _button.StateableSprite.SetSelected();
+                var area = new RectangleArea2D();
+                area.Update += a =>
+                {
+                    area.Width = GetWidth();
+                    area.Height = GetHeight();
+                    area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
+                    area.Offset = new Vector2(
+                        area.Offset.x * GlobalScale().x,
+                        area.Offset.y * GlobalScale().y
+                    );
+                };
+
+                UIClickable = new UIClickable(this, area);
+            }
+
+            _uiSpriteRenderer = new UISpriteRenderer(this, new UISpriteSettings
+            {
+                Sprite = toggleSettings.ButtonSpriteStates.Default
+            });
+
+            StateableSprite = StateableSprite.Create(toggleSettings.ButtonSpriteStates);
+            StateableSprite.StateChanged += (s, sprite) =>
+            {
+                if (sprite != null && sprite != _uiSpriteRenderer.Renderer.sprite)
+                    _uiSpriteRenderer.Renderer.sprite = sprite;
             };
 
             if (toggleSettings.DefaultSelected)
                 Select();
 
             base.ApplySettings(settings);
-        }
-
-        public void RemoveMask()
-        {
-            _button.RemoveMask();
-        }
-
-        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
-        {
-            return _button.SetMask(mask, useAlphaClip);
-        }
-
-        private void ButtonClick(UIButton sender)
-        {
-            Toggle();
         }
 
         public UIToggle Toggle()
@@ -83,7 +101,7 @@ namespace mFramework.UI
                 return this;
 
             _isSelected = true;
-            _button.StateableSprite.SetSelected();
+            StateableSprite.SetSelected();
 
             Selected.Invoke(this);
             Changed.Invoke(this);
@@ -96,55 +114,92 @@ namespace mFramework.UI
                 return this;
 
             _isSelected = false;
-            _button.StateableSprite.SetDefault();
+            StateableSprite.SetDefault();
 
             Deselected.Invoke(this);
             Changed.Invoke(this);
             return this;
         }
 
-        public override UIRect GetRect()
-        {
-            return _button.GetRect();
-        }
-
-        public override float GetWidth()
-        {
-            return _button.GetWidth();
-        }
-
-        public override float GetHeight()
-        {
-            return _button.GetHeight();
-        }
-
         public Color GetColor()
         {
-            return _button.GetColor();
+            return _uiSpriteRenderer.GetColor();
         }
 
-        public UIObject SetColor(Color32 color)
+        public void SetColor(Color32 color)
         {
-            _button.SetColor(color);
-            return this;
+            _uiSpriteRenderer.SetColor(color);
         }
 
-        public UIObject SetColor(UIColor color)
+        public void SetColor(UIColor color)
         {
-            _button.SetColor(color);
-            return this;
+            _uiSpriteRenderer.SetColor(color);
         }
 
         public void MouseDown(Vector2 worldPos)
         {
+            _isMouseDown = true;
+            StateableSprite.SetHighlighted();
+
+            if (CanToggleClick(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
+            {
+                Toggle();
+            }
         }
 
         public void MouseUp(Vector2 worldPos)
         {
+            if (_isSelected)
+                StateableSprite.SetSelected();
+            else
+                StateableSprite.SetDefault();
+
+            if (CanToggleClick(this, worldPos) && _isMouseDown &&
+                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
+            {
+                Toggle();
+            }
+
+            _isMouseDown = false;
         }
 
         public void MouseDrag(Vector2 worldPos)
         {
+        }
+
+        public void Flip(bool flipX, bool flipY)
+        {
+            _uiSpriteRenderer.Flip(flipX, flipY);
+        }
+
+        public void SetSprite(Sprite sprite)
+        {
+            _uiSpriteRenderer.SetSprite(sprite);
+        }
+
+        public void RemoveMask()
+        {
+            _uiSpriteRenderer.RemoveMask();
+        }
+
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
+        {
+            return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
+        }
+
+        public override float GetHeight()
+        {
+            return _uiSpriteRenderer.GetHeight();
+        }
+
+        public override float GetWidth()
+        {
+            return _uiSpriteRenderer.GetWidth();
+        }
+
+        public override UIRect GetRect()
+        {
+            return _uiSpriteRenderer.GetRect();
         }
     }
 }

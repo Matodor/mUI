@@ -7,6 +7,7 @@
 
         protected override void Init()
         {
+            base.Init();
         }
 
         public UIContainer SetWidth(float width)

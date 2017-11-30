@@ -61,7 +61,7 @@ namespace mFramework.UI
 
         private void CheckForLeave(UIButton sender, ButtonEventArgs e)
         {
-            if (sender.UIClickable.InArea(e.ClickWorldPos))
+            if (sender.UIClickable.Area2D.InArea(e.ClickWorldPos))
                 return;
 
             _isSelected = false;

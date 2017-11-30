@@ -14,7 +14,7 @@ namespace mFramework.UI
         private UIColor _fromColor;
         private UIColor _toColor;
         private float n1, n2, n3, Alpha;
-        private IColored _animatedObj;
+        private IUIColored _animatedObj;
 
         protected UIColorAnimation(UIObject animatedObject) : base(animatedObject)
         {
@@ -25,7 +25,7 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            _animatedObj = AnimatedObject as IColored;
+            _animatedObj = AnimatedObject as IUIColored;
             if (_animatedObj == null)
                 throw new Exception("The animated object is not IColored");
 

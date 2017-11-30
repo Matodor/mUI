@@ -7,7 +7,7 @@ namespace mFramework
         public float Height { get; set; }
         public float Width { get; set; }
 
-        public override bool InArea(Vector2 worldPoint)
+        public override bool InArea(Vector2 worldPos)
         {
             UpdateData();
             
@@ -46,8 +46,8 @@ namespace mFramework
             }
 
             return
-                mMath.TriangleContainsPoint(leftTop, leftBottom, rightBottom, worldPoint) ||
-                mMath.TriangleContainsPoint(rightBottom, rightTop, leftTop, worldPoint);
+                mMath.TriangleContainsPoint(leftTop, leftBottom, rightBottom, worldPos) ||
+                mMath.TriangleContainsPoint(rightBottom, rightTop, leftTop, worldPos);
         }
     }
 }

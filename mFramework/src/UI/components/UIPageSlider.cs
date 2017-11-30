@@ -19,9 +19,8 @@ namespace mFramework.UI
 
         protected override void Init()
         {
-            base.Init();
-
             _currentIndex = -1;
+            base.Init();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)

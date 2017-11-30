@@ -49,15 +49,17 @@ namespace mFramework.UI
             AreaWidth = buttonSettings.AreaWidth;
             AreaOffset = buttonSettings.AreaOffset;
 
-            UIClickable = UIClickable.Create(this, AreaType.RECTANGLE);
-            var area = (RectangleArea2D)UIClickable.Area2D;
-            UIClickable.Area2D.Update += area2d =>
+            var area = new RectangleArea2D();
+            area.Update += a =>
             {
+                area.Width = GetWidth();
+                area.Height = GetHeight();
                 area.Offset = new Vector2(
                     AreaOffset.x * GlobalScale().x,
                     AreaOffset.y * GlobalScale().y
                 );
             };
+            UIClickable = new UIClickable(this, area);
 
             base.ApplySettings(buttonSettings);
         }
@@ -87,7 +89,7 @@ namespace mFramework.UI
         public void MouseUp(Vector2 worldPos)
         {
             if (CanButtonClick.Invoke(this, worldPos) && _isMouseDown &&
-                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.InArea(worldPos))
+                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
             {
                 Click.Invoke(this);
             }

@@ -17,31 +17,31 @@ namespace mFramework.UI
         BUTTON_PRESSED
     }
 
-
-    public class UIButton : UIComponent, IUIClickable, IUIRenderer, IColored, IMaskable
+    public class UIButton : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable, IUIRenderer
     {
-        public delegate bool CanClick(UIButton sender, Vector2 worldPos);
-        
-        public Renderer UIRenderer => _uiSprite.UIRenderer;
-        public UISprite SpriteMask => _uiSprite.SpriteMask;
+        public UIClickable UIClickable { get; private set; }
+        public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
-        public UIClickable UIClickable { get; protected set; }
-        public StateableSprite StateableSprite { get; protected set; }
+        public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
+        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
+        
+        public StateableSprite StateableSprite { get; private set; }
         public ClickCondition ClickCondition { get; set; }
 
         public event UIEventHandler<UIButton> Click = delegate { };
-        public event CanClick CanButtonClick = delegate { return true; };
+        public event Func<UIButton, Vector2, bool> CanButtonClick = delegate { return true; };
 
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown = delegate { };
         public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp = delegate { };
 
-        protected UISprite _uiSprite;
+        private UISpriteRenderer _uiSpriteRenderer;
         private bool _isMouseDown;
 
         protected override void Init()
         {
             _isMouseDown = false;
             ClickCondition = ClickCondition.BUTTON_UP;
+            base.Init();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -54,53 +54,71 @@ namespace mFramework.UI
 
             ClickCondition = buttonSettings.ClickCondition;
 
-            switch (buttonSettings.ButtonAreaType)
+            if (buttonSettings.ButtonAreaType == AreaType.RECTANGLE)
             {
-                case AreaType.RECTANGLE:
-                    SetupRectangleHandler();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                var area = new RectangleArea2D();
+                area.Update += a =>
+                {
+                    area.Width = GetWidth();
+                    area.Height = GetHeight();
+                    area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
+                    area.Offset = new Vector2(
+                        area.Offset.x * GlobalScale().x,
+                        area.Offset.y * GlobalScale().y
+                    );
+                };
+
+                UIClickable = new UIClickable(this, area);
             }
 
-            _uiSprite = this.Sprite(new UISpriteSettings {Sprite = buttonSettings.ButtonSpriteStates.Default});
-            StateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
-            StateableSprite.StateChanged += (s, e) =>
+            _uiSpriteRenderer = new UISpriteRenderer(this, new UISpriteSettings
             {
-                if (e.StateSprite != null && _uiSprite.Renderer.sprite != e.StateSprite)
-                    _uiSprite.SetSprite(e.StateSprite);
+                Sprite = buttonSettings.ButtonSpriteStates.Default
+            });
+
+            StateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
+            StateableSprite.StateChanged += (s, sprite) =>
+            {
+                if (sprite != null && sprite != _uiSpriteRenderer.Renderer.sprite)
+                    _uiSpriteRenderer.Renderer.sprite = sprite;
             };
 
             base.ApplySettings(buttonSettings);
         }
 
-        private void SetupRectangleHandler()
-        {
-            UIClickable = UIClickable.Create(this, AreaType.RECTANGLE);
-            var area = (RectangleArea2D) UIClickable.Area2D;
-            UIClickable.Area2D.Update += area2d =>
-            {
-                area.Offset = _uiSprite.Renderer.sprite?.GetCenterOffset() ?? Vector2.zero;
-                area.Offset = new Vector2(
-                    area.Offset.x * GlobalScale().x,
-                    area.Offset.y * GlobalScale().y
-                );
-            };
-        }
-
         public override UIRect GetRect()
         {
-            return _uiSprite.GetRect();
+            return _uiSpriteRenderer.GetRect();
+        }
+
+        public void Flip(bool flipX, bool flipY)
+        {
+            _uiSpriteRenderer.Flip(flipX, flipY);
+        }
+
+        public void SetSprite(Sprite sprite)
+        {
+            _uiSpriteRenderer.SetSprite(sprite);
+        }
+
+        public void RemoveMask()
+        {
+            _uiSpriteRenderer.RemoveMask();
+        }
+
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
+        {
+            return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
         }
 
         public override float GetHeight()
         {
-            return _uiSprite.GetHeight();
+            return _uiSpriteRenderer.GetHeight();
         }
 
         public override float GetWidth()
         {
-            return _uiSprite.GetWidth();
+            return _uiSpriteRenderer.GetWidth();
         }
 
         public void MouseDown(Vector2 worldPos)
@@ -108,22 +126,25 @@ namespace mFramework.UI
             _isMouseDown = true;
             StateableSprite.SetHighlighted();
 
-            if (CanButtonClick.Invoke(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
+            if (CanButtonClick(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
             {
-                Click.Invoke(this);
+                Click(this);
             }
-            ButtonDown.Invoke(this, new ButtonEventArgs(worldPos));
+
+            ButtonDown(this, new ButtonEventArgs(worldPos));
         }
 
         public void MouseUp(Vector2 worldPos)
         {
             StateableSprite.SetDefault();
-            if (CanButtonClick.Invoke(this, worldPos) && _isMouseDown &&
-                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.InArea(worldPos))
+
+            if (CanButtonClick(this, worldPos) && _isMouseDown &&
+                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
             {
-                Click.Invoke(this);
+                Click(this);
             }
-            ButtonUp.Invoke(this, new ButtonEventArgs(worldPos));
+
+            ButtonUp(this, new ButtonEventArgs(worldPos));
             _isMouseDown = false;
         }
 
@@ -133,29 +154,17 @@ namespace mFramework.UI
 
         public Color GetColor()
         {
-            return _uiSprite.GetColor();
+            return _uiSpriteRenderer.GetColor();
         }
 
-        public UIObject SetColor(Color32 color)
+        public void SetColor(Color32 color)
         {
-            _uiSprite.SetColor(color);
-            return this;
+            _uiSpriteRenderer.SetColor(color);
         }
 
-        public UIObject SetColor(UIColor color)
+        public void SetColor(UIColor color)
         {
-            _uiSprite.SetColor(color);
-            return this;
-        }
-
-        public void RemoveMask()
-        {
-            _uiSprite.RemoveMask();
-        }
-
-        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
-        {
-            return _uiSprite.SetMask(mask, useAlphaClip);
+            _uiSpriteRenderer.SetColor(color);
         }
     }
 }

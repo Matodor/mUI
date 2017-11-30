@@ -1,10 +1,85 @@
 ﻿using System;
-using UnityEngine;
 
 namespace mFramework.UI
 {
     public class UIClickable
     {
+        public Area2D Area2D;
+
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseDown = delegate { return true; };
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseUp = delegate { return true; };
+        public event Func<IUIClickable, MouseEvent, bool> CanMouseDrag = delegate { return true; };
+
+        private readonly IUIClickable _uiClickable;
+        private readonly UIObject _uiObject;
+        private readonly MouseEventListener _mouseEventListener;
+
+        public UIClickable(IUIClickable clickable, Area2D area2d)
+        {
+            _uiClickable = clickable;
+            _uiObject = clickable as UIObject;
+            _uiObject.BeforeDestroy += OnBeforeDestroy;
+
+            _mouseEventListener = MouseEventListener.Create();
+            _mouseEventListener.MouseDown += MouseEventListenerOnMouseDown;
+            _mouseEventListener.MouseUp += MouseEventListenerOnMouseUp;
+            _mouseEventListener.MouseDrag += MouseEventListenerOnMouseDrag;
+
+            Area2D = area2d;
+            Area2D.Update += area =>
+            {
+                area.Center = _uiObject.Position();
+                area.Rotation = _uiObject.Rotation();
+            };
+        }
+
+        private void MouseEventListenerOnMouseDrag(object sender, MouseEvent e)
+        {
+            if (!_uiObject.IsActive ||
+                !CanMouseDrag(_uiClickable, e))
+            {
+                return;
+            }
+
+            var worldPos = mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
+            _uiClickable.MouseDrag(worldPos);
+        }
+
+        private void MouseEventListenerOnMouseUp(object sender, MouseEvent e)
+        {
+            if (!_uiObject.IsActive ||
+                !CanMouseUp(_uiClickable, e))
+            {
+                return;
+            }
+
+            var worldPos = mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
+            _uiClickable.MouseUp(worldPos);
+        }
+
+        private void MouseEventListenerOnMouseDown(object sender, MouseEvent e)
+        {
+            if (!_uiObject.IsActive ||
+                !CanMouseDown(_uiClickable, e))
+            {
+                return;
+            }
+
+            var worldPos = mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
+            if (Area2D.InArea(worldPos))
+                _uiClickable.MouseDown(worldPos);
+        }
+
+        private void OnBeforeDestroy(UIObject sender)
+        {
+            _mouseEventListener.Detach();
+        }
+    }
+
+    /*public class UIClickable
+    {
+        //mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos)
+
         public Area2D Area2D { get; set; }
 
         public event Func<IUIClickable, MouseEvent, bool> CanMouseDown = delegate { return true; };
@@ -14,7 +89,6 @@ namespace mFramework.UI
         private readonly IUIClickable _uiClickable;
         private readonly UIObject _component;
         private readonly MouseEventListener _eventListener;
-
         
         private UIClickable(IUIClickable clickable, AreaType areaType)
         {
@@ -78,14 +152,9 @@ namespace mFramework.UI
             return Area2D.InArea(worldPos);
         }
 
-        public static Vector2 WorldPos(MouseEvent e)
-        {
-            return mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
-        }
-
         public static UIClickable Create<T>(T clickable, AreaType areaType) where T : IUIClickable
         {
             return new UIClickable(clickable, areaType);
         }
-    }
+    }*/
 }

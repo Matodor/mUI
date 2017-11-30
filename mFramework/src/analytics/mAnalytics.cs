@@ -1,21 +1,30 @@
-﻿using mFramework.GameEvents;
+﻿using System;
+using mFramework.GameEvents;
+using mFramework.UI;
 using SimpleJSON;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace mFramework.Analytics
 {
     public static class mAnalytics
     {
+        internal static JSONObject JSONToSend { get; private set; }
+
         public static string GUID => _analyticsStats.GUID;
         public static string Remote_API = "";
 
         private static readonly AnalyticsStats _analyticsStats;
+        private static readonly MouseEventListener _mouseEventListener;
 
         static mAnalytics()
         {
             _analyticsStats = new AnalyticsStats();
             _analyticsStats.Load();
+            _mouseEventListener = MouseEventListener.Create();
 
+            JSONToSend = new JSONObject();
+            
             mGameEvents.AttachEvent(new mGameEvents.Event(AnalyticsEvents.INIT)
             {
                 OnEvent = (s, e) =>
@@ -70,14 +79,22 @@ namespace mFramework.Analytics
             return jsonObject;
         }
 
-        public static void Init()
+        public static void Init(Type[] viewToScreenSession)
         {
             mGameEvents.InvokeEvent(AnalyticsEvents.INIT);
+            ScreenSession.ViewsTypes = viewToScreenSession;
+            var screenSession = new ScreenSession(mUI.BaseView);
         }
 
         private static void SaveAnalytics()
         {
+            _mouseEventListener.Detach();
             _analyticsStats.Save();
+        }
+
+        public static void Flush()
+        {
+            
         }
 
         public static void SendEvent(string eventKey, object data)
