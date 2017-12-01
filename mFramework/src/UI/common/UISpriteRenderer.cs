@@ -9,7 +9,7 @@ namespace mFramework.UI
         public Color? Color { get; set; } = null;
     }
 
-    public sealed class UISpriteRenderer : IUISpriteRenderer, IUIColored
+    public sealed class UISpriteRenderer
     {
         public SpriteRenderer Renderer { get; }
         public UISprite SpriteMask { get; private set; }

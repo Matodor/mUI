@@ -1,6 +1,6 @@
 ﻿namespace mFramework.UI
 {
-    public interface IView
+    public interface IView : IUIObject
     {
         ushort? StencilId { get; }
     }

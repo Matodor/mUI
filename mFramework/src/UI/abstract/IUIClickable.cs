@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public interface IUIClickable
+    public interface IUIClickable : IUIObject
     {
         UIClickable UIClickable { get; }
         void MouseDown(Vector2 worldPos);

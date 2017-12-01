@@ -45,7 +45,6 @@ namespace mFramework.UI
         public int Size => _fontSize;
         public event UIEventHandler<UILabel> TextUpdated = delegate { };
 
-        private MaterialPropertyBlock _propertyBlock;
         private UIFont _cachedFont;
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
@@ -78,7 +77,6 @@ namespace mFramework.UI
 
         protected override void Init()
         {
-            _propertyBlock = new MaterialPropertyBlock();
             _textFormatting = new Dictionary<int, TextFormatting>();
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();

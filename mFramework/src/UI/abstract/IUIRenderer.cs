@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public interface IUIRenderer
+    public interface IUIRenderer : IUIObject
     {
         Renderer UIRenderer { get; }
     }

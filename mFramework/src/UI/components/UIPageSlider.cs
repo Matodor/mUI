@@ -28,7 +28,7 @@ namespace mFramework.UI
             base.ApplySettings(settings);
         }
 
-        protected override void SetupChildrenHorizontal(UIObject obj)
+        protected override void SetupChildrenHorizontal(IUIObject obj)
         {
             var rect = GetRect();
             switch (_directionOfAddingSlides)
@@ -79,7 +79,7 @@ namespace mFramework.UI
             }
         }
 
-        protected override void SetupChildrenVertical(UIObject obj)
+        protected override void SetupChildrenVertical(IUIObject obj)
         {
             var rect = GetRect();
             switch (_directionOfAddingSlides)
@@ -174,7 +174,7 @@ namespace mFramework.UI
             base.MouseUp(worldPos);
         }
 
-        private void Move(UIObject current, UIObject next, bool toNext)
+        private void Move(IUIObject current, IUIObject next, bool toNext)
         {
             next.Show();
             Vector2 endCurrentPos;

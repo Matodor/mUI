@@ -33,7 +33,9 @@ namespace mFramework.UI
         public float Duration = 1f;
         public float AnimateEvery = 0f;
     }
-    
+
+    public delegate void UIAnimationEventHandler(UIAnimation sender);
+
     public abstract class UIAnimation : IGlobalUniqueIdentifier
     {
         internal bool MarkedForDestroy { get; private set; }

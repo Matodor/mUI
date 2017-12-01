@@ -55,25 +55,25 @@ namespace mFramework.UI
             base.Init();
         }
 
-        protected virtual void OnChildObjectAdded(UIObject sender, AddedСhildObjectEventArgs e)
+        protected virtual void OnChildObjectAdded(IUIObject sender, IUIObject addedObj)
         {
             if (Orientation == UIObjectOrientation.HORIZONTAL)
-                SetupChildrenHorizontal(e.AddedObject);
+                SetupChildrenHorizontal(addedObj);
             else
-                SetupChildrenVertical(e.AddedObject);
+                SetupChildrenVertical(addedObj);
 
-            SetupChilds(sender, e);
+            SetupChilds(sender, addedObj);
         }
 
-        private void SetupChilds(UIObject sender, AddedСhildObjectEventArgs e)
+        private void SetupChilds(IUIObject sender, IUIObject addedObj)
         {
-            if (e.AddedObject is IUIClickable uiClickable)
+            if (addedObj is IUIClickable uiClickable)
             {
                 uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
                 uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
             }
-            
-            e.AddedObject.ChildObjectAdded += SetupChilds;
+
+            addedObj.ChildObjectAdded += SetupChilds;
         }
         
         /*private void UpdateViewport()
@@ -111,7 +111,7 @@ namespace mFramework.UI
             return false;   
         }
 
-        protected virtual void SetupChildrenHorizontal(UIObject obj)
+        protected virtual void SetupChildrenHorizontal(IUIObject obj)
         {
             var rect = GetRect();
             switch (_directionOfAddingSlides)
@@ -152,7 +152,7 @@ namespace mFramework.UI
             CheckHRect(obj, ref rect);
         }
 
-        protected virtual void SetupChildrenVertical(UIObject obj)
+        protected virtual void SetupChildrenVertical(IUIObject obj)
         {
             var rect = GetRect();
             switch (_directionOfAddingSlides)
@@ -405,7 +405,7 @@ namespace mFramework.UI
             _lastFreeSpace = freeSpace;
         }
 
-        private static void CheckVRect(UIObject c, ref UIRect sliderRect)
+        private static void CheckVRect(IUIObject c, ref UIRect sliderRect)
         {
             var r = c.GetRect();
             if (r.Bottom > sliderRect.Top || r.Top < sliderRect.Bottom)
@@ -419,7 +419,7 @@ namespace mFramework.UI
             }
         }
 
-        private static void CheckHRect(UIObject c, ref UIRect sliderRect)
+        private static void CheckHRect(IUIObject c, ref UIRect sliderRect)
         {
             var r = c.GetRect();
             if (r.Right < sliderRect.Left || r.Left > sliderRect.Right)

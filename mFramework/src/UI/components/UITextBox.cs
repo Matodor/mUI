@@ -59,9 +59,9 @@ namespace mFramework.UI
             Label.SortingOrder(1);
         }
 
-        private void CheckForLeave(UIButton sender, ButtonEventArgs e)
+        private void CheckForLeave(UIButton sender, Vector2 worldPos)
         {
-            if (sender.UIClickable.Area2D.InArea(e.ClickWorldPos))
+            if (sender.UIClickable.Area2D.InArea(worldPos))
                 return;
 
             _isSelected = false;

@@ -70,7 +70,7 @@ namespace mFramework.UI
                 _uiClickable.MouseDown(worldPos);
         }
 
-        private void OnBeforeDestroy(UIObject sender)
+        private void OnBeforeDestroy(IUIObject sender)
         {
             _mouseEventListener.Detach();
         }

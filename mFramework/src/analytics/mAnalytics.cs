@@ -3,17 +3,16 @@ using mFramework.GameEvents;
 using mFramework.UI;
 using SimpleJSON;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace mFramework.Analytics
 {
     public static class mAnalytics
     {
-        internal static JSONObject JSONToSend { get; private set; }
-
-        public static string GUID => _analyticsStats.GUID;
+        public static string SessionGUID { get; }
+        public static string UserGUID { get;}
         public static string Remote_API = "";
 
+        private static ScreenSession _screenSession;
         private static readonly AnalyticsStats _analyticsStats;
         private static readonly MouseEventListener _mouseEventListener;
 
@@ -23,13 +22,14 @@ namespace mFramework.Analytics
             _analyticsStats.Load();
             _mouseEventListener = MouseEventListener.Create();
 
-            JSONToSend = new JSONObject();
+            UserGUID = _analyticsStats.GUID;
+            SessionGUID = Guid.NewGuid().ToString();
             
             mGameEvents.AttachEvent(new mGameEvents.Event(AnalyticsEvents.INIT)
             {
                 OnEvent = (s, e) =>
                 {
-                    mCore.Log($"[mAnalytics] Init (GUID={GUID})");
+                    mCore.Log($"[mAnalytics] Init (UserGUID={UserGUID})");
                     mCore.Log($"[mAnalytics] DeviceInfo: {GetDeviceInfo().ToString()}");
 
                     if (s.EventCounter == 1)
@@ -39,7 +39,7 @@ namespace mFramework.Analytics
                     }
                 } 
             });
-            mCore.ApplicationQuitEvent += SaveAnalytics;
+            mCore.ApplicationQuitEvent += OnQuitEvent;
         }
 
         public static JSONObject GetDeviceInfo()
@@ -83,13 +83,45 @@ namespace mFramework.Analytics
         {
             mGameEvents.InvokeEvent(AnalyticsEvents.INIT);
             ScreenSession.ViewsTypes = viewToScreenSession;
-            var screenSession = new ScreenSession(mUI.BaseView);
+            _screenSession = new ScreenSession(mUI.BaseView, null);
         }
 
-        private static void SaveAnalytics()
+        private static void OnQuitEvent()
         {
             _mouseEventListener.Detach();
             _analyticsStats.Save();
+
+            foreach (var screenSession in _screenSession.DeepChild())
+            {
+                mCore.Log($"DeepChild update: {screenSession.AttachedView.GetType().Name}");
+
+                screenSession.Update();
+            }
+
+            var session = new JSONObject
+            {
+                ["type"] = "screen_session",
+                ["rootScreenSession"] = _screenSession.Session
+            };
+
+            AttachSessionInfo(session);
+            SendJSON(session);
+        }
+
+        public static void AttachSessionInfo(JSONObject json)
+        {
+            json["session_guid"] = SessionGUID;
+            json["user_guid"] = UserGUID;
+        }
+
+        public static void SendJSON(JSONObject obj)
+        {
+            mCore.Log($"Send json: {obj.ToString()}");
+        }
+
+        public static void EventFromView(IView view, string key, string payload)
+        {
+            
         }
 
         public static void Flush()

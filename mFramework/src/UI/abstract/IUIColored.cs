@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public interface IUIColored
+    public interface IUIColored : IUIObject
     {
         Color GetColor();
         void SetColor(Color32 color);

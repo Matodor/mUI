@@ -25,9 +25,9 @@ namespace mFramework.UI
             base.Init();
         }
 
-        private void CheckChildren(UIObject sender, AddedСhildObjectEventArgs e)
+        private void CheckChildren(IUIObject sender, IUIObject addedObj)
         {
-            var toggle = e.AddedObject as UIToggle;
+            var toggle = addedObj as UIToggle;
             if (toggle == null)
                 return;
             SetupToggle(toggle);
@@ -68,7 +68,7 @@ namespace mFramework.UI
             toggle.CanDeselect += ToggleOnCanDeselect;
         }
 
-        private void ToggleOnBeforeDestroy(UIObject sender)
+        private void ToggleOnBeforeDestroy(IUIObject sender)
         {
             if ((UIToggle) sender == _currentSelected)
                 _currentSelected = null;

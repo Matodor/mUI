@@ -34,20 +34,20 @@ namespace mFramework.UI
         private float _width;
         private ushort? _stencilId;
 
-        internal static UIView Create(Type viewType, UIViewSettings settings, UIObject parent, params object[] @params)
+        internal static UIView Create(Type viewType, UIViewSettings settings, IView parent, params object[] @params)
         {
             if (!typeof(UIView).IsAssignableFrom(viewType))
                 throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
-            view.SetupView(settings, parent, @params);
+            view.SetupView(settings, (UIObject) parent, @params);
             return view;
         }
 
-        internal static T Create<T>(UIViewSettings settings, UIObject parent, params object[] @params) where T : UIView
+        internal static T Create<T>(UIViewSettings settings, IView parent, params object[] @params) where T : UIView
         {
             var view = new GameObject(typeof(T).Name).AddComponent<T>();
-            view.SetupView(settings, parent, @params);
+            view.SetupView(settings, (UIObject) parent, @params);
             return view;
         }
         
@@ -66,7 +66,7 @@ namespace mFramework.UI
 
         protected abstract void CreateInterface(object[] @params);
 
-        protected virtual void SetupSettings(UIViewSettings settings, UIObject parent)
+        protected virtual void SetupSettings(UIViewSettings settings, IUIObject parent)
         {
             _stencilId = settings.StencilId;
             _height = settings.Height ?? parent.GetHeight();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using mFramework.UI;
 using SimpleJSON;
@@ -7,32 +8,54 @@ namespace mFramework.Analytics
 {
     internal class ScreenSession
     {
-        public readonly DateTime AttachTime;
         public static Type[] ViewsTypes;
+        public static readonly Dictionary<ulong, ScreenSession> ScreenSessions;
 
-        private readonly JSONObject _buttonClicks;
+        public readonly JSONObject Session;
+        public readonly DateTime AttachTime;
+        public readonly ScreenSession Parent;
+        public readonly IView AttachedView;
+
+        private readonly Dictionary<ulong, ScreenSession> _childs;
         private bool _lastVisible;
         private DateTime _lastHideAt;
         private TimeSpan _totalHide;
-        private int _hiddenTimes;
 
-        public ScreenSession(UIObject view)
+        static ScreenSession()
         {
+            ScreenSessions = new Dictionary<ulong, ScreenSession>();
+        }
+
+        public ScreenSession(IView view, ScreenSession parent)
+        {
+            Parent = parent;
             AttachTime = DateTime.Now;
-            if (!(view is IView))
-                return;
+            ScreenSessions.Add(view.GUID, this);
 
             mCore.Log($"Attach ScreenSession: {view.GetType().Name}");
 
+            _childs = new Dictionary<ulong, ScreenSession>();
+            AttachedView = view;
             _lastVisible = view.IsShowing;
             _totalHide = TimeSpan.Zero;
-            _buttonClicks = new JSONObject();
+
+            Session = new JSONObject
+            {
+                ["view_name"] = view.GetType().Name,
+                ["hidden_times"] = 0,
+                ["hidden_time"] = 0,
+                ["screen_lifetime"] = 0,
+                ["events"] = new JSONArray(),
+                ["childs"] = new JSONArray()
+            };
 
             if (!_lastVisible)
             {
                 _lastHideAt = DateTime.Now;
-                _hiddenTimes = 1;
+                Session["hidden_times"] = 1;
             }
+
+            parent?.Session["childs"].AsArray.Add(Session);
 
             view.BeforeDestroy += ViewOnBeforeDestroy;
             view.ChildObjectAdded += ObjOnChildObjectAdded;
@@ -40,7 +63,30 @@ namespace mFramework.Analytics
             view.Childs.ForEach(RecursivelySetup);
         }
 
-        private void ViewOnVisibleChanged(UIObject sender)
+        public void Event(string key, JSONNode node)
+        {
+            Session["events"].AsArray.Add(new JSONObject
+            {
+                ["key"] = key,
+                ["payload"] = node
+            });
+        }
+
+        public void Event(string key, string payload)
+        {
+            Session["events"].AsArray.Add(new JSONObject
+            {
+                ["key"] = key,
+                ["payload"] = payload
+            });
+        }
+
+        private void RemoveChild(ulong key)
+        {
+            _childs.Remove(key);
+        }
+
+        private void ViewOnVisibleChanged(IUIObject sender)
         {
             if (!_lastVisible && sender.IsShowing)
             {
@@ -48,7 +94,7 @@ namespace mFramework.Analytics
             }
             else if (_lastVisible && !sender.IsShowing)
             {
-                _hiddenTimes++;
+                Session["hidden_times"]++;
                 _lastHideAt = DateTime.Now;
             }
 
@@ -60,40 +106,51 @@ namespace mFramework.Analytics
             mCore.Log("~ScreenSession");
         }
 
-        private void ViewOnBeforeDestroy(UIObject sender)
+        public IEnumerable<ScreenSession> DeepChild()
         {
-            sender.BeforeDestroy -= ViewOnBeforeDestroy;
-            sender.ChildObjectAdded -= ObjOnChildObjectAdded;
-            sender.VisibleChanged -= ViewOnVisibleChanged;
+            foreach (var a in _childs.Values)
+            {
+                foreach (var b in a.DeepChild())
+                    yield return b;
+                yield return a;
+            }
+            yield return this;
+        }
 
-            if (!_lastVisible && !sender.IsShowing)
+        public void Update()
+        {
+            if (!_lastVisible && !AttachedView.IsShowing)
             {
                 _totalHide += DateTime.Now - _lastHideAt;
             }
 
-            var stats = new JSONObject
-            {
-                ["screen_name"] = sender.GetType().Name,
-                ["hidden_times"] = _hiddenTimes,
-                ["hidden_time"] = (int)_totalHide.TotalSeconds,
-                ["screen_lifetime"] = (int)(DateTime.Now - AttachTime).TotalSeconds,
-                ["clicks"] = _buttonClicks,
-            };
-             
-            mCore.Log($"{sender.GetType().Name} stats: {stats.ToString()}");
+            Session["screen_lifetime"] = (int)(DateTime.Now - AttachTime).TotalSeconds;
+            Session["hidden_time"] = (int)_totalHide.TotalSeconds;
         }
 
-        private void ObjOnChildObjectAdded(UIObject sender, AddedСhildObjectEventArgs e)
+        private void ViewOnBeforeDestroy(IUIObject sender)
         {
-            RecursivelySetup(e.AddedObject);
+            Parent?.RemoveChild(AttachedView.GUID);
+
+            sender.BeforeDestroy -= ViewOnBeforeDestroy;
+            sender.ChildObjectAdded -= ObjOnChildObjectAdded;
+            sender.VisibleChanged -= ViewOnVisibleChanged;
+
+            Update();
         }
 
-        private void RecursivelySetup(UIObject obj)
+        private void ObjOnChildObjectAdded(IUIObject sender, IUIObject addedObj)
         {
-            if (ViewsTypes != null &&
+            RecursivelySetup(addedObj);
+        }
+
+        private void RecursivelySetup(IUIObject obj)
+        {
+            if (obj is IView view && 
+                ViewsTypes != null &&
                 ViewsTypes.Contains(obj.GetType()))
             {
-                var screenSession = new ScreenSession(obj);
+                _childs.Add(obj.GUID, new ScreenSession(view, this));
             }
             else
             {
@@ -120,16 +177,13 @@ namespace mFramework.Analytics
 
             if (!string.IsNullOrWhiteSpace(obj.tag))
             {
-                if (_buttonClicks[obj.tag] != null)
+                if (Session["clicks"][obj.tag] != null)
                 {
-                    _buttonClicks[obj.tag]["clicks"] = _buttonClicks[obj.tag]["clicks"].AsInt + 1;
+                    Session["clicks"][obj.tag]++;
                 }
                 else
                 {
-                    _buttonClicks[obj.tag] = new JSONObject()
-                    {
-                        ["clicks"] = 0
-                    };
+                    Session["clicks"][obj.tag] = 1;
                 }
             }
 

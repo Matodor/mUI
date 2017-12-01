@@ -16,7 +16,7 @@ namespace mFramework.UI
 
     public class UIScrollBar : UIComponent
     {
-        public event UIEventHandler<UIScrollBar, ScrollBarChangedEventArgs> ValueChanged = delegate { };
+        public event UIEventHandler<UIScrollBar> ValueChanged = delegate { };
 
         public float Value => _value;
         public float Value01 => _value01;
@@ -140,7 +140,7 @@ namespace mFramework.UI
                     _barButton.Position(GetPointPos(_value01), _barButton.Position().y);
                 else if (_orientation == UIObjectOrientation.VERTICAL)
                     _barButton.Position(_barButton.Position().x, GetPointPos(_value01));
-                ValueChanged.Invoke(this, new ScrollBarChangedEventArgs(_value01, prevValue));
+                ValueChanged.Invoke(this);
             }
         }
 
@@ -215,15 +215,15 @@ namespace mFramework.UI
             return 0;
         }
 
-        private void OnMouseUp(UIButton sender, ButtonEventArgs e)
+        private void OnMouseUp(UIButton sender, Vector2 worldPos)
         {
-            _lastDragPos = e.ClickWorldPos;
+            _lastDragPos = worldPos;
             _isPressed = false;
         }
 
-        private void OnMouseDown(UIButton sender, ButtonEventArgs e)
+        private void OnMouseDown(UIButton sender, Vector2 worldPos)
         {
-            _lastDragPos = e.ClickWorldPos;
+            _lastDragPos = worldPos;
             _isPressed = true;
             _movedPos = GetPointPos(_value01);
         }

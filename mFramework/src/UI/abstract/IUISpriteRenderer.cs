@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public interface IUISpriteRenderer
+    public interface IUISpriteRenderer : IUIObject
     {
         SpriteRenderer Renderer { get; }
         UISprite SpriteMask { get; }
@@ -12,10 +12,5 @@ namespace mFramework.UI
 
         void RemoveMask();
         UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true);
-
-        float GetHeight();
-        float GetWidth();
-
-        UIRect GetRect();
     }
 }

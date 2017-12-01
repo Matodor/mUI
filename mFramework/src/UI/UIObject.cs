@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public abstract class UIObject : MonoBehaviour, IGlobalUniqueIdentifier
+    public abstract class UIObject : MonoBehaviour, IUIObject
     {
         internal IView InternalParentView { get; private set; }
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
-        public UnidirectionalList<UIObject> Childs { get; private set; }
+        public UnidirectionalList<IUIObject> Childs { get; private set; }
 
         public new GameObject gameObject { get; private set; }
         public new Transform transform { get; private set; }
@@ -21,14 +21,14 @@ namespace mFramework.UI
         public bool IsShowing => gameObject.activeInHierarchy;
         
         #region Events
-        public event UIEventHandler<UIObject> ActiveChanged = delegate { };
-        public event UIEventHandler<UIObject> VisibleChanged = delegate { };
-        public event UIEventHandler<UIObject> SortingOrderChanged = delegate { };
-        public event UIEventHandler<UIObject> BeforeDestroy = delegate { };
+        public event UIEventHandler<IUIObject> ActiveChanged = delegate { };
+        public event UIEventHandler<IUIObject> VisibleChanged = delegate { };
+        public event UIEventHandler<IUIObject> SortingOrderChanged = delegate { };
+        public event UIEventHandler<IUIObject> BeforeDestroy = delegate { };
 
-        public event UIEventHandler<UIObject, RemovedСhildObjectEventArgs> ChildObjectRemoved = delegate { };
-        public event UIEventHandler<UIObject, AddedСhildObjectEventArgs> ChildObjectAdded = delegate { };
-        public event UIEventHandler<UIObject, AddedAnimationEventArgs> AnimationAdded = delegate { };
+        public event UIEventHandler<IUIObject, IUIObject> ChildObjectRemoved = delegate { };
+        public event UIEventHandler<IUIObject, IUIObject> ChildObjectAdded = delegate { };
+        public event UIEventHandler<IUIObject, UIAnimation> AnimationAdded = delegate { };
         #endregion
 
         private int _localSortingOrder;
@@ -58,7 +58,7 @@ namespace mFramework.UI
             GUID = ++_guid;
             Parent = null;
             Animations = UnidirectionalList<UIAnimation>.Create();
-            Childs = UnidirectionalList<UIObject>.Create();
+            Childs = UnidirectionalList<IUIObject>.Create();
 
             _destroyed = false;
             _localSortingOrder = 0;
@@ -67,13 +67,7 @@ namespace mFramework.UI
             Init();
         }
 
-        private void ChangeParent(UIObject parent)
-        {
-            SetupParent(parent);
-            Parent?.AddChild(this);
-        }
-
-        protected void SetupParent(UIObject parent)
+        internal void SetupParent(UIObject parent)
         {
             Parent?.RemoveChild(this);
             Parent = parent;
@@ -101,7 +95,7 @@ namespace mFramework.UI
             _destroyed = true;
             BeforeDestroy.Invoke(this);
 
-            Childs.ForEach(c => c.DestroyImpl());
+            Childs.ForEach(c => c.Destroy());
             Childs.Clear();
             Animations.Clear();
 
@@ -141,7 +135,7 @@ namespace mFramework.UI
             DestroyWithoutChecks();
         }
 
-        public UIObject SetName(string newName)
+        public IUIObject SetName(string newName)
         {
             gameObject.name = newName;
             return this;
@@ -173,19 +167,19 @@ namespace mFramework.UI
             return 0;
         }
 
-        public UIObject LocalRotate(float x, float y, float z)
+        public IUIObject LocalRotate(float x, float y, float z)
         {
             transform.localEulerAngles = new Vector3(x, y, z);
             return this;
         }
 
-        public UIObject Rotate(float x, float y, float z)
+        public IUIObject Rotate(float x, float y, float z)
         {
             transform.eulerAngles = new Vector3(x, y, z);
             return this;
         }
 
-        public UIObject Rotate(float angle)
+        public IUIObject Rotate(float angle)
         {
             Rotate(transform.eulerAngles.x, transform.eulerAngles.y, angle);
             return this;
@@ -196,25 +190,25 @@ namespace mFramework.UI
             return transform.eulerAngles.z;
         }
 
-        public UIObject Translate(float x, float y)
+        public IUIObject Translate(float x, float y)
         {
             Translate(x, y, 0);
             return this;
         }
 
-        public UIObject Translate(float x, float y, float z)
+        public IUIObject Translate(float x, float y, float z)
         {
             transform.Translate(x, y, z, Space.World);
             return this;
         }
 
-        public UIObject Translate(Vector2 translatePos)
+        public IUIObject Translate(Vector2 translatePos)
         {
             Translate(translatePos.x, translatePos.y, 0);
             return this;
         }
 
-        public UIObject SortingOrder(int sortingOrder)
+        public IUIObject SortingOrder(int sortingOrder)
         {
             _localSortingOrder = sortingOrder;
             OnSortingOrderChanged();
@@ -231,25 +225,25 @@ namespace mFramework.UI
             return (Parent?.SortingOrder() ?? 0) + _localSortingOrder;
         }
 
-        private void OnSortingOrderChanged()
+        public void OnSortingOrderChanged()
         {
             SortingOrderChanged.Invoke(this);
             Childs.ForEach(c => c.OnSortingOrderChanged());
         }
 
-        public UIObject Scale(float v)
+        public IUIObject Scale(float v)
         {
             Scale(v, v);
             return this;
         }
 
-        public UIObject Scale(float x, float y)
+        public IUIObject Scale(float x, float y)
         {
             transform.localScale = new Vector3(x, y, transform.localScale.z);
             return this;
         }
 
-        public UIObject Scale(Vector2 scale)
+        public IUIObject Scale(Vector2 scale)
         {
             Scale(scale.x, scale.y);
             return this;
@@ -265,31 +259,31 @@ namespace mFramework.UI
             return transform.lossyScale;
         }
 
-        public UIObject PositionX(float x)
+        public IUIObject PositionX(float x)
         {
             Position(x, Position().y);
             return this;
         }
 
-        public UIObject PositionY(float y)
+        public IUIObject PositionY(float y)
         {
             Position(Position().x, y);
             return this;
         }
 
-        public UIObject Position(float x, float y)
+        public IUIObject Position(float x, float y)
         {
             transform.position = new Vector3(x, y, transform.position.z);
             return this;
         }
 
-        public UIObject LocalPosition(float x, float y)
+        public IUIObject LocalPosition(float x, float y)
         {
             transform.localPosition = new Vector3(x, y, transform.localPosition.z);
             return this;
         }
 
-        public UIObject LocalPosition(Vector2 position)
+        public IUIObject LocalPosition(Vector2 position)
         {
             return LocalPosition(position.x, position.y);
         }
@@ -299,7 +293,7 @@ namespace mFramework.UI
             return transform.localPosition;
         }
 
-        public UIObject Position(Vector2 position)
+        public IUIObject Position(Vector2 position)
         {
             return Position(position.x, position.y);
         }
@@ -309,19 +303,19 @@ namespace mFramework.UI
             return transform.position;
         }
 
-        public UIObject Enable()
+        public IUIObject Enable()
         {
             enabled = true;
             return this;
         }
 
-        public UIObject Disable()
+        public IUIObject Disable()
         {
             enabled = false;
             return this;
         }
 
-        public UIObject Show()
+        public IUIObject Show()
         {
             if (_destroyed)
                 return this;
@@ -329,7 +323,7 @@ namespace mFramework.UI
             return this;
         }
 
-        public UIObject Hide()
+        public IUIObject Hide()
         {
             if (_destroyed)
                 return this;
@@ -341,7 +335,7 @@ namespace mFramework.UI
         {
         }
 
-        internal void Tick()
+        public void Tick()
         {
             Animations.ForEach(a =>
             {
@@ -362,7 +356,7 @@ namespace mFramework.UI
         {
         }
 
-        internal void FixedTick()
+        public void FixedTick()
         {
             if (!IsActive)
                 return;
@@ -375,7 +369,7 @@ namespace mFramework.UI
         {
         }
 
-        internal void LateTick()
+        public void LateTick()
         {
             if (!IsActive)
                 return;
@@ -394,7 +388,7 @@ namespace mFramework.UI
             var uiAnimation = UIAnimation.Create<T>(this, settings);
 
             Animations.Add(uiAnimation);
-            AnimationAdded.Invoke(this, new AddedAnimationEventArgs(uiAnimation));
+            AnimationAdded.Invoke(this, uiAnimation);
 
             return uiAnimation;
         }
@@ -404,18 +398,18 @@ namespace mFramework.UI
             Animations.Clear();
         }
 
-        internal void RemoveChild(UIObject obj)
+        internal void RemoveChild(IUIObject obj)
         {
             if (Childs.Remove(obj))
             {
-                ChildObjectRemoved.Invoke(this, new RemovedСhildObjectEventArgs(obj));       
+                ChildObjectRemoved.Invoke(this, obj);       
             }
         }
 
-        private void AddChild(UIObject obj)
+        private void AddChild(IUIObject obj)
         {
             Childs.Add(obj);
-            ChildObjectAdded.Invoke(this, new AddedСhildObjectEventArgs(obj));
+            ChildObjectAdded.Invoke(this, obj);
         }
     }
 }

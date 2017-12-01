@@ -73,37 +73,47 @@ namespace mFramework.UI
             _instance = null;
         }
         
-        public static UIObject GetClickableObject(MouseEvent e, Func<UIObject, bool> predicate)
+        public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)
         {
-            bool FindPredicate(UIObject o)
+            IUIClickable @return = null;
+
+            bool FindPredicate(IUIObject obj)
             {
-                var clickable = o as IUIClickable;
-                if (clickable != null &&
+                if (obj is IUIClickable clickable &&
                     clickable.UIClickable.Area2D.InArea(UICamera.ScreenToWorldPoint(e.MouseScreenPos)) &&
-                    predicate(o))
+                    predicate(obj))
                 {
-                    return o;
+                    @return = clickable;
+                    return true;
                 }
-                return o.Childs.Find(FindPredicate);
+
+                @return = (IUIClickable)obj.Childs.Find(FindPredicate);
+                return false;
             }
 
-            return BaseView.Childs.Find(FindPredicate);
+            BaseView.Childs.Find(FindPredicate);
+            return @return;
         }
 
-        public static UIObject GetClickableObject(MouseEvent e)
+        public static IUIClickable GetClickableObject(MouseEvent e)
         {
-            bool FindPredicate(UIObject o)
+            IUIClickable @return = null;
+
+            bool FindPredicate(IUIObject obj)
             {
-                var clickable = o as IUIClickable;
-                if (clickable != null &&
+                if (obj is IUIClickable clickable &&
                     clickable.UIClickable.Area2D.InArea(UICamera.ScreenToWorldPoint(e.MouseScreenPos)))
                 {
-                    return o;
+                    @return = clickable;
+                    return true;
                 }
-                return o.Childs.Find(FindPredicate);
+
+                @return = (IUIClickable) obj.Childs.Find(FindPredicate);
+                return false;
             }
 
-            return BaseView.Childs.Find(FindPredicate);
+            BaseView.Childs.Find(FindPredicate);
+            return @return;
         }
 
         public static UIFont GetFont(string font)

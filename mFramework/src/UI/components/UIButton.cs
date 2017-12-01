@@ -31,8 +31,8 @@ namespace mFramework.UI
         public event UIEventHandler<UIButton> Click = delegate { };
         public event Func<UIButton, Vector2, bool> CanButtonClick = delegate { return true; };
 
-        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonDown = delegate { };
-        public event UIEventHandler<UIButton, ButtonEventArgs> ButtonUp = delegate { };
+        public event UIEventHandler<UIButton, Vector2> ButtonDown = delegate { };
+        public event UIEventHandler<UIButton, Vector2> ButtonUp = delegate { };
 
         private UISpriteRenderer _uiSpriteRenderer;
         private bool _isMouseDown;
@@ -131,7 +131,7 @@ namespace mFramework.UI
                 Click(this);
             }
 
-            ButtonDown(this, new ButtonEventArgs(worldPos));
+            ButtonDown(this, worldPos);
         }
 
         public void MouseUp(Vector2 worldPos)
@@ -144,7 +144,7 @@ namespace mFramework.UI
                 Click(this);
             }
 
-            ButtonUp(this, new ButtonEventArgs(worldPos));
+            ButtonUp(this, worldPos);
             _isMouseDown = false;
         }
 

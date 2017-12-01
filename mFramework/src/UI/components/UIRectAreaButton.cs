@@ -25,8 +25,8 @@ namespace mFramework.UI
         public event UIEventHandler<UIRectAreaButton> Click = delegate { };
         public event CanClick CanButtonClick = delegate { return true; };
 
-        public event UIEventHandler<UIRectAreaButton, ButtonEventArgs> ButtonDown = delegate { };
-        public event UIEventHandler<UIRectAreaButton, ButtonEventArgs> ButtonUp = delegate { };
+        public event UIEventHandler<UIRectAreaButton, Vector2> ButtonDown = delegate { };
+        public event UIEventHandler<UIRectAreaButton, Vector2> ButtonUp = delegate { };
 
         private bool _isMouseDown;
 
@@ -83,7 +83,7 @@ namespace mFramework.UI
                 Click.Invoke(this);
             }
 
-            ButtonDown.Invoke(this, new ButtonEventArgs(worldPos));
+            ButtonDown.Invoke(this, worldPos);
         }
 
         public void MouseUp(Vector2 worldPos)
@@ -94,7 +94,7 @@ namespace mFramework.UI
                 Click.Invoke(this);
             }
 
-            ButtonUp.Invoke(this, new ButtonEventArgs(worldPos));
+            ButtonUp.Invoke(this, worldPos);
             _isMouseDown = false;
         }
 
