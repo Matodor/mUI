@@ -1,4 +1,8 @@
-﻿using System;
+﻿// TODO
+// ивенты последовательно, указывается ИД ивента
+// 
+
+using System;
 using mFramework.GameEvents;
 using mFramework.UI;
 using SimpleJSON;
@@ -8,11 +12,21 @@ namespace mFramework.Analytics
 {
     public static class mAnalytics
     {
-        public static string SessionGUID { get; }
-        public static string UserGUID { get;}
+        public static ScreenSession RootScreenSession
+        {
+            get
+            {
+                if (_rootScreenSession == null)
+                    _rootScreenSession = new ScreenSession(mUI.BaseView, null);
+                return _rootScreenSession;
+            }
+        }
+
+        public static readonly string SessionGUID;
+        public static readonly string UserGUID;
         public static string Remote_API = "";
 
-        private static ScreenSession _screenSession;
+        private static ScreenSession _rootScreenSession;
         private static readonly AnalyticsStats _analyticsStats;
         private static readonly MouseEventListener _mouseEventListener;
 
@@ -79,11 +93,9 @@ namespace mFramework.Analytics
             return jsonObject;
         }
 
-        public static void Init(Type[] viewToScreenSession)
+        public static void Init()
         {
             mGameEvents.InvokeEvent(AnalyticsEvents.INIT);
-            ScreenSession.ViewsTypes = viewToScreenSession;
-            _screenSession = new ScreenSession(mUI.BaseView, null);
         }
 
         private static void OnQuitEvent()
@@ -91,17 +103,16 @@ namespace mFramework.Analytics
             _mouseEventListener.Detach();
             _analyticsStats.Save();
 
-            foreach (var screenSession in _screenSession.DeepChild())
+            foreach (var screenSession in RootScreenSession.DeepChild())
             {
-                mCore.Log($"DeepChild update: {screenSession.AttachedView.GetType().Name}");
-
                 screenSession.Update();
             }
 
             var session = new JSONObject
             {
                 ["type"] = "screen_session",
-                ["rootScreenSession"] = _screenSession.Session
+                ["root"] = RootScreenSession.Session,
+                ["device_info"] = GetDeviceInfo()
             };
 
             AttachSessionInfo(session);
@@ -117,16 +128,6 @@ namespace mFramework.Analytics
         public static void SendJSON(JSONObject obj)
         {
             mCore.Log($"Send json: {obj.ToString()}");
-        }
-
-        public static void EventFromView(IView view, string key, string payload)
-        {
-            
-        }
-
-        public static void Flush()
-        {
-            
         }
 
         public static void SendEvent(string eventKey, object data)

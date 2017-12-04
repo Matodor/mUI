@@ -143,7 +143,7 @@ namespace mFramework
             return false;
         }
 
-        public T Find(Func<T, bool> predicate)
+        public T Find(Predicate<T> predicate)
         {
             var tmp = LastItem;
             while (tmp != null)

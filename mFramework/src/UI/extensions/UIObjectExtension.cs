@@ -5,6 +5,28 @@ namespace mFramework
 {
     public static class UIExtension
     {
+        public static bool DeepFind(this IUIObject obj, Predicate<IUIObject> predicate, out IUIObject value)
+        {
+            if (predicate(obj))
+            {
+                value = obj;
+                return true;
+            }
+
+            var tmp = obj.Childs.LastItem;
+            while (tmp != null)
+            {
+                if (tmp.Value.DeepFind(predicate, out value))
+                {
+                    return true;
+                }
+                tmp = tmp.Prev;
+            }
+
+            value = null;
+            return false;
+        }
+
         // views
         public static UIView ChildView(this IView view, Type viewType, params object[] @params)
         {
@@ -35,91 +57,91 @@ namespace mFramework
         }
 
         // components
-        public static UIContainer Container(this IUIObject IUIObject)
+        public static UIContainer Container(this IUIObject obj)
         {
-            return IUIObject.Component<UIContainer>(null);
+            return obj.Component<UIContainer>(null);
         }
 
-        public static UIRectAreaButton RectAreaButton(this IUIObject IUIObject, UIRectAreaButtonSettings settings)
+        public static UIRectAreaButton RectAreaButton(this IUIObject obj, UIRectAreaButtonSettings settings)
         {
-            return IUIObject.Component<UIRectAreaButton>(settings);
+            return obj.Component<UIRectAreaButton>(settings);
         }
 
-        public static UITextBox TextBox(this IUIObject IUIObject, UITextBoxSettings settings)
+        public static UITextBox TextBox(this IUIObject obj, UITextBoxSettings settings)
         {
-            return IUIObject.Component<UITextBox>(settings);
+            return obj.Component<UITextBox>(settings);
         }
 
-        public static UIPageSlider PageSlider(this IUIObject IUIObject, UISliderSettings settings)
+        public static UIPageSlider PageSlider(this IUIObject obj, UISliderSettings settings)
         {
-            return IUIObject.Component<UIPageSlider>(settings);
+            return obj.Component<UIPageSlider>(settings);
         }
 
-        public static UIMesh Mesh(this IUIObject IUIObject, UIMeshSettings settings)
+        public static UIMesh Mesh(this IUIObject obj, UIMeshSettings settings)
         {
-            return IUIObject.Component<UIMesh>(settings);
+            return obj.Component<UIMesh>(settings);
         }
 
-        public static UIButton Button(this IUIObject IUIObject, UIButtonSettings settings)
+        public static UIButton Button(this IUIObject obj, UIButtonSettings settings)
         {
-            return IUIObject.Component<UIButton>(settings);
+            return obj.Component<UIButton>(settings);
         }
         
-        public static UILabel Label(this IUIObject IUIObject, UILabelSettings settings)
+        public static UILabel Label(this IUIObject obj, UILabelSettings settings)
         {
-            return IUIObject.Component<UILabel>(settings);
+            return obj.Component<UILabel>(settings);
         }
         
-        public static UIRadioGroup RadioGroup(this IUIObject IUIObject, UIRadioGroupSettings settings)
+        public static UIRadioGroup RadioGroup(this IUIObject obj, UIRadioGroupSettings settings)
         {
-            return IUIObject.Component<UIRadioGroup>(settings);
+            return obj.Component<UIRadioGroup>(settings);
         }
         
-        public static UIScrollBar ScrollBar(this IUIObject IUIObject, UIScrollBarSettings settings)
+        public static UIScrollBar ScrollBar(this IUIObject obj, UIScrollBarSettings settings)
         {
-            return IUIObject.Component<UIScrollBar>(settings);
+            return obj.Component<UIScrollBar>(settings);
         }
         
-        public static UISlider Slider(this IUIObject IUIObject, UISliderSettings settings)
+        public static UISlider Slider(this IUIObject obj, UISliderSettings settings)
         {
-            return IUIObject.Component<UISlider>(settings);
+            return obj.Component<UISlider>(settings);
         }
         
-        public static UISprite Sprite(this IUIObject IUIObject, UISpriteSettings settings)
+        public static UISprite Sprite(this IUIObject obj, UISpriteSettings settings)
         {
-            return IUIObject.Component<UISprite>(settings);
+            return obj.Component<UISprite>(settings);
         }
         
-        public static UIToggle Toggle(this IUIObject IUIObject, UIToggleSettings settings)
+        public static UIToggle Toggle(this IUIObject obj, UIToggleSettings settings)
         {
-            return IUIObject.Component<UIToggle>(settings);
+            return obj.Component<UIToggle>(settings);
         }
 
         // animations
-        public static UIBezierQuadraticAnimation BezierQuadraticAnimation(this IUIObject IUIObject,
+        public static UIBezierQuadraticAnimation BezierQuadraticAnimation(this IUIObject obj,
             UIBezierQuadraticAnimationSettings settings)
         {
-            return IUIObject.Animation<UIBezierQuadraticAnimation>(settings);
+            return obj.Animation<UIBezierQuadraticAnimation>(settings);
         }
 
-        public static UIColorAnimation ColorAnimation(this IUIColored IUIObject, UIColorAnimationSettings settings)
+        public static UIColorAnimation ColorAnimation(this IUIColored obj, UIColorAnimationSettings settings)
         {
-            return IUIObject.Animation<UIColorAnimation>(settings);
+            return obj.Animation<UIColorAnimation>(settings);
         }
         
-        public static UILinearAnimation LinearAnimation(this IUIObject IUIObject, UILinearAnimationSettings settings)
+        public static UILinearAnimation LinearAnimation(this IUIObject obj, UILinearAnimationSettings settings)
         {
-            return IUIObject.Animation<UILinearAnimation>(settings);
+            return obj.Animation<UILinearAnimation>(settings);
         }
         
-        public static UIRotateAnimation RotateAnimation(this IUIObject IUIObject, UIRotateAnimationSettings settings)
+        public static UIRotateAnimation RotateAnimation(this IUIObject obj, UIRotateAnimationSettings settings)
         {
-            return IUIObject.Animation<UIRotateAnimation>(settings);
+            return obj.Animation<UIRotateAnimation>(settings);
         }
         
-        public static UIScaleAnimation ScaleAnimation(this IUIObject IUIObject, UIScaleAnimationSettings settings)
+        public static UIScaleAnimation ScaleAnimation(this IUIObject obj, UIScaleAnimationSettings settings)
         {
-            return IUIObject.Animation<UIScaleAnimation>(settings);
+            return obj.Animation<UIScaleAnimation>(settings);
         }
     }
 }

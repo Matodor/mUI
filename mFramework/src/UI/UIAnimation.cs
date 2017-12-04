@@ -141,17 +141,6 @@ namespace mFramework.UI
         {
             _animationEasingTime = EasingFunctions.GetValue(EasingType, 1f, _animationTime, 1f);
 
-            if (_animationTime >= 1 && Direction == UIAnimationDirection.FORWARD)
-            {
-                _animationEasingTime = 1f;
-                _animationTime = 1f;
-            }
-            else if (_animationTime <= 0 && Direction == UIAnimationDirection.BACKWARD)
-            {
-                _animationEasingTime = 0f;
-                _animationTime = 0f;
-            }
-
             if (forcibly || _animatedObject.IsShowing && _nextAnimationFrame <= Time.time)
             {
                 OnAnimate();

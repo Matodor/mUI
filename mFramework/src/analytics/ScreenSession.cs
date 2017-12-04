@@ -6,42 +6,37 @@ using SimpleJSON;
 
 namespace mFramework.Analytics
 {
-    internal class ScreenSession
+    public class ScreenSession
     {
-        public static Type[] ViewsTypes;
-        public static readonly Dictionary<ulong, ScreenSession> ScreenSessions;
-
-        public readonly JSONObject Session;
+        internal readonly JSONObject Session;
         public readonly DateTime AttachTime;
-        public readonly ScreenSession Parent;
+        internal readonly ScreenSession Parent;
         public readonly IView AttachedView;
 
         private readonly Dictionary<ulong, ScreenSession> _childs;
         private bool _lastVisible;
+        private bool _updatedBeforeQuit;
+
         private DateTime _lastHideAt;
         private TimeSpan _totalHide;
 
-        static ScreenSession()
-        {
-            ScreenSessions = new Dictionary<ulong, ScreenSession>();
-        }
-
-        public ScreenSession(IView view, ScreenSession parent)
+        internal ScreenSession(IView view, ScreenSession parent)
         {
             Parent = parent;
             AttachTime = DateTime.Now;
-            ScreenSessions.Add(view.GUID, this);
+            AttachedView = view;
 
             mCore.Log($"Attach ScreenSession: {view.GetType().Name}");
 
+            _updatedBeforeQuit = false;
             _childs = new Dictionary<ulong, ScreenSession>();
-            AttachedView = view;
             _lastVisible = view.IsShowing;
             _totalHide = TimeSpan.Zero;
 
             Session = new JSONObject
             {
                 ["view_name"] = view.GetType().Name,
+                ["created_at"] = DateTime.Now.ToString(""),
                 ["hidden_times"] = 0,
                 ["hidden_time"] = 0,
                 ["screen_lifetime"] = 0,
@@ -55,12 +50,16 @@ namespace mFramework.Analytics
                 Session["hidden_times"] = 1;
             }
 
-            parent?.Session["childs"].AsArray.Add(Session);
+            if (parent != null)
+            {
+                parent._childs.Add(view.GUID, this);
+                parent.Session["childs"].AsArray.Add(Session);
+
+                mCore.Log($"parent = {parent.AttachedView.GetType().Name} child={view.GetType().Name}");
+            }
 
             view.BeforeDestroy += ViewOnBeforeDestroy;
-            view.ChildObjectAdded += ObjOnChildObjectAdded;
             view.VisibleChanged += ViewOnVisibleChanged;
-            view.Childs.ForEach(RecursivelySetup);
         }
 
         public void Event(string key, JSONNode node)
@@ -69,15 +68,6 @@ namespace mFramework.Analytics
             {
                 ["key"] = key,
                 ["payload"] = node
-            });
-        }
-
-        public void Event(string key, string payload)
-        {
-            Session["events"].AsArray.Add(new JSONObject
-            {
-                ["key"] = key,
-                ["payload"] = payload
             });
         }
 
@@ -106,19 +96,22 @@ namespace mFramework.Analytics
             mCore.Log("~ScreenSession");
         }
 
-        public IEnumerable<ScreenSession> DeepChild()
+        internal IEnumerable<ScreenSession> DeepChild()
         {
-            foreach (var a in _childs.Values)
+            foreach (var a in _childs)
             {
-                foreach (var b in a.DeepChild())
+                foreach (var b in a.Value.DeepChild())
                     yield return b;
-                yield return a;
+                yield return a.Value;
             }
             yield return this;
         }
 
-        public void Update()
+        internal void Update()
         {
+            if (_updatedBeforeQuit)
+                return;
+            ;
             if (!_lastVisible && !AttachedView.IsShowing)
             {
                 _totalHide += DateTime.Now - _lastHideAt;
@@ -130,46 +123,61 @@ namespace mFramework.Analytics
 
         private void ViewOnBeforeDestroy(IUIObject sender)
         {
+            foreach (var screenSession in DeepChild())
+            {
+                screenSession.Update();
+                screenSession._updatedBeforeQuit = true;
+            }
+
             Parent?.RemoveChild(AttachedView.GUID);
 
             sender.BeforeDestroy -= ViewOnBeforeDestroy;
-            sender.ChildObjectAdded -= ObjOnChildObjectAdded;
             sender.VisibleChanged -= ViewOnVisibleChanged;
-
-            Update();
         }
 
+        /*
         private void ObjOnChildObjectAdded(IUIObject sender, IUIObject addedObj)
         {
             RecursivelySetup(addedObj);
         }
+        */
 
+        /*
         private void RecursivelySetup(IUIObject obj)
         {
             if (obj is IView view && 
                 ViewsTypes != null &&
-                ViewsTypes.Contains(obj.GetType()))
+                ViewsTypes.Contains(view.GetType()))
             {
-                _childs.Add(obj.GUID, new ScreenSession(view, this));
+                if (ChildTypes.TryGetValue(view.GetType(), out var parentType))
+                {
+                    var parent = ScreenSessions.Values.FirstOrDefault(s => s.AttachedView.GetType().Name == parentType.Name);
+                    _childs.Add(view.GUID, new ScreenSession(view, parent));
+                }
+                else
+                {
+                    _childs.Add(view.GUID, new ScreenSession(view, this));
+                }
             }
             else
             {
-                if (obj is IUIClickable clickable)
-                {
-                    clickable.UIClickable.CanMouseDown += UiClickableOnCanMouseDown;
-                }
+                //if (obj is IUIClickable clickable)
+                //{
+                //    clickable.UIClickable.CanMouseDown += UiClickableOnCanMouseDown;
+                //}
 
                 obj.ChildObjectAdded += ObjOnChildObjectAdded;
                 obj.Childs.ForEach(RecursivelySetup);
             }
         }
+        */
 
+        /*        
         private bool UiClickableOnCanMouseDown(IUIClickable uiClickable, MouseEvent e)
         {
             var obj = uiClickable as UIObject;
 
-            if (obj == null ||
-                !obj.IsActive ||
+            if (obj == null ||!obj.IsActive ||
                 !uiClickable.UIClickable.Area2D.InArea(mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos)))
             {
                 return true;
@@ -189,5 +197,6 @@ namespace mFramework.Analytics
 
             return true;
         }
+        */
     }
 }

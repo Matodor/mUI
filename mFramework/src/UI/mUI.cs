@@ -75,45 +75,26 @@ namespace mFramework.UI
         
         public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)
         {
-            IUIClickable @return = null;
-
-            bool FindPredicate(IUIObject obj)
-            {
-                if (obj is IUIClickable clickable &&
-                    clickable.UIClickable.Area2D.InArea(UICamera.ScreenToWorldPoint(e.MouseScreenPos)) &&
-                    predicate(obj))
-                {
-                    @return = clickable;
-                    return true;
-                }
-
-                @return = (IUIClickable)obj.Childs.Find(FindPredicate);
-                return false;
-            }
-
-            BaseView.Childs.Find(FindPredicate);
-            return @return;
+            var worldPos = UICamera.ScreenToWorldPoint(e.MouseScreenPos);
+            BaseView.DeepFind(o => 
+                o.IsActive && 
+                o is IUIClickable clickable &&
+                clickable.UIClickable.Area2D.InArea(worldPos) && predicate(o),
+                out var result
+            );
+            return result as IUIClickable;
         }
 
         public static IUIClickable GetClickableObject(MouseEvent e)
         {
-            IUIClickable @return = null;
-
-            bool FindPredicate(IUIObject obj)
-            {
-                if (obj is IUIClickable clickable &&
-                    clickable.UIClickable.Area2D.InArea(UICamera.ScreenToWorldPoint(e.MouseScreenPos)))
-                {
-                    @return = clickable;
-                    return true;
-                }
-
-                @return = (IUIClickable) obj.Childs.Find(FindPredicate);
-                return false;
-            }
-
-            BaseView.Childs.Find(FindPredicate);
-            return @return;
+            var worldPos = UICamera.ScreenToWorldPoint(e.MouseScreenPos);
+            BaseView.DeepFind(o => 
+                o.IsActive &&
+                o is IUIClickable clickable &&
+                clickable.UIClickable.Area2D.InArea(worldPos),
+                out var result
+            );
+            return result as IUIClickable;
         }
 
         public static UIFont GetFont(string font)
