@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 using mFramework.UI;
 using UnityEngine;
 
@@ -37,6 +39,10 @@ namespace mFramework
 
         private mCore()
         {
+            var newCultureDefinition = (CultureInfo)Thread.CurrentThread.CurrentCulture.Clone();
+            newCultureDefinition.NumberFormat.NumberDecimalSeparator = ".";
+            Thread.CurrentThread.CurrentCulture = newCultureDefinition;
+
             Behaviour = new GameObject("mFramework").AddComponent<mBehaviour>();
             Behaviour.transform.position = new Vector3(0, 0, 9999);
 

@@ -6,11 +6,12 @@ using SimpleJSON;
 
 namespace mFramework.Analytics
 {
-    public class ScreenSession
+    /*public class ScreenSession
     {
         internal readonly JSONObject Session;
-        public readonly DateTime AttachTime;
         internal readonly ScreenSession Parent;
+
+        public readonly DateTime AttachTime;
         public readonly IView AttachedView;
 
         private readonly Dictionary<ulong, ScreenSession> _childs;
@@ -198,5 +199,5 @@ namespace mFramework.Analytics
             return true;
         }
         */
-    }
+    /*}*/
 }

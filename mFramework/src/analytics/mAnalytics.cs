@@ -1,10 +1,6 @@
-﻿// TODO
-// ивенты последовательно, указывается ИД ивента
-// 
-
-using System;
+﻿using System;
+using System.Collections.Generic;
 using mFramework.GameEvents;
-using mFramework.UI;
 using SimpleJSON;
 using UnityEngine;
 
@@ -12,7 +8,7 @@ namespace mFramework.Analytics
 {
     public static class mAnalytics
     {
-        public static ScreenSession RootScreenSession
+        /*public static ScreenSession RootScreenSession
         {
             get
             {
@@ -20,13 +16,17 @@ namespace mFramework.Analytics
                     _rootScreenSession = new ScreenSession(mUI.BaseView, null);
                 return _rootScreenSession;
             }
-        }
+        }*/
 
         public static readonly string SessionGUID;
         public static readonly string UserGUID;
         public static string Remote_API = "";
 
-        private static ScreenSession _rootScreenSession;
+        private static readonly JSONArray _data = new JSONArray();
+
+        //private static ScreenSession _rootScreenSession;
+        private static JSONObject _analyticsData;
+        private static readonly DateTime _startSession;
         private static readonly AnalyticsStats _analyticsStats;
         private static readonly MouseEventListener _mouseEventListener;
 
@@ -34,16 +34,20 @@ namespace mFramework.Analytics
         {
             _analyticsStats = new AnalyticsStats();
             _analyticsStats.Load();
-            _mouseEventListener = MouseEventListener.Create();
-
+            
             UserGUID = _analyticsStats.GUID;
             SessionGUID = Guid.NewGuid().ToString();
+            
+            _mouseEventListener = MouseEventListener.Create();
+            _analyticsData = CreateAnalyticsData();
+            _analyticsData["device"] = GetDeviceInfo();
+            _startSession = DateTime.Now;
             
             mGameEvents.AttachEvent(new mGameEvents.Event(AnalyticsEvents.INIT)
             {
                 OnEvent = (s, e) =>
                 {
-                    mCore.Log($"[mAnalytics] Init (UserGUID={UserGUID})");
+                    mCore.Log($"[mAnalytics] Init UserGUID={UserGUID} SessionGUID={SessionGUID}");
                     mCore.Log($"[mAnalytics] DeviceInfo: {GetDeviceInfo().ToString()}");
 
                     if (s.EventCounter == 1)
@@ -51,9 +55,28 @@ namespace mFramework.Analytics
                         // send first open app event to analytics
                         // send device info   
                     }
-                } 
+
+                    CustomEvent("start_session");
+                }
             });
+
             mCore.ApplicationQuitEvent += OnQuitEvent;
+        }
+
+        public static void Flush()
+        {
+            _data.Add(_analyticsData);
+            _analyticsData = CreateAnalyticsData();
+        }
+
+        private static JSONObject CreateAnalyticsData()
+        {
+            return new JSONObject()
+            {
+                ["session_guid"] = SessionGUID,
+                ["user_guid"] = UserGUID,
+                ["events"] = new JSONArray()
+            };
         }
 
         public static JSONObject GetDeviceInfo()
@@ -98,47 +121,29 @@ namespace mFramework.Analytics
             mGameEvents.InvokeEvent(AnalyticsEvents.INIT);
         }
 
+        public static void CustomEvent(string eventName, JSONNode payload = null)
+        {
+            var e = new JSONObject
+            {
+                ["eventName"] = eventName,
+                ["time"] = (DateTime.Now - _startSession).TotalSeconds,
+                ["payload"] = payload
+            };
+            _analyticsData["events"].AsArray.Add(e);
+
+            if (_analyticsData["events"].Count >= 10)
+                Flush();
+        }
+
         private static void OnQuitEvent()
         {
             _mouseEventListener.Detach();
             _analyticsStats.Save();
 
-            foreach (var screenSession in RootScreenSession.DeepChild())
-            {
-                screenSession.Update();
-            }
+            CustomEvent("end_session");
+            Flush();
 
-            var session = new JSONObject
-            {
-                ["type"] = "screen_session",
-                ["root"] = RootScreenSession.Session,
-                ["device_info"] = GetDeviceInfo()
-            };
-
-            AttachSessionInfo(session);
-            SendJSON(session);
-        }
-
-        public static void AttachSessionInfo(JSONObject json)
-        {
-            json["session_guid"] = SessionGUID;
-            json["user_guid"] = UserGUID;
-        }
-
-        public static void SendJSON(JSONObject obj)
-        {
-            mCore.Log($"Send json: {obj.ToString()}");
-        }
-
-        public static void SendEvent(string eventKey, object data)
-        {
-            // post
-            // new WebClient().UploadValues(Remote_API, );
-        }
-
-        public static void SendEvent(string eventKey)
-        {
-            
+            mCore.Log(_data.ToString());
         }
     }
 }
