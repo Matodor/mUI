@@ -57,6 +57,7 @@ namespace mFramework.Analytics
                     }
 
                     CustomEvent("start_session");
+                    Flush();
                 }
             });
 
