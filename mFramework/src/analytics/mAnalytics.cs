@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using mFramework.GameEvents;
 using SimpleJSON;
 using UnityEngine;
@@ -18,8 +19,8 @@ namespace mFramework.Analytics
             }
         }*/
 
-        public static readonly string SessionGUID;
         public static readonly string UserGUID;
+        public static readonly string SessionGUID;
         public static string Remote_API = "";
 
         private static readonly JSONArray _data = new JSONArray();
@@ -29,9 +30,11 @@ namespace mFramework.Analytics
         private static readonly DateTime _startSession;
         private static readonly AnalyticsStats _analyticsStats;
         private static readonly MouseEventListener _mouseEventListener;
+        private static string[] _ignoreEvents;
 
         static mAnalytics()
         {
+            _ignoreEvents = new string[0];
             _analyticsStats = new AnalyticsStats();
             _analyticsStats.Load();
             
@@ -55,11 +58,11 @@ namespace mFramework.Analytics
                         // send first open app event to analytics
                         // send device info   
                     }
-
-                    CustomEvent("start_session");
-                    Flush();
                 }
             });
+
+            CustomEvent("start_session");
+            Flush();
 
             mCore.ApplicationQuitEvent += OnQuitEvent;
         }
@@ -105,6 +108,12 @@ namespace mFramework.Analytics
             jsonObject.AddField("sys", () => SystemInfo.graphicsDeviceVersion);
             jsonObject.AddField("sys", () => SystemInfo.graphicsMemorySize);
 
+            jsonObject.AddField("is", () => SystemInfo.supportsVibration);
+            jsonObject.AddField("is", () => SystemInfo.supportsGyroscope);
+            jsonObject.AddField("is", () => SystemInfo.supportsAccelerometer);
+            jsonObject.AddField("is", () => SystemInfo.supportsLocationService);
+            jsonObject.AddField("is", () => SystemInfo.supportsAudio);
+
             jsonObject.AddField("sys", () => SystemInfo.processorCount);
             jsonObject.AddField("sys", () => SystemInfo.processorFrequency);
             jsonObject.AddField("sys", () => SystemInfo.processorType);
@@ -124,10 +133,13 @@ namespace mFramework.Analytics
 
         public static void CustomEvent(string eventName, JSONNode payload = null)
         {
+            if (_ignoreEvents.Contains(eventName))
+                return;
+            
             var e = new JSONObject
             {
                 ["eventName"] = eventName,
-                ["time"] = (DateTime.Now - _startSession).TotalSeconds,
+                ["time"] = (DateTime.Now - _startSession).TotalSeconds.ToString("F2"),
                 ["payload"] = payload
             };
             _analyticsData["events"].AsArray.Add(e);
@@ -145,6 +157,7 @@ namespace mFramework.Analytics
             Flush();
 
             mCore.Log(_data.ToString());
+            mCore.ApplicationQuitEvent -= OnQuitEvent;
         }
     }
 }

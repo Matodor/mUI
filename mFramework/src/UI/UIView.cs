@@ -27,8 +27,7 @@ namespace mFramework.UI
 
     public abstract class UIView : UIObject, IView
     {
-        public ushort? StencilId => _stencilId ?? InternalParentView.StencilId;
-        public UIView ParentView => (UIView) Parent;
+        public ushort? StencilId => _stencilId ?? ParentView.StencilId;
 
         private float _height;
         private float _width;
@@ -40,20 +39,20 @@ namespace mFramework.UI
                 throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
-            view.SetupView(settings, (UIObject) parent, @params);
+            view.SetupView(settings, parent, @params);
             return view;
         }
 
         internal static T Create<T>(UIViewSettings settings, IView parent, params object[] @params) where T : UIView
         {
             var view = new GameObject(typeof(T).Name).AddComponent<T>();
-            view.SetupView(settings, (UIObject) parent, @params);
+            view.SetupView(settings, parent, @params);
             return view;
         }
         
-        private void SetupView(UIViewSettings settings, UIObject parent, object[] @params)
+        private void SetupView(UIViewSettings settings, IView parent, object[] @params)
         {
-            SetupParent(parent);
+            SetupParent((UIObject) parent);
             SetupSettings(settings, parent);
             InitCompleted();
             CreateInterface(@params);
@@ -66,7 +65,7 @@ namespace mFramework.UI
 
         protected abstract void CreateInterface(object[] @params);
 
-        protected virtual void SetupSettings(UIViewSettings settings, IUIObject parent)
+        protected virtual void SetupSettings(UIViewSettings settings, IView parent)
         {
             _stencilId = settings.StencilId;
             _height = settings.Height ?? parent.GetHeight();
@@ -92,14 +91,14 @@ namespace mFramework.UI
             }
         }
 
-        public float RelativeX(float x)
+        public float RelativeX(float t)
         {
-            return Position().x - GetWidth() / 2 + GetWidth() * mMath.Clamp(x, 0, 1);
+            return Position().x - GetWidth() / 2 + GetWidth() * mMath.Clamp(t, 0, 1);
         }
 
-        public float RelativeY(float y)
+        public float RelativeY(float t)
         {
-            return Position().y - GetHeight() / 2 + GetHeight() * mMath.Clamp(y, 0, 1);
+            return Position().y - GetHeight() / 2 + GetHeight() * mMath.Clamp(t, 0, 1);
         }
 
         public Vector2 RelativePos(float x, float y)

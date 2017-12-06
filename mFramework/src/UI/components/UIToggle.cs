@@ -126,14 +126,16 @@ namespace mFramework.UI
             return _uiSpriteRenderer.GetColor();
         }
 
-        public void SetColor(Color32 color)
+        public IUIColored SetColor(Color32 color)
         {
             _uiSpriteRenderer.SetColor(color);
+            return this;
         }
 
-        public void SetColor(UIColor color)
+        public IUIColored SetColor(UIColor color)
         {
             _uiSpriteRenderer.SetColor(color);
+            return this;
         }
 
         public void MouseDown(Vector2 worldPos)

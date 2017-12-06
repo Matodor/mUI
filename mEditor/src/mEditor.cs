@@ -46,15 +46,6 @@ namespace mFramework
         {
             _isLock = true;
             EditorApplication.LockReloadAssemblies();
-
-            foreach (var layer in UIStencilMaterials.Layers())
-            {
-                foreach (var textMaterial in layer.TextMaterials.Materials)
-                {
-                    textMaterial.Value.color = Color.white;
-                }
-            }
-
             mCore.Log("[mFramework]: LockReloadAssemblies");
         }
 

@@ -39,7 +39,7 @@ namespace mFramework.UI
             if (!(settings is UIMeshSettings meshSettings))
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
-            _meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0).SpritesMaterial;
+            _meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0).SpritesMaterial;
             
             if (meshSettings.Mesh != null)
                 _meshFilter.mesh = meshSettings.Mesh;

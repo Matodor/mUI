@@ -56,6 +56,7 @@ namespace mFramework.UI
         IUIObject Translate(float x, float y);
         IUIObject Translate(float x, float y, float z);
         IUIObject Translate(Vector2 translatePos);
+
         void OnSortingOrderChanged();
         void Tick();
         void FixedTick();

@@ -20,7 +20,7 @@ namespace mFramework.UI
         {
             Renderer = obj.gameObject.AddComponent<SpriteRenderer>();
             Renderer.sprite = settings.Sprite;
-            Renderer.sharedMaterial = UIStencilMaterials.GetOrCreate(obj.InternalParentView.StencilId ?? 0).SpritesMaterial;
+            Renderer.sharedMaterial = UIStencilMaterials.GetOrCreate(obj.ParentView.StencilId ?? 0).SpritesMaterial;
 
             if (settings.Color.HasValue)
                 SetColor(settings.Color.Value);

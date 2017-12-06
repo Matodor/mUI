@@ -1,12 +1,11 @@
 ﻿using System;
-using SimpleJSON;
 using UnityEngine;
 
 namespace mFramework.UI
 {
     public abstract class UIObject : MonoBehaviour, IUIObject
     {
-        internal IView InternalParentView { get; private set; }
+        public IView ParentView { get; private set; }
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
         public UnidirectionalList<IUIObject> Childs { get; private set; }
 
@@ -35,19 +34,15 @@ namespace mFramework.UI
         private static ulong _guid;
         private bool _destroyed;
 
-        protected UIObject()
-        {
-            
-        }
-
         protected virtual void Init()
         {
+            
         }
 
         internal void InitCompleted()
         {
             Parent?.AddChild(this);
-            SortingOrderChanged.Invoke(this);
+            SortingOrderChanged(this);
         }
 
         private void Awake()
@@ -73,9 +68,9 @@ namespace mFramework.UI
             Parent = parent;
 
             if (parent is IView parentView)
-                InternalParentView = parentView;
+                ParentView = parentView;
             else
-                InternalParentView = parent?.InternalParentView;
+                ParentView = parent?.ParentView;
 
             if (Parent == null)
             {
@@ -93,7 +88,7 @@ namespace mFramework.UI
                 return;
          
             _destroyed = true;
-            BeforeDestroy.Invoke(this);
+            BeforeDestroy(this);
 
             Childs.ForEach(c => c.Destroy());
             Childs.Clear();
@@ -112,14 +107,14 @@ namespace mFramework.UI
 
         private void OnEnable()
         {
-            VisibleChanged.Invoke(this);
-            ActiveChanged.Invoke(this);
+            VisibleChanged(this);
+            ActiveChanged(this);
         }
 
         private void OnDisable()
         {
-            VisibleChanged.Invoke(this);
-            ActiveChanged.Invoke(this);
+            VisibleChanged(this);
+            ActiveChanged(this);
         }
 
         internal void DestroyWithoutChecks()
@@ -227,7 +222,7 @@ namespace mFramework.UI
 
         public void OnSortingOrderChanged()
         {
-            SortingOrderChanged.Invoke(this);
+            SortingOrderChanged(this);
             Childs.ForEach(c => c.OnSortingOrderChanged());
         }
 
@@ -388,7 +383,7 @@ namespace mFramework.UI
             var uiAnimation = UIAnimation.Create<T>(this, settings);
 
             Animations.Add(uiAnimation);
-            AnimationAdded.Invoke(this, uiAnimation);
+            AnimationAdded(this, uiAnimation);
 
             return uiAnimation;
         }
@@ -402,14 +397,14 @@ namespace mFramework.UI
         {
             if (Childs.Remove(obj))
             {
-                ChildObjectRemoved.Invoke(this, obj);       
+                ChildObjectRemoved(this, obj);       
             }
         }
 
         private void AddChild(IUIObject obj)
         {
             Childs.Add(obj);
-            ChildObjectAdded.Invoke(this, obj);
+            ChildObjectAdded(this, obj);
         }
     }
 }

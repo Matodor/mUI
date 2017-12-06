@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public class UIPageSlider : UISlider
+    /*public class UIPageSlider : UISlider
     {
         public event UIEventHandler<UIPageSlider> PageChanged = delegate { };
 
@@ -266,40 +266,6 @@ namespace mFramework.UI
             _nextAnimation.AnimationEnded += anim =>
             {
                 _isAnimated = false;
-                /*UIObject afterNext = null;
-
-                if (_currentIndex + 2 < Childs.Count)
-                {
-                    afterNext = this[_currentIndex + 2];
-                }
-
-                if (_currentIndex - 2 >= 0)
-                {
-                    afterNext = this[_currentIndex - 2];
-                }
-
-                if (afterNext != null)
-                {
-                    afterNext.Show();
-
-                    if (_directionOfAddingSlides == DirectionOfAddingSlides.FORWARD)
-                    {
-                        afterNext.Position(new Vector2
-                        {
-                            x = Position().x + (Orientation == UIObjectOrientation.HORIZONTAL ? GetWidth() : 0f),
-                            y = Position().y + (Orientation == UIObjectOrientation.VERTICAL ? -GetHeight() : 0f)
-                        });
-                    }
-                    else
-                    {
-                        afterNext.Position(new Vector2
-                        {
-                            x = Position().x + (Orientation == UIObjectOrientation.HORIZONTAL ? -GetWidth() : 0f),
-                            y = Position().y + (Orientation == UIObjectOrientation.VERTICAL ? GetHeight() : 0f)
-                        });
-                    }
-                }
-                */
 
                 _currentIndex = toNext ? _currentIndex + 1 : _currentIndex - 1;
                 PageChanged.Invoke(this);
@@ -390,5 +356,5 @@ namespace mFramework.UI
             _diff += diff;
             Childs[_currentIndex].Translate(0, diff);
         }
-    }
+    }*/
 }

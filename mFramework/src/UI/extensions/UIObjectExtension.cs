@@ -72,10 +72,10 @@ namespace mFramework
             return obj.Component<UITextBox>(settings);
         }
 
-        public static UIPageSlider PageSlider(this IUIObject obj, UISliderSettings settings)
+        /*public static UIPageSlider PageSlider(this IUIObject obj, UISliderSettings settings)
         {
             return obj.Component<UIPageSlider>(settings);
-        }
+        }*/
 
         public static UIMesh Mesh(this IUIObject obj, UIMeshSettings settings)
         {
@@ -102,11 +102,16 @@ namespace mFramework
             return obj.Component<UIScrollBar>(settings);
         }
         
-        public static UISlider Slider(this IUIObject obj, UISliderSettings settings)
+        public static UIVerticalSlider VerticalSlider(this IUIObject obj, UISliderSettings settings)
         {
-            return obj.Component<UISlider>(settings);
+            return obj.Component<UIVerticalSlider>(settings);
         }
-        
+
+        public static UIHorizontalSlider HorizontalSlider(this IUIObject obj, UISliderSettings settings)
+        {
+            return obj.Component<UIHorizontalSlider>(settings);
+        }
+
         public static UISprite Sprite(this IUIObject obj, UISpriteSettings settings)
         {
             return obj.Component<UISprite>(settings);

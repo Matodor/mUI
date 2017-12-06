@@ -148,12 +148,12 @@ namespace mFramework.UI
             if (_cachedFont == null)
                 throw new Exception("Not fount font: " + labelSettings.Font);
 
-            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(InternalParentView.StencilId ?? 0)
+            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0)
                 .TextMaterials[labelSettings.Font];
 
             RequestCharactersInFont();
             UpdateMaterial(_cachedFont.Font);
-            CreateMesh();
+            CreateMesh(true);
             SetColor(_color);
 
             base.ApplySettings(settings);
@@ -431,9 +431,9 @@ namespace mFramework.UI
             return 0;
         }
 
-        internal void CreateMesh()
+        internal void CreateMesh(bool ignoreActive = false)
         {
-            if (!IsActive)
+            if (!ignoreActive && !IsActive)
             {
                 _needUpdate = true;
                 return;
@@ -739,10 +739,10 @@ namespace mFramework.UI
             return _color;
         }
 
-        public void SetColor(Color32 color)
+        public IUIColored SetColor(Color32 color)
         {
             if (_color == color)
-                return;
+                return this;
             _color = color;
 
             if (_textFormatting.Count > 0)
@@ -756,11 +756,12 @@ namespace mFramework.UI
                     colors[i] = color;
                 _meshFilter.mesh.colors = colors;
             }
+            return this;
         }
 
-        public void SetColor(UIColor color)
+        public IUIColored SetColor(UIColor color)
         {
-            SetColor(color.Color32);
+            return SetColor(color.Color32);
         }
     }
 }
