@@ -69,6 +69,9 @@ namespace mFramework.UI
 
         protected override bool CheckInnerSpace()
         {
+            if (Childs.Count == 0)
+                return false;
+
             var sliderRect = GetRect();
             UIRect leftItemRect, rightItemRect;
 
@@ -116,13 +119,10 @@ namespace mFramework.UI
         }
         private void HorizontalMove(float diff)
         {
-            if (Mathf.Abs(diff) < SLIDER_MIN_DIFF_TO_MOVE)
+            if (Childs.Count == 0 || Mathf.Abs(diff) < SLIDER_MIN_DIFF_TO_MOVE)
             {
                 return;
             }
-
-            if (Childs.Count == 0)
-                return;
 
             var sliderRect = GetRect();
             UIRect leftItemRect, rightItemRect;

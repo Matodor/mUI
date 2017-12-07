@@ -181,7 +181,7 @@ namespace mFramework.UI
 
         protected override void OnTick()
         {
-            if (IsPressed || CheckInnerSpace())
+            if (!IsActive || IsPressed || CheckInnerSpace())
             {
                 base.OnTick();
                 return;
