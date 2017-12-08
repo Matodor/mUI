@@ -15,11 +15,11 @@ namespace mFramework.UI
                 case LayoutElemsDirection.FORWARD:
                 {
                     if (Childs.Count <= 1)
-                        child.Position(rect.Left + child.GetWidth() / 2, rect.Position.y);
+                        child.Pos(rect.Left + child.GetWidth() / 2, rect.Position.y);
                     else
                     {
                         var last = Childs.LastItem.Prev.Value;
-                        child.Position(new Vector2
+                        child.Pos(new Vector2
                         {
                             x = last.GetRect().Right + child.GetWidth() / 2 + ElementsOffset,
                             y = rect.Position.y,
@@ -31,11 +31,11 @@ namespace mFramework.UI
                 case LayoutElemsDirection.BACKWARD:
                 {
                     if (Childs.Count <= 1)
-                        child.Position(rect.Right - child.GetWidth() / 2, rect.Position.y);
+                        child.Pos(rect.Right - child.GetWidth() / 2, rect.Position.y);
                     else
                     {
                         var last = Childs.LastItem.Prev.Value;
-                        child.Position(new Vector2
+                        child.Pos(new Vector2
                         {
                             x = last.GetRect().Left - child.GetWidth() / 2 - ElementsOffset,
                             y = rect.Position.y,

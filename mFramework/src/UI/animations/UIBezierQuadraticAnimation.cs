@@ -38,7 +38,7 @@ namespace mFramework.UI
         protected override void OnAnimate()
         {
             var newPos = BezierHelper.Quadratic(CurrentEasingTime, _firstPoint, _secondPoint, _thirdPoint);
-            AnimatedObject.Position(newPos);
+            AnimatedObject.Pos(newPos);
         }
     }
 }

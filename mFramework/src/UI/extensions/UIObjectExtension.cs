@@ -27,7 +27,7 @@ namespace mFramework
             return false;
         }
 
-        // views
+        #region Views
         public static UIView ChildView(this IView view, Type viewType, params object[] @params)
         {
             return ChildView(view, viewType, new UIViewSettings
@@ -42,7 +42,7 @@ namespace mFramework
             return UIView.Create(viewType, settings, view, @params);
         }
 
-        public static T ChildView<T>(this IView view, params object[] @params) where T : UIView, new()
+        public static T ChildView<T>(this IView view, params object[] @params) where T : UIView
         {
             return ChildView<T>(view, new UIViewSettings
             {
@@ -51,15 +51,16 @@ namespace mFramework
             }, @params);
         }
 
-        public static T ChildView<T>(this IView view, UIViewSettings settings, params object[] @params) where T : UIView, new()
+        public static T ChildView<T>(this IView view, UIViewSettings settings, params object[] @params) where T : UIView
         {
             return UIView.Create<T>(settings, view, @params);
         }
+        #endregion
 
-        // components
-        public static UIContainer Container(this IUIObject obj)
+        #region Components
+        public static UIContainer Container(this IUIObject obj, UIContainerSettings settings)
         {
-            return obj.Component<UIContainer>(null);
+            return obj.Component<UIContainer>(settings);
         }
 
         public static UIRectAreaButton RectAreaButton(this IUIObject obj, UIRectAreaButtonSettings settings)
@@ -121,8 +122,9 @@ namespace mFramework
         {
             return obj.Component<UIToggle>(settings);
         }
+        #endregion
 
-        // animations
+        #region Animations
         public static UIBezierQuadraticAnimation BezierQuadraticAnimation(this IUIObject obj,
             UIBezierQuadraticAnimationSettings settings)
         {
@@ -148,5 +150,6 @@ namespace mFramework
         {
             return obj.Animation<UIScaleAnimation>(settings);
         }
+        #endregion
     }
 }

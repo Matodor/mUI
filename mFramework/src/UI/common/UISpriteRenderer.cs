@@ -87,7 +87,7 @@ namespace mFramework.UI
 
         public UIRect GetRect()
         {
-            var pos = _object.Position();
+            var pos = _object.Pos();
             var scale = _object.GlobalScale();
             var scaledHeightDiv2 = GetHeight() / 2f;
             var scaledWidthDiv2 = GetWidth() / 2f;

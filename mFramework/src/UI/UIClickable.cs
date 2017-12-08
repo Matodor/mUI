@@ -28,7 +28,7 @@ namespace mFramework.UI
             Area2D = area2d;
             Area2D.Update += area =>
             {
-                area.Center = _uiObject.Position();
+                area.Center = _uiObject.Pos();
                 area.Rotation = _uiObject.Rotation();
             };
         }

@@ -45,7 +45,7 @@ namespace mFramework.UI
             SortingOrderChanged(this);
         }
 
-        private void Awake()
+        internal void Awake()
         {
             gameObject = base.gameObject;
             transform = base.transform;
@@ -138,7 +138,7 @@ namespace mFramework.UI
 
         public virtual UIRect GetRect()
         {
-            var pos = Position();
+            var pos = Pos();
             var scaledHeightDiv2 = GetHeight() / 2f;
             var scaledWidthDiv2 = GetWidth() / 2f;
 
@@ -254,46 +254,112 @@ namespace mFramework.UI
             return transform.lossyScale;
         }
 
-        public IUIObject PositionX(float x)
+        public Vector2 LocalTranslatedY(float y)
         {
-            Position(x, Position().y);
+            return LocalTranslated(transform.localPosition.x, y);
+        }
+
+        public Vector2 LocalTranslatedX(float x)
+        {
+            return LocalTranslated(x, transform.localPosition.y);
+        }
+
+        public Vector2 LocalTranslated(Vector2 vec)
+        {
+            return LocalTranslated(vec.x, vec.y);
+        }
+
+        public Vector2 LocalTranslated(float x, float y)
+        {
+            return new Vector2(
+                transform.localPosition.x + x,
+                transform.localPosition.y + y
+            );
+        }
+
+        public IUIObject LocalPosX(float x)
+        {
+            LocalPos(x, transform.localPosition.y);
             return this;
         }
 
-        public IUIObject PositionY(float y)
+        public IUIObject LocalPosY(float y)
         {
-            Position(Position().x, y);
+            LocalPos(transform.localPosition.x, y);
             return this;
         }
 
-        public IUIObject Position(float x, float y)
-        {
-            transform.position = new Vector3(x, y, transform.position.z);
-            return this;
-        }
-
-        public IUIObject LocalPosition(float x, float y)
+        public IUIObject LocalPos(float x, float y)
         {
             transform.localPosition = new Vector3(x, y, transform.localPosition.z);
             return this;
         }
 
-        public IUIObject LocalPosition(Vector2 position)
+        public IUIObject LocalPos(Vector2 position)
         {
-            return LocalPosition(position.x, position.y);
+            LocalPos(position.x, position.y);
+            return this;
         }
 
-        public Vector2 LocalPosition()
+        public Vector2 LocalPos()
         {
             return transform.localPosition;
         }
 
-        public IUIObject Position(Vector2 position)
+        public Vector2 TranslatedY(float y)
         {
-            return Position(position.x, position.y);
+            return new Vector2(
+                transform.position.x,
+                transform.position.y + y
+            );
         }
 
-        public Vector2 Position()
+        public Vector2 TranslatedX(float x)
+        {
+            return new Vector2(
+                transform.position.x + x,
+                transform.position.y
+            );
+        }
+
+        public Vector2 Translated(Vector2 vec)
+        {
+            return Translated(vec.x, vec.y);
+        }
+
+        public Vector2 Translated(float x, float y)
+        {
+            return new Vector2(
+                transform.position.x + x,
+                transform.position.y + y
+            );
+        }
+
+        public IUIObject PosX(float x)
+        {
+            Pos(x, transform.position.y);
+            return this;
+        }
+
+        public IUIObject PosY(float y)
+        {
+            Pos(transform.position.x, y);
+            return this;
+        }
+
+        public IUIObject Pos(float x, float y)
+        {
+            transform.position = new Vector3(x, y, transform.position.z);
+            return this;
+        }
+
+        public IUIObject Pos(Vector2 position)
+        {
+            Pos(position.x, position.y);
+            return this;
+        }
+
+        public Vector2 Pos()
         {
             return transform.position;
         }
@@ -340,9 +406,6 @@ namespace mFramework.UI
                     a.Tick();
             });
 
-            if (!IsActive)
-                return;
-
             OnTick();
             Childs.ForEach(c => c.Tick());
         }
@@ -353,9 +416,6 @@ namespace mFramework.UI
 
         public void FixedTick()
         {
-            if (!IsActive)
-                return;
-
             OnFixedTick();
             Childs.ForEach(c => c.FixedTick());
         }
@@ -366,9 +426,6 @@ namespace mFramework.UI
 
         public void LateTick()
         {
-            if (!IsActive)
-                return;
-
             OnLateTick();
             Childs.ForEach(c => c.LateTick());
         }

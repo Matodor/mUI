@@ -817,15 +817,15 @@ namespace SimpleJSON
         {
             get
             {
-                foreach (JSONNode N in m_List)
-                    yield return N;
+                for (var i = 0; i < m_List.Count; i++)
+                    yield return m_List[i];
             }
         }
 
         public IEnumerator GetEnumerator()
         {
-            foreach (JSONNode N in m_List)
-                yield return N;
+            for (var i = 0; i < m_List.Count; i++)
+                yield return m_List[i];
         }
 
         public override void Serialize(System.IO.BinaryWriter aWriter)

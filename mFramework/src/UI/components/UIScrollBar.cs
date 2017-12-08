@@ -137,9 +137,9 @@ namespace mFramework.UI
             if (prevValue != _value)
             {
                 if (_orientation == UIObjectOrientation.HORIZONTAL)
-                    _barButton.Position(GetPointPos(_value01), _barButton.Position().y);
+                    _barButton.PosX(GetPointPos(_value01));
                 else if (_orientation == UIObjectOrientation.VERTICAL)
-                    _barButton.Position(_barButton.Position().x, GetPointPos(_value01));
+                    _barButton.PosY(GetPointPos(_value01));
                 ValueChanged.Invoke(this);
             }
         }

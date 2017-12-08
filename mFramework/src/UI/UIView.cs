@@ -72,7 +72,7 @@ namespace mFramework.UI
             _width = settings.Width ?? parent.GetWidth();
 
             if (settings.DefaultPos.HasValue)
-                Position(settings.DefaultPos.Value);
+                Pos(settings.DefaultPos.Value);
 
             if (settings.SortingOrder.HasValue)
                 SortingOrder(settings.SortingOrder.Value);
@@ -93,12 +93,12 @@ namespace mFramework.UI
 
         public float RelativeX(float t)
         {
-            return Position().x - GetWidth() / 2 + GetWidth() * mMath.Clamp(t, 0, 1);
+            return Pos().x - GetWidth() / 2 + GetWidth() * mMath.Clamp(t, 0, 1);
         }
 
         public float RelativeY(float t)
         {
-            return Position().y - GetHeight() / 2 + GetHeight() * mMath.Clamp(t, 0, 1);
+            return Pos().y - GetHeight() / 2 + GetHeight() * mMath.Clamp(t, 0, 1);
         }
 
         public Vector2 RelativePos(float x, float y)

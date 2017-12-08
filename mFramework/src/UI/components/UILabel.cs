@@ -40,27 +40,25 @@ namespace mFramework.UI
     {
         public const float DEFAULT_HARSHNESS = 2;
 
+        public TextFormatting this[int index] => _textFormatting[index];
         public Renderer UIRenderer { get; private set; }
-        public string Text => _cachedText;
-        public int Size => _fontSize;
+
+        public string Text { get; private set; }
+        public int Size { get; private set; } = 50;
+        public TextAlignment TextAlignment { get; private set; }
+        public TextAnchor TextAnchor { get; private set; }
+        public FontStyle FontStyle { get; private set; }
+        public float LetterSpacing { get; private set; } = 1f;
+        public float WordSpacing { get; private set; } = 1f;
+        public float LinesSpacing { get; private set; } = 1f;
+
         public event UIEventHandler<UILabel> TextUpdated = delegate { };
 
         private UIFont _cachedFont;
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
 
-        private string _cachedText;
-
-        private int _fontSize = 50;
-        private float _letterSpacing = 1;
-        private float _wordSpacing = 1;
-        private float _linesSpacing = 1f;
-
         private float? _maxWidth = null;
-        private TextAlignment _textAlignment;
-        private TextAnchor? _textAnchor;
-        private VerticalAlign _verticalAlign;
-        private FontStyle _fontStyle;
         private Color _color;
 
         private bool _needUpdate;
@@ -96,7 +94,7 @@ namespace mFramework.UI
                 if (IsActive && _needUpdate)
                 {
                     _needUpdate = false;
-                    CreateMesh();
+                    UpdateMesh();
                 }
             };
 
@@ -123,26 +121,30 @@ namespace mFramework.UI
             BeforeDestroy += s => Font.textureRebuilt -= FontRebuilt;
             
             _maxWidth = labelSettings.MaxWidth;
-            _cachedText = labelSettings.Text;
-            _fontSize = labelSettings.Size;
-            _textAnchor = labelSettings.TextAnchor;
-            _color = labelSettings.Color.Color32;
-            _fontStyle = labelSettings.FontStyle;
-            _textAlignment = labelSettings.TextAlignment;
-            _letterSpacing = labelSettings.LetterSpacing;
-            _wordSpacing = labelSettings.WordSpacing;
-            _linesSpacing = labelSettings.LinesSpacing;
+            Text = labelSettings.Text;
+            Size = labelSettings.Size;
 
-            if (_textAnchor == null)
+            if (labelSettings.TextAnchor == null)
             {
-                if (_textAlignment == TextAlignment.Left)
-                    _textAnchor = TextAnchor.LowerLeft;
-                else if (_textAlignment == TextAlignment.Center)
-                    _textAnchor = TextAnchor.LowerCenter;
-                else if (_textAlignment == TextAlignment.Right)
-                    _textAnchor = TextAnchor.LowerRight;
+                if (TextAlignment == TextAlignment.Left)
+                    TextAnchor = TextAnchor.LowerLeft;
+                else if (TextAlignment == TextAlignment.Center)
+                    TextAnchor = TextAnchor.LowerCenter;
+                else if (TextAlignment == TextAlignment.Right)
+                    TextAnchor = TextAnchor.LowerRight;
+            }
+            else
+            {
+                TextAnchor = labelSettings.TextAnchor.Value;
             }
 
+            _color = labelSettings.Color.Color32;
+            FontStyle = labelSettings.FontStyle;
+            TextAlignment = labelSettings.TextAlignment;
+            LetterSpacing = labelSettings.LetterSpacing;
+            WordSpacing = labelSettings.WordSpacing;
+            LinesSpacing = labelSettings.LinesSpacing;
+            
             _cachedFont = mUI.GetFont(labelSettings.Font);
 
             if (_cachedFont == null)
@@ -153,7 +155,7 @@ namespace mFramework.UI
 
             RequestCharactersInFont();
             UpdateMaterial(_cachedFont.Font);
-            CreateMesh(true);
+            UpdateMesh(true);
             SetColor(_color);
 
             base.ApplySettings(settings);
@@ -165,14 +167,14 @@ namespace mFramework.UI
             {
                 RequestCharactersInFont();
                 UpdateMaterial(font);
-                CreateMesh();
+                UpdateMesh();
             }
         }
 
         private void RequestCharactersInFont()
         {
             var formattingIndex = -1;
-            var text = _cachedText
+            var text = Text
                 .Replace('\t', ' ')
                 .TrimStart('\n');
             
@@ -195,34 +197,34 @@ namespace mFramework.UI
                     if (formattingIndex != -1 && _textFormatting.ContainsKey(formattingIndex))
                     {
                         var currentFormatting = _textFormatting[formattingIndex];
-                        size = (int)(currentFormatting.Size.GetValueOrDefault(_fontSize) * _cachedFont.Harshness);
+                        size = (int)(currentFormatting.Size.GetValueOrDefault(Size) * _cachedFont.Harshness);
 
                         if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, out characterInfo,
-                            size, currentFormatting.FontStyle.GetValueOrDefault(_fontStyle)))
+                            size, currentFormatting.FontStyle.GetValueOrDefault(FontStyle)))
                         {
                             _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(),
-                                size, currentFormatting.FontStyle.GetValueOrDefault(_fontStyle));
+                                size, currentFormatting.FontStyle.GetValueOrDefault(FontStyle));
                         }
                     }
                     else
                     {
-                        size = (int)(_fontSize * _cachedFont.Harshness);
+                        size = (int)(Size * _cachedFont.Harshness);
 
                         if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
-                            out characterInfo, size, _fontStyle))
+                            out characterInfo, size, FontStyle))
                         {
-                            _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), size, _fontStyle);
+                            _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), size, FontStyle);
                         }
                     }
                 }
                 else
                 {
-                    size = (int)(_fontSize * _cachedFont.Harshness);
+                    size = (int)(Size * _cachedFont.Harshness);
 
                     if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
-                        out characterInfo, size, _fontStyle))
+                        out characterInfo, size, FontStyle))
                     {
-                        _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), size, _fontStyle);
+                        _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), size, FontStyle);
                     }
                 }
             }
@@ -230,74 +232,97 @@ namespace mFramework.UI
 
         public UILabel SetFontStyle(FontStyle fontStyle, bool updateMesh = true)
         {
-            if (_fontStyle != fontStyle)
+            if (FontStyle != fontStyle)
             {
-                _fontStyle = fontStyle;
+                FontStyle = fontStyle;
                 RequestCharactersInFont();
 
                 if (updateMesh)
-                    CreateMesh();
+                    UpdateMesh();
             }
             return this;
         }
 
-        public UILabel SetVerticalAlign(VerticalAlign align, bool updateMesh = true)
+        public UILabel SetLinesSpacing(float spacing, bool updateMesh = true)
         {
-            if (_verticalAlign != align)
+            if (Math.Abs(LinesSpacing - spacing) > 0.001f)
             {
-                _verticalAlign = align;
+                LinesSpacing = spacing;
                 if (updateMesh)
-                    CreateMesh();
+                    UpdateMesh();
+            }
+            return this;
+        }
+
+        public UILabel SetWordSpacing(float spacing, bool updateMesh = true)
+        {
+            if (Math.Abs(WordSpacing - spacing) > 0.001f)
+            {
+                WordSpacing = spacing;
+                if (updateMesh)
+                    UpdateMesh();
             }
             return this;
         }
 
         public UILabel SetLetterSpacing(float spacing, bool updateMesh = true)
         {
-            if (Math.Abs(_letterSpacing - spacing) > 0.001f)
+            if (Math.Abs(LetterSpacing - spacing) > 0.001f)
             {
-                _letterSpacing = spacing;
+                LetterSpacing = spacing;
                 if (updateMesh)
-                    CreateMesh();
+                    UpdateMesh();
             }
             return this;
         }
 
         public UILabel SetFontSize(int size, bool updateMesh = true)
         {
-            if (_fontSize != size)
+            if (Size != size)
             {
-                _fontSize = size;
+                Size = size;
                 RequestCharactersInFont();
                 
                 if (updateMesh)
-                    CreateMesh();
+                    UpdateMesh();
+            }
+            return this;
+        }
+
+        public UILabel SetTextAnchor(TextAnchor anchor, bool updateMesh = true)
+        {
+            if (TextAnchor != anchor)
+            {
+                TextAnchor = anchor;
+
+                if (updateMesh)
+                    UpdateMesh();
             }
             return this;
         }
 
         public UILabel SetTextAlignment(TextAlignment alignment, bool updateMesh = true)
         {
-            if (_textAlignment != alignment)
+            if (TextAlignment != alignment)
             {
-                _textAlignment = alignment;
+                TextAlignment = alignment;
 
                 if (updateMesh)
-                    CreateMesh();
+                    UpdateMesh();
             }
             return this;
         }
 
         public UILabel SetText(string text, bool updateMesh = true)
         {
-            if (text == null || _cachedText == text)
+            if (text == null || Text == text)
                 return this;
 
-            _cachedText = text;
+            Text = text;
             RequestCharactersInFont();
 
             if (updateMesh)
-                CreateMesh();
+                UpdateMesh();
             return this;
         }
 
@@ -311,17 +336,17 @@ namespace mFramework.UI
         public UILabel TextFormatting(int index, TextFormatting formatting)
         {
             if (formatting.Size == null)
-                formatting.Size = _fontSize;
+                formatting.Size = Size;
             if (formatting.Color == null)
                 formatting.Color = _color;
             if (formatting.LetterSpacing == null)
-                formatting.LetterSpacing = _letterSpacing;
+                formatting.LetterSpacing = LetterSpacing;
             if (formatting.WordSpacing == null)
-                formatting.WordSpacing = _wordSpacing;
+                formatting.WordSpacing = WordSpacing;
             if (formatting.FontStyle == null)
-                formatting.FontStyle = _fontStyle;
+                formatting.FontStyle = FontStyle;
             if (formatting.LinesSpacing == null)
-                formatting.LinesSpacing = _linesSpacing;
+                formatting.LinesSpacing = LinesSpacing;
 
             if (_textFormatting.ContainsKey(index))
                 _textFormatting[index] = formatting;
@@ -329,7 +354,7 @@ namespace mFramework.UI
                 _textFormatting.Add(index, formatting);
 
             RequestCharactersInFont();
-            CreateMesh();
+            UpdateMesh();
             return this;
         }
 
@@ -431,7 +456,7 @@ namespace mFramework.UI
             return 0;
         }
 
-        internal void CreateMesh(bool ignoreActive = false)
+        public void UpdateMesh(bool ignoreActive = false)
         {
             if (!ignoreActive && !IsActive)
             {
@@ -439,18 +464,18 @@ namespace mFramework.UI
                 return;
             }
 
-            if (string.IsNullOrEmpty(_cachedText))
+            if (string.IsNullOrEmpty(Text))
                 return;
 
             const int maxSize = 256 / 2;
             const float pixelsPerWorldUnit = 100f;
             
-            _fontSize = mMath.Clamp(_fontSize, 1, maxSize);
+            Size = mMath.Clamp(Size, 1, maxSize);
 
             var localScale = LocalScale();
             Scale(1, 1);
 
-            var text = _cachedText
+            var text = Text
                 .Replace('\t', ' ')
                 .TrimStart('\n');
 
@@ -504,10 +529,10 @@ namespace mFramework.UI
                     if (formattingIndex != -1 && _textFormatting.ContainsKey(formattingIndex))
                     {
                         currentFormatting = _textFormatting[formattingIndex];
-                        size = (int) (currentFormatting.Size.GetValueOrDefault(_fontSize) * _cachedFont.Harshness);
+                        size = (int) (currentFormatting.Size.GetValueOrDefault(Size) * _cachedFont.Harshness);
 
                         if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, out characterInfo,
-                            size, currentFormatting.FontStyle.GetValueOrDefault(_fontStyle)))
+                            size, currentFormatting.FontStyle.GetValueOrDefault(FontStyle)))
                         {
                             continue;
                         }
@@ -515,10 +540,10 @@ namespace mFramework.UI
                     else
                     {
                         currentFormatting = null;
-                        size = (int) (_fontSize * _cachedFont.Harshness);
+                        size = (int) (Size * _cachedFont.Harshness);
 
                         if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
-                            out characterInfo, size, _fontStyle))
+                            out characterInfo, size, FontStyle))
                         {
                             continue;
                         }
@@ -526,10 +551,10 @@ namespace mFramework.UI
                 }
                 else
                 {
-                    size = (int) (_fontSize * _cachedFont.Harshness);
+                    size = (int) (Size * _cachedFont.Harshness);
 
                     if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, 
-                        out characterInfo, size, _fontStyle))
+                        out characterInfo, size, FontStyle))
                         continue;
                 }
 
@@ -564,15 +589,15 @@ namespace mFramework.UI
                 {
                     textXOffset += characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness *
                                    (currentFormatting == null
-                                       ? _wordSpacing
-                                       : currentFormatting.WordSpacing.GetValueOrDefault(_wordSpacing));
+                                       ? WordSpacing
+                                       : currentFormatting.WordSpacing.GetValueOrDefault(WordSpacing));
                 }
                 else
                 {
                     textXOffset += characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness *
                                    (currentFormatting == null
-                                       ? _letterSpacing
-                                       : currentFormatting.LetterSpacing.GetValueOrDefault(_letterSpacing));
+                                       ? LetterSpacing
+                                       : currentFormatting.LetterSpacing.GetValueOrDefault(LetterSpacing));
                 }
 
                 if (pureLineHeight < verticesList[verticesList.Count - 2].y - verticesList[verticesList.Count - 1].y)
@@ -612,8 +637,8 @@ namespace mFramework.UI
                     if (lines > 1)
                     {
                         lineHeight = lineHeight * (currentFormatting == null
-                                            ? _linesSpacing
-                                            : currentFormatting.LinesSpacing.GetValueOrDefault(_linesSpacing));
+                                            ? LinesSpacing
+                                            : currentFormatting.LinesSpacing.GetValueOrDefault(LinesSpacing));
                         textYOffset -= lineHeight;
                     }
                     else
@@ -623,7 +648,7 @@ namespace mFramework.UI
 
                     AlignVertices(
                         vertices: verticesList,
-                        alignment: _textAlignment,
+                        alignment: TextAlignment,
                         startIndex: startLineIndex,
                         endIndex: verticesList.Count - 1,
                         lineWidth: lineWidth,
@@ -640,58 +665,52 @@ namespace mFramework.UI
             _textHeight = _top - _bottom;
             _textWidth = _right - _left;
 
-            if (_textAnchor != null)
+            var _anchorOffset = new Vector2(0, 0);
+
+            switch (TextAnchor)
             {
-                var _anchorOffset = new Vector2(0, 0);
+                case TextAnchor.UpperLeft:
+                    _anchorOffset = new Vector2(_textWidth / 2, -_textHeight / 2);
+                    break;
+                case TextAnchor.UpperCenter:
+                    _anchorOffset = new Vector2(0, -_textHeight / 2);
+                    break;
+                case TextAnchor.UpperRight:
+                    _anchorOffset = new Vector2(-_textWidth / 2, -_textHeight / 2);
+                    break;
 
-                switch (_textAnchor)
-                {
-                    case TextAnchor.UpperLeft:
-                        _anchorOffset = new Vector2(_textWidth / 2, -_textHeight / 2);
-                        break;
-                    case TextAnchor.UpperCenter:
-                        _anchorOffset = new Vector2(0, -_textHeight / 2);
-                        break;
-                    case TextAnchor.UpperRight:
-                        _anchorOffset = new Vector2(-_textWidth / 2, -_textHeight / 2);
-                        break;
+                case TextAnchor.MiddleLeft:
+                    _anchorOffset = new Vector2(_textWidth / 2, 0);
+                    break;
+                case TextAnchor.MiddleCenter:
+                    _anchorOffset = new Vector2(0, 0);
+                    break;
+                case TextAnchor.MiddleRight:
+                    _anchorOffset = new Vector2(-_textWidth / 2, 0);
+                    break;
 
-                    case TextAnchor.MiddleLeft:
-                        _anchorOffset = new Vector2(_textWidth / 2, 0);
-                        break;
-                    case TextAnchor.MiddleCenter:
-                        _anchorOffset = new Vector2(0, 0);
-                        break;
-                    case TextAnchor.MiddleRight:
-                        _anchorOffset = new Vector2(-_textWidth / 2, 0);
-                        break;
+                case TextAnchor.LowerLeft:
+                    _anchorOffset = new Vector2(_textWidth / 2, _textHeight / 2);
+                    break;
+                case TextAnchor.LowerCenter:
+                    _anchorOffset = new Vector2(0, _textHeight / 2);
+                    break;
+                case TextAnchor.LowerRight:
+                    _anchorOffset = new Vector2(-_textWidth / 2, _textHeight / 2);
+                    break;
+            }
 
-                    case TextAnchor.LowerLeft:
-                        _anchorOffset = new Vector2(_textWidth / 2, _textHeight / 2);
-                        break;
-                    case TextAnchor.LowerCenter:
-                        _anchorOffset = new Vector2(0, _textHeight / 2);
-                        break;
-                    case TextAnchor.LowerRight:
-                        _anchorOffset = new Vector2(-_textWidth / 2, _textHeight / 2);
-                        break;
-                }
-                
-                //mCore.Log("_left = {0}", _left);
-                //mCore.Log("_right = {0}", _right);
+            var xDiff = -_left - _textWidth / 2 + _anchorOffset.x;
+            var yDiff = _textHeight / 2 + _anchorOffset.y;
 
-                var xDiff = -_left - _textWidth / 2 + _anchorOffset.x;
-                var yDiff = _textHeight / 2 + _anchorOffset.y;
-
-                for (int i = 0; i < verticesList.Count; i++)
-                {
-                    verticesList[i] = new Vector3(
-                        verticesList[i].x + xDiff,
-                        verticesList[i].y + yDiff,
-                        verticesList[i].z
-                    );
-                    CheckBoundingBox(verticesList[i].x, verticesList[i].y);
-                }
+            for (int i = 0; i < verticesList.Count; i++)
+            {
+                verticesList[i] = new Vector3(
+                    verticesList[i].x + xDiff,
+                    verticesList[i].y + yDiff,
+                    verticesList[i].z
+                );
+                CheckBoundingBox(verticesList[i].x, verticesList[i].y);
             }
 
             _meshFilter.mesh.Clear();
@@ -701,17 +720,13 @@ namespace mFramework.UI
             _meshFilter.mesh.normals = normalsList.ToArray();
             _meshFilter.mesh.uv = uvList.ToArray();
 
-            //_meshRenderer.sharedMaterial.SetTexture("_MainTex", _cachedFont.Font.material.mainTexture);
-            //_meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", _cachedFont.Font.material.mainTextureOffset);
-            //_meshRenderer.sharedMaterial.SetTextureScale("_MainTex", _cachedFont.Font.material.mainTextureScale);
-
             Scale(localScale);
             TextUpdated.Invoke(this);
         }
 
         public override UIRect GetRect()
         {
-            var pos = Position();
+            var pos = Pos();
             var scale = GlobalScale();
 
             return new UIRect
@@ -747,7 +762,7 @@ namespace mFramework.UI
 
             if (_textFormatting.Count > 0)
             {
-                CreateMesh();
+                UpdateMesh();
             }
             else
             {

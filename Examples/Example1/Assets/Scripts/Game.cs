@@ -1,30 +1,43 @@
-﻿using Assets.Scripts.Views;
-using mFramework;
+﻿using mFramework;
 using mFramework.UI;
 using UnityEngine;
+using UnityEngine.U2D;
 
-public class Game : MonoBehaviour
+namespace Example
 {
-    public void Awake()
+    public class Game : MonoBehaviour
     {
-        Application.targetFrameRate = 60;
-        Application.runInBackground = true;
+        public static Game Instance { get; private set; }
+
+        private static SpriteAtlas _spriteAtlas;
+
+        public void Awake()
+        {
+            Instance = this;
+            Application.targetFrameRate = 60;
+            Application.runInBackground = true;
 
 #if UNITY_EDITOR
-        mCore.IsDebug = true;
+            mCore.IsDebug = true;
 #endif
 
-        mUI.Create(new UISettings
-        {
-            CameraSettings =
-            {
-                CameraClearFlags = CameraClearFlags.SolidColor
-            }
-        });
-        mUI.UICamera.Camera.backgroundColor = Color.gray;
-        mUI.LoadOSFont("Arial");
+            _spriteAtlas = Resources.Load<SpriteAtlas>("UIAtlas");
 
-        mUI.BaseView.ChildView<TextBoxView>();
-        //mUI.BaseView.ChildView<PageSliderView>();
+            mUI.Create(new UISettings
+            {
+                CameraSettings =
+                {
+                    CameraClearFlags = CameraClearFlags.SolidColor
+                }
+            });
+            mUI.UICamera.Camera.backgroundColor = Color.gray;
+            mUI.LoadOSFont("Arial");
+            mUI.BaseView.ChildView<MainMenuView>();
+        }
+
+        public static Sprite GetSprite(string name)
+        {
+            return _spriteAtlas.GetSprite(name);
+        }
     }
 }
