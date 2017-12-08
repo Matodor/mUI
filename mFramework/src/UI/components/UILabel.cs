@@ -123,6 +123,11 @@ namespace mFramework.UI
             _maxWidth = labelSettings.MaxWidth;
             Text = labelSettings.Text;
             Size = labelSettings.Size;
+            FontStyle = labelSettings.FontStyle;
+            TextAlignment = labelSettings.TextAlignment;
+            LetterSpacing = labelSettings.LetterSpacing;
+            WordSpacing = labelSettings.WordSpacing;
+            LinesSpacing = labelSettings.LinesSpacing;
 
             if (labelSettings.TextAnchor == null)
             {
@@ -139,12 +144,6 @@ namespace mFramework.UI
             }
 
             _color = labelSettings.Color.Color32;
-            FontStyle = labelSettings.FontStyle;
-            TextAlignment = labelSettings.TextAlignment;
-            LetterSpacing = labelSettings.LetterSpacing;
-            WordSpacing = labelSettings.WordSpacing;
-            LinesSpacing = labelSettings.LinesSpacing;
-            
             _cachedFont = mUI.GetFont(labelSettings.Font);
 
             if (_cachedFont == null)
