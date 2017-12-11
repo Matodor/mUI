@@ -38,6 +38,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -57,6 +58,7 @@
     <Compile Include="src\abstract\IKeyValueStorage.cs" />
     <Compile Include="src\abstract\ISaveableFieldBridge.cs" />
     <Compile Include="src\abstract\ISaveableFields.cs" />
+    <Compile Include="src\concrete\SynchronizeInvoke.cs" />
     <Compile Include="src\UI\abstract\IUIClickable.cs" />
     <Compile Include="src\UI\abstract\IView.cs" />
     <Compile Include="src\achievements\mAchievements.cs" />
@@ -82,6 +84,9 @@
     <Compile Include="src\saves\SaveableFields.cs" />
     <Compile Include="src\saves\SaveableFieldsHelper.cs" />
     <Compile Include="src\concrete\TimerAction.cs" />
+    <Compile Include="src\UI\components\PageSlider\UIBasePageSlider.cs" />
+    <Compile Include="src\UI\components\PageSlider\UIHorizontalPageSlider.cs" />
+    <Compile Include="src\UI\components\PageSlider\UIVerticalPageSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIBaseSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIHorizontalSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIVerticalSlider.cs" />
@@ -101,6 +106,7 @@
     <Compile Include="src\UI\components\UIMesh.cs" />
     <Compile Include="src\UI\components\UIPageSlider.cs" />
     <Compile Include="src\UI\components\UITextBox.cs" />
+    <Compile Include="src\UI\extensions\ViewExtensions.cs" />
     <Compile Include="src\UI\layouts\LayoutElemsDirection.cs" />
     <Compile Include="src\UI\UIFont.cs" />
     <Compile Include="src\UI\UIStencilMaterials.cs" />

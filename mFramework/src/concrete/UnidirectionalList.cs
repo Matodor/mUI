@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace mFramework
 {
@@ -20,14 +18,14 @@ namespace mFramework
                     return default(T);
 
                 var tmp = LastItem;
-                var i = 0;
+                var i = Count - 1;
 
-                while (tmp != null)
+                while (tmp != null && i >= 0)
                 {
                     if (i == index)
                         return tmp.Value;
                     tmp = tmp.Prev;
-                    i++;
+                    i--;
                 }
 
                 return default(T);

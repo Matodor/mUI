@@ -9,41 +9,39 @@ namespace mFramework.UI
 
         protected override void OnChildObjectAdded(IUIObject sender, IUIObject child)
         {
-            var rect = GetRect();
+            var sliderRect = GetRect();
             switch (ElementsDirection)
             {
                 case LayoutElemsDirection.FORWARD:
                 {
                     if (Childs.Count <= 1)
-                        child.Pos(rect.Position.x, rect.Top - child.GetHeight() / 2);
+                        child.Pos(sliderRect.Position.x, sliderRect.Top - child.GetHeight() / 2 - Padding);
                     else
                     {
                         var last = Childs.LastItem.Prev.Value;
-                        child.Pos(new Vector2
-                        {
-                            x = rect.Position.x,
-                            y = last.GetRect().Bottom - child.GetHeight() / 2 - ElementsOffset,
-                        });
+                        child.Pos(new Vector2(
+                            sliderRect.Position.x,
+                            last.GetRect().Bottom - child.GetHeight() / 2 - ElementsOffset
+                        ));
                     }
                 } break;
 
                 case LayoutElemsDirection.BACKWARD:
                 {
                     if (Childs.Count <= 1)
-                        child.Pos(rect.Position.x, rect.Bottom + child.GetHeight() / 2);
+                        child.Pos(sliderRect.Position.x, sliderRect.Bottom + child.GetHeight() / 2 + Padding);
                     else
                     {
                         var last = Childs.LastItem.Prev.Value;
-                        child.Pos(new Vector2
-                        {
-                            x = rect.Position.x,
-                            y = last.GetRect().Top + child.GetHeight() / 2 + ElementsOffset,
-                        });
+                        child.Pos(new Vector2(
+                            sliderRect.Position.x,
+                            last.GetRect().Top + child.GetHeight() / 2 + ElementsOffset
+                        ));
                     }
                 } break;
             }
 
-            CheckChildOutsideSlider(child, ref rect);
+            CheckChildOutsideSlider(child, ref sliderRect);
         }
 
         private static void CheckChildOutsideSlider(IUIObject child, ref UIRect sliderRect)
@@ -84,8 +82,8 @@ namespace mFramework.UI
                 bottomItemRect = Childs.FirstItem.Value.GetRect();
             }
 
-            var bottomFreeSpace = sliderRect.Bottom - bottomItemRect.Bottom;
-            var topFreeSpace = topItemRect.Top - sliderRect.Top;
+            var bottomFreeSpace = sliderRect.Bottom - bottomItemRect.Bottom + Padding;
+            var topFreeSpace = topItemRect.Top - sliderRect.Top + Padding;
             var pureHeight = topItemRect.Top - bottomItemRect.Bottom;
 
             if (pureHeight < GetHeight())
@@ -107,6 +105,7 @@ namespace mFramework.UI
                 VerticalMove(-topFreeSpace * 0.1f * Time.deltaTime * 50);
                 return true;
             }
+
             if (bottomFreeSpace < 0)
             {
                 VerticalMove(bottomFreeSpace * 0.1f * Time.deltaTime * 50);
@@ -145,12 +144,12 @@ namespace mFramework.UI
             {
                 if (ElementsDirection == LayoutElemsDirection.FORWARD)
                 {
-                    freeSpace = topItemRect.Top - sliderRect.Top;
+                    freeSpace = topItemRect.Top - sliderRect.Top + Padding;
                     newInnerSpace = freeSpace + diff;
                 }
                 else
                 {
-                    freeSpace = sliderRect.Bottom - bottomItemRect.Bottom;
+                    freeSpace = sliderRect.Bottom - bottomItemRect.Bottom + Padding;
                     newInnerSpace = freeSpace - diff;
                 }
             }
@@ -159,13 +158,13 @@ namespace mFramework.UI
                 // check bottom space
                 if (diff > 0)
                 {
-                    freeSpace = sliderRect.Bottom - bottomItemRect.Bottom;
+                    freeSpace = sliderRect.Bottom - bottomItemRect.Bottom + Padding;
                     newInnerSpace = freeSpace - diff;
                 }
                 // check top space
                 else
                 {
-                    freeSpace = topItemRect.Top - sliderRect.Top;
+                    freeSpace = topItemRect.Top - sliderRect.Top + Padding;
                     newInnerSpace = freeSpace + diff;
                 }
             }

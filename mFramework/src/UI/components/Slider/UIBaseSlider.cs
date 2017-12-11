@@ -10,6 +10,7 @@ namespace mFramework.UI
         public float? Height = null;
         public float? Width = null;
         public float Offset = 0;
+        public float Padding = 0f;
         public float TimeToStop = 0.3f;
 
         public LayoutElemsDirection ElementsDirection = LayoutElemsDirection.FORWARD;
@@ -23,12 +24,12 @@ namespace mFramework.UI
 
         public ushort? StencilId => _stencilId;
         public UIClickable UIClickable { get; private set; }
+        public float TimeToStop;
 
         protected LayoutElemsDirection ElementsDirection { get; private set; }
         protected bool IsPressed { get; private set; }
         protected float ElementsOffset { get; private set; }
-
-        public float TimeToStop;
+        protected float Padding { get; private set; }
 
         private ushort _stencilId;
         private float _height;
@@ -70,11 +71,12 @@ namespace mFramework.UI
                 throw new ArgumentNullException(nameof(settings));
 
             if (!(settings is UISliderSettings sliderSettings))
-                throw new ArgumentException("UISlider: The given settings is not UIComponentSettings");
+                throw new ArgumentException("UIBaseSlider: The given settings is not UIComponentSettings");
 
             ElementsDirection = sliderSettings.ElementsDirection;
             ElementsOffset = sliderSettings.Offset;
             TimeToStop = sliderSettings.TimeToStop;
+            Padding = sliderSettings.Padding;
 
             _stencilId = sliderSettings.StencilId;
             _height = sliderSettings.Height ?? ParentView.GetHeight();
@@ -197,16 +199,6 @@ namespace mFramework.UI
 
             SliderDrag(_lastMoveDiff * t);
             base.OnTick();
-        }
-
-        public float RelativeX(float t)
-        {
-            return Pos().x - GetWidth() / 2 + GetWidth() * mMath.Clamp(t, 0, 1);
-        }
-
-        public float RelativeY(float t)
-        {
-            return Pos().y - GetHeight() / 2 + GetHeight() * mMath.Clamp(t, 0, 1);
         }
     }
 }

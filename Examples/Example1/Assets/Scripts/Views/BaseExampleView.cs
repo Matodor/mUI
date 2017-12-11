@@ -17,8 +17,8 @@ namespace Example
                 }
             });
             backButton.Pos(
-                RelativeX(1f) - backButton.GetWidth() / 2,
-                RelativeY(0f) + backButton.GetHeight() / 2
+                this.RelativeX(1f) - backButton.GetWidth() / 2,
+                this.RelativeY(0f) + backButton.GetHeight() / 2
             );
             backButton.Click += Close;
         }

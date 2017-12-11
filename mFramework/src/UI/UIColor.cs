@@ -95,6 +95,12 @@ namespace mFramework.UI
             return Color.white;
         }
 
+        public static Color RGBToGrayscale(Color color)
+        {
+            var y = 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
+            return new Color(y, y, y, color.a);
+        }
+
         public static Color HSVToRGB(float H, float S, float V, float A)
         {
             Color c;

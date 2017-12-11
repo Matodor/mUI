@@ -9,21 +9,20 @@ namespace mFramework.UI
 
         protected override void OnChildObjectAdded(IUIObject sender, IUIObject child)
         {
-            var rect = GetRect();
+            var sliderRect = GetRect();
             switch (ElementsDirection)
             {
                 case LayoutElemsDirection.FORWARD:
                 {
                     if (Childs.Count <= 1)
-                        child.Pos(rect.Left + child.GetWidth() / 2, rect.Position.y);
+                        child.Pos(sliderRect.Left + child.GetWidth() / 2 + Padding, sliderRect.Position.y);
                     else
                     {
                         var last = Childs.LastItem.Prev.Value;
-                        child.Pos(new Vector2
-                        {
-                            x = last.GetRect().Right + child.GetWidth() / 2 + ElementsOffset,
-                            y = rect.Position.y,
-                        });
+                        child.Pos(new Vector2(
+                            last.GetRect().Right + child.GetWidth() / 2 + ElementsOffset,
+                            sliderRect.Position.y
+                        ));
                     }
                 }
                     break;
@@ -31,21 +30,20 @@ namespace mFramework.UI
                 case LayoutElemsDirection.BACKWARD:
                 {
                     if (Childs.Count <= 1)
-                        child.Pos(rect.Right - child.GetWidth() / 2, rect.Position.y);
+                        child.Pos(sliderRect.Right - child.GetWidth() / 2 - Padding, sliderRect.Position.y);
                     else
                     {
                         var last = Childs.LastItem.Prev.Value;
-                        child.Pos(new Vector2
-                        {
-                            x = last.GetRect().Left - child.GetWidth() / 2 - ElementsOffset,
-                            y = rect.Position.y,
-                        });
+                        child.Pos(new Vector2(
+                            last.GetRect().Left - child.GetWidth() / 2 - ElementsOffset,
+                            sliderRect.Position.y
+                        ));
                     }
                 }
                     break;
             }
 
-            CheckChildOutsideSlider(child, ref rect);
+            CheckChildOutsideSlider(child, ref sliderRect);
         }
 
         private static void CheckChildOutsideSlider(IUIObject child, ref UIRect sliderRect)
@@ -86,8 +84,8 @@ namespace mFramework.UI
                 rightItemRect = Childs.FirstItem.Value.GetRect();
             }
 
-            var leftFreeSpace = sliderRect.Left - leftItemRect.Left;
-            var rightFreeSpace = rightItemRect.Right - sliderRect.Right;
+            var leftFreeSpace = sliderRect.Left - leftItemRect.Left + Padding;
+            var rightFreeSpace = rightItemRect.Right - sliderRect.Right + Padding;
             var pureWidth = rightItemRect.Right - leftItemRect.Left;
 
             if (pureWidth < GetWidth())
@@ -149,12 +147,12 @@ namespace mFramework.UI
             {
                 if (ElementsDirection == LayoutElemsDirection.FORWARD)
                 {
-                    freeSpace = sliderRect.Left - leftItemRect.Left;
+                    freeSpace = sliderRect.Left - leftItemRect.Left + Padding;
                     newInnerSpace = freeSpace - diff;
                 }
                 else
                 {
-                    freeSpace = rightItemRect.Right - sliderRect.Right;
+                    freeSpace = rightItemRect.Right - sliderRect.Right + Padding;
                     newInnerSpace = freeSpace + diff;
                 }
             }
@@ -163,13 +161,13 @@ namespace mFramework.UI
                 // check left space
                 if (diff > 0)
                 {
-                    freeSpace = sliderRect.Left - leftItemRect.Left;
+                    freeSpace = sliderRect.Left - leftItemRect.Left + Padding;
                     newInnerSpace = freeSpace - diff;
                 }
                 // check right space
                 else
                 {
-                    freeSpace = rightItemRect.Right - sliderRect.Right;
+                    freeSpace = rightItemRect.Right - sliderRect.Right + Padding;
                     newInnerSpace = freeSpace + diff;
                 }
             }

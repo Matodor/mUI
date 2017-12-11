@@ -91,25 +91,6 @@ namespace mFramework.UI
             }
         }
 
-        public float RelativeX(float t)
-        {
-            return Pos().x - GetWidth() / 2 + GetWidth() * mMath.Clamp(t, 0, 1);
-        }
-
-        public float RelativeY(float t)
-        {
-            return Pos().y - GetHeight() / 2 + GetHeight() * mMath.Clamp(t, 0, 1);
-        }
-
-        public Vector2 RelativePos(float x, float y)
-        {
-            return new Vector2
-            {
-                x = RelativeX(x),
-                y = RelativeY(y)
-            };
-        }
-
         public override float GetHeight()
         {
             return _height * GlobalScale().y;

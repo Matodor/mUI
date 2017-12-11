@@ -418,6 +418,12 @@ namespace mFramework.UI
         {
             OnFixedTick();
             Childs.ForEach(c => c.FixedTick());
+
+            /*if (transform.hasChanged)
+            {
+                transform.hasChanged = false;
+                mCore.Log($"{GetType().Name} transform.hasChanged = {transform.hasChanged}");
+            }*/
         }
 
         protected virtual void OnLateTick()

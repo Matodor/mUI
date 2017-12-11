@@ -30,6 +30,12 @@ namespace Example
             CreateMenuItem<ExampleRadioGroupView>("RadioGroup");
             CreateMenuItem<ExampleLabelView>("Label");
 
+            CreateMenuItem<ExampleVerticalSliderView>("Vertical slider");
+            CreateMenuItem<ExampleHorizontalSliderView>("Horizontal slider");
+
+            CreateMenuItem<ExampleVPageSlider>("Vertical page slider");
+            CreateMenuItem<ExampleHPageSlider>("Horizontal page slider");
+
             CreateMenuItem<EasingAnimationsView>("Easing types");
         }
 

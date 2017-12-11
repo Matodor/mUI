@@ -2,6 +2,7 @@
 
 namespace mFramework.UI
 {
+
     /*public class UIPageSlider : UISlider
     {
         public event UIEventHandler<UIPageSlider> PageChanged = delegate { };
