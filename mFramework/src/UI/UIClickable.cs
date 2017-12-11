@@ -11,13 +11,13 @@ namespace mFramework.UI
         public event Func<IUIClickable, MouseEvent, bool> CanMouseDrag = delegate { return true; };
 
         private readonly IUIClickable _uiClickable;
-        private readonly UIObject _uiObject;
+        private readonly IUIObject _uiObject;
         private readonly MouseEventListener _mouseEventListener;
 
         public UIClickable(IUIClickable clickable, Area2D area2d)
         {
             _uiClickable = clickable;
-            _uiObject = clickable as UIObject;
+            _uiObject = clickable;
             _uiObject.BeforeDestroy += OnBeforeDestroy;
 
             _mouseEventListener = MouseEventListener.Create();

@@ -2,15 +2,15 @@
 
 namespace mFramework.UI
 {
-    public interface IUISpriteRenderer : IUIObject
+    public interface IUISpriteRenderer : IUIRenderer
     {
         SpriteRenderer Renderer { get; }
-        UISprite SpriteMask { get; }
+        IUISpriteRenderer SpriteMask { get; }
 
         void Flip(bool flipX, bool flipY);
         void SetSprite(Sprite sprite);
 
         void RemoveMask();
-        UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true);
+        IUISpriteRenderer SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true);
     }
 }

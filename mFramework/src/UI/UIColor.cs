@@ -101,6 +101,12 @@ namespace mFramework.UI
             return new Color(y, y, y, color.a);
         }
 
+        public static UIColor RGBToHSV(Color rgbColor)
+        {
+            Color.RGBToHSV(rgbColor, out var h, out var s, out var v);
+            return new UIColor(h * 360, s * 255, v * 255, rgbColor.a * 255, UIColorType.HSVA);
+        }
+
         public static Color HSVToRGB(float H, float S, float V, float A)
         {
             Color c;

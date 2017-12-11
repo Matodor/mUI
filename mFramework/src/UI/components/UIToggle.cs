@@ -8,13 +8,13 @@ namespace mFramework.UI
         public bool DefaultSelected = false;
     }
 
-    public class UIToggle : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable, IUIRenderer
+    public class UIToggle : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable
     {
         public UIClickable UIClickable { get; private set; }
         public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
         public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
-        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
+        public IUISpriteRenderer SpriteMask => _uiSpriteRenderer.SpriteMask;
 
         public StateableSprite StateableSprite { get; private set; }
         public ClickCondition ClickCondition { get; set; }
@@ -187,7 +187,7 @@ namespace mFramework.UI
             _uiSpriteRenderer.RemoveMask();
         }
 
-        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
+        public IUISpriteRenderer SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
         }

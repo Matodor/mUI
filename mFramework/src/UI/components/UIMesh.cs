@@ -11,22 +11,19 @@ namespace mFramework.UI
         public float Height;
     }
 
-    public class UIMesh : UIComponent, IUIRenderer
+    public class UIMesh : UIComponent, IMeshRenderer
     {
-        public Renderer UIRenderer => _meshRenderer;
-        public MeshFilter MeshFilter => _meshFilter;
-        public MeshRenderer MeshRenderer => _meshRenderer;
-
-        private MeshRenderer _meshRenderer;
-        private MeshFilter _meshFilter;
+        public Renderer UIRenderer => MeshRenderer;
+        public MeshFilter MeshFilter { get; private set; }
+        public MeshRenderer MeshRenderer { get; private set; }
 
         private float _width;
         private float _height;
 
         protected override void Init()
         {
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            _meshFilter = gameObject.AddComponent<MeshFilter>();
+            MeshRenderer = gameObject.AddComponent<MeshRenderer>();
+            MeshFilter = gameObject.AddComponent<MeshFilter>();
 
             SortingOrderChanged += s =>
             {
@@ -45,28 +42,29 @@ namespace mFramework.UI
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
             if (meshSettings.Mesh != null)
-                _meshFilter.mesh = meshSettings.Mesh;
+                MeshFilter.mesh = meshSettings.Mesh;
             if (meshSettings.SharedMesh != null)
-                _meshFilter.sharedMesh = meshSettings.SharedMesh;
+                MeshFilter.sharedMesh = meshSettings.SharedMesh;
 
             _width = meshSettings.Width;
             _height = meshSettings.Height;
-            _meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0).SpritesMaterial;
+            MeshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0).SpritesMaterial;
 
             base.ApplySettings(settings);
         }
 
-        public UIMesh SetWidth(float width)
+        public IMeshRenderer SetWidth(float width)
         {
             _width = width;
             return this;
         }
 
-        public UIMesh SetHeight(float height)
+        public IMeshRenderer SetHeight(float height)
         {
             _height = height;
             return this;
         }
+
         public override float GetHeight()
         {
             return _height * GlobalScale().y;
@@ -77,15 +75,15 @@ namespace mFramework.UI
             return _width * GlobalScale().x;
         }
 
-        public UIMesh SetSharedMesh(Mesh mesh)
+        public IMeshRenderer SetSharedMesh(Mesh mesh)
         {
-            _meshFilter.sharedMesh = mesh;
+            MeshFilter.sharedMesh = mesh;
             return this;
         }
 
-        public UIMesh SetMesh(Mesh mesh)
+        public IMeshRenderer SetMesh(Mesh mesh)
         {
-            _meshFilter.mesh = mesh;
+            MeshFilter.mesh = mesh;
             return this;
         }
     }

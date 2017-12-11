@@ -59,6 +59,7 @@
     <Compile Include="src\abstract\ISaveableFieldBridge.cs" />
     <Compile Include="src\abstract\ISaveableFields.cs" />
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
+    <Compile Include="src\UI\abstract\IMeshRenderer.cs" />
     <Compile Include="src\UI\abstract\IUIClickable.cs" />
     <Compile Include="src\UI\abstract\IView.cs" />
     <Compile Include="src\achievements\mAchievements.cs" />
