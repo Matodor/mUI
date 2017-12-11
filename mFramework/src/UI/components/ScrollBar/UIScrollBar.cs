@@ -46,6 +46,8 @@ namespace mFramework.UI
             _mouseEventListener = MouseEventListener.Create();
             _mouseEventListener.MouseDrag += OnMouseDrag;
             BeforeDestroy += o => _mouseEventListener.Detach();
+
+            base.Init();
         }
         
         protected override void ApplySettings(UIComponentSettings settings)

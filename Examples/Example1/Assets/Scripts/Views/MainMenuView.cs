@@ -35,6 +35,7 @@ namespace Example
 
             CreateMenuItem<ExampleVPageSlider>("Vertical page slider");
             CreateMenuItem<ExampleHPageSlider>("Horizontal page slider");
+            CreateMenuItem<ExampleScrollBarView>("ScrollBar");
 
             CreateMenuItem<EasingAnimationsView>("Easing types");
         }

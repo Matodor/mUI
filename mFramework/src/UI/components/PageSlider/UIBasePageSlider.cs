@@ -2,7 +2,7 @@
 using mFramework.UI.Layouts;
 using UnityEngine;
 
-namespace mFramework.UI.PageSlider
+namespace mFramework.UI
 {
     public class UIPageSliderSettings : UIComponentSettings
     {

@@ -28,11 +28,11 @@ namespace mFramework.UI
         public event UIEventHandler<UIRectAreaButton, Vector2> ButtonDown = delegate { };
         public event UIEventHandler<UIRectAreaButton, Vector2> ButtonUp = delegate { };
 
-        private bool _isMouseDown;
+        private bool _isPressed;
 
         protected override void Init()
         {
-            _isMouseDown = false;
+            _isPressed = false;
             ClickCondition = ClickCondition.BUTTON_UP;
         }
 
@@ -76,7 +76,7 @@ namespace mFramework.UI
 
         public void MouseDown(Vector2 worldPos)
         {
-            _isMouseDown = true;
+            _isPressed = true;
 
             if (CanButtonClick.Invoke(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
             {
@@ -88,14 +88,17 @@ namespace mFramework.UI
 
         public void MouseUp(Vector2 worldPos)
         {
-            if (CanButtonClick.Invoke(this, worldPos) && _isMouseDown &&
+            if (!_isPressed)
+                return;
+
+            if (CanButtonClick.Invoke(this, worldPos) && _isPressed &&
                 ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
             {
                 Click.Invoke(this);
             }
 
             ButtonUp.Invoke(this, worldPos);
-            _isMouseDown = false;
+            _isPressed = false;
         }
 
         public void MouseDrag(Vector2 worldPos)

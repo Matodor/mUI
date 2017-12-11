@@ -1,7 +1,6 @@
 ﻿using mFramework;
 using mFramework.UI;
 using mFramework.UI.Layouts;
-using mFramework.UI.PageSlider;
 
 namespace Example
 {

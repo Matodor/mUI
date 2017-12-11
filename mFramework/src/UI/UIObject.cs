@@ -31,8 +31,8 @@ namespace mFramework.UI
         #endregion
 
         private int _localSortingOrder;
-        private static ulong _guid;
         private bool _destroyed;
+        private static ulong _guid;
 
         protected virtual void Init()
         {

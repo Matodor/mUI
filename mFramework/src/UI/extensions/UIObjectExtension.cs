@@ -1,6 +1,5 @@
 ﻿using System;
 using mFramework.UI;
-using mFramework.UI.PageSlider;
 
 namespace mFramework
 {
@@ -98,6 +97,17 @@ namespace mFramework
         {
             return obj.Component<UIVerticalPageSlider>(settings);
         }
+
+        public static UIHorizontalScrollBar HorizontalScrollBar(this IUIObject obj, UI.ScrollBar.UIScrollBarSettings settings)
+        {
+            return obj.Component<UIHorizontalScrollBar>(settings);
+        }
+
+        public static UIVerticalScrollBar VerticalScrollBar(this IUIObject obj, UI.ScrollBar.UIScrollBarSettings settings)
+        {
+            return obj.Component<UIVerticalScrollBar>(settings);
+        }
+
         #endregion
 
         #region Animations

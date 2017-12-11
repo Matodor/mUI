@@ -151,6 +151,9 @@ namespace mFramework.UI
 
         public void MouseUp(Vector2 worldPos)
         {
+            if (!IsPressed)
+                return;
+
             IsPressed = false;
             _lastMousePos = worldPos;
             _mouseUpAt = DateTime.Now;

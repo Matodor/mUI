@@ -87,6 +87,9 @@
     <Compile Include="src\UI\components\PageSlider\UIBasePageSlider.cs" />
     <Compile Include="src\UI\components\PageSlider\UIHorizontalPageSlider.cs" />
     <Compile Include="src\UI\components\PageSlider\UIVerticalPageSlider.cs" />
+    <Compile Include="src\UI\components\ScrollBar\UIBaseScrollBar.cs" />
+    <Compile Include="src\UI\components\ScrollBar\UIHorizontalScrollBar.cs" />
+    <Compile Include="src\UI\components\ScrollBar\UIVerticalScrollBar.cs" />
     <Compile Include="src\UI\components\Slider\UIBaseSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIHorizontalSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIVerticalSlider.cs" />
@@ -104,7 +107,6 @@
     <Compile Include="src\UI\components\UIRectAreaButton.cs" />
     <Compile Include="src\UI\components\UIContainer.cs" />
     <Compile Include="src\UI\components\UIMesh.cs" />
-    <Compile Include="src\UI\components\UIPageSlider.cs" />
     <Compile Include="src\UI\components\UITextBox.cs" />
     <Compile Include="src\UI\extensions\ViewExtensions.cs" />
     <Compile Include="src\UI\layouts\LayoutElemsDirection.cs" />
@@ -131,11 +133,10 @@
     <Compile Include="src\UI\animations\UIRotateAnimation.cs" />
     <Compile Include="src\UI\animations\UIScaleAnimation.cs" />
     <Compile Include="src\UI\components\UILabel.cs" />
-    <Compile Include="src\UI\components\UIScrollBar.cs" />
+    <Compile Include="src\UI\components\ScrollBar\UIScrollBar.cs" />
     <Compile Include="src\UI\UIAnimation.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
     <Compile Include="src\UI\components\UIRadioGroup.cs" />
-    <Compile Include="src\UI\components\Slider\UISlider.cs" />
     <Compile Include="src\UI\components\UISprite.cs" />
     <Compile Include="src\UI\components\UIToggle.cs" />
     <Compile Include="src\UI\UIClickable.cs" />

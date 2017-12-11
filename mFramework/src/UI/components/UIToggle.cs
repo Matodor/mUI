@@ -30,14 +30,14 @@ namespace mFramework.UI
         public event UIEventHandler<UIToggle> Changed = delegate { };
 
         private bool _isSelected;
-        private bool _isMouseDown;
+        private bool _isPressed;
 
         private UISpriteRenderer _uiSpriteRenderer;
 
         protected override void Init()
         {
             _isSelected = false;
-            _isMouseDown = false;
+            _isPressed = false;
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -140,7 +140,7 @@ namespace mFramework.UI
 
         public void MouseDown(Vector2 worldPos)
         {
-            _isMouseDown = true;
+            _isPressed = true;
             StateableSprite.SetHighlighted();
 
             if (CanToggleClick(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
@@ -151,18 +151,21 @@ namespace mFramework.UI
 
         public void MouseUp(Vector2 worldPos)
         {
+            if (!_isPressed)
+                return;
+            
             if (_isSelected)
                 StateableSprite.SetSelected();
             else
                 StateableSprite.SetDefault();
 
-            if (CanToggleClick(this, worldPos) && _isMouseDown &&
+            if (CanToggleClick(this, worldPos) && _isPressed &&
                 ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
             {
                 Toggle();
             }
 
-            _isMouseDown = false;
+            _isPressed = false;
         }
 
         public void MouseDrag(Vector2 worldPos)
