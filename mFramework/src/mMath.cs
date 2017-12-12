@@ -97,7 +97,19 @@ namespace mFramework
 
         public static bool CircleContainsPoint(Vector2 circleCenter, float radius, Vector2 point)
         {
-            return Mathf.Pow(point.x - circleCenter.x, 2) + Mathf.Pow(point.y - circleCenter.y, 2) < Mathf.Pow(radius, 2);
+            var dx = Mathf.Abs(point.x - circleCenter.x);
+            if (dx > radius)
+                return false;
+
+            var dy = Mathf.Abs(point.y - circleCenter.y);
+            if (dy > radius)
+                return false;
+
+            if (dx + dy <= radius)
+                return true;
+
+            return dx * dx + dy * dy <= radius * radius;
+            //return Mathf.Pow(point.x - circleCenter.x, 2) + Mathf.Pow(point.y - circleCenter.y, 2) < Mathf.Pow(radius, 2);
         }
 
         // Точки в треугольнике против часовой стрелки

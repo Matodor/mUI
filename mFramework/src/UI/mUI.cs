@@ -6,7 +6,7 @@ namespace mFramework.UI
 {
     public sealed class UISettings
     {
-        public UICameraSettings CameraSettings { get; } = new UICameraSettings();
+        public readonly UICameraSettings CameraSettings = new UICameraSettings();
     }
 
     public sealed class mUI

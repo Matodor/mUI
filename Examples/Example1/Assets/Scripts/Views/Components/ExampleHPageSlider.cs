@@ -11,8 +11,8 @@ namespace Example
             var pageSlider = this.HorizontalPageSlider(new UIPageSliderSettings
             {
                 ElementsDirection = LayoutElemsDirection.FORWARD,
-                EasingCurrentPageType = EasingType.easeInCubic,
-                EasingNextPageType = EasingType.easeOutCubic,
+                EasingCurrentPageType = EasingType.easeInOutCirc,
+                EasingNextPageType = EasingType.easeInOutCirc,
                 Duration = 2f
             });
 

@@ -120,7 +120,9 @@ namespace mFramework.UI
         {
             if (!_isPressed)
                 return;
+
             _isPressed = false;
+            PointSprite.LocalPos(0f, 0f);
         }
 
         public void MouseDrag(Vector2 worldPos)

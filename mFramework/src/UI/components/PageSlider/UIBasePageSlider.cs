@@ -25,7 +25,7 @@ namespace mFramework.UI
         public UIClickable UIClickable { get; private set; }
         public LayoutElemsDirection ElementsDirection { get; private set; }
 
-        protected int CurrentPage = -1;
+        public int CurrentPage { get; protected set; }
         protected bool IsAnimated;
         protected float Duration;
         protected EasingType EasingCurrentPageType;
@@ -55,6 +55,7 @@ namespace mFramework.UI
         protected override void Init()
         {
             IsAnimated = false;
+            CurrentPage = -1;
 
             _isPressed = false;
             _lastMousePos = Vector2.zero;
@@ -215,4 +216,5 @@ namespace mFramework.UI
         }
     }
 }
+ 
  
