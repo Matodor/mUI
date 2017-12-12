@@ -6,6 +6,7 @@ namespace mFramework
     public enum AreaType
     {
         RECTANGLE = 0,    
+        CIRCLE = 1,
     }
 
     public abstract class Area2D

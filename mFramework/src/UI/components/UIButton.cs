@@ -70,6 +70,20 @@ namespace mFramework.UI
 
                 UIClickable = new UIClickable(this, area);
             }
+            else if (buttonSettings.ButtonAreaType == AreaType.CIRCLE)
+            {
+                var area = new CircleArea2D();
+                area.Update += a =>
+                {
+                    area.Radius = GetWidth() / 2;
+                    area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
+                    area.Offset = new Vector2(
+                        area.Offset.x * GlobalScale().x,
+                        area.Offset.y * GlobalScale().y
+                    );
+                };
+                UIClickable = new UIClickable(this, area);
+            }
 
             _uiSpriteRenderer = new UISpriteRenderer(this, new UISpriteSettings
             {
@@ -109,6 +123,16 @@ namespace mFramework.UI
         public IUISpriteRenderer SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
+        }
+
+        public override float UnscaledHeight()
+        {
+            return _uiSpriteRenderer.UnscaledHeight();
+        }
+
+        public override float UnscaledWidth()
+        {
+            return _uiSpriteRenderer.UnscaledWidth();
         }
 
         public override float GetHeight()

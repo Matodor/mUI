@@ -4,8 +4,8 @@ namespace mFramework
 {
     public class RectangleArea2D : Area2D
     {
-        public float Height { get; set; }
-        public float Width { get; set; }
+        public float Height;
+        public float Width;
 
         public override bool InArea(Vector2 worldPos)
         {

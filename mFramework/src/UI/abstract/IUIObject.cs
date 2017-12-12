@@ -34,6 +34,8 @@ namespace mFramework.UI
 
         UIRect GetRect();
 
+        float UnscaledHeight();
+        float UnscaledWidth();
         float GetHeight();
         float GetWidth();
 

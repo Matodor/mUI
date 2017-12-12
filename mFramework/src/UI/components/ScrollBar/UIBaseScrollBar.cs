@@ -28,7 +28,7 @@ namespace mFramework.UI
             get => _value;
             set
             {
-                _normilizedValue = mMath.Clamp(NormilizeValue(Min, Max, value), 0f, 1f);
+                _normilizedValue = mMath.Clamp(mMath.NormilizeValue(Min, Max, value), 0f, 1f);
                 UpdateBar();
             }
         }
@@ -66,12 +66,7 @@ namespace mFramework.UI
             _isPressed = false;
             base.Init();
         }
-
-        public static float NormilizeValue(float min, float max, float value)
-        {
-            return (value - min) / (max - min);
-        }
-
+        
         public static float NormilizeStep(float min, float max, float step)
         {
             return step / (max - min);
@@ -107,11 +102,10 @@ namespace mFramework.UI
                 area.Width = GetWidth();
                 area.Height = GetHeight();
             };
-
             UIClickable = new UIClickable(this, area);
 
             _value = scrollBarSettings.Default;
-            _normilizedValue = NormilizeValue(Min, Max, scrollBarSettings.Default);
+            _normilizedValue = mMath.NormilizeValue(Min, Max, scrollBarSettings.Default);
 
             UpdateBar();
             base.ApplySettings(settings);

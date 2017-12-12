@@ -21,6 +21,26 @@ namespace mFramework.UI
             base.Init();
         }
 
+        public override float UnscaledHeight()
+        {
+            return 0f;
+        }
+
+        public override float UnscaledWidth()
+        {
+            return 0f;
+        }
+
+        public override float GetWidth()
+        {
+            return 0f;
+        }
+
+        public override float GetHeight()
+        {
+            return 0f;
+        }
+
         private void CheckChildren(IUIObject sender, IUIObject addedObj)
         {
             var toggle = addedObj as UIToggle;

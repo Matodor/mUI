@@ -58,6 +58,7 @@
     <Compile Include="src\abstract\IKeyValueStorage.cs" />
     <Compile Include="src\abstract\ISaveableFieldBridge.cs" />
     <Compile Include="src\abstract\ISaveableFields.cs" />
+    <Compile Include="src\concrete\CircleArea2D.cs" />
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
     <Compile Include="src\UI\abstract\IMeshRenderer.cs" />
     <Compile Include="src\UI\abstract\IUIClickable.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="src\UI\components\Slider\UIBaseSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIHorizontalSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIVerticalSlider.cs" />
+    <Compile Include="src\UI\components\UIJoystick.cs" />
     <Compile Include="src\UI\extensions\UIObjectExtension.cs" />
     <Compile Include="src\extensions\VectorExtension.cs" />
     <Compile Include="src\game_events\Event.cs" />
@@ -134,7 +136,6 @@
     <Compile Include="src\UI\animations\UIRotateAnimation.cs" />
     <Compile Include="src\UI\animations\UIScaleAnimation.cs" />
     <Compile Include="src\UI\components\UILabel.cs" />
-    <Compile Include="src\UI\components\ScrollBar\UIScrollBar.cs" />
     <Compile Include="src\UI\UIAnimation.cs" />
     <Compile Include="src\UI\components\UIButton.cs" />
     <Compile Include="src\UI\components\UIRadioGroup.cs" />

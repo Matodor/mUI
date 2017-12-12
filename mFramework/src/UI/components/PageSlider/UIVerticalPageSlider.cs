@@ -120,10 +120,5 @@ namespace mFramework.UI
                 MoveNext();
             }
         }
-
-        protected override bool CheckInnerSpace()
-        {
-            return false;
-        }
     }
 }

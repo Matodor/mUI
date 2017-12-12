@@ -64,6 +64,16 @@ namespace mFramework.UI
             base.ApplySettings(buttonSettings);
         }
 
+        public override float UnscaledHeight()
+        {
+            return AreaHeight;
+        }
+
+        public override float UnscaledWidth()
+        {
+            return AreaWidth;
+        }
+
         public override float GetWidth()
         {
             return AreaWidth * GlobalScale().x;

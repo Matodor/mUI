@@ -122,6 +122,16 @@ namespace mFramework.UI
             _keyboard = null;
         }
 
+        public override float UnscaledHeight()
+        {
+            return Background.UnscaledHeight();
+        }
+
+        public override float UnscaledWidth()
+        {
+            return Background.UnscaledWidth();
+        }
+
         public override float GetWidth()
         {
             return Background.GetWidth();

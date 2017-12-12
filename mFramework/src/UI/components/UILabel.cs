@@ -738,6 +738,16 @@ namespace mFramework.UI
             };
         }
 
+        public override float UnscaledHeight()
+        {
+            return _textHeight;
+        }
+
+        public override float UnscaledWidth()
+        {
+            return _textWidth;
+        }
+
         public override float GetHeight()
         {
             return _textHeight * GlobalScale().y;

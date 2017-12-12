@@ -95,6 +95,11 @@ namespace mFramework
                    (Mathf.Abs(box1Pos.y - box2Pos.y) * 2 < (box1Size.y + box2Size.y));
         }
 
+        public static bool CircleContainsPoint(Vector2 circleCenter, float radius, Vector2 point)
+        {
+            return Mathf.Pow(point.x - circleCenter.x, 2) + Mathf.Pow(point.y - circleCenter.y, 2) < Mathf.Pow(radius, 2);
+        }
+
         // Точки в треугольнике против часовой стрелки
         // Points in the triangle are anti-clockwise
         public static bool TriangleContainsPoint(Vector2 A, Vector2 B, Vector2 C, Vector2 P)
@@ -158,6 +163,22 @@ namespace mFramework
         public static Vector2 GetRotatedPoint(float centerX, float centerY, float x, float y, float sin, float cos)
         {
             return new Vector2(centerX + x * cos - y * sin, centerY + x * sin + y * cos);
+        }
+
+        public static float Angle(Vector2 vec)
+        {
+            var angle = (-1 * (Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg) + 90);
+            return angle < 0 ? 360 + angle : angle;
+        }
+
+        public static float Angle(Vector2 vec1, Vector2 vec2)
+        {
+            return Angle(vec1 - vec2);
+        }
+
+        public static float NormilizeValue(float min, float max, float value)
+        {
+            return (value - min) / (max - min);
         }
     }
 }

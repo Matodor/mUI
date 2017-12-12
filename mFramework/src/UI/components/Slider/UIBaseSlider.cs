@@ -24,6 +24,7 @@ namespace mFramework.UI
 
         public ushort? StencilId => _stencilId;
         public UIClickable UIClickable { get; private set; }
+
         public float TimeToStop;
 
         protected LayoutElemsDirection ElementsDirection { get; private set; }
@@ -88,7 +89,6 @@ namespace mFramework.UI
                 area.Width = GetWidth();
                 area.Height = GetHeight();
             };
-
             UIClickable = new UIClickable(this, area);
 
             var meshRenderer = gameObject.AddComponent<MeshRenderer>();
@@ -131,6 +131,16 @@ namespace mFramework.UI
                 return true;
             }
             return false;
+        }
+
+        public override float UnscaledHeight()
+        {
+            return _height;
+        }
+
+        public override float UnscaledWidth()
+        {
+            return _width;
         }
 
         public override float GetWidth()

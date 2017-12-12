@@ -103,6 +103,11 @@ namespace mFramework
             return obj.Component<UIVerticalScrollBar>(settings);
         }
 
+        public static UIJoystick Joystick(this IUIObject obj, UIJoystickSettings settings)
+        {
+            return obj.Component<UIJoystick>(settings);
+        }
+
         #endregion
 
         #region Animations

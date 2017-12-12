@@ -29,6 +29,16 @@ namespace mFramework.UI
             base.ApplySettings(spriteSettings);
         }
 
+        public override float UnscaledHeight()
+        {
+            return _uiSpriteRenderer.UnscaledHeight();
+        }
+
+        public override float UnscaledWidth()
+        {
+            return _uiSpriteRenderer.UnscaledWidth();
+        }
+
         public override float GetHeight()
         {
             return _uiSpriteRenderer.GetHeight();

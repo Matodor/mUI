@@ -75,6 +75,16 @@ namespace mFramework.UI
             return SpriteMask;
         }
 
+        public float UnscaledHeight()
+        {
+            return Renderer.sprite.bounds.size.y;
+        }
+
+        public float UnscaledWidth()
+        {
+            return Renderer.sprite.bounds.size.x;
+        }
+
         public float GetHeight()
         {
             return Renderer.sprite.bounds.size.y * _object.GlobalScale().y;

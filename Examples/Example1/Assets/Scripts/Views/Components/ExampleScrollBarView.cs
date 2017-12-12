@@ -9,10 +9,10 @@ namespace Example
     {
         protected override void CreateInterface(object[] @params)
         {
-            var scrollBar1 = CreateScrollBar(true);
+            var scrollBar1 = CreateScrollBar(true, 10);
             scrollBar1.Translate(0f, +GetHeight() / 4);
 
-            var scrollBar2 = CreateScrollBar(false);
+            var scrollBar2 = CreateScrollBar(false, 0.2f);
             scrollBar2.Translate(0f, -GetHeight() / 4);
 
             CreateScrollBarLabel(scrollBar1);
@@ -35,7 +35,7 @@ namespace Example
             return label;
         }
 
-        private UIBaseScrollBar CreateScrollBar(bool vertical)
+        private UIBaseScrollBar CreateScrollBar(bool vertical, float step)
         {
             Func<bool, UIScrollBarSettings, UIBaseScrollBar> createFunc = (isVertical, settings) =>
             {
@@ -48,7 +48,7 @@ namespace Example
             {
                 Min = 100,
                 Max = 200,
-                Step = 2,
+                Step = step,
                 Default = 150,
                 BarSprite = Game.GetSprite("level_info"),
                 BarSpriteIsHorizontal = true,
@@ -61,8 +61,8 @@ namespace Example
                     }
                 },
                 Padding = new Vector2(
-                    vertical ? 0f : Game.GetSprite("x_bg").WorldSize().x * 1.39576f,
-                    vertical ? Game.GetSprite("x_bg").WorldSize().y * 1.39576f : 0f
+                    vertical ? 0f : Game.GetSprite("x_bg").WorldSize().x / 2f * 1.39576f,
+                    vertical ? Game.GetSprite("x_bg").WorldSize().y / 2f * 1.39576f : 0f
                 ),
                 ScalePoint = new Vector2(1.39576f, 1.39576f)
             }).Scale(0.5f);

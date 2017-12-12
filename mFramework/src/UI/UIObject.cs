@@ -152,15 +152,10 @@ namespace mFramework.UI
             };
         }
 
-        public virtual float GetWidth()
-        {
-            return 0;
-        }
-
-        public virtual float GetHeight()
-        {
-            return 0;
-        }
+        public abstract float GetWidth();
+        public abstract float GetHeight();
+        public abstract float UnscaledHeight();
+        public abstract float UnscaledWidth();
 
         public IUIObject LocalRotate(float x, float y, float z)
         {
