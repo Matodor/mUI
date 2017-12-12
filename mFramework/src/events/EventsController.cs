@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace mFramework
 {
@@ -89,7 +90,8 @@ namespace mFramework
                     ClickCount = touch.tapCount,
                     Delta = touch.deltaPosition,
                     MouseScreenPos = touch.position,
-                    KeyCode = KeyCode.Mouse0
+                    KeyCode = KeyCode.Mouse0, 
+                    Touch = touch
                 };
                 
                 switch (touch.phase)
@@ -107,6 +109,9 @@ namespace mFramework
                         touchEvent.MouseEventType = MouseEventType.MouseUp;
                         break;
                     case TouchPhase.Canceled:
+                        touchEvent.MouseEventType = MouseEventType.NONE;
+                        break;
+                    default:
                         touchEvent.MouseEventType = MouseEventType.NONE;
                         break;
                 }
