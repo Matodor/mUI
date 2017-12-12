@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace mFramework.UI
+﻿namespace mFramework.UI
 {
     public interface IView : IUIObject
     {
