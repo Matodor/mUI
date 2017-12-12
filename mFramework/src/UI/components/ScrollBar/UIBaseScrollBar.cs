@@ -1,13 +1,18 @@
 ﻿using System;
 using UnityEngine;
 
-namespace mFramework.UI.ScrollBar
+namespace mFramework.UI
 {
     public class UIScrollBarSettings : UIComponentSettings
     {
         public Sprite BarSprite;
-        public Sprite PointSprite;
+        public readonly UIButtonSettings BarPointSettings = new UIButtonSettings();
 
+        public Vector2 ScaleBar = Vector2.one;
+        public Vector2 ScalePoint = Vector2.one;
+        public bool BarSpriteIsHorizontal = true;
+
+        public Vector2 Padding = Vector2.zero;
         public float Min = 0f;
         public float Max = 1f;
         public float Default = 0.5f;
@@ -23,7 +28,7 @@ namespace mFramework.UI.ScrollBar
             get => _value;
             set
             {
-                _value = mMath.Clamp(value, _minValue, _maxValue);
+                _normilizedValue = mMath.Clamp(NormilizeValue(Min, Max, value), 0f, 1f);
                 UpdateBar();
             }
         }
@@ -38,21 +43,22 @@ namespace mFramework.UI.ScrollBar
             }
         }
 
+        public float Min { get; private set; }
+        public float Max { get; private set; }
+
+        public Vector2 Padding;
         public float Step;
         public float NormilizedStep;
 
-        public float Min => _minValue;
-        public float Max => _maxValue;
-
         public UISprite Bar { get; private set; }
-        public UISprite BarPoint { get; private set; }
+        public UIButton BarPoint { get; private set; }
         public UIClickable UIClickable { get; private set; }
+
+        protected bool BarSpriteIsHorizontal { get; private set; }
 
         private float _normilizedValue;
         private float _value;
 
-        private float _minValue;
-        private float _maxValue;
         private bool _isPressed;
 
         protected override void Init()
@@ -61,12 +67,12 @@ namespace mFramework.UI.ScrollBar
             base.Init();
         }
 
-        private static float NormilizeValue(float min, float max, float value)
+        public static float NormilizeValue(float min, float max, float value)
         {
             return (value - min) / (max - min);
         }
 
-        private static float NormilizeStep(float min, float max, float step)
+        public static float NormilizeStep(float min, float max, float step)
         {
             return step / (max - min);
         }
@@ -79,14 +85,20 @@ namespace mFramework.UI.ScrollBar
             if (!(settings is UIScrollBarSettings scrollBarSettings))
                 throw new ArgumentException("UIBaseScrollBar: The given settings is not UIScrollBarSettings");
 
-            _minValue = Mathf.Min(scrollBarSettings.Min, scrollBarSettings.Max);
-            _maxValue = Mathf.Max(scrollBarSettings.Min, scrollBarSettings.Max);
+            BarSpriteIsHorizontal = scrollBarSettings.BarSpriteIsHorizontal;
+            Padding = scrollBarSettings.Padding;
+
+            Min = Mathf.Min(scrollBarSettings.Min, scrollBarSettings.Max);
+            Max = Mathf.Max(scrollBarSettings.Min, scrollBarSettings.Max);
 
             Step = scrollBarSettings.Step;
-            NormilizedStep = NormilizeStep(_minValue, _maxValue, Step);
+            NormilizedStep = NormilizeStep(Min, Max, Step);
 
             Bar = this.Sprite(new UISpriteSettings {Sprite = scrollBarSettings.BarSprite});
-            BarPoint = Bar.Sprite(new UISpriteSettings {Sprite = scrollBarSettings.PointSprite});
+            Bar.Scale(scrollBarSettings.ScaleBar);
+
+            BarPoint = Bar.Button(scrollBarSettings.BarPointSettings);
+            BarPoint.Scale(scrollBarSettings.ScalePoint);
             BarPoint.SortingOrder(1);
 
             var area = new RectangleArea2D();
@@ -99,9 +111,8 @@ namespace mFramework.UI.ScrollBar
             UIClickable = new UIClickable(this, area);
 
             _value = scrollBarSettings.Default;
-            _normilizedValue = NormilizeValue(_minValue, _maxValue, scrollBarSettings.Default);
+            _normilizedValue = NormilizeValue(Min, Max, scrollBarSettings.Default);
 
-            mCore.Log($"value={_value} _normilizedValue={_normilizedValue} step={Step} NormilizedStep={NormilizedStep}");
             UpdateBar();
             base.ApplySettings(settings);
         }
@@ -119,12 +130,15 @@ namespace mFramework.UI.ScrollBar
             _normilizedValue = mMath.Clamp(_normilizedValue, 0f, 1f);
 
             var prevValue = _value;
-            _value = BezierHelper.Linear(_normilizedValue, _minValue, _maxValue);
+            _value = BezierHelper.Linear(_normilizedValue, Min, Max);
+            UpdateBar(_normilizedValue);
+            Changed(this);
         }
 
         public void MouseDown(Vector2 worldPos)
         {
             _isPressed = true;
+            MovePoint(worldPos);
         }
 
         public void MouseUp(Vector2 worldPos)
@@ -135,11 +149,15 @@ namespace mFramework.UI.ScrollBar
             _isPressed = false;
         }
 
+        protected abstract void MovePoint(Vector2 newPos);
+        protected abstract void UpdateBar(float normilized);
+
         public void MouseDrag(Vector2 worldPos)
         {
             if (!_isPressed)
                 return;
 
+            MovePoint(worldPos);
         }
     }
 }

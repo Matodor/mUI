@@ -28,41 +28,50 @@ SpriteAtlas:
       enableTightPacking: 1
     packedHash:
       serializedVersion: 2
-      Hash: 1fbb7ebb4b2096d73332fe3e48aae2cf
+      Hash: 5c0476fab1f6b8288c50f9e9b2b9d63c
     variantMultiplier: 1
     bindAsDefault: 1
     finalFormat: 4
-    hashString: 1fbb7ebb4b2096d73332fe3e48aae2cf
-    totalSpriteSurfaceArea: 577633
+    hashString: 5c0476fab1f6b8288c50f9e9b2b9d63c
+    totalSpriteSurfaceArea: 745915
     packables:
     - {fileID: 102900000, guid: f947b3b772059f24cbca5b3c16ef98bb, type: 3}
     packedSpriteRenderDataKeys:
     - 41210df2e631c5245a384b37b5d58ed6: 21300000
+    - a971cb7c7b6b49e47bb7d24d8c43e555: 21300000
     - 36b9d6db92b472d4bb02939978da1e8b: 21300000
     - 7bcb73116d926d44ab6f09084d89d610: 21300000
     - 9e14bd5fd4a66924aab1ad75c3cb7eb4: 21300000
     - 7a8f087bc2324ea4aad4dd267dd672c4: 21300000
     - e28a20da5af69ef4eaab75a82a2273e5: 21300000
     - a6161d17075a3674fab4323dca7ffe19: 21300000
+    - 8abbeb94b3493c8468394f6094fc2658: 21300000
+    - 5885286d4edd8d947b6b453ef9b02212: 21300000
     - 064a8eb871648ff489f05681f5ef39a6: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 41210df2e631c5245a384b37b5d58ed6, type: 3}
+  - {fileID: 21300000, guid: a971cb7c7b6b49e47bb7d24d8c43e555, type: 3}
   - {fileID: 21300000, guid: 36b9d6db92b472d4bb02939978da1e8b, type: 3}
   - {fileID: 21300000, guid: 7bcb73116d926d44ab6f09084d89d610, type: 3}
   - {fileID: 21300000, guid: 9e14bd5fd4a66924aab1ad75c3cb7eb4, type: 3}
   - {fileID: 21300000, guid: 7a8f087bc2324ea4aad4dd267dd672c4, type: 3}
   - {fileID: 21300000, guid: e28a20da5af69ef4eaab75a82a2273e5, type: 3}
   - {fileID: 21300000, guid: a6161d17075a3674fab4323dca7ffe19, type: 3}
+  - {fileID: 21300000, guid: 8abbeb94b3493c8468394f6094fc2658, type: 3}
+  - {fileID: 21300000, guid: 5885286d4edd8d947b6b453ef9b02212, type: 3}
   - {fileID: 21300000, guid: 064a8eb871648ff489f05681f5ef39a6, type: 3}
   m_PackedSpriteNamesToIndex:
   - mp_bar_buttons
+  - level_info
   - mp_gui_finish
   - mp_bar_text
   - notif_agree_closed
   - notif_cancel
   - notif_agree
   - notif_cancel_closed
+  - x_bg
+  - x_bg_pressed
   - mp_chat_msg
   m_Tag: UIAtlas
   m_IsVariant: 0

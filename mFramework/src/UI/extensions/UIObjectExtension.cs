@@ -63,11 +63,6 @@ namespace mFramework
             return obj.Component<UIRadioGroup>(settings);
         }
         
-        public static UIScrollBar ScrollBar(this IUIObject obj, UIScrollBarSettings settings)
-        {
-            return obj.Component<UIScrollBar>(settings);
-        }
-        
         public static UIVerticalSlider VerticalSlider(this IUIObject obj, UISliderSettings settings)
         {
             return obj.Component<UIVerticalSlider>(settings);
@@ -98,12 +93,12 @@ namespace mFramework
             return obj.Component<UIVerticalPageSlider>(settings);
         }
 
-        public static UIHorizontalScrollBar HorizontalScrollBar(this IUIObject obj, UI.ScrollBar.UIScrollBarSettings settings)
+        public static UIHorizontalScrollBar HorizontalScrollBar(this IUIObject obj, UIScrollBarSettings settings)
         {
             return obj.Component<UIHorizontalScrollBar>(settings);
         }
 
-        public static UIVerticalScrollBar VerticalScrollBar(this IUIObject obj, UI.ScrollBar.UIScrollBarSettings settings)
+        public static UIVerticalScrollBar VerticalScrollBar(this IUIObject obj, UIScrollBarSettings settings)
         {
             return obj.Component<UIVerticalScrollBar>(settings);
         }

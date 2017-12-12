@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIScrollBarSettings : UIComponentSettings
+    /*public class UIScrollBarSettings : UIComponentSettings
     {
         public readonly UIButtonSettings ButtonSettings = new UIButtonSettings();
         public Sprite BarSprite;
@@ -12,9 +12,9 @@ namespace mFramework.UI
         public float Max = 1;
         public float Default = 0.5f;
         public float Step = 0.2f;
-    }
+    }*/
 
-    public class UIScrollBar : UIComponent
+    /*public class UIScrollBar : UIComponent
     {
         public event UIEventHandler<UIScrollBar> ValueChanged = delegate { };
 
@@ -241,5 +241,5 @@ namespace mFramework.UI
         {
             return _bar.GetWidth();
         }
-    }
+    }*/
 }
