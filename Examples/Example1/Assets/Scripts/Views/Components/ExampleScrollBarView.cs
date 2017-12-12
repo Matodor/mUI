@@ -9,9 +9,30 @@ namespace Example
     {
         protected override void CreateInterface(object[] @params)
         {
-            CreateScrollBar(true).Translate(0f, +GetHeight() / 4);
-            CreateScrollBar(false).Translate(0f, -GetHeight() / 4);
+            var scrollBar1 = CreateScrollBar(true);
+            scrollBar1.Translate(0f, +GetHeight() / 4);
+
+            var scrollBar2 = CreateScrollBar(false);
+            scrollBar2.Translate(0f, -GetHeight() / 4);
+
+            CreateScrollBarLabel(scrollBar1);
+            CreateScrollBarLabel(scrollBar2);
             base.CreateInterface(@params);
+        }
+
+        private UILabel CreateScrollBarLabel(UIBaseScrollBar scrollBar)
+        {
+            var label = scrollBar.Label(new UILabelSettings
+            {
+                Text = $"v={scrollBar.Value} vNormilized={scrollBar.NormilizedValue}",
+                Color = UIColors.Black,
+                TextAnchor = TextAnchor.MiddleCenter,
+                TextAlignment = TextAlignment.Center,
+                Size = 40,
+            });
+            label.SortingOrder(3);
+            scrollBar.Changed += _ => label.SetText($"v={scrollBar.Value} vNormilized={scrollBar.NormilizedValue}");
+            return label;
         }
 
         private UIBaseScrollBar CreateScrollBar(bool vertical)
