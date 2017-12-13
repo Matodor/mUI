@@ -45,6 +45,7 @@ namespace Example
             CreateMenuItem<ExampleScaleAnimation>("ScaleAnimation");
             CreateMenuItem<ExampleBezierQuadraticAnimation>("BezierQuadraticAnimation");
             CreateMenuItem<ExampleBezierCubicAnimation>("BezierCubicAnimation");
+            CreateMenuItem<ExampleCharacter>("Character animation");
 
             CreateMenuItem<EasingAnimationsView>("Easing types");
         }
