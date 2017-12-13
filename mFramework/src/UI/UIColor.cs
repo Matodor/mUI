@@ -13,7 +13,7 @@ namespace mFramework.UI
     {
         public Color32 Color32 => ToColor32();
 
-        public UIColorType Type { get; }
+        public readonly UIColorType Type;
         public float n1; // r, h
         public float n2; // g, s
         public float n3; // b, v
@@ -25,10 +25,10 @@ namespace mFramework.UI
 
             if (ColorUtility.TryParseHtmlString(hexColor, out var color))
             {
-                n1 = ((Color32)color).r;
-                n2 = ((Color32)color).g;
-                n3 = ((Color32)color).b;
-                Alpha = ((Color32)color).a;
+                n1 = ((Color32) color).r;
+                n2 = ((Color32) color).g;
+                n3 = ((Color32) color).b;
+                Alpha = ((Color32) color).a;
             }
             else
             {
@@ -43,8 +43,8 @@ namespace mFramework.UI
             if (ColorUtility.TryParseHtmlString(hexColor, out var color))
             {
                 n1 = ((Color32) color).r;
-                n2 = ((Color32)color).g;
-                n3 = ((Color32)color).b;
+                n2 = ((Color32) color).g;
+                n3 = ((Color32) color).b;
                 Alpha = alpha;
             }
             else

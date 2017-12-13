@@ -18,6 +18,7 @@ namespace mFramework.UI
 
         protected UIColorAnimation(UIObject animatedObject) : base(animatedObject)
         {
+            
         }
 
         protected override void ApplySettings(UIAnimationSettings settings)

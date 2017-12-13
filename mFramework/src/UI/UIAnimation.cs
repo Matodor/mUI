@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
 
@@ -35,6 +36,20 @@ namespace mFramework.UI
     }
 
     public delegate void UIAnimationEventHandler(UIAnimation sender);
+
+    public static class NewAnimation<T> where T : UIAnimation
+    {
+        public static readonly Func<UIObject, T> Instance;
+
+        static NewAnimation()
+        {
+            var constructor = typeof(T).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null,
+                new Type[] { typeof(UIObject) }, null);
+            var parameter = Expression.Parameter(typeof(UIObject), "animatedObject");
+            var e = Expression.New(constructor, parameter);
+            Instance = Expression.Lambda<Func<UIObject, T>>(e, parameter).Compile();
+        }
+    }
 
     public abstract class UIAnimation : IGlobalUniqueIdentifier
     {
@@ -91,11 +106,13 @@ namespace mFramework.UI
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
 
-            var animation = (T)
-                Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,
-                    new object[] {parent}, CultureInfo.InvariantCulture);
-
+            var animation = NewAnimation<T>.Instance(parent);
             animation.ApplySettings(settings);
+            
+            //(T)
+            //    Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,
+            //        new object[] { parent }, CultureInfo.InvariantCulture);
+
             return animation;
         }
 
