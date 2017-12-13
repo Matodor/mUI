@@ -1,4 +1,5 @@
-﻿using mFramework;
+﻿using Example.Animations;
+using mFramework;
 using mFramework.UI;
 using UnityEngine;
 
@@ -37,6 +38,13 @@ namespace Example
             CreateMenuItem<ExampleHPageSlider>("Horizontal page slider");
             CreateMenuItem<ExampleScrollBarView>("ScrollBar");
             CreateMenuItem<ExampleJoystickView>("Joystick");
+
+            CreateMenuItem<ExampleLinearAnimation>("LinearAnimation");
+            CreateMenuItem<ExampleRotateAnimation>("RotateAnimation");
+            CreateMenuItem<ExampleColorAnimation>("ColorAnimation");
+            CreateMenuItem<ExampleScaleAnimation>("ScaleAnimation");
+            CreateMenuItem<ExampleBezierQuadraticAnimation>("BezierQuadraticAnimation");
+            CreateMenuItem<ExampleBezierCubicAnimation>("BezierCubicAnimation");
 
             CreateMenuItem<EasingAnimationsView>("Easing types");
         }

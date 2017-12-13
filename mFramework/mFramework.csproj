@@ -86,6 +86,7 @@
     <Compile Include="src\saves\SaveableFields.cs" />
     <Compile Include="src\saves\SaveableFieldsHelper.cs" />
     <Compile Include="src\concrete\TimerAction.cs" />
+    <Compile Include="src\UI\animations\UIBezierCubicAnimation.cs" />
     <Compile Include="src\UI\components\PageSlider\UIBasePageSlider.cs" />
     <Compile Include="src\UI\components\PageSlider\UIHorizontalPageSlider.cs" />
     <Compile Include="src\UI\components\PageSlider\UIVerticalPageSlider.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="src\UI\components\Slider\UIHorizontalSlider.cs" />
     <Compile Include="src\UI\components\Slider\UIVerticalSlider.cs" />
     <Compile Include="src\UI\components\UIJoystick.cs" />
+    <Compile Include="src\UI\components\UISwitch.cs" />
     <Compile Include="src\UI\extensions\UIObjectExtension.cs" />
     <Compile Include="src\extensions\VectorExtension.cs" />
     <Compile Include="src\game_events\Event.cs" />

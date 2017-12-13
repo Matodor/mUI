@@ -3,20 +3,22 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIBezierQuadraticAnimationSettings : UIAnimationSettings
+    public class UIBezierCubicAnimationSettings : UIAnimationSettings
     {
         public Vector2 FirstPoint;
         public Vector2 SecondPoint;
         public Vector2 ThirdPoint;
+        public Vector2 FourthPoint;
     }
 
-    public class UIBezierQuadraticAnimation : UIAnimation
+    public class UIBezierCubicAnimation : UIAnimation
     {
         private Vector2 _firstPoint;
         private Vector2 _secondPoint;
         private Vector2 _thirdPoint;
-
-        protected UIBezierQuadraticAnimation(UIObject animatedObject) : base(animatedObject)
+        private Vector2 _fourthPoint;
+        
+        protected UIBezierCubicAnimation(UIObject animatedObject) : base(animatedObject)
         {
         }
 
@@ -25,23 +27,25 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            if (!(settings is UIBezierQuadraticAnimationSettings bezierSettings))
-                throw new ArgumentException("UIBezierQuadraticAnimation: The given settings is not UIBezierQuadraticAnimationSettings");
+            if (!(settings is UIBezierCubicAnimationSettings bezierSettings))
+                throw new ArgumentException("UIBezierCubicAnimation: The given settings is not UIBezierCubicAnimationSettings");
 
             _firstPoint = bezierSettings.FirstPoint;
             _secondPoint = bezierSettings.SecondPoint;
             _thirdPoint = bezierSettings.ThirdPoint;
+            _fourthPoint = bezierSettings.FourthPoint;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            AnimatedObject.Pos(BezierHelper.Quadratic(
+            AnimatedObject.Pos(BezierHelper.Cubic(
                 CurrentEasingTime, 
                 _firstPoint, 
                 _secondPoint, 
-                _thirdPoint
+                _thirdPoint,
+                _fourthPoint
             ));
         }
     }

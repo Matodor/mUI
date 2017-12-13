@@ -117,6 +117,12 @@ namespace mFramework
             return obj.Animation<UIBezierQuadraticAnimation>(settings);
         }
 
+        public static UIBezierCubicAnimation BezierCubicAnimation(this IUIObject obj,
+            UIBezierCubicAnimationSettings settings)
+        {
+            return obj.Animation<UIBezierCubicAnimation>(settings);
+        }
+
         public static UIColorAnimation ColorAnimation(this IUIColored obj, UIColorAnimationSettings settings)
         {
             return obj.Animation<UIColorAnimation>(settings);
