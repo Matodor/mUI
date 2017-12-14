@@ -62,10 +62,10 @@ namespace mFramework.UI
             }
         }
 
-        public override void MoveNext()
+        public override bool MoveNext()
         {
-            if (IsAnimated || CurrentPage + 1 >= Childs.Count)
-                return;
+            if (IsAnimated || CurrentPage + 1 >= Childs.Count || !BeforeMove())
+                return false;
 
             var current = Childs[CurrentPage];
             var next = Childs[CurrentPage + 1];
@@ -75,33 +75,37 @@ namespace mFramework.UI
             {
                 current.Hide();
                 IsAnimated = false;
-                OnPageChanged();
+                OnPageChanged(current, next);
             };
             Animate(next, true, GetHeight(), EasingNextPageType);
+            OnBeforePageChange(current, next);
 
             CurrentPage++;
             IsAnimated = true;
+            return true;
         }
 
-        public override void MovePrev()
+        public override bool MovePrev()
         {
-            if (IsAnimated || CurrentPage - 1 < 0)
-                return;
+            if (IsAnimated || CurrentPage - 1 < 0 || !BeforeMove())
+                return false;
 
             var current = Childs[CurrentPage];
-            var prev = Childs[CurrentPage - 1];
-            prev.Show();
+            var next = Childs[CurrentPage - 1];
+            next.Show();
 
             Animate(current, true, -GetHeight(), EasingCurrentPageType).AnimationEnded += _ =>
             {
                 current.Hide();
                 IsAnimated = false;
-                OnPageChanged();
+                OnPageChanged(current, next);
             };
-            Animate(prev, true, -GetHeight(), EasingNextPageType);
+            Animate(next, true, -GetHeight(), EasingNextPageType);
+            OnBeforePageChange(current, next);
 
             CurrentPage--;
             IsAnimated = true;
+            return true;
         }
 
         protected override void SliderDrag(Vector2 drag)

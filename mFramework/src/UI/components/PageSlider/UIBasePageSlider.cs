@@ -19,7 +19,9 @@ namespace mFramework.UI
 
     public abstract class UIBasePageSlider : UIComponent, IUIClickable, IView
     {
-        public event UIEventHandler<UIBasePageSlider> PageChanged = delegate { };
+        public event UIEventHandler<UIBasePageSlider, IUIObject, IUIObject> BeforePageChange = delegate { };
+        public event UIEventHandler<UIBasePageSlider, IUIObject, IUIObject> PageChanged = delegate { };
+        public event Func<UIBasePageSlider, bool> CanChangePage = delegate { return true; };
 
         public ushort? StencilId => _stencilId;
         public UIClickable UIClickable { get; private set; }
@@ -31,8 +33,8 @@ namespace mFramework.UI
         protected EasingType EasingCurrentPageType;
         protected EasingType EasingNextPageType;
 
-        public abstract void MoveNext();
-        public abstract void MovePrev();
+        public abstract bool MoveNext();
+        public abstract bool MovePrev();
 
         protected abstract void OnChildObjectAdded(IUIObject sender, IUIObject child);
         protected abstract void SliderDrag(Vector2 drag);
@@ -47,9 +49,19 @@ namespace mFramework.UI
         private Vector2 _dragPath;
         private List<Pair<IUIClickable, Vector2>> _clickNext;
 
-        protected void OnPageChanged()
+        protected bool BeforeMove()
         {
-            PageChanged(this);
+            return CanChangePage(this);
+        }
+
+        protected void OnBeforePageChange(IUIObject prev, IUIObject next)
+        {
+            BeforePageChange(this, prev, next);
+        }
+
+        protected void OnPageChanged(IUIObject prev, IUIObject next)
+        {
+            PageChanged(this, prev, next);
         }
 
         protected override void Init()

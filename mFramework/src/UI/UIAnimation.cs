@@ -139,6 +139,7 @@ namespace mFramework.UI
             EasingType = settings.EasingType;
             PlayType = settings.PlayType;
             AnimateEvery = settings.AnimateEvery;
+            UpdateAnimation();
         }
 
         protected abstract void OnAnimate();

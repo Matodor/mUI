@@ -28,6 +28,7 @@ namespace mFramework.UI
 
             _startScale = scaleSettings.StartScale;
             _endScale = scaleSettings.EndScale;
+
             base.ApplySettings(settings);
         }
 
