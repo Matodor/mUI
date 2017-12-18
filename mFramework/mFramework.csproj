@@ -60,6 +60,7 @@
     <Compile Include="src\abstract\ISaveableFields.cs" />
     <Compile Include="src\concrete\CircleArea2D.cs" />
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
+    <Compile Include="src\patching\mPatching.cs" />
     <Compile Include="src\UI\abstract\IMeshRenderer.cs" />
     <Compile Include="src\UI\abstract\IUIClickable.cs" />
     <Compile Include="src\UI\abstract\IView.cs" />

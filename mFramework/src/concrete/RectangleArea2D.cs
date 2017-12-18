@@ -18,23 +18,23 @@ namespace mFramework
             var heightDiv2 = Height / 2;
 
             // left top
-            var x = (-widthDiv2 + Offset.x) * AdditionalScale;
-            var y = (heightDiv2 + Offset.y) * AdditionalScale;
+            var x = (-widthDiv2 + Offset.x) * AdditionalScale.x;
+            var y = (heightDiv2 + Offset.y) * AdditionalScale.y;
             var leftTop = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // left bottom
-            x = (-widthDiv2 + Offset.x) * AdditionalScale;
-            y = (-heightDiv2 + Offset.y) * AdditionalScale;
+            x = (-widthDiv2 + Offset.x) * AdditionalScale.x;
+            y = (-heightDiv2 + Offset.y) * AdditionalScale.y;
             var leftBottom = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // right bottom
-            x = (widthDiv2 + Offset.x) * AdditionalScale;
-            y = (-heightDiv2 + Offset.y) * AdditionalScale;
+            x = (widthDiv2 + Offset.x) * AdditionalScale.x;
+            y = (-heightDiv2 + Offset.y) * AdditionalScale.y;
             var rightBottom = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             // right top
-            x = (widthDiv2 + Offset.x) * AdditionalScale;
-            y = (heightDiv2 + Offset.y) * AdditionalScale;
+            x = (widthDiv2 + Offset.x) * AdditionalScale.x;
+            y = (heightDiv2 + Offset.y) * AdditionalScale.y;
             var rightTop = mMath.GetRotatedPoint(Center.x, Center.y, x, y, sin, cos);
 
             if (mCore.IsEditor && mCore.IsDebug)

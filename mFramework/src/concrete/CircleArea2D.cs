@@ -11,11 +11,11 @@ namespace mFramework
             UpdateData();
 
             var circleCenter = new Vector2(
-                Center.x + Offset.x * AdditionalScale,
-                Center.y + Offset.y * AdditionalScale
+                Center.x + Offset.x * AdditionalScale.x,
+                Center.y + Offset.y * AdditionalScale.y
             );
 
-            var r = Radius * AdditionalScale;
+            var r = Radius * AdditionalScale.x;
 
             if (mCore.IsEditor && mCore.IsDebug)
             {
