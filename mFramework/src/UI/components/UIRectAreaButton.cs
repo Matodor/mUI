@@ -11,22 +11,20 @@ namespace mFramework.UI
         public Vector2 AreaOffset = Vector2.zero;
     }
 
-    public class UIRectAreaButton : UIComponent, IUIClickable
+    public class UIRectAreaButton : UIComponent, IUIButton
     {
         public Vector2 AreaOffset = Vector2.zero;
         public float AreaWidth = 0f;
         public float AreaHeight = 0;
-
-        public delegate bool CanClick(UIRectAreaButton sender, Vector2 worldPos);
         
         public UIClickable UIClickable { get; protected set; }
         public ClickCondition ClickCondition { get; set; }
 
-        public event UIEventHandler<UIRectAreaButton> Click = delegate { };
-        public event CanClick CanButtonClick = delegate { return true; };
+        public event UIEventHandler<IUIButton> Click = delegate { };
+        public event Func<IUIButton, Vector2, bool> CanButtonClick = delegate { return true; };
 
-        public event UIEventHandler<UIRectAreaButton, Vector2> ButtonDown = delegate { };
-        public event UIEventHandler<UIRectAreaButton, Vector2> ButtonUp = delegate { };
+        public event UIEventHandler<IUIButton, Vector2> ButtonDown = delegate { };
+        public event UIEventHandler<IUIButton, Vector2> ButtonUp = delegate { };
 
         private bool _isPressed;
 
@@ -76,12 +74,12 @@ namespace mFramework.UI
 
         public override float GetWidth()
         {
-            return AreaWidth * GlobalScale().x;
+            return UnscaledWidth() * GlobalScale().x;
         }
         
         public override float GetHeight()
         {
-            return AreaHeight * GlobalScale().y;
+            return UnscaledHeight() * GlobalScale().y;
         }
 
         public void MouseDown(Vector2 worldPos)

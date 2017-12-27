@@ -6,7 +6,7 @@ namespace mFramework.UI
     public class UISprite : UIComponent, IUISpriteRenderer, IUIColored
     {
         public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
-        public IUISpriteRenderer SpriteMask => _uiSpriteRenderer.SpriteMask;
+        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
         public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
         private UISpriteRenderer _uiSpriteRenderer;
@@ -69,7 +69,7 @@ namespace mFramework.UI
             _uiSpriteRenderer.RemoveMask();
         }
 
-        public IUISpriteRenderer SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
         }

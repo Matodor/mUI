@@ -11,13 +11,16 @@ namespace mFramework.UI
 
     public class UIColor
     {
+        public static UIColor Black = new UIColor(0, 0, 0);
+        public static UIColor White = new UIColor(255, 255, 255);
+
         public Color32 Color32 => ToColor32();
 
         public readonly UIColorType Type;
-        public float n1; // r, h
-        public float n2; // g, s
-        public float n3; // b, v
-        public float Alpha; // alpha
+        public float n1; // r 0-255, h 0-360
+        public float n2; // g 0-255, s 0-255
+        public float n3; // b 0-255, v 0-255
+        public float Alpha; // alpha 0-255
 
         public UIColor(string hexColor)
         {
@@ -81,6 +84,11 @@ namespace mFramework.UI
         public override string ToString()
         {
             return $"Type: {Type} | n1: {n1} | n2: {n2} | n3: {n3} | Alpha: {Alpha}";
+        }
+
+        public UIColor Copy(float alpha)
+        {
+            return new UIColor(n1, n2, n3, alpha, Type);
         }
 
         public UIColor Copy()

@@ -77,12 +77,12 @@ namespace mFramework.UI
 
         public override float GetHeight()
         {
-            return _height * GlobalScale().y;
+            return UnscaledHeight() * GlobalScale().y;
         }
 
         public override float GetWidth()
         {
-            return _width * GlobalScale().x;
+            return UnscaledWidth() * GlobalScale().x;
         }
 
         public IMeshRenderer SetSharedMesh(Mesh mesh)

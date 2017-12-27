@@ -56,12 +56,12 @@ namespace mFramework.UI
 
         public override float GetWidth()
         {
-            return _width * GlobalScale().x;
+            return UnscaledWidth() * GlobalScale().x;
         }
 
         public override float GetHeight()
         {
-            return _height * GlobalScale().y;
+            return UnscaledHeight() * GlobalScale().y;
         }
     }
 }

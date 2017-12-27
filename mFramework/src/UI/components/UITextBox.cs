@@ -59,7 +59,7 @@ namespace mFramework.UI
             Label.SortingOrder(1);
         }
 
-        private void CheckForLeave(UIButton sender, Vector2 worldPos)
+        private void CheckForLeave(IUIButton sender, Vector2 worldPos)
         {
             if (sender.UIClickable.Area2D.InArea(worldPos))
                 return;
@@ -68,7 +68,7 @@ namespace mFramework.UI
             TextBoxDeselected();
         }
 
-        private void OnClickTextBox(UIButton sender)
+        private void OnClickTextBox(IUIButton sender)
         {
             _isSelected = !_isSelected;
 

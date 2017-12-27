@@ -27,6 +27,7 @@ namespace mFramework.UI
         public UIClickable UIClickable { get; private set; }
         public LayoutElemsDirection ElementsDirection { get; private set; }
 
+        public UILinearAnimation MoveAnimation { get; protected set; }
         public int CurrentPage { get; protected set; }
         protected bool IsAnimated;
         protected float Duration;
@@ -35,6 +36,8 @@ namespace mFramework.UI
 
         public abstract bool MoveNext();
         public abstract bool MovePrev();
+        public abstract bool CanMovePrev();
+        public abstract bool CanMoveNext();
 
         protected abstract void OnChildObjectAdded(IUIObject sender, IUIObject child);
         protected abstract void SliderDrag(Vector2 drag);
@@ -119,7 +122,7 @@ namespace mFramework.UI
 
         protected UILinearAnimation Animate(IUIObject obj, bool isVertical, float translate, EasingType easingType)
         {
-            return obj.LinearAnimation(new UILinearAnimationSettings
+            MoveAnimation = obj.LinearAnimation(new UILinearAnimationSettings
             {
                 LocalPosition = true,
                 StartPos = obj.LocalPos(),
@@ -128,6 +131,7 @@ namespace mFramework.UI
                 Duration = Duration,
                 EasingType = easingType
             });
+            return MoveAnimation;
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -181,12 +185,12 @@ namespace mFramework.UI
 
         public override float GetWidth()
         {
-            return _width * GlobalScale().x;
+            return UnscaledWidth() * GlobalScale().x;
         }
 
         public override float GetHeight()
         {
-            return _height * GlobalScale().y;
+            return UnscaledHeight() * GlobalScale().y;
         }
 
         public void MouseDown(Vector2 worldPos)

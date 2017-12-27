@@ -10,7 +10,7 @@ namespace mFramework.UI
         public string Font = "Arial";
         public int Size = 40;
         public TextAnchor? TextAnchor = null;
-        public UIColor Color = UIColors.White;
+        public UIColor Color = UIColor.White;
         public FontStyle FontStyle = FontStyle.Normal;
         public TextAlignment TextAlignment = TextAlignment.Left;
         public float LetterSpacing = 1f;
@@ -750,12 +750,12 @@ namespace mFramework.UI
 
         public override float GetHeight()
         {
-            return _textHeight * GlobalScale().y;
+            return UnscaledHeight() * GlobalScale().y;
         }
 
         public override float GetWidth()
         {
-            return _textWidth * GlobalScale().x;
+            return UnscaledWidth() * GlobalScale().x;
         }
 
         public Color GetColor()

@@ -14,7 +14,7 @@ namespace mFramework.UI
         public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
         public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
-        public IUISpriteRenderer SpriteMask => _uiSpriteRenderer.SpriteMask;
+        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
 
         public StateableSprite StateableSprite { get; private set; }
         public ClickCondition ClickCondition { get; set; }
@@ -201,7 +201,7 @@ namespace mFramework.UI
             _uiSpriteRenderer.RemoveMask();
         }
 
-        public IUISpriteRenderer SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
         }

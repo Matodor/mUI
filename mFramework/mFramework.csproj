@@ -62,6 +62,7 @@
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
     <Compile Include="src\patching\mPatching.cs" />
     <Compile Include="src\UI\abstract\IMeshRenderer.cs" />
+    <Compile Include="src\UI\abstract\IUIButton.cs" />
     <Compile Include="src\UI\abstract\IUIClickable.cs" />
     <Compile Include="src\UI\abstract\IView.cs" />
     <Compile Include="src\achievements\mAchievements.cs" />
@@ -146,7 +147,6 @@
     <Compile Include="src\UI\components\UIToggle.cs" />
     <Compile Include="src\UI\UIClickable.cs" />
     <Compile Include="src\UI\UIColor.cs" />
-    <Compile Include="src\UI\UIColors.cs" />
     <Compile Include="src\UI\UIObject.cs" />
     <Compile Include="src\UI\UIObjectOrientation.cs" />
     <Compile Include="src\UI\UIRect.cs" />

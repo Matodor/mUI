@@ -140,9 +140,6 @@ namespace mFramework.UI
             float newInnerSpace;
             var pureWidth = rightItemRect.Right - leftItemRect.Left;
 
-            var leftFreeSpace = sliderRect.Left - leftItemRect.Left;
-            var rightFreeSpace = rightItemRect.Right - sliderRect.Right;
-
             if (pureWidth < GetWidth())
             {
                 if (ElementsDirection == LayoutElemsDirection.FORWARD)

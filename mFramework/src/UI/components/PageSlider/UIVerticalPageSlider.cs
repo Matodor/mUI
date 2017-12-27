@@ -62,9 +62,14 @@ namespace mFramework.UI
             }
         }
 
+        public override bool CanMoveNext()
+        {
+            return !IsAnimated && CurrentPage + 1 < Childs.Count && BeforeMove();
+        }
+
         public override bool MoveNext()
         {
-            if (IsAnimated || CurrentPage + 1 >= Childs.Count || !BeforeMove())
+            if (CanMoveNext())
                 return false;
 
             var current = Childs[CurrentPage];
@@ -85,9 +90,14 @@ namespace mFramework.UI
             return true;
         }
 
+        public override bool CanMovePrev()
+        {
+            return !IsAnimated && CurrentPage - 1 >= 0 && BeforeMove();
+        }
+
         public override bool MovePrev()
         {
-            if (IsAnimated || CurrentPage - 1 < 0 || !BeforeMove())
+            if (!CanMovePrev())
                 return false;
 
             var current = Childs[CurrentPage];

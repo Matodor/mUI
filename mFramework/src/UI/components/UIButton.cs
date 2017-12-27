@@ -17,22 +17,22 @@ namespace mFramework.UI
         BUTTON_PRESSED
     }
 
-    public class UIButton : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable
+    public class UIButton : UIComponent, IUIButton, IUISpriteRenderer, IUIColored
     {
         public UIClickable UIClickable { get; private set; }
         public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
         public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
-        public IUISpriteRenderer SpriteMask => _uiSpriteRenderer.SpriteMask;
+        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
         
         public StateableSprite StateableSprite { get; private set; }
         public ClickCondition ClickCondition { get; set; }
 
-        public event UIEventHandler<UIButton> Click = delegate { };
-        public event Func<UIButton, Vector2, bool> CanButtonClick = delegate { return true; };
+        public event UIEventHandler<IUIButton> Click = delegate { };
+        public event Func<IUIButton, Vector2, bool> CanButtonClick = delegate { return true; };
 
-        public event UIEventHandler<UIButton, Vector2> ButtonDown = delegate { };
-        public event UIEventHandler<UIButton, Vector2> ButtonUp = delegate { };
+        public event UIEventHandler<IUIButton, Vector2> ButtonDown = delegate { };
+        public event UIEventHandler<IUIButton, Vector2> ButtonUp = delegate { };
 
         private UISpriteRenderer _uiSpriteRenderer;
         private bool _isPressed;
@@ -120,7 +120,7 @@ namespace mFramework.UI
             _uiSpriteRenderer.RemoveMask();
         }
 
-        public IUISpriteRenderer SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
+        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
         }

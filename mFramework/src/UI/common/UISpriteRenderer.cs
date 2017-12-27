@@ -68,7 +68,7 @@ namespace mFramework.UI
                 SpriteMask.Renderer.material = layer.CanvasMaterial;
                 SpriteMask.Renderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
                 SpriteMask.Renderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
-                SpriteMask.Renderer.color = new Color32(255, 255, 255, 1);
+                SpriteMask.Renderer.color = new Color32(255, 255, 255, 0);
                 Renderer.material = layer.SpritesMaterial;
             }
 
@@ -87,12 +87,12 @@ namespace mFramework.UI
 
         public float GetHeight()
         {
-            return Renderer.sprite.bounds.size.y * _object.GlobalScale().y;
+            return UnscaledHeight() * _object.GlobalScale().y;
         }
 
         public float GetWidth()
         {
-            return Renderer.sprite.bounds.size.x * _object.GlobalScale().x;
+            return UnscaledWidth() * _object.GlobalScale().x;
         }
 
         public UIRect GetRect()
