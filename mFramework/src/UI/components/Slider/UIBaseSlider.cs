@@ -163,14 +163,15 @@ namespace mFramework.UI
         {
             if (!IsPressed)
                 return;
-
             IsPressed = false;
+
+            _lastMoveDiff = worldPos - _lastMousePos;
             _lastMousePos = worldPos;
             _mouseUpAt = DateTime.Now;
 
             if (_clickNext.Count > 0)
             {
-                if (_dragPath.Length() < SLIDER_MAX_PATH_TO_CLICK)
+                if (_dragPath.Length() <= SLIDER_MAX_PATH_TO_CLICK)
                     _clickNext.ForEach(e => e.First.MouseUp(e.Second));
                 else
                     _clickNext.ForEach(e => e.First.MouseUp(new Vector2(float.MinValue, float.MinValue))); // fake pos
@@ -187,6 +188,12 @@ namespace mFramework.UI
              
             _lastMoveDiff = worldPos - _lastMousePos;
             _dragPath += _lastMoveDiff;
+
+            if (_clickNext.Count > 0 && _dragPath.Length() > SLIDER_MAX_PATH_TO_CLICK)
+            {
+                _clickNext.ForEach(e => e.First.MouseUp(new Vector2(float.MinValue, float.MinValue))); // fake pos
+                _clickNext.Clear();
+            }
 
             SliderDrag(_lastMoveDiff);
             _lastMousePos = worldPos;

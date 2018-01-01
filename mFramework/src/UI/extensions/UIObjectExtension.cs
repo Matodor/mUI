@@ -9,15 +9,13 @@ namespace mFramework
     {
         public static IEnumerable<T> DeepChilds<T>(this IUIObject obj) where T : IUIObject
         {
-            if (obj is T v)
-                yield return v;
-
-            var tmp = obj.Childs.LastItem;
-            while (tmp != null)
+            foreach (var child in obj.Childs)
             {
-                foreach (var deepChild in DeepChilds<T>(tmp.Value))
-                    yield return deepChild;
-                tmp = tmp.Prev;
+                foreach (var c in DeepChilds<T>(child))
+                    yield return c;
+
+                if (child is T returnValue)
+                    yield return returnValue;
             }
         }
 

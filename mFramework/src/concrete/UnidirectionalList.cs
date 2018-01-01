@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace mFramework
 {
-    public class UnidirectionalList<T> where T : IGlobalUniqueIdentifier
+    public class UnidirectionalList<T> : IEnumerable<T> where T : IGlobalUniqueIdentifier
     {
         public class ListItem
         {
@@ -162,6 +164,21 @@ namespace mFramework
                 action(tmp.Value);
                 tmp = tmp.Prev;
             }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            var tmp = LastItem;
+            while (tmp != null)
+            {
+                yield return tmp.Value;
+                tmp = tmp.Prev;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

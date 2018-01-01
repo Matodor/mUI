@@ -70,7 +70,6 @@
     <Compile Include="src\analytics\AnalyticsHelper.cs" />
     <Compile Include="src\analytics\AnalyticsStats.cs" />
     <Compile Include="src\analytics\mAnalytics.cs" />
-    <Compile Include="src\analytics\ScreenSession.cs" />
     <Compile Include="src\concrete\Area2D.cs" />
     <Compile Include="src\concrete\AES.cs" />
     <Compile Include="src\concrete\B64X.cs" />
