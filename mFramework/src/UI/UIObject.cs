@@ -157,12 +157,23 @@ namespace mFramework.UI
         public abstract float UnscaledHeight();
         public abstract float UnscaledWidth();
 
+        public IUIObject LocalRotate(float angle)
+        {
+            LocalRotate(transform.localEulerAngles.x, transform.localEulerAngles.y, angle);
+            return this;
+        }
+
         public IUIObject LocalRotate(float x, float y, float z)
         {
             transform.localEulerAngles = new Vector3(x, y, z);
             return this;
         }
 
+        public float LocalRotation()
+        {
+            return transform.localEulerAngles.z;
+        }
+        
         public IUIObject Rotate(float x, float y, float z)
         {
             transform.eulerAngles = new Vector3(x, y, z);
@@ -239,7 +250,7 @@ namespace mFramework.UI
             return this;
         }
 
-        public Vector2 LocalScale()
+        public Vector2 Scale()
         {
             return transform.localScale;
         }

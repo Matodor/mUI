@@ -124,7 +124,7 @@ namespace mFramework.UI
         {
             MoveAnimation = obj.LinearAnimation(new UILinearAnimationSettings
             {
-                LocalPosition = true,
+                IsLocal = true,
                 StartPos = obj.LocalPos(),
                 EndPos = isVertical ? obj.LocalTranslatedY(translate) : obj.LocalTranslatedX(translate),
                 PlayType = UIAnimationPlayType.PLAY_ONCE,

@@ -471,7 +471,7 @@ namespace mFramework.UI
             
             Size = mMath.Clamp(Size, 1, maxSize);
 
-            var localScale = LocalScale();
+            var localScale = Scale();
             Scale(1, 1);
 
             var text = Text

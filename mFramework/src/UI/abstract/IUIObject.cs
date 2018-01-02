@@ -40,7 +40,7 @@ namespace mFramework.UI
         float GetWidth();
 
         Vector2 GlobalScale();
-        Vector2 LocalScale();
+        Vector2 Scale();
 
         Vector2 LocalTranslatedY(float y);
         Vector2 LocalTranslatedX(float x);
@@ -64,7 +64,10 @@ namespace mFramework.UI
         IUIObject Pos(Vector2 position);
         Vector2 Pos();
 
+        IUIObject LocalRotate(float angle);
         IUIObject LocalRotate(float x, float y, float z);
+        float LocalRotation();
+
         IUIObject Rotate(float angle);
         IUIObject Rotate(float x, float y, float z);
         float Rotation();

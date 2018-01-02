@@ -4,14 +4,16 @@ namespace mFramework.UI
 {
     public class UIRotateAnimationSettings : UIAnimationSettings
     {
-        public float FromAngle { get; set; } = 0;
-        public float ToAngle { get; set; } = 0;
+        public float FromAngle;
+        public float ToAngle;
+        public bool IsLocal;
     }
 
     public class UIRotateAnimation : UIAnimation
     {
         private float _fromAngle;
         private float _endAngle;
+        private bool _isLocal;
 
         protected UIRotateAnimation(UIObject animatedObject) : base(animatedObject)
         {
@@ -27,13 +29,18 @@ namespace mFramework.UI
 
             _fromAngle = rotateSettings.FromAngle;
             _endAngle = rotateSettings.ToAngle;
+            _isLocal = rotateSettings.IsLocal;
+
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
             var newAngle = BezierHelper.Linear(CurrentEasingTime, _fromAngle, _endAngle);
-            AnimatedObject.Rotate(newAngle);
+            if (_isLocal)
+                AnimatedObject.LocalRotate(newAngle);
+            else
+                AnimatedObject.Rotate(newAngle);
         }
     }
 }

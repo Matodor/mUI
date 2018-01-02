@@ -7,14 +7,14 @@ namespace mFramework.UI
     {
         public Vector2 StartPos;
         public Vector2 EndPos;
-        public bool LocalPosition = false;
+        public bool IsLocal = false;
     }
 
     public class UILinearAnimation : UIAnimation
     {
         private Vector2 _startPos;
         private Vector2 _endPos;
-        private bool _localPosition;
+        private bool _isLocal;
 
         protected UILinearAnimation(UIObject animatedObject) : base(animatedObject)
         {
@@ -31,14 +31,14 @@ namespace mFramework.UI
 
             _startPos = linearSettings.StartPos;
             _endPos = linearSettings.EndPos;
-            _localPosition = linearSettings.LocalPosition;
+            _isLocal = linearSettings.IsLocal;
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
             var newPos = BezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
-            if (_localPosition)
+            if (_isLocal)
                 AnimatedObject.LocalPos(newPos);
             else
                 AnimatedObject.Pos(newPos);
