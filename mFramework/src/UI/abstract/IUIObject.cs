@@ -28,6 +28,7 @@ namespace mFramework.UI
         T Component<T>(UIComponentSettings settings) where T : UIComponent;
         void RemoveAnimations();
         void Destroy();
+        void DestroyChilds();
 
         IUIObject Disable();
         IUIObject Enable();
@@ -41,6 +42,14 @@ namespace mFramework.UI
 
         Vector2 GlobalScale();
         Vector2 Scale();
+
+        IUIObject Translate(float x, float y);
+        IUIObject Translate(float x, float y, float z);
+        IUIObject Translate(Vector2 translatePos);
+
+        IUIObject LocalTranslate(float x, float y);
+        IUIObject LocalTranslate(float x, float y, float z);
+        IUIObject LocalTranslate(Vector2 translatePos);
 
         Vector2 LocalTranslatedY(float y);
         Vector2 LocalTranslatedX(float x);
@@ -83,10 +92,6 @@ namespace mFramework.UI
         int LocalSortingOrder();
         int SortingOrder();
         IUIObject SortingOrder(int sortingOrder);
-
-        IUIObject Translate(float x, float y);
-        IUIObject Translate(float x, float y, float z);
-        IUIObject Translate(Vector2 translatePos);
 
         void OnSortingOrderChanged();
         void Tick();

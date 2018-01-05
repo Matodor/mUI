@@ -53,8 +53,6 @@ namespace mFramework.UI
 
     public abstract class UIAnimation : IGlobalUniqueIdentifier
     {
-        internal bool MarkedForDestroy { get; private set; }
-
         public float CurrentTime => _animationTime;
         public float CurrentEasingTime => _animationEasingTime;
 
@@ -207,7 +205,7 @@ namespace mFramework.UI
 
         public void Remove()
         {
-            MarkedForDestroy = true;
+            AnimatedObject.RemoveAnimation(this);
         }
     }
 }

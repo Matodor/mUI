@@ -58,6 +58,7 @@ namespace mFramework.UI
             _destroyed = false;
             _localSortingOrder = 0;
 
+            SetName(gameObject.name);
             mUI.AddUIObject(this);
             Init();
         }
@@ -122,6 +123,11 @@ namespace mFramework.UI
             DestroyImpl();
         }
 
+        public void DestroyChilds()
+        {
+            Childs.ForEach(c => c.Destroy());
+        }
+
         public void Destroy()
         {
             if (this == mUI.BaseView)
@@ -132,7 +138,7 @@ namespace mFramework.UI
 
         public IUIObject SetName(string newName)
         {
-            gameObject.name = newName;
+            gameObject.name = $"{newName} ({GUID})";
             return this;
         }
 
@@ -189,6 +195,24 @@ namespace mFramework.UI
         public float Rotation()
         {
             return transform.eulerAngles.z;
+        }
+
+        public IUIObject LocalTranslate(float x, float y)
+        {
+            LocalTranslate(x, y, 0);
+            return this;
+        }
+
+        public IUIObject LocalTranslate(float x, float y, float z)
+        {
+            transform.Translate(x, y, z, Space.Self);
+            return this;
+        }
+
+        public IUIObject LocalTranslate(Vector2 translatePos)
+        {
+            LocalTranslate(translatePos.x, translatePos.y, 0);
+            return this;
         }
 
         public IUIObject Translate(float x, float y)
@@ -404,15 +428,8 @@ namespace mFramework.UI
 
         public void Tick()
         {
-            Animations.ForEach(a =>
-            {
-                if (a.MarkedForDestroy)
-                    Animations.Remove(a.GUID);
-                else
-                    a.Tick();
-            });
-
             OnTick();
+            Animations.ForEach(a => a.Tick());
             Childs.ForEach(c => c.Tick());
         }
 
@@ -460,6 +477,11 @@ namespace mFramework.UI
         public void RemoveAnimations()
         {
             Animations.Clear();
+        }
+
+        internal void RemoveAnimation(UIAnimation anim)
+        {
+            Animations.Remove(anim);
         }
 
         internal void RemoveChild(IUIObject obj)

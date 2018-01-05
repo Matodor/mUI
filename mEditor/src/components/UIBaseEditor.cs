@@ -35,6 +35,7 @@ namespace mFramework
             }
 
             EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.LongField("GUID", (long)_object.GUID);
             EditorGUILayout.IntField("Sorting order", _object.SortingOrder());
             EditorGUI.EndDisabledGroup();
 
