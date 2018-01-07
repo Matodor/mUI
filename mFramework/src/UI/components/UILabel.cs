@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -36,7 +37,7 @@ namespace mFramework.UI
         public float? LinesSpacing = null;
     }
 
-    public class UILabel : UIComponent, IUIColored, IUIRenderer
+    public class UILabel : UIComponent, IUIColored
     {
         public const float DEFAULT_HARSHNESS = 2;
 
@@ -334,19 +335,6 @@ namespace mFramework.UI
 
         public UILabel TextFormatting(int index, TextFormatting formatting)
         {
-            if (formatting.Size == null)
-                formatting.Size = Size;
-            if (formatting.Color == null)
-                formatting.Color = _color;
-            if (formatting.LetterSpacing == null)
-                formatting.LetterSpacing = LetterSpacing;
-            if (formatting.WordSpacing == null)
-                formatting.WordSpacing = WordSpacing;
-            if (formatting.FontStyle == null)
-                formatting.FontStyle = FontStyle;
-            if (formatting.LinesSpacing == null)
-                formatting.LinesSpacing = LinesSpacing;
-
             if (_textFormatting.ContainsKey(index))
                 _textFormatting[index] = formatting;
             else
@@ -475,7 +463,7 @@ namespace mFramework.UI
             Scale(1, 1);
 
             var text = Text
-                .Replace('\t', ' ')
+                .Replace("\t", "   ")
                 .TrimStart('\n');
 
             _left = 0;
@@ -501,6 +489,8 @@ namespace mFramework.UI
             var startLineIndex = 0;
             var lines = 1;
             var pureLineHeight = 0f;
+
+            //mCore.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -562,8 +552,8 @@ namespace mFramework.UI
                 var minY = characterInfo.minY / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var maxY = characterInfo.maxY / pixelsPerWorldUnit / _cachedFont.Harshness;
 
-                minX += minX * -1;
-                maxX += minX * -1;
+                //minX += minX * -1;
+                //maxX += minX * -1;
 
                 if (_maxWidth.HasValue && textXOffset + maxX > _maxWidth)
                 {
@@ -572,10 +562,19 @@ namespace mFramework.UI
                     goto End;
                 }
 
+                //var w = characterInfo.glyphWidth / pixelsPerWorldUnit / _cachedFont.Harshness;
+                //var h = characterInfo.glyphHeight / pixelsPerWorldUnit / _cachedFont.Harshness;
+                var bearing = characterInfo.bearing / pixelsPerWorldUnit / _cachedFont.Harshness;
+                var advance = characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness;
+
+                //textXOffset -= bearing;
+                
                 verticesList.Add(new Vector3(textXOffset + minX, minY));
                 verticesList.Add(new Vector3(textXOffset + minX, maxY));
                 verticesList.Add(new Vector3(textXOffset + maxX, maxY));
                 verticesList.Add(new Vector3(textXOffset + maxX, minY));
+
+                // TODO подобрать LetterSpacing
 
                 //mCore.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
                 //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
@@ -586,14 +585,14 @@ namespace mFramework.UI
 
                 if (currentCharacter == ' ')
                 {
-                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness *
+                    textXOffset += advance *
                                    (currentFormatting == null
                                        ? WordSpacing
                                        : currentFormatting.WordSpacing.GetValueOrDefault(WordSpacing));
                 }
                 else
                 {
-                    textXOffset += characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness *
+                    textXOffset += advance *
                                    (currentFormatting == null
                                        ? LetterSpacing
                                        : currentFormatting.LetterSpacing.GetValueOrDefault(LetterSpacing));
@@ -709,6 +708,7 @@ namespace mFramework.UI
                     verticesList[i].y + yDiff,
                     verticesList[i].z
                 );
+
                 CheckBoundingBox(verticesList[i].x, verticesList[i].y);
             }
 

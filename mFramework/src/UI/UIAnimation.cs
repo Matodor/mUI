@@ -43,7 +43,7 @@ namespace mFramework.UI
 
         static NewAnimation()
         {
-            var constructor = typeof(T).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, null,
+            var constructor = typeof(T).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public, null,
                 new Type[] { typeof(UIObject) }, null);
             var parameter = Expression.Parameter(typeof(UIObject), "animatedObject");
             var e = Expression.New(constructor, parameter);
