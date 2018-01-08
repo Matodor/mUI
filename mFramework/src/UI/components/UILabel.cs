@@ -67,11 +67,6 @@ namespace mFramework.UI
         private float _textWidth;
         private float _textHeight;
 
-        private float _left;
-        private float _right;
-        private float _top;
-        private float _bottom;
-
         private Dictionary<int, TextFormatting> _textFormatting;
 
         protected override void Init()
@@ -345,63 +340,6 @@ namespace mFramework.UI
             return this;
         }
 
-        private void CheckBoundingBox(float vertX, float vertY)
-        {
-            if (_left > vertX)
-                _left = vertX;
-
-            if (_right < vertX)
-                _right = vertX;
-
-            if (_top < vertY)
-                _top = vertY;
-
-            if (_bottom > vertY)
-                _bottom = vertY;
-        }
-
-        private void AlignVertices(IList<Vector3> vertices, TextAlignment alignment, 
-            int startIndex, int endIndex, float lineWidth, float yOffset = 0.0f)
-        {
-            switch (alignment)
-            {
-                case TextAlignment.Center:
-                    for (int i = startIndex; i <= endIndex; i++)
-                    {
-                        vertices[i] = new Vector3(
-                            vertices[i].x - lineWidth / 2f,
-                            vertices[i].y + yOffset,
-                            vertices[i].z
-                        );
-
-                        CheckBoundingBox(vertices[i].x, vertices[i].y);
-                    }
-                    break;
-                case TextAlignment.Right:
-                    for (int i = startIndex; i <= endIndex; i++)
-                    {
-                        vertices[i] = new Vector3(
-                            vertices[i].x - lineWidth,
-                            vertices[i].y + yOffset,
-                            vertices[i].z
-                        );
-                        CheckBoundingBox(vertices[i].x, vertices[i].y);
-                    }
-                    break;
-                case TextAlignment.Left:
-                    for (int i = startIndex; i <= endIndex; i++)
-                    {
-                        vertices[i] = new Vector3(
-                            vertices[i].x,
-                            vertices[i].y + yOffset,
-                            vertices[i].z
-                        );
-                        CheckBoundingBox(vertices[i].x, vertices[i].y);
-                    }
-                    break;
-            }
-        }
-
         private static int ParseFormatting(int i, string text, ref int formattingIndex)
         {
             // [=0]
@@ -443,6 +381,15 @@ namespace mFramework.UI
             return 0;
         }
 
+        private struct LineInfo
+        {
+            public int StartIndex;
+            public int EndIndex;
+            public float Width;
+            public float Height;
+            public float PureHeight;
+        }
+
         public void UpdateMesh(bool ignoreActive = false)
         {
             if (!ignoreActive && !IsActive)
@@ -466,11 +413,6 @@ namespace mFramework.UI
                 .Replace("\t", "   ")
                 .TrimStart('\n');
 
-            _left = 0;
-            _bottom = 0;
-            _right = 0;
-            _top = 0;
-
             var verticesList = new List<Vector3>(text.Length * 4);
             var normalsList = new List<Vector3>(text.Length * 4);
             var uvList = new List<Vector2>(text.Length * 4);
@@ -482,14 +424,16 @@ namespace mFramework.UI
 
             var currentFormatting = (TextFormatting) null;
             var textXOffset = 0f;
-            var textYOffset = 0f;
-            var lineHeight = 0f;
 
             var formattingIndex = -1;
             var startLineIndex = 0;
             var lines = 1;
             var pureLineHeight = 0f;
 
+            var lastLineHeight = 0f;
+            var lastLineWidth = 0f;
+            var linesInfo = new List<LineInfo>();
+            
             //mCore.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
 
             for (int i = 0; i < text.Length; i++)
@@ -551,37 +495,40 @@ namespace mFramework.UI
                 var maxX = characterInfo.maxX / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var minY = characterInfo.minY / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var maxY = characterInfo.maxY / pixelsPerWorldUnit / _cachedFont.Harshness;
+                var w = characterInfo.glyphWidth / pixelsPerWorldUnit / _cachedFont.Harshness;
 
-                //minX += minX * -1;
-                //maxX += minX * -1;
-
-                if (_maxWidth.HasValue && textXOffset + maxX > _maxWidth)
+                if (_maxWidth.HasValue && lastLineWidth + w > _maxWidth)
                 {
                     i--;
                     forceNewLine = true;
                     goto End;
                 }
 
-                //var w = characterInfo.glyphWidth / pixelsPerWorldUnit / _cachedFont.Harshness;
-                //var h = characterInfo.glyphHeight / pixelsPerWorldUnit / _cachedFont.Harshness;
+                //var h = characterInfo.glyphHeight / devider;
                 var bearing = characterInfo.bearing / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var advance = characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness;
 
-                //textXOffset -= bearing;
-                
-                verticesList.Add(new Vector3(textXOffset + minX, minY));
-                verticesList.Add(new Vector3(textXOffset + minX, maxY));
-                verticesList.Add(new Vector3(textXOffset + maxX, maxY));
-                verticesList.Add(new Vector3(textXOffset + maxX, minY));
+                var leftBottom = new Vector3(textXOffset + minX, minY);
+                var leftTop = new Vector3(textXOffset + minX, maxY);
+                var rightTop = new Vector3(textXOffset + maxX, maxY);
+                var rightBottom = new Vector3(textXOffset + maxX, minY);
 
-                // TODO подобрать LetterSpacing
+                verticesList.Add(leftBottom);
+                verticesList.Add(leftTop);
+                verticesList.Add(rightTop);
+                verticesList.Add(rightBottom);
+
+                lastLineWidth = rightBottom.x - verticesList[startLineIndex].x;
+
+                if (lastLineHeight < characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness)
+                    lastLineHeight = characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness;
+
+                if (pureLineHeight < rightTop.y - rightBottom.y)
+                    pureLineHeight = rightTop.y - rightBottom.y;
 
                 //mCore.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
                 //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
                 //  characterInfo.advance, characterInfo.bearing, characterInfo.size, characterInfo.glyphHeight, characterInfo.glyphWidth);
-
-                if (lineHeight < characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness)
-                    lineHeight = characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness;
 
                 if (currentCharacter == ' ')
                 {
@@ -597,9 +544,6 @@ namespace mFramework.UI
                                        ? LetterSpacing
                                        : currentFormatting.LetterSpacing.GetValueOrDefault(LetterSpacing));
                 }
-
-                if (pureLineHeight < verticesList[verticesList.Count - 2].y - verticesList[verticesList.Count - 1].y)
-                    pureLineHeight = verticesList[verticesList.Count - 2].y - verticesList[verticesList.Count - 1].y;
 
                 var color = currentFormatting == null 
                     ? (Color32) _color
@@ -623,6 +567,7 @@ namespace mFramework.UI
                 trianglesList.Add(verticesList.Count - 4); // 0
                 trianglesList.Add(verticesList.Count - 3); // 1 
                 trianglesList.Add(verticesList.Count - 2); // 2
+
                 trianglesList.Add(verticesList.Count - 2); // 2
                 trianglesList.Add(verticesList.Count - 1); // 3
                 trianglesList.Add(verticesList.Count - 4); // 0
@@ -631,85 +576,105 @@ namespace mFramework.UI
             End:
                 if (forceNewLine || i + 1 >= text.Length || i + 1 < text.Length && text[i + 1] == '\n')
                 {
-                    var lineWidth = verticesList[verticesList.Count - 1].x - verticesList[startLineIndex].x;
                     if (lines > 1)
                     {
-                        lineHeight = lineHeight * (currentFormatting == null
-                                            ? LinesSpacing
-                                            : currentFormatting.LinesSpacing.GetValueOrDefault(LinesSpacing));
-                        textYOffset -= lineHeight;
+                        lastLineHeight = lastLineHeight * (currentFormatting == null
+                                             ? LinesSpacing
+                                             : currentFormatting.LinesSpacing.GetValueOrDefault(LinesSpacing));
+                        _textHeight += lastLineHeight;
                     }
                     else
                     {
-                        textYOffset -= pureLineHeight;
+                        _textHeight += pureLineHeight;
                     }
 
-                    AlignVertices(
-                        vertices: verticesList,
-                        alignment: TextAlignment,
-                        startIndex: startLineIndex,
-                        endIndex: verticesList.Count - 1,
-                        lineWidth: lineWidth,
-                        yOffset: textYOffset
-                    );
+                    linesInfo.Add(new LineInfo
+                    {
+                        StartIndex = startLineIndex,
+                        EndIndex = verticesList.Count - 1,
+                        Width = lastLineWidth,
+                        Height = lastLineHeight,
+                        PureHeight = pureLineHeight
+                    });
 
+                    if (_textWidth < lastLineWidth)
+                        _textWidth = lastLineWidth;
+                    
                     textXOffset = 0f;
-                    lineHeight = 0f;
-                    lines++;
+                    lastLineWidth = 0f;
+                    lastLineHeight = 0f;
                     startLineIndex = verticesList.Count;
+                    pureLineHeight = 0f;
+                    lines++;
                 }
             }
-
-            _textHeight = _top - _bottom;
-            _textWidth = _right - _left;
 
             var _anchorOffset = new Vector2(0, 0);
 
             switch (TextAnchor)
             {
                 case TextAnchor.UpperLeft:
-                    _anchorOffset = new Vector2(_textWidth / 2, -_textHeight / 2);
+                    _anchorOffset = new Vector2(0f, 0f);
                     break;
                 case TextAnchor.UpperCenter:
-                    _anchorOffset = new Vector2(0, -_textHeight / 2);
+                    _anchorOffset = new Vector2(-_textWidth / 2f, 0f);
                     break;
                 case TextAnchor.UpperRight:
-                    _anchorOffset = new Vector2(-_textWidth / 2, -_textHeight / 2);
+                    _anchorOffset = new Vector2(-_textWidth, 0f);
                     break;
 
                 case TextAnchor.MiddleLeft:
-                    _anchorOffset = new Vector2(_textWidth / 2, 0);
+                    _anchorOffset = new Vector2(0f, _textHeight / 2f);
                     break;
                 case TextAnchor.MiddleCenter:
-                    _anchorOffset = new Vector2(0, 0);
+                    _anchorOffset = new Vector2(-_textWidth / 2f, _textHeight / 2f);
                     break;
                 case TextAnchor.MiddleRight:
-                    _anchorOffset = new Vector2(-_textWidth / 2, 0);
+                    _anchorOffset = new Vector2(-_textWidth, _textHeight / 2f);
                     break;
 
                 case TextAnchor.LowerLeft:
-                    _anchorOffset = new Vector2(_textWidth / 2, _textHeight / 2);
+                    _anchorOffset = new Vector2(0f, _textHeight);
                     break;
                 case TextAnchor.LowerCenter:
-                    _anchorOffset = new Vector2(0, _textHeight / 2);
+                    _anchorOffset = new Vector2(-_textWidth / 2f, _textHeight);
                     break;
                 case TextAnchor.LowerRight:
-                    _anchorOffset = new Vector2(-_textWidth / 2, _textHeight / 2);
+                    _anchorOffset = new Vector2(-_textWidth, _textHeight);
                     break;
-            }
+            }       
 
-            var xDiff = -_left - _textWidth / 2 + _anchorOffset.x;
-            var yDiff = _textHeight / 2 + _anchorOffset.y;
+            var yOffset = 0f;
 
-            for (int i = 0; i < verticesList.Count; i++)
+            for (var lineIndex = 0; lineIndex < linesInfo.Count; lineIndex++)
             {
-                verticesList[i] = new Vector3(
-                    verticesList[i].x + xDiff,
-                    verticesList[i].y + yDiff,
-                    verticesList[i].z
-                );
+                var xOffset = -verticesList[linesInfo[lineIndex].StartIndex].x;
+                yOffset -= lineIndex == 0 
+                    ? linesInfo[lineIndex].PureHeight 
+                    : linesInfo[lineIndex].Height;
 
-                CheckBoundingBox(verticesList[i].x, verticesList[i].y);
+                switch (TextAlignment)
+                {
+                    case TextAlignment.Center:
+                        xOffset += _textWidth / 2 - linesInfo[lineIndex].Width / 2f;
+                        break;
+
+                    case TextAlignment.Right:
+                        xOffset += _textWidth - linesInfo[lineIndex].Width;
+                        break;
+
+                    case TextAlignment.Left:
+                        break;
+                }
+                
+                for (var vI = linesInfo[lineIndex].StartIndex; vI <= linesInfo[lineIndex].EndIndex; vI++)
+                {
+                    verticesList[vI] = new Vector3(
+                        verticesList[vI].x + xOffset + _anchorOffset.x,
+                        verticesList[vI].y + yOffset + _anchorOffset.y,
+                        verticesList[vI].z
+                    );
+                }
             }
 
             _meshFilter.mesh.Clear();
@@ -728,13 +693,54 @@ namespace mFramework.UI
             var pos = Pos();
             var scale = GlobalScale();
 
+            var hDiv2 = _textHeight / 2f;
+            var wDiv2 = _textWidth / 2f;
+            var xOffset = 0f;
+            var yOffset = 0f;
+
+            switch (TextAnchor)
+            {
+                case TextAnchor.UpperLeft:
+                    xOffset += wDiv2;
+                    yOffset -= hDiv2;
+                    break;
+                case TextAnchor.UpperCenter:
+                    yOffset -= hDiv2;
+                    break;
+                case TextAnchor.UpperRight:
+                    xOffset -= wDiv2;
+                    yOffset -= hDiv2;
+                    break;
+
+                case TextAnchor.MiddleLeft:
+                    xOffset += wDiv2;
+                    break;
+                case TextAnchor.MiddleCenter:
+                    break;
+                case TextAnchor.MiddleRight:
+                    xOffset -= wDiv2;
+                    break;
+
+                case TextAnchor.LowerLeft:
+                    xOffset += wDiv2;
+                    yOffset += hDiv2;
+                    break;
+                case TextAnchor.LowerCenter:
+                    yOffset += hDiv2;
+                    break;
+                case TextAnchor.LowerRight:
+                    xOffset -= wDiv2;
+                    yOffset += hDiv2;
+                    break;
+            }
+
             return new UIRect
             {
                 Position = pos,
-                Bottom = pos.y + _bottom * scale.y,
-                Top = pos.y + _top * scale.y,
-                Left = pos.x + _left * scale.x,
-                Right = pos.x + _right * scale.x,
+                Bottom = pos.y + yOffset * scale.y - hDiv2 * scale.y,
+                Top = pos.y + yOffset * scale.y + hDiv2 * scale.y,
+                Left = pos.x + xOffset * scale.x - wDiv2 * scale.x,
+                Right = pos.x + xOffset * scale.x + wDiv2 * scale.x,
             };
         }
 
