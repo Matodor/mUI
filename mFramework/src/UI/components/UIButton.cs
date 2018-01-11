@@ -184,6 +184,11 @@ namespace mFramework.UI
             return _uiSpriteRenderer.GetColor();
         }
 
+        public float GetOpacity()
+        {
+            return _uiSpriteRenderer.GetOpacity();
+        }
+
         public IUIColored SetColor(Color32 color)
         {
             _uiSpriteRenderer.SetColor(color);
@@ -193,6 +198,12 @@ namespace mFramework.UI
         public IUIColored SetColor(UIColor color)
         {
             _uiSpriteRenderer.SetColor(color);
+            return this;
+        }
+
+        public IUIColored SetOpacity(float opacity)
+        {
+            _uiSpriteRenderer.SetOpacity(opacity);
             return this;
         }
     }

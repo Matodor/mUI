@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -97,13 +98,29 @@ namespace mFramework.UI
             base.Init();
         }
 
-        /*static UILabel()
+        public static void FontOnTextureRebuilt(Font font)
         {
-            Font.textureRebuilt += font =>
+            var layers = UIStencilMaterials.Layers();
+            for (int i = 0; i < layers.Length; i++)
             {
-                mCore.Log($"Font rebuilt: {font.name}");
-            };
-        }*/
+                if (layers[i] == null)
+                    continue;
+
+                foreach (var pair in layers[i].TextMaterials.Materials)
+                {
+                    if (pair.Key == font.name)
+                    {
+                        pair.Value.SetTexture("_MainTex", font.material.mainTexture);
+                        pair.Value.SetTextureOffset("_MainTex", font.material.mainTextureOffset);
+                        pair.Value.SetTextureScale("_MainTex", font.material.mainTextureScale);
+                    }
+
+                    pair.Value.SetVector("_TextureSampleAdd", new Vector4(1f, 1f, 1f, 0f));
+                }
+            }
+
+            //mCore.Log($"Font rebuilt: {font.name}");
+        }
 
         protected override void ApplySettings(UIComponentSettings settings)
         {
@@ -149,7 +166,6 @@ namespace mFramework.UI
                 .TextMaterials[labelSettings.Font];
 
             RequestCharactersInFont();
-            UpdateMaterial(_cachedFont.Font);
             UpdateMesh(true);
             SetColor(_color);
 
@@ -160,8 +176,8 @@ namespace mFramework.UI
         {
             if (_cachedFont.Font == font)
             {
+                //UpdateMaterial(font);
                 RequestCharactersInFont();
-                UpdateMaterial(font);
                 UpdateMesh();
             }
         }
@@ -321,12 +337,12 @@ namespace mFramework.UI
             return this;
         }
 
-        private void UpdateMaterial(Font font)
+        /*private void UpdateMaterial(Font font)
         {
             _meshRenderer.sharedMaterial.SetTexture("_MainTex", font.material.mainTexture);
             _meshRenderer.sharedMaterial.SetTextureOffset("_MainTex", font.material.mainTextureOffset);
             _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", font.material.mainTextureScale);
-        }
+        }*/
 
         public UILabel TextFormatting(int index, TextFormatting formatting)
         {
@@ -769,6 +785,11 @@ namespace mFramework.UI
             return _color;
         }
 
+        public float GetOpacity()
+        {
+            return GetColor().a * 255f;
+        }
+
         public IUIColored SetColor(Color32 color)
         {
             if (_color == color)
@@ -792,6 +813,14 @@ namespace mFramework.UI
         public IUIColored SetColor(UIColor color)
         {
             return SetColor(color.Color32);
+        }
+
+        public IUIColored SetOpacity(float opacity)
+        {
+            var c = GetColor();
+            c.a = opacity / 255f;
+            SetColor(c);
+            return this;
         }
     }
 }

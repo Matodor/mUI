@@ -11,6 +11,7 @@ namespace mFramework.UI
         bool IsShowing { get; }
         UIObject Parent { get; }
         IView ParentView { get; }
+        object Data { get; set; }
 
         GameObject gameObject { get; }
         string tag { get; set; }
@@ -27,6 +28,7 @@ namespace mFramework.UI
         T Animation<T>(UIAnimationSettings settings) where T : UIAnimation;
         T Component<T>(UIComponentSettings settings) where T : UIComponent;
         void RemoveAnimations();
+        void RemoveAnimations<T>() where T : UIAnimation;
         void Destroy();
         void DestroyChilds();
 

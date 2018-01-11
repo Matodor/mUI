@@ -5,6 +5,7 @@ namespace mFramework.UI
     public class UIClickable
     {
         public Area2D Area2D;
+        public bool Enabled = true;
 
         public event Func<IUIClickable, MouseEvent, bool> CanMouseDown = delegate { return true; };
         public event Func<IUIClickable, MouseEvent, bool> CanMouseUp = delegate { return true; };
@@ -35,7 +36,8 @@ namespace mFramework.UI
 
         private void MouseEventListenerOnMouseDrag(object sender, MouseEvent e)
         {
-            if (!_uiObject.IsActive ||
+            if (!Enabled || 
+                !_uiObject.IsActive ||
                 !CanMouseDrag(_uiClickable, e))
             {
                 return;
@@ -47,7 +49,8 @@ namespace mFramework.UI
 
         private void MouseEventListenerOnMouseUp(object sender, MouseEvent e)
         {
-            if (!_uiObject.IsActive ||
+            if (!Enabled || 
+                !_uiObject.IsActive ||
                 !CanMouseUp(_uiClickable, e))
             {
                 return;
@@ -59,7 +62,8 @@ namespace mFramework.UI
 
         private void MouseEventListenerOnMouseDown(object sender, MouseEvent e)
         {
-            if (!_uiObject.IsActive ||
+            if (!Enabled || 
+                !_uiObject.IsActive ||
                 !CanMouseDown(_uiClickable, e))
             {
                 return;

@@ -27,11 +27,15 @@ namespace mFramework.UI
         static mUI()
         {
             if (_instance == null)
+            {
                 _instance = new mUI();
+                Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
+            }
         }
 
         ~mUI()
         {
+            Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
             mCore.Log("~mUI");
         }
 

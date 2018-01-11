@@ -118,6 +118,18 @@ namespace mFramework.UI
             return Renderer.color;
         }
 
+        public float GetOpacity()
+        {
+            return Renderer.color.a * 255f;
+        }
+
+        public void SetOpacity(float opacity)
+        {
+            var c = GetColor();
+            c.a = opacity / 255f;
+            SetColor(c);
+        }
+
         public void SetColor(Color32 color)
         {
             Renderer.color = color;

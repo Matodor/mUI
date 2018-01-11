@@ -7,15 +7,43 @@ namespace mFramework
 {
     public static class UIExtension
     {
+        public static void Disable(this IEnumerable<IUIClickable> objs)
+        {
+            foreach (var o in objs)
+                o.UIClickable.Enabled = false;
+        }
+
+        public static void Enable(this IEnumerable<IUIClickable> objs)
+        {
+            foreach (var o in objs)
+                o.UIClickable.Enabled = true;
+        }
+
+        public static void SetOpacity(this IEnumerable<IUIColored> objs, float opacity)
+        {
+            opacity = mMath.Clamp(opacity, 0f, 255f);
+            foreach (var o in objs)
+                o.SetOpacity(opacity);
+        }
+
         public static IEnumerable<T> DeepChilds<T>(this IUIObject obj) where T : IUIObject
         {
             foreach (var child in obj.Childs)
             {
-                foreach (var c in DeepChilds<T>(child))
-                    yield return c;
+                foreach (var x1 in DeepChildsImpl<T>(child))
+                    yield return x1;
+            }
+        }
 
-                if (child is T returnValue)
-                    yield return returnValue;
+        private static IEnumerable<T> DeepChildsImpl<T>(IUIObject obj) where T : IUIObject
+        {
+            if (obj is T ret1)
+                yield return ret1;
+
+            foreach (var child in obj.Childs)
+            {
+                foreach (var x1 in DeepChildsImpl<T>(child))
+                    yield return x1;
             }
         }
 

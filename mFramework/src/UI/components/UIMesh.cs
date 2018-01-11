@@ -112,6 +112,11 @@ namespace mFramework.UI
             return _color ?? new Color(0, 0, 0, 0);
         }
 
+        public float GetOpacity()
+        {
+            return GetColor().a * 255f;
+        }
+
         public IUIColored SetColor(Color32 color)
         {
             if (_color == color)
@@ -128,6 +133,14 @@ namespace mFramework.UI
         public IUIColored SetColor(UIColor color)
         {
             return SetColor(color.Color32);
+        }
+
+        public IUIColored SetOpacity(float opacity)
+        {
+            var c = GetColor();
+            c.a = opacity / 255f;
+            SetColor(c);
+            return this;
         }
     }
 }

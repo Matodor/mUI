@@ -50,7 +50,7 @@ namespace mFramework
             return new UnidirectionalList<T>();
         }
 
-        internal void Add(T value)
+        public void Add(T value)
         {
             if (value == null)
                 return;
@@ -68,12 +68,12 @@ namespace mFramework
             Count++;
         }
 
-        internal bool Remove(T value)
+        public bool Remove(T value)
         {
             return value != null && Remove(value.GUID);
         }
 
-        internal bool Remove(ulong guid)
+        public bool Remove(ulong guid)
         {
             if (Count == 0)
                 return false;
@@ -108,7 +108,7 @@ namespace mFramework
             return false;
         }
 
-        internal void Clear()
+        public void Clear()
         {
             ListItem lastIterated = null;
             var current = LastItem;

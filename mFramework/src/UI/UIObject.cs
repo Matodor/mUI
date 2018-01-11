@@ -8,10 +8,11 @@ namespace mFramework.UI
         public IView ParentView { get; private set; }
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
         public UnidirectionalList<IUIObject> Childs { get; private set; }
+        public object Data { get; set; }
 
         public new GameObject gameObject { get; private set; }
         public new Transform transform { get; private set; }
-        public new virtual string tag { get; set; }
+        public new string tag { get; set; }
 
         public ulong GUID { get; private set; }
         public UIObject Parent { get; private set; }
@@ -87,7 +88,7 @@ namespace mFramework.UI
         {
             if (_destroyed)
                 return;
-         
+
             _destroyed = true;
             BeforeDestroy(this);
 
@@ -97,6 +98,15 @@ namespace mFramework.UI
 
             Parent?.RemoveChild(this);
             mUI.RemoveUIObject(this);
+
+            ActiveChanged = null;
+            VisibleChanged = null;
+            SortingOrderChanged = null;
+            BeforeDestroy = null;
+
+            ChildObjectRemoved = null;
+            ChildObjectAdded = null;
+            AnimationAdded = null;
 
             UnityEngine.Object.Destroy(gameObject);
         }
@@ -108,12 +118,16 @@ namespace mFramework.UI
 
         private void OnEnable()
         {
+            if (_destroyed)
+                return;
             VisibleChanged(this);
             ActiveChanged(this);
         }
 
         private void OnDisable()
         {
+            if (_destroyed)
+                return;
             VisibleChanged(this);
             ActiveChanged(this);
         }
@@ -387,7 +401,7 @@ namespace mFramework.UI
         {
             Pos(position.x, position.y);
             return this;
-        }
+        }   
 
         public Vector2 Pos()
         {
@@ -477,6 +491,15 @@ namespace mFramework.UI
         public void RemoveAnimations()
         {
             Animations.Clear();
+        }
+
+        public void RemoveAnimations<T>() where T : UIAnimation
+        {
+            Animations.ForEach(a =>
+            {
+                if (a is T)
+                    a.Remove();
+            });
         }
 
         internal void RemoveAnimation(UIAnimation anim)

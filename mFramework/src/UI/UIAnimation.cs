@@ -69,8 +69,8 @@ namespace mFramework.UI
         public ulong RepeatsNumber => _repeats;
         public UIObject AnimatedObject => _animatedObject;
 
-        public event UIAnimationEventHandler AnimationRepeat = delegate { };
-        public event UIAnimationEventHandler AnimationEnded = delegate { };
+        public event UIAnimationEventHandler AnimationRepeat;
+        public event UIAnimationEventHandler AnimationEnded;
 
         private readonly UIObject _animatedObject;
 
@@ -81,11 +81,11 @@ namespace mFramework.UI
         private float _animationStart;
         private float _animationTime;
         private float _animationEasingTime;
-
+        
         protected UIAnimation(UIObject animatedObject)
         {
-            _animatedObject = animatedObject;
             Direction = UIAnimationDirection.FORWARD;
+            _animatedObject = animatedObject;
             _animationTime = 0;
             _animationEasingTime = 0;
             _repeats = 0;
@@ -145,26 +145,26 @@ namespace mFramework.UI
         private void OnRepeatAnimation()
         {
             _repeats++;
-            AnimationRepeat.Invoke(this);
+            AnimationRepeat?.Invoke(this);
         }
 
         private void OnEndAnimation()
         {
-            AnimationEnded.Invoke(this);
+            AnimationEnded?.Invoke(this);
         }
 
         public void Animate(bool forcibly = false)
         {
             _animationEasingTime = EasingFunctions.GetValue(EasingType, 1f, _animationTime, 1f);
 
-            if (forcibly || _animatedObject.IsShowing && _nextAnimationFrame <= Time.time)
+            if (forcibly || _nextAnimationFrame <= Time.time)
             {
                 OnAnimate();
                 _nextAnimationFrame = Time.time + AnimateEvery;
             }
 
-            if (_animationTime >= 1 && Direction == UIAnimationDirection.FORWARD ||
-                _animationTime <= 0 && Direction == UIAnimationDirection.BACKWARD)
+            if (_animationTime >= 1f && Direction == UIAnimationDirection.FORWARD ||
+                _animationTime <= 0f && Direction == UIAnimationDirection.BACKWARD)
             {
                 if (PlayType == UIAnimationPlayType.END_RESET)
                 {
@@ -182,8 +182,8 @@ namespace mFramework.UI
                 if (PlayType == UIAnimationPlayType.PLAY_ONCE ||
                     MaxRepeats > 0 && _repeats >= MaxRepeats)
                 {
-                    OnEndAnimation();
                     State = UIAnimationState.STOPPED;
+                    OnEndAnimation();
                     Remove();
 
                     if (DestroyUIObjectOnEnd)
@@ -205,6 +205,8 @@ namespace mFramework.UI
 
         public void Remove()
         {
+            AnimationRepeat = null;
+            AnimationEnded = null;
             AnimatedObject.RemoveAnimation(this);
         }
     }

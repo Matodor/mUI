@@ -18,7 +18,11 @@ namespace mFramework.UI
                     if (_materials.ContainsKey(fontName))
                         return _materials[fontName];
 
+                    var uiFont = mUI.GetFont(fontName);
                     var material = CreateTextMaterial(_layer.StencilId, _layer.CompFunc, _layer.WriteMask, _layer.ReadMask);
+                    material.SetTexture("_MainTex", uiFont.Font.material.mainTexture);
+                    material.SetTextureOffset("_MainTex", uiFont.Font.material.mainTextureOffset);
+                    material.SetTextureScale("_MainTex", uiFont.Font.material.mainTextureScale);
                     _materials.Add(fontName, material);
                     return material;
                 }
