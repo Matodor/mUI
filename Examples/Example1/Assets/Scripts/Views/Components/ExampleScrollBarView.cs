@@ -25,7 +25,7 @@ namespace Example
             var label = scrollBar.Label(new UILabelSettings
             {
                 Text = $"v={scrollBar.Value} vNormilized={scrollBar.NormilizedValue}",
-                Color = UIColors.Black,
+                Color = UIColor.Black,
                 TextAnchor = TextAnchor.MiddleCenter,
                 TextAlignment = TextAlignment.Center,
                 Size = 40,

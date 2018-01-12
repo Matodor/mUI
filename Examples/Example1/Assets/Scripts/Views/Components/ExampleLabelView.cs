@@ -15,11 +15,11 @@ namespace Example
                 TextAnchor = TextAnchor.MiddleCenter,
                 Size = 50,
                 LetterSpacing = 2f,
-                Color = UIColors.Black,
+                Color = UIColor.Black,
             });
             label1.TextFormatting(0, new TextFormatting
             {
-                Color = UIColors.White.Color32,
+                Color = UIColor.White.Color32,
                 Size = 30,
                 LetterSpacing = 1f,
                 FontStyle = FontStyle.Italic

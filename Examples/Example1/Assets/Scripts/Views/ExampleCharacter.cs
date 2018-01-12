@@ -140,8 +140,8 @@ namespace Example
 
             _headScaleAnimation = _head.ScaleAnimation(new UIScaleAnimationSettings
             {
-                StartScale = _head.LocalScale(),
-                EndScale = _head.LocalScale() * 1.1f,
+                StartScale = _head.Scale(),
+                EndScale = _head.Scale() * 1.1f,
                 EasingType = EasingType.easeInQuint,
                 Duration = 5f,
                 PlayType = UIAnimationPlayType.END_FLIP,

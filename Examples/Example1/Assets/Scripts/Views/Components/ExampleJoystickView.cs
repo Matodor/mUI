@@ -30,7 +30,7 @@ namespace Example
             var label = joystick.Label(new UILabelSettings
             {
                 Text = $"pos={joystick.NormilizedPointPos}",
-                Color = UIColors.Black,
+                Color = UIColor.Black,
                 TextAnchor = TextAnchor.MiddleCenter,
                 TextAlignment = TextAlignment.Center,
                 Size = 40,

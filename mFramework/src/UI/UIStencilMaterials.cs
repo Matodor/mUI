@@ -23,6 +23,8 @@ namespace mFramework.UI
                     material.SetTexture("_MainTex", uiFont.Font.material.mainTexture);
                     material.SetTextureOffset("_MainTex", uiFont.Font.material.mainTextureOffset);
                     material.SetTextureScale("_MainTex", uiFont.Font.material.mainTextureScale);
+                    material.SetVector("_TextureSampleAdd", new Vector4(1f, 1f, 1f, 0f));
+
                     _materials.Add(fontName, material);
                     return material;
                 }

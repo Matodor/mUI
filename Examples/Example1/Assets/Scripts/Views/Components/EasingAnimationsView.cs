@@ -46,7 +46,7 @@ namespace Example
                     EasingType = i,
                     Duration = 4f,
                     PlayType = UIAnimationPlayType.END_RESET,
-                    LocalPosition = true
+                    IsLocal = true
                 });
             }
 

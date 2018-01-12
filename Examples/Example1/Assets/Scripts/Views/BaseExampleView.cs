@@ -23,7 +23,7 @@ namespace Example
             backButton.Click += Close;
         }
 
-        private void Close(UIButton sender)
+        private void Close(IUIButton sender)
         {
             MainMenuView.Instance.Show();
             Destroy();

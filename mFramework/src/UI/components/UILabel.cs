@@ -100,7 +100,7 @@ namespace mFramework.UI
 
         public static void FontOnTextureRebuilt(Font font)
         {
-            var layers = UIStencilMaterials.Layers();
+            /*var layers = UIStencilMaterials.Layers();
             for (int i = 0; i < layers.Length; i++)
             {
                 if (layers[i] == null)
@@ -118,6 +118,7 @@ namespace mFramework.UI
                     pair.Value.SetVector("_TextureSampleAdd", new Vector4(1f, 1f, 1f, 0f));
                 }
             }
+            */
 
             //mCore.Log($"Font rebuilt: {font.name}");
         }
@@ -177,6 +178,7 @@ namespace mFramework.UI
             if (_cachedFont.Font == font)
             {
                 //UpdateMaterial(font);
+                _meshRenderer.sharedMaterial.SetVector("_TextureSampleAdd", new Vector4(1f, 1f, 1f, 0f));
                 RequestCharactersInFont();
                 UpdateMesh();
             }
