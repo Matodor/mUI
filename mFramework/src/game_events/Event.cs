@@ -33,11 +33,16 @@ namespace mFramework.GameEvents
                 Load();
             }
 
+            public void ResetCounters()
+            {
+                BeforeEventCounter = 0;
+                EventCounter = 0;
+            }
+
             public override void BeforeLoad()
             {
                 Enabled = true;
             }
-
 
             public override void BeforeSave()
             {
