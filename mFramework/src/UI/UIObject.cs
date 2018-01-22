@@ -300,12 +300,12 @@ namespace mFramework.UI
 
         public Vector2 LocalTranslatedY(float y)
         {
-            return LocalTranslated(transform.localPosition.x, y);
+            return LocalTranslated(0, y);
         }
 
         public Vector2 LocalTranslatedX(float x)
         {
-            return LocalTranslated(x, transform.localPosition.y);
+            return LocalTranslated(x, 0);
         }
 
         public Vector2 LocalTranslated(Vector2 vec)

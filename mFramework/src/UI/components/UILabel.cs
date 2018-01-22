@@ -76,8 +76,6 @@ namespace mFramework.UI
 
             _meshRenderer = gameObject.AddComponent<MeshRenderer>();
             _meshFilter = gameObject.AddComponent<MeshFilter>();
-            _meshFilter.mesh = new Mesh();
-            _meshFilter.mesh.Clear();
 
             UIRenderer = _meshRenderer;
 
@@ -100,7 +98,10 @@ namespace mFramework.UI
 
         public static void FontOnTextureRebuilt(Font font)
         {
-            /*var layers = UIStencilMaterials.Layers();
+            if (!Application.isEditor)
+                return;
+
+            var layers = UIStencilMaterials.Layers();
             for (int i = 0; i < layers.Length; i++)
             {
                 if (layers[i] == null)
@@ -118,7 +119,7 @@ namespace mFramework.UI
                     pair.Value.SetVector("_TextureSampleAdd", new Vector4(1f, 1f, 1f, 0f));
                 }
             }
-            */
+            
 
             //mCore.Log($"Font rebuilt: {font.name}");
         }
