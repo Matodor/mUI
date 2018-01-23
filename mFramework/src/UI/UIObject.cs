@@ -140,6 +140,7 @@ namespace mFramework.UI
         public void DestroyChilds()
         {
             Childs.ForEach(c => c.Destroy());
+            Childs.Clear();
         }
 
         public void Destroy()

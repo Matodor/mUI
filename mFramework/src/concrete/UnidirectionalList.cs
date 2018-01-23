@@ -110,19 +110,14 @@ namespace mFramework
 
         public void Clear()
         {
-            ListItem lastIterated = null;
             var current = LastItem;
 
             while (current != null)
             {
-                if (lastIterated != null)
-                {
-                    lastIterated.Prev = null;
-                    lastIterated.Value = default(T);
-                }
-
-                lastIterated = current;
-                current = current.Prev;
+                var prev = current.Prev;
+                current.Prev = null;
+                current.Value = default(T);
+                current = prev;
             }
 
             FirstItem = null;
