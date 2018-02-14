@@ -10,6 +10,7 @@
             Key = key;
         }
 
+        public virtual void OnReset() { }
         public virtual void BeforeSave() { }
         public virtual void BeforeLoad() { }
 

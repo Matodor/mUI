@@ -4,6 +4,14 @@ namespace mFramework.Saves
 {
     public static class SaveableFieldsHelper
     {
+        public static void Reset(this IEnumerable<SaveableFields> fields)
+        {
+            foreach (var v in fields)
+            {
+                v.OnReset();
+            }
+        }
+
         public static void Save(this IEnumerable<SaveableFields> fields)
         {
             foreach (var v in fields)
