@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using mFramework.UI;
+using UnityEngine;
 
 namespace mFramework
 {
@@ -19,6 +20,18 @@ namespace mFramework
                 o.UIClickable.Enabled = true;
         }
 
+        public static void SetColor(this IEnumerable<IUIColored> objs, Color color)
+        {
+            foreach (var o in objs)
+                o.SetColor(color);
+        }
+
+        public static void SetColor(this IEnumerable<IUIColored> objs, UIColor color)
+        {
+            foreach (var o in objs)
+                o.SetColor(color);
+        }
+
         public static void SetOpacity(this IEnumerable<IUIColored> objs, float opacity)
         {
             opacity = mMath.Clamp(opacity, 0f, 255f);
@@ -26,6 +39,14 @@ namespace mFramework
                 o.SetOpacity(opacity);
         }
 
+        public static void ForEach<T>(this IEnumerable<T> objs, Action<T> action) where T : IUIObject
+        {
+            foreach (var o in objs)
+            {
+                action(o);
+            }
+        }
+        
         public static IEnumerable<T> DeepChilds<T>(this IUIObject obj) where T : IUIObject
         {
             foreach (var child in obj.Childs)
