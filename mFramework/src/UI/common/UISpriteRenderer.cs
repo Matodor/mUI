@@ -18,7 +18,7 @@ namespace mFramework.UI
         
         public UISpriteRenderer(UIObject obj, UISpriteSettings settings)
         {
-            Renderer = obj.gameObject.AddComponent<SpriteRenderer>();
+            Renderer = obj.GameObject.AddComponent<SpriteRenderer>();
             Renderer.sprite = settings.Sprite;
             Renderer.sharedMaterial = UIStencilMaterials.GetOrCreate(obj.ParentView.StencilId ?? 0).SpritesMaterial;
 
@@ -85,32 +85,9 @@ namespace mFramework.UI
             return Renderer.sprite.bounds.size.x;
         }
 
-        public float GetHeight()
+        public Vector3 CenterOffset()
         {
-            return UnscaledHeight() * _object.GlobalScale().y;
-        }
-
-        public float GetWidth()
-        {
-            return UnscaledWidth() * _object.GlobalScale().x;
-        }
-
-        public UIRect GetRect()
-        {
-            var pos = _object.Pos();
-            var scale = _object.GlobalScale();
-            var scaledHeightDiv2 = GetHeight() / 2f;
-            var scaledWidthDiv2 = GetWidth() / 2f;
-            var centerOffset = Renderer.sprite.GetCenterOffset();
-
-            return new UIRect()
-            {
-                Position = pos,
-                Bottom = pos.y - scaledHeightDiv2 + centerOffset.y * scale.y,
-                Top = pos.y + scaledHeightDiv2 + centerOffset.y * scale.y,
-                Left = pos.x - scaledWidthDiv2 + centerOffset.x * scale.x,
-                Right = pos.x + scaledWidthDiv2 + centerOffset.x * scale.x,
-            };
+            return Renderer.sprite.bounds.center;
         }
 
         public Color GetColor()

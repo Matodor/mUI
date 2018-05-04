@@ -15,7 +15,7 @@ namespace mFramework.UI
     {
         public event UIEventHandler<UIJoystick> PointMoved = delegate { };
 
-        public UIClickable UIClickable { get; private set; }
+        public UIClickableOld UiClickableOld { get; private set; }
         public UISprite Background { get; private set; }
         public UISprite PointSprite { get; private set; }
 
@@ -25,11 +25,16 @@ namespace mFramework.UI
 
         private bool _isPressed;
 
-        protected override void Init()
+        public override float UnscaledHeight => Background.UnscaledHeight;
+        public override float UnscaledWidth => Background.UnscaledHeight;
+        public override Vector2 CenterOffset => Background.CenterOffset;
+
+
+        protected override void AfterAwake()
         {
             NormilizedPointPos = Vector2.zero;
             _isPressed = false;
-            base.Init();
+            base.AfterAwake();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -50,40 +55,20 @@ namespace mFramework.UI
             var area = new CircleArea2D();
             area.Update += a =>
             {
-                area.Radius = GetWidth() / 2;
+                area.Radius = Width / 2;
             };
-            UIClickable = new UIClickable(this, area);
+            UiClickableOld = new UIClickableOld(this, area);
 
             base.ApplySettings(settings);
         }
 
-        public override float UnscaledHeight()
-        {
-            return Background.UnscaledHeight();
-        }
-
-        public override float UnscaledWidth()
-        {
-            return Background.UnscaledWidth();
-        }
-
-        public override float GetWidth()
-        {
-            return Background.GetWidth();
-        }
-
-        public override float GetHeight()
-        {
-            return Background.GetHeight();
-        }
-
         private void UpdatePos(Vector2 worldPos)
         {
-            var scale = Background.GlobalScale();
+            var scale = Background.GlobalScale;
 
-            var widthDiv2 = (GetWidth() - PaddingRadius * scale.x * 2f) / 2f;
-            var heightDiv2 = (GetHeight() - PaddingRadius * scale.y * 2f) / 2f;
-            var pos = Background.Pos();
+            var widthDiv2 = (Width - PaddingRadius * scale.x * 2f) / 2f;
+            var heightDiv2 = (Height - PaddingRadius * scale.y * 2f) / 2f;
+            var pos = (Vector2) Background.Position;
 
             var left = pos.x - widthDiv2;
             var right = pos.x + widthDiv2;
@@ -92,7 +77,7 @@ namespace mFramework.UI
 
             var diff = worldPos - pos;
             var angle = mMath.Angle(diff);
-            var length = mMath.Clamp(diff.Length() * (1f - Friction), 0f, UnscaledWidth() / 2 - PaddingRadius);
+            var length = mMath.Clamp(diff.Length() * (1f - Friction), 0f, Width / 2 - PaddingRadius * scale.x);
             var cos = Mathf.Cos(angle * Mathf.Deg2Rad);
             var sin = Mathf.Sin(angle * Mathf.Deg2Rad);
 
@@ -101,7 +86,7 @@ namespace mFramework.UI
                 sin * length * scale.y
             );
 
-            PointSprite.LocalPos(newPos);
+            PointSprite.LocalPosition = newPos;
             NormilizedPointPos = new Vector2(
                 mMath.NormilizeValue(left, right, pos.x + newPos.x) - 0.5f,
                 mMath.NormilizeValue(bottom, top, pos.y + newPos.y) - 0.5f
@@ -122,7 +107,7 @@ namespace mFramework.UI
                 return;
 
             _isPressed = false;
-            PointSprite.LocalPos(0f, 0f);
+            PointSprite.LocalPosition = Vector2.zero;
         }
 
         public void MouseDrag(Vector2 worldPos)

@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public interface IUIObject : IGlobalUniqueIdentifier
+    public interface IUIObject : IGlobalUniqueIdentifier, IDimensions
     {
         UnidirectionalList<UIAnimation> Animations { get; }
         UnidirectionalList<IUIObject> Childs { get; }
@@ -11,11 +11,17 @@ namespace mFramework.UI
         bool IsShowing { get; }
         UIObject Parent { get; }
         IView ParentView { get; }
-        object Data { get; set; }
 
-        GameObject gameObject { get; }
-        string tag { get; set; }
-        Transform transform { get; }
+        float Rotation { get; set; }
+        UIRect Rect { get; }
+        UIAnchor Anchor { get; set; }
+        UIPadding Padding { get; set; }
+
+        Vector3 LocalPosition { get; set; }
+        Vector3 Position { get; set; }
+        Vector3 Scale { get; set; }
+        Vector3 GlobalScale { get; }
+        Vector2 CenterOffset { get; }
 
         event UIEventHandler<IUIObject> ActiveChanged;
         event UIEventHandler<IUIObject, UIAnimation> AnimationAdded;
@@ -27,6 +33,7 @@ namespace mFramework.UI
 
         T Animation<T>(UIAnimationSettings settings) where T : UIAnimation;
         T Component<T>(UIComponentSettings settings) where T : UIComponent;
+
         void RemoveAnimations();
         void RemoveAnimations<T>() where T : UIAnimation;
         void Destroy();
@@ -34,58 +41,6 @@ namespace mFramework.UI
 
         IUIObject Disable();
         IUIObject Enable();
-
-        UIRect GetRect();
-
-        float UnscaledHeight();
-        float UnscaledWidth();
-        float GetHeight();
-        float GetWidth();
-
-        Vector2 GlobalScale();
-        Vector2 Scale();
-
-        IUIObject Translate(float x, float y);
-        IUIObject Translate(float x, float y, float z);
-        IUIObject Translate(Vector2 translatePos);
-
-        IUIObject LocalTranslate(float x, float y);
-        IUIObject LocalTranslate(float x, float y, float z);
-        IUIObject LocalTranslate(Vector2 translatePos);
-
-        Vector2 LocalTranslatedY(float y);
-        Vector2 LocalTranslatedX(float x);
-        Vector2 LocalTranslated(Vector2 vec);
-        Vector2 LocalTranslated(float x, float y);
-
-        IUIObject LocalPosX(float x);
-        IUIObject LocalPosY(float y);
-        IUIObject LocalPos(float x, float y);
-        IUIObject LocalPos(Vector2 position);
-        Vector2 LocalPos();
-
-        Vector2 TranslatedY(float y);
-        Vector2 TranslatedX(float x);
-        Vector2 Translated(Vector2 vec);
-        Vector2 Translated(float x, float y);
-
-        IUIObject PosX(float x);
-        IUIObject PosY(float y);
-        IUIObject Pos(float x, float y);
-        IUIObject Pos(Vector2 position);
-        Vector2 Pos();
-
-        IUIObject LocalRotate(float angle);
-        IUIObject LocalRotate(float x, float y, float z);
-        float LocalRotation();
-
-        IUIObject Rotate(float angle);
-        IUIObject Rotate(float x, float y, float z);
-        float Rotation();
-
-        IUIObject Scale(float v);
-        IUIObject Scale(float x, float y);
-        IUIObject Scale(Vector2 scale);
 
         IUIObject SetName(string newName);
         IUIObject Show();
@@ -95,7 +50,6 @@ namespace mFramework.UI
         int SortingOrder();
         IUIObject SortingOrder(int sortingOrder);
 
-        void OnSortingOrderChanged();
         void Tick();
         void FixedTick();
         void LateTick();

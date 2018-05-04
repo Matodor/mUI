@@ -42,21 +42,21 @@ namespace mFramework.UI
         {
             if (_isLocalPos)
             {
-                AnimatedObject.LocalPos(BezierHelper.Quadratic(
+                AnimatedObject.LocalPosition = BezierHelper.Quadratic(
                     CurrentEasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint
-                ));
+                );
             }
             else
             {
-                AnimatedObject.Pos(BezierHelper.Quadratic(
+                AnimatedObject.Position = BezierHelper.Quadratic(
                     CurrentEasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint
-                ));
+                );
             }
         }
     }

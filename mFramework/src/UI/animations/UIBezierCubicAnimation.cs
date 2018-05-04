@@ -45,23 +45,23 @@ namespace mFramework.UI
         {
             if (_isLocalPos)
             {
-                AnimatedObject.LocalPos(BezierHelper.Cubic(
+                AnimatedObject.LocalPosition = BezierHelper.Cubic(
                     CurrentEasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint,
                     _fourthPoint
-                ));
+                );
             }
             else
             {
-                AnimatedObject.Pos(BezierHelper.Cubic(
+                AnimatedObject.Position = BezierHelper.Cubic(
                     CurrentEasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint,
                     _fourthPoint
-                ));
+                );
             }
         }
     }

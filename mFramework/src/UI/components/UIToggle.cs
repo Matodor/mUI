@@ -10,7 +10,7 @@ namespace mFramework.UI
 
     public class UIToggle : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable
     {
-        public UIClickable UIClickable { get; private set; }
+        public UIClickableOld UiClickableOld { get; private set; }
         public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
         public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
@@ -29,12 +29,16 @@ namespace mFramework.UI
         public event UIEventHandler<UIToggle> Deselected = delegate { };
         public event UIEventHandler<UIToggle> Changed = delegate { };
 
+        public override float UnscaledHeight => _uiSpriteRenderer.UnscaledHeight();
+        public override float UnscaledWidth => _uiSpriteRenderer.UnscaledWidth();
+        public override Vector2 CenterOffset => _uiSpriteRenderer.CenterOffset();
+
         private bool _isSelected;
         private bool _isPressed;
 
         private UISpriteRenderer _uiSpriteRenderer;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
             _isSelected = false;
             _isPressed = false;
@@ -55,30 +59,30 @@ namespace mFramework.UI
                 var area = new RectangleArea2D();
                 area.Update += a =>
                 {
-                    area.Width = GetWidth();
-                    area.Height = GetHeight();
+                    area.Width = Width;
+                    area.Height = Height;
                     area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
                     area.Offset = new Vector2(
-                        area.Offset.x * GlobalScale().x,
-                        area.Offset.y * GlobalScale().y
+                        area.Offset.x * GlobalScale.x,
+                        area.Offset.y * GlobalScale.y
                     );
                 };
 
-                UIClickable = new UIClickable(this, area);
+                UiClickableOld = new UIClickableOld(this, area);
             }
             else if (toggleSettings.ButtonAreaType == AreaType.CIRCLE)
             {
                 var area = new CircleArea2D();
                 area.Update += a =>
                 {
-                    area.Radius = GetWidth() / 2;
+                    area.Radius = Width / 2;
                     area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
                     area.Offset = new Vector2(
-                        area.Offset.x * GlobalScale().x,
-                        area.Offset.y * GlobalScale().y
+                        area.Offset.x * GlobalScale.x,
+                        area.Offset.y * GlobalScale.y
                     );
                 };
-                UIClickable = new UIClickable(this, area);
+                UiClickableOld = new UIClickableOld(this, area);
             }
 
             _uiSpriteRenderer = new UISpriteRenderer(this, new UISpriteSettings
@@ -185,7 +189,7 @@ namespace mFramework.UI
                 StateableSprite.SetDefault();
 
             if (CanToggleClick(this, worldPos) && _isPressed &&
-                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
+                ClickCondition == ClickCondition.BUTTON_UP && UiClickableOld.Area2D.InArea(worldPos))
             {
                 Toggle();
             }
@@ -215,31 +219,6 @@ namespace mFramework.UI
         public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _uiSpriteRenderer.UnscaledHeight();
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _uiSpriteRenderer.UnscaledWidth();
-        }
-
-        public override float GetHeight()
-        {
-            return _uiSpriteRenderer.GetHeight();
-        }
-
-        public override float GetWidth()
-        {
-            return _uiSpriteRenderer.GetWidth();
-        }
-
-        public override UIRect GetRect()
-        {
-            return _uiSpriteRenderer.GetRect();
         }
     }
 }

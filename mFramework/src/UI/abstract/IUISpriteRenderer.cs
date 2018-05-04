@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public interface IUISpriteRenderer : IUIRenderer
+    public interface IUISpriteRenderer : IUIRenderer, IUIColored
     {
         SpriteRenderer Renderer { get; }
         UISprite SpriteMask { get; }

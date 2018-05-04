@@ -37,10 +37,10 @@ namespace mFramework.UI
         protected override void OnAnimate()
         {
             var newAngle = BezierHelper.Linear(CurrentEasingTime, _fromAngle, _endAngle);
-            if (_isLocal)
-                AnimatedObject.LocalRotate(newAngle);
-            else
-                AnimatedObject.Rotate(newAngle);
+            //if (_isLocal)
+            //    AnimatedObject.LocalRotate(newAngle);
+            //else
+            //    AnimatedObject.Rotate(newAngle);
         }
     }
 }

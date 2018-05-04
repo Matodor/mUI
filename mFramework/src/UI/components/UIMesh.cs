@@ -17,21 +17,25 @@ namespace mFramework.UI
         public MeshFilter MeshFilter { get; private set; }
         public MeshRenderer MeshRenderer { get; private set; }
 
+        public override float UnscaledHeight => _height * GlobalScale.y;
+        public override float UnscaledWidth => _width * GlobalScale.x;
+        public override Vector2 CenterOffset => Vector2.zero;
+
         private float _width;
         private float _height;
         private Color? _color;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
-            MeshRenderer = gameObject.AddComponent<MeshRenderer>();
-            MeshFilter = gameObject.AddComponent<MeshFilter>();
+            MeshRenderer = GameObject.AddComponent<MeshRenderer>();
+            MeshFilter = GameObject.AddComponent<MeshFilter>();
 
             SortingOrderChanged += s =>
             {
                 UIRenderer.sortingOrder = SortingOrder();
             };
 
-            base.Init();
+            base.AfterAwake();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -73,26 +77,6 @@ namespace mFramework.UI
         {
             _height = height;
             return this;
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _height;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _width;
-        }
-
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
         }
 
         public IMeshRenderer SetSharedMesh(Mesh mesh)

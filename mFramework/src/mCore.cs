@@ -44,7 +44,7 @@ namespace mFramework
             Thread.CurrentThread.CurrentCulture = newCultureDefinition;
 
             Behaviour = new GameObject("mFramework").AddComponent<mBehaviour>();
-            Behaviour.transform.position = new Vector3(0, 0, 9999);
+            Behaviour.transform.position = new Vector3(0, 0, 0);
 
             _repeatsActions = UnidirectionalList<RepeatAction>.Create();
             _timerActions = UnidirectionalList<TimerAction>.Create();

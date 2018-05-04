@@ -11,18 +11,20 @@ namespace mFramework.UI
 
     public sealed class mUI
     {
+        public event Action<MouseEvent> OnMouseDown = delegate { };
+        public event Action<MouseEvent> OnMouseUp = delegate { };
+        public event Action<MouseEvent> OnMouseDrag = delegate { };
+
         public static event Action<UIObject> UIObjectCreated = delegate {};
         public static event Action<UIObject> UIObjectRemoved = delegate {};
 
-        public static UIView BaseView => _baseView;
-        public static UICamera UICamera => _uiCamera;
+        public static UIView BaseView { get; private set; }
+        public static UICamera UICamera { get; private set; }
 
         private static Dictionary<string, UIFont> _fonts;
-        private static BaseView _baseView;
-        private static UICamera _uiCamera;
         private static Dictionary<ulong, UIObject> _uiObjects;
         private static mUI _instance;
-        private static bool _isCreated = false;
+        private static bool _isCreated;
 
         static mUI()
         {
@@ -55,13 +57,13 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            _uiCamera = UICamera.Create(settings.CameraSettings);
-            _uiCamera.Transform.SetParentTransform(mCore.Behaviour.transform);
+            UICamera = UICamera.Create(settings.CameraSettings);
+            UICamera.Transform.ParentTransform(mCore.Behaviour.transform);
             _isCreated = true;
-            _baseView = UIView.Create<BaseView>(new UIViewSettings
+            BaseView = UIView.Create<BaseView>(new UIViewSettings
             {
-                Height = UICamera.PureHeight,
-                Width = UICamera.PureWidth,
+                Height = UICamera.Height,
+                Width = UICamera.Width,
                 SortingOrder = 0,
                 StencilId = 0,
                 DefaultPos = Vector2.zero
@@ -73,17 +75,32 @@ namespace mFramework.UI
          
         private static void OnApplicationQuitEvent()
         {
-            _baseView.DestroyWithoutChecks();
+            BaseView.DestroyWithoutChecks();
             _instance = null;
         }
-        
-        public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)
+
+        internal void MouseDown(MouseEvent e)
+        {
+            OnMouseDown(e);
+        }
+
+        internal void MouseUp(MouseEvent e)
+        {
+            OnMouseUp(e);
+        }
+
+        internal void MouseDrag(MouseEvent e)
+        {
+            OnMouseDrag(e);
+        }
+
+        /*public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)
         {
             var worldPos = UICamera.ScreenToWorldPoint(e.MouseScreenPos);
             BaseView.DeepFind(o => 
                 o.IsActive && 
                 o is IUIClickable clickable &&
-                clickable.UIClickable.Area2D.InArea(worldPos) && predicate(o),
+                clickable.UiClickableOld.Area2D.InArea(worldPos) && predicate(o),
                 out var result
             );
             return result as IUIClickable;
@@ -95,11 +112,11 @@ namespace mFramework.UI
             BaseView.DeepFind(o => 
                 o.IsActive &&
                 o is IUIClickable clickable &&
-                clickable.UIClickable.Area2D.InArea(worldPos),
+                clickable.UiClickableOld.Area2D.InArea(worldPos),
                 out var result
             );
             return result as IUIClickable;
-        }
+        }*/
 
         public static UIFont GetFont(string font)
         {
@@ -131,12 +148,12 @@ namespace mFramework.UI
 
         public static float MaxWidth()
         {
-            return BaseView.GetWidth();
+            return BaseView.Width;
         }
 
         public static float MaxHeight()
         {
-            return BaseView.GetHeight();
+            return BaseView.Height;
         }
 
         internal static bool RemoveUIObject(UIObject obj)

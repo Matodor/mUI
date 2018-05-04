@@ -11,9 +11,13 @@ namespace mFramework.UI
 
         private UISpriteRenderer _uiSpriteRenderer;
 
-        protected override void Init()
+        public override float UnscaledHeight => _uiSpriteRenderer.UnscaledHeight();
+        public override float UnscaledWidth => _uiSpriteRenderer.UnscaledWidth();
+        public override Vector2 CenterOffset => _uiSpriteRenderer.CenterOffset();
+        
+        protected override void AfterAwake()
         {
-            base.Init();
+            base.AfterAwake();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -27,31 +31,6 @@ namespace mFramework.UI
             _uiSpriteRenderer = new UISpriteRenderer(this, spriteSettings);
 
             base.ApplySettings(spriteSettings);
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _uiSpriteRenderer.UnscaledHeight();
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _uiSpriteRenderer.UnscaledWidth();
-        }
-
-        public override float GetHeight()
-        {
-            return _uiSpriteRenderer.GetHeight();
-        }
-
-        public override float GetWidth()
-        {
-            return _uiSpriteRenderer.GetWidth();
-        }
-
-        public override UIRect GetRect()
-        {
-            return _uiSpriteRenderer.GetRect();
         }
 
         public void Flip(bool flipX, bool flipY)

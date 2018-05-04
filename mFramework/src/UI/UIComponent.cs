@@ -24,7 +24,8 @@ namespace mFramework.UI
 
     public abstract class UIComponent : UIObject
     {
-        internal static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
+        internal static T Create<T>(UIObject parent, UIComponentSettings settings = null) 
+            where T : UIComponent
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));

@@ -15,30 +15,10 @@ namespace mFramework.UI
         private bool _canDeselectCurrent;
         private UIToggle _currentSelected;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
             ChildObjectAdded += CheckChildren;
-            base.Init();
-        }
-
-        public override float UnscaledHeight()
-        {
-            return 0f;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return 0f;
-        }
-
-        public override float GetWidth()
-        {
-            return 0f;
-        }
-
-        public override float GetHeight()
-        {
-            return 0f;
+            base.AfterAwake();
         }
 
         private void CheckChildren(IUIObject sender, IUIObject addedObj)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using mFramework.UI.Layouts;
 using UnityEngine;
-
+/*
 namespace mFramework.UI
 {
     public class UIPageSliderSettings : UIComponentSettings
@@ -232,5 +232,5 @@ namespace mFramework.UI
         }
     }
 }
- 
+ */
  

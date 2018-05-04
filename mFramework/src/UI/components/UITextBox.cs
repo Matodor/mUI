@@ -25,19 +25,21 @@ namespace mFramework.UI
         public event UIEventHandler<UITextBox> Selected = delegate { };
         public event UIEventHandler<UITextBox> Deselected = delegate { };
 
-        public UIClickable UIClickable => Background.UIClickable;
+        public UIClickableOld UiClickableOld => Background.UiClickableOld;
         public UILabel Label { get; private set; }
         public UIButton Background { get; private set; }
+
+        public override Vector2 CenterOffset => Background.CenterOffset;
 
         private TouchScreenKeyboardSettings _keyboardSettings;
         private TouchScreenKeyboard _keyboard;
 
         private bool _isSelected;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
             _isSelected = false;
-            base.Init();
+            base.AfterAwake();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -61,7 +63,7 @@ namespace mFramework.UI
 
         private void CheckForLeave(IUIButton sender, Vector2 worldPos)
         {
-            if (sender.UIClickable.Area2D.InArea(worldPos))
+            if (sender.UiClickableOld.Area2D.InArea(worldPos))
                 return;
 
             _isSelected = false;
@@ -120,31 +122,6 @@ namespace mFramework.UI
         {
             Deselected.Invoke(this);
             _keyboard = null;
-        }
-
-        public override float UnscaledHeight()
-        {
-            return Background.UnscaledHeight();
-        }
-
-        public override float UnscaledWidth()
-        {
-            return Background.UnscaledWidth();
-        }
-
-        public override float GetWidth()
-        {
-            return Background.GetWidth();
-        }
-
-        public override float GetHeight()
-        {
-            return Background.GetHeight();
-        }
-
-        public override UIRect GetRect()
-        {
-            return Background.GetRect();
         }
 
         public void MouseDown(Vector2 worldPos)

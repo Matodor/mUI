@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public class UIClickable
+    public class UIClickableOld
     {
         public Area2D Area2D;
         public bool Enabled = true;
@@ -15,7 +15,7 @@ namespace mFramework.UI
         private readonly IUIObject _uiObject;
         private readonly MouseEventListener _mouseEventListener;
 
-        public UIClickable(IUIClickable clickable, Area2D area2d)
+        public UIClickableOld(IUIClickable clickable, Area2D area2d)
         {
             _uiClickable = clickable;
             _uiObject = clickable;
@@ -29,8 +29,8 @@ namespace mFramework.UI
             Area2D = area2d;
             Area2D.Update += area =>
             {
-                area.Center = _uiObject.Pos();
-                area.Rotation = _uiObject.Rotation();
+                area.Center = _uiObject.Position;
+                area.Rotation = _uiObject.Rotation;
             };
         }
 

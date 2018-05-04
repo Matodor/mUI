@@ -4,15 +4,32 @@ namespace mFramework.UI
 {
     public struct UIRect
     {
-        public float Top;
-        public float Bottom;
-        public float Right;
-        public float Left;
-        public Vector2 Position;
+        public readonly Vector2 Top;
+        public readonly Vector2 Bottom;
+        public readonly Vector2 Left;
+        public readonly Vector2 Right;
 
-        public override string ToString()
+        public readonly Vector2 TopLeft;
+        public readonly Vector2 TopRight;
+        public readonly Vector2 BottomLeft;
+        public readonly Vector2 BottomRight;
+
+        public readonly Vector2 Center;
+
+        public UIRect(
+            Vector2 topLeft, Vector2 top, Vector2 topRight,
+            Vector2 left, Vector2 center, Vector2 right,
+            Vector2 bottomLeft, Vector2 bottom, Vector2 bottomRight)
         {
-            return $"Pos={Position} Top={Top} Bottom={Bottom} Right={Right} Left={Left}";
+            Top = top;
+            Bottom = bottom;
+            Left = left;
+            Right = right;
+            TopLeft = topLeft;
+            TopRight = topRight;
+            BottomLeft = bottomLeft;
+            BottomRight = bottomRight;
+            Center = center;
         }
     }
 }

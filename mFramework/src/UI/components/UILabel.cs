@@ -56,6 +56,10 @@ namespace mFramework.UI
 
         public event UIEventHandler<UILabel> TextUpdated = delegate { };
 
+        public override float UnscaledHeight => _textHeight * GlobalScale.y;
+        public override float UnscaledWidth => _textWidth * GlobalScale.x;
+        public override Vector2 CenterOffset => Vector2.zero;
+
         private UIFont _cachedFont;
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
@@ -70,12 +74,12 @@ namespace mFramework.UI
 
         private Dictionary<int, TextFormatting> _textFormatting;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
             _textFormatting = new Dictionary<int, TextFormatting>();
 
-            _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            _meshFilter = gameObject.AddComponent<MeshFilter>();
+            _meshRenderer = GameObject.AddComponent<MeshRenderer>();
+            _meshFilter = GameObject.AddComponent<MeshFilter>();
 
             UIRenderer = _meshRenderer;
 
@@ -93,7 +97,7 @@ namespace mFramework.UI
                 }
             };
 
-            base.Init();
+            base.AfterAwake();
         }
 
         public static void FontOnTextureRebuilt(Font font)
@@ -425,8 +429,8 @@ namespace mFramework.UI
             
             Size = mMath.Clamp(Size, 1, maxSize);
 
-            var localScale = Scale();
-            Scale(1, 1);
+            var localScale = Scale;
+            Scale = Vector2.one;
 
             var text = Text
                 .Replace("\t", "   ")
@@ -703,11 +707,11 @@ namespace mFramework.UI
             _meshFilter.mesh.normals = normalsList.ToArray();
             _meshFilter.mesh.uv = uvList.ToArray();
 
-            Scale(localScale);
+            Scale = localScale;
             TextUpdated.Invoke(this);
         }
 
-        public override UIRect GetRect()
+        /*public override UIRect GetRect()
         {
             var pos = Pos();
             var scale = GlobalScale();
@@ -761,27 +765,7 @@ namespace mFramework.UI
                 Left = pos.x + xOffset * scale.x - wDiv2 * scale.x,
                 Right = pos.x + xOffset * scale.x + wDiv2 * scale.x,
             };
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _textHeight;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _textWidth;
-        }
-
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
-        }
+        }*/
 
         public Color GetColor()
         {

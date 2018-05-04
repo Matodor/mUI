@@ -17,7 +17,7 @@ namespace mFramework.UI
         public float AreaWidth = 0f;
         public float AreaHeight = 0;
         
-        public UIClickable UIClickable { get; protected set; }
+        public UIClickableOld UiClickableOld { get; protected set; }
         public ClickCondition ClickCondition { get; set; }
 
         public event UIEventHandler<IUIButton> Click = delegate { };
@@ -28,7 +28,7 @@ namespace mFramework.UI
 
         private bool _isPressed;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
             _isPressed = false;
             ClickCondition = ClickCondition.BUTTON_UP;
@@ -50,37 +50,21 @@ namespace mFramework.UI
             var area = new RectangleArea2D();
             area.Update += a =>
             {
-                area.Width = GetWidth();
-                area.Height = GetHeight();
+                area.Width = Width;
+                area.Height = Height;
                 area.Offset = new Vector2(
-                    AreaOffset.x * GlobalScale().x,
-                    AreaOffset.y * GlobalScale().y
+                    AreaOffset.x * GlobalScale.x,
+                    AreaOffset.y * GlobalScale.y
                 );
             };
-            UIClickable = new UIClickable(this, area);
+            UiClickableOld = new UIClickableOld(this, area);
 
             base.ApplySettings(buttonSettings);
         }
 
-        public override float UnscaledHeight()
-        {
-            return AreaHeight;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return AreaWidth;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
-        }
-        
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
-        }
+        public override float UnscaledHeight => AreaHeight * GlobalScale.y;
+        public override float UnscaledWidth => AreaWidth * GlobalScale.x;
+        public override Vector2 CenterOffset => Vector2.zero;
 
         public void MouseDown(Vector2 worldPos)
         {
@@ -100,7 +84,7 @@ namespace mFramework.UI
                 return;
 
             if (CanButtonClick.Invoke(this, worldPos) && _isPressed &&
-                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
+                ClickCondition == ClickCondition.BUTTON_UP && UiClickableOld.Area2D.InArea(worldPos))
             {
                 Click.Invoke(this);
             }

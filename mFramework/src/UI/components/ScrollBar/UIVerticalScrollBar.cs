@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+/*
 namespace mFramework.UI
 {
     public class UIVerticalScrollBar : UIBaseScrollBar
@@ -58,4 +58,4 @@ namespace mFramework.UI
             BarPoint.PosY(y);
         }
     }
-}
+}*/

@@ -17,9 +17,9 @@ namespace mFramework.UI
         BUTTON_PRESSED
     }
 
-    public class UIButton : UIComponent, IUIButton, IUISpriteRenderer, IUIColored
+    public class UIButton : UIComponent, IUIButton, IUISpriteRenderer
     {
-        public UIClickable UIClickable { get; private set; }
+        public UIClickableOld UiClickableOld { get; private set; }
         public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
 
         public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
@@ -34,14 +34,18 @@ namespace mFramework.UI
         public event UIEventHandler<IUIButton, Vector2> ButtonDown = delegate { };
         public event UIEventHandler<IUIButton, Vector2> ButtonUp = delegate { };
 
+        public override float UnscaledHeight => _uiSpriteRenderer.UnscaledHeight();
+        public override float UnscaledWidth => _uiSpriteRenderer.UnscaledWidth();
+        public override Vector2 CenterOffset => _uiSpriteRenderer.CenterOffset();
+
         private UISpriteRenderer _uiSpriteRenderer;
         private bool _isPressed;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
             _isPressed = false;
             ClickCondition = ClickCondition.BUTTON_UP;
-            base.Init();
+            base.AfterAwake();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -59,30 +63,30 @@ namespace mFramework.UI
                 var area = new RectangleArea2D();
                 area.Update += a =>
                 {
-                    area.Width = GetWidth();
-                    area.Height = GetHeight();
+                    area.Width = Width;
+                    area.Height = Height;
                     area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
                     area.Offset = new Vector2(
-                        area.Offset.x * GlobalScale().x,
-                        area.Offset.y * GlobalScale().y
+                        area.Offset.x * GlobalScale.x,
+                        area.Offset.y * GlobalScale.y
                     );
                 };
 
-                UIClickable = new UIClickable(this, area);
+                UiClickableOld = new UIClickableOld(this, area);
             }
             else if (buttonSettings.ButtonAreaType == AreaType.CIRCLE)
             {
                 var area = new CircleArea2D();
                 area.Update += a =>
                 {
-                    area.Radius = GetWidth() / 2;
+                    area.Radius = Width / 2;
                     area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
                     area.Offset = new Vector2(
-                        area.Offset.x * GlobalScale().x,
-                        area.Offset.y * GlobalScale().y
+                        area.Offset.x * GlobalScale.x,
+                        area.Offset.y * GlobalScale.y
                     );
                 };
-                UIClickable = new UIClickable(this, area);
+                UiClickableOld = new UIClickableOld(this, area);
             }
 
             _uiSpriteRenderer = new UISpriteRenderer(this, new UISpriteSettings
@@ -98,11 +102,6 @@ namespace mFramework.UI
             };
 
             base.ApplySettings(buttonSettings);
-        }
-
-        public override UIRect GetRect()
-        {
-            return _uiSpriteRenderer.GetRect();
         }
 
         public void Flip(bool flipX, bool flipY)
@@ -123,26 +122,6 @@ namespace mFramework.UI
         public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
             return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _uiSpriteRenderer.UnscaledHeight();
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _uiSpriteRenderer.UnscaledWidth();
-        }
-
-        public override float GetHeight()
-        {
-            return _uiSpriteRenderer.GetHeight();
-        }
-
-        public override float GetWidth()
-        {
-            return _uiSpriteRenderer.GetWidth();
         }
 
         public void MouseDown(Vector2 worldPos)
@@ -166,7 +145,7 @@ namespace mFramework.UI
             StateableSprite.SetDefault();
 
             if (CanButtonClick(this, worldPos) && _isPressed &&
-                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
+                ClickCondition == ClickCondition.BUTTON_UP && UiClickableOld.Area2D.InArea(worldPos))
             {
                 Click(this);
             }

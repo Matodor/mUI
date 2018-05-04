@@ -15,6 +15,10 @@ namespace mFramework
             _label = target as UILabel;
         }
 
+        protected override void OnHeaderGUI()
+        {
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -29,11 +33,6 @@ namespace mFramework
 
             _label.SetTextAnchor((TextAnchor)EditorGUILayout.EnumPopup("Anchor", _label.TextAnchor, GUIStyle.none));
             _label.SetTextAlignment((TextAlignment)EditorGUILayout.EnumPopup("Alignment", _label.TextAlignment, GUIStyle.none));
-
-            if (GUI.changed)
-            {
-                EditorUtility.SetDirty(target);
-            }
         }
     }
 }

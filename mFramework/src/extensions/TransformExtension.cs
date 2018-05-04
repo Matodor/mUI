@@ -4,23 +4,23 @@ using UnityEngine;
 
 namespace mFramework
 {
-    public static class GameObjectExtension
+    public static class TransformExtension
     {
-        public static Transform SetParentTransform(this Transform transform, Transform parent)
+        public static Transform ParentTransform(this Transform transform, Transform parent)
         {
             SetParentTransformImpl(transform, parent);
             return transform;
         }
 
-        public static GameObject SetParentTransform(this GameObject gameObject, GameObject parent)
+        public static GameObject ParentTransform(this GameObject gameObject, GameObject parent)
         {
             SetParentTransformImpl(gameObject.transform, parent.transform);
             return gameObject;
         }
 
-        public static GameObject SetParentTransform(this GameObject gameObject, UIObject parent)
+        public static GameObject ParentTransform(this GameObject gameObject, UIObject parent)
         {
-            SetParentTransformImpl(gameObject.transform, parent.transform);
+            SetParentTransformImpl(gameObject.transform, parent.Transform);
             return gameObject;
         }
 

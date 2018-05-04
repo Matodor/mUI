@@ -1,6 +1,6 @@
 ﻿using mFramework.UI.Layouts;
 using UnityEngine;
-
+/*
 namespace mFramework.UI
 {
     public class UIVerticalPageSlider : UIBasePageSlider
@@ -135,4 +135,4 @@ namespace mFramework.UI
             }
         }
     }
-}
+}*/

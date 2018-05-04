@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public sealed class UIViewSettings
+    public class UIViewSettings
     {
         public float? Height = null;
         public float? Width = null;
@@ -29,6 +29,9 @@ namespace mFramework.UI
     {
         public ushort? StencilId => _stencilId ?? ParentView.StencilId;
 
+        public override float UnscaledWidth => _width;
+        public override float UnscaledHeight => _height;
+
         private float _height;
         private float _width;
         private ushort? _stencilId;
@@ -53,7 +56,7 @@ namespace mFramework.UI
         private void SetupView(UIViewSettings settings, IView parent, object[] @params)
         {
             SetupParent((UIObject) parent);
-            SetupSettings(settings, parent);
+            ApplySettings(settings, parent);
             InitCompleted();
             CreateInterface(@params);
 
@@ -65,21 +68,21 @@ namespace mFramework.UI
 
         protected abstract void CreateInterface(object[] @params);
 
-        protected virtual void SetupSettings(UIViewSettings settings, IView parent)
+        protected virtual void ApplySettings(UIViewSettings settings, IView parent)
         {
             _stencilId = settings.StencilId;
-            _height = settings.Height ?? parent.GetHeight();
-            _width = settings.Width ?? parent.GetWidth();
+            _height = settings.Height ?? parent.Height;
+            _width = settings.Width ?? parent.Width;
 
             if (settings.DefaultPos.HasValue)
-                Pos(settings.DefaultPos.Value);
+                Position = settings.DefaultPos.Value;
 
             if (settings.SortingOrder.HasValue)
                 SortingOrder(settings.SortingOrder.Value);
 
             if (_stencilId.HasValue && _stencilId.Value != 0)
             {
-                var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                var meshRenderer = GameObject.AddComponent<MeshRenderer>();
                 meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId.Value).CanvasMaterial;
                 meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
                 meshRenderer.sortingOrder = SortingOrder();
@@ -89,26 +92,6 @@ namespace mFramework.UI
                     meshRenderer.sortingOrder = SortingOrder();
                 };
             }
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _height;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _width;
-        }
-
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
         }
     }
 }

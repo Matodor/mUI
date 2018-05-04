@@ -39,9 +39,9 @@ namespace mFramework.UI
         {
             var newPos = BezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
             if (_isLocal)
-                AnimatedObject.LocalPos(newPos);
+                AnimatedObject.LocalPosition = newPos;
             else
-                AnimatedObject.Pos(newPos);
+                AnimatedObject.Position = newPos;
         }
     }
 }

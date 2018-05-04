@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using mFramework.UI.Layouts;
 using UnityEngine;
-
+/*
 namespace mFramework.UI
 {
     public class UISliderSettings : UIComponentSettings
@@ -221,4 +221,4 @@ namespace mFramework.UI
             base.OnTick();
         }
     }
-}
+}*/

@@ -12,36 +12,26 @@ namespace mFramework.UI
         public float OrthographicSize { get; set; } = 5;
     }
 
-    public sealed class UICamera
+    public sealed class UICamera : IDimensions
     {
-        public GameObject GameObject { get; }
-        public Transform Transform { get; }
-        public Camera Camera { get; }
+        internal Transform Transform => _camera.transform;
 
-        public Vector2 Position => Transform.position;
+        public float Height => UnscaledHeight * _camera.transform.lossyScale.y;
+        public float Width => UnscaledWidth * _camera.transform.lossyScale.x;
+        public float UnscaledWidth => _camera.orthographicSize * _camera.aspect * 2;
+        public float UnscaledHeight => _camera.orthographicSize * 2;
 
-        public float PureHeight => Camera.orthographicSize * 2;
-        public float PureWidth => Camera.orthographicSize * Camera.aspect * 2;
-        public float Height => PureHeight * Transform.lossyScale.y;
-        public float Width => PureWidth * Transform.lossyScale.x;
-
-        public float Left => Transform.position.x - Width / 2;
-        public float Right => Transform.position.x + Width / 2;
-        public float Top => Transform.position.y + Height / 2;
-        public float Bottom => Transform.position.y - Height / 2;
+        private readonly Camera _camera;
 
         private UICamera(UICameraSettings settings)
         {
-            Camera = new GameObject("UICamera").AddComponent<Camera>();
-            Camera.clearFlags = settings.CameraClearFlags;
-            Camera.depth = settings.Depth;
-            Camera.orthographic = settings.Orthographic;
-            Camera.farClipPlane = settings.FarClipPlane;
-            Camera.nearClipPlane = settings.NearClipPlane;
-            Camera.orthographicSize = settings.OrthographicSize;
-
-            Transform = Camera.transform; 
-            GameObject = Camera.gameObject;
+            _camera = new GameObject("UICamera").AddComponent<Camera>();
+            _camera.clearFlags = settings.CameraClearFlags;
+            _camera.depth = settings.Depth;
+            _camera.orthographic = settings.Orthographic;
+            _camera.farClipPlane = settings.FarClipPlane;
+            _camera.nearClipPlane = settings.NearClipPlane;
+            _camera.orthographicSize = settings.OrthographicSize;
         }
 
         public static UICamera Create(UICameraSettings settings)
@@ -49,22 +39,22 @@ namespace mFramework.UI
             return new UICamera(settings);
         }
 
-        public UICamera SetOrthographicSize(float size)
+        public UICamera OrthographicSize(float orthographicSize)
         {
-            Camera.orthographicSize = size;
+            _camera.orthographicSize = orthographicSize;
             return this;
         }
 
         public Vector3 WorldToScreenPoint(Vector3 worldPos)
         {
-            return Camera.WorldToScreenPoint(worldPos);
+            return _camera.WorldToScreenPoint(worldPos);
         }
 
         public Vector2 ScreenToWorldPoint(Vector2 screenPos)
         {
             if (mCore.IsEditor)
                 screenPos.y = Screen.height - screenPos.y;
-            return Camera.ScreenToWorldPoint(screenPos);
+            return _camera.ScreenToWorldPoint(screenPos);
         }
     }
 }

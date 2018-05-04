@@ -10,12 +10,15 @@ namespace mFramework.UI
 
     public class UIContainer : UIComponent
     {
+        public override float UnscaledWidth => _width;
+        public override float UnscaledHeight => _height;
+
         private float _width;
         private float _height;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
-            base.Init();
+            base.AfterAwake();
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -42,26 +45,6 @@ namespace mFramework.UI
         {
             _height = height;
             return this;
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _height;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _width;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
-        }
-
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
         }
     }
 }

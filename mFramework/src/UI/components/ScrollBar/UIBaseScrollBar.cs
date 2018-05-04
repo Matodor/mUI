@@ -52,7 +52,7 @@ namespace mFramework.UI
 
         public UISprite Bar { get; private set; }
         public UIButton BarPoint { get; private set; }
-        public UIClickable UIClickable { get; private set; }
+        public UIClickableOld UiClickableOld { get; private set; }
 
         protected bool BarSpriteIsHorizontal { get; private set; }
 
@@ -61,10 +61,10 @@ namespace mFramework.UI
 
         private bool _isPressed;
 
-        protected override void Init()
+        protected override void AfterAwake()
         {
             _isPressed = false;
-            base.Init();
+            base.AfterAwake();
         }
         
         public static float NormilizeStep(float min, float max, float step)
@@ -90,19 +90,19 @@ namespace mFramework.UI
             NormilizedStep = NormilizeStep(Min, Max, Step);
 
             Bar = this.Sprite(new UISpriteSettings {Sprite = scrollBarSettings.BarSprite});
-            Bar.Scale(scrollBarSettings.ScaleBar);
+            Bar.Scale = scrollBarSettings.ScaleBar;
 
             BarPoint = Bar.Button(scrollBarSettings.BarPointSettings);
-            BarPoint.Scale(scrollBarSettings.ScalePoint);
+            BarPoint.Scale = scrollBarSettings.ScalePoint;
             BarPoint.SortingOrder(1);
 
             var area = new RectangleArea2D();
             area.Update += a =>
             {
-                area.Width = GetWidth();
-                area.Height = GetHeight();
+                area.Width = Width;
+                area.Height = Height;
             };
-            UIClickable = new UIClickable(this, area);
+            UiClickableOld = new UIClickableOld(this, area);
 
             _value = scrollBarSettings.Default;
             _normilizedValue = mMath.NormilizeValue(Min, Max, scrollBarSettings.Default);

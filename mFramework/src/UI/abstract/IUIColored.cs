@@ -2,13 +2,13 @@
 
 namespace mFramework.UI
 {
-    public interface IUIColored : IUIRenderer
+    public interface IUIColored
     {
-        Color GetColor();
-        float GetOpacity();
+        Color Color { get; set; }
 
-        IUIColored SetColor(Color32 color);
-        IUIColored SetColor(UIColor color);
-        IUIColored SetOpacity(float opacity);
+        /// <summary>
+        /// Normalized opacity
+        /// </summary>
+        float Opacity { get; set; }
     }
 }

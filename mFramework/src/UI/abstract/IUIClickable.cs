@@ -4,7 +4,7 @@ namespace mFramework.UI
 {
     public interface IUIClickable : IUIObject
     {
-        UIClickable UIClickable { get; }
+        UIClickableOld UiClickableOld { get; }
 
         void MouseDown(Vector2 worldPos);
         void MouseUp(Vector2 worldPos);
