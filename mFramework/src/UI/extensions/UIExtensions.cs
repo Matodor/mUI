@@ -49,13 +49,13 @@ namespace mFramework
             return obj;
         }
 
-        public static void Disable(this IEnumerable<IUIClickable> objs)
+        public static void Disable(this IEnumerable<IUIClickableOld> objs)
         {
             foreach (var o in objs)
                 o.UiClickableOld.Enabled = false;
         }
 
-        public static void Enable(this IEnumerable<IUIClickable> objs)
+        public static void Enable(this IEnumerable<IUIClickableOld> objs)
         {
             foreach (var o in objs)
                 o.UiClickableOld.Enabled = true;
@@ -67,10 +67,10 @@ namespace mFramework
                 o.SetColor(color);
         }
 
-        public static void SetColor(this IEnumerable<IUIColored> objs, UIColor color)
+        public static void SetColor(this IEnumerable<IUIColored> objs, UIColorOldd colorOldd)
         {
             foreach (var o in objs)
-                o.SetColor(color);
+                o.SetColor(colorOldd);
         }
 
         public static void SetOpacity(this IEnumerable<IUIColored> objs, float opacity)

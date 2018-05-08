@@ -1,24 +1,50 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace mFramework.UI
-{ 
-    public class UISprite : UIComponent, IUISpriteRenderer, IUIColored
+{
+    public class UISpriteSettings : UIComponentSettings
     {
-        public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
-        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
-        public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
+        public virtual Sprite Sprite { get; set; }
+        public virtual Color? Color { get; set; } = null;
+    }
 
-        private UISpriteRenderer _uiSpriteRenderer;
+    public class UISprite : UIComponent, IUIRenderer<SpriteRenderer>, IUIRenderer, IUIColored
+    {
+        public override float UnscaledHeight => _spriteRenderer.sprite.bounds.size.y;
+        public override float UnscaledWidth => _spriteRenderer.sprite.bounds.size.x;
+        public override Vector2 CenterOffset => _spriteRenderer.sprite.bounds.center;
 
-        public override float UnscaledHeight => _uiSpriteRenderer.UnscaledHeight();
-        public override float UnscaledWidth => _uiSpriteRenderer.UnscaledWidth();
-        public override Vector2 CenterOffset => _uiSpriteRenderer.CenterOffset();
-        
-        protected override void AfterAwake()
+        public Color Color
         {
-            base.AfterAwake();
+            get => _spriteRenderer.color;
+            set => _spriteRenderer.color = value;
         }
+
+        public float Opacity
+        {
+            get => _spriteRenderer.color.a;
+            set
+            {
+                var color = _spriteRenderer.color;
+                color.a = value;
+                _spriteRenderer.color = color;
+            }
+        }
+
+        public UISprite SpriteMask { get; private set; }
+
+        public Sprite Sprite
+        {
+            get => _spriteRenderer.sprite;
+            set => _spriteRenderer.sprite = value;
+        }
+
+        public SpriteRenderer UIRenderer => _spriteRenderer;
+        Renderer IUIRenderer.UIRenderer => _spriteRenderer;
+
+        private SpriteRenderer _spriteRenderer; 
 
         protected override void ApplySettings(UIComponentSettings settings)
         {
@@ -26,59 +52,61 @@ namespace mFramework.UI
                 throw new ArgumentNullException(nameof(settings));
 
             if (!(settings is UISpriteSettings spriteSettings))
-                throw new ArgumentException("UISPrite: The given settings is not UISpriteSettings");
+                throw new ArgumentException("UISprite: The given settings is not UISpriteSettings");
 
-            _uiSpriteRenderer = new UISpriteRenderer(this, spriteSettings);
+            _spriteRenderer = GameObject.AddComponent<SpriteRenderer>();
+            _spriteRenderer.sprite = spriteSettings.Sprite;
+            _spriteRenderer.sharedMaterial = UIStencilMaterials
+                .GetOrCreate(ParentView.StencilId ?? 0)
+                .SpritesMaterial;
 
+            if (spriteSettings.Color.HasValue)
+                Color = spriteSettings.Color.Value;
+
+            SortingOrderChanged += OnSortingOrderChanged;
             base.ApplySettings(spriteSettings);
+        }
+
+        private void OnSortingOrderChanged(IUIObject sender)
+        {
+            _spriteRenderer.sortingOrder = SortingOrder;
         }
 
         public void Flip(bool flipX, bool flipY)
         {
-            _uiSpriteRenderer.Flip(flipX, flipY);
-        }
-
-        public void SetSprite(Sprite sprite)
-        {
-            _uiSpriteRenderer.SetSprite(sprite);
+            _spriteRenderer.flipX = flipX;
+            _spriteRenderer.flipY = flipY;
         }
 
         public void RemoveMask()
         {
-            _uiSpriteRenderer.RemoveMask();
+            if (SpriteMask != null)
+            {
+                SpriteMask.Destroy();
+                SpriteMask = null;
+            }
         }
 
         public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
-            return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
-        }
+            if (SpriteMask == null)
+            {
+                SpriteMask = this.Sprite(new UISpriteSettings
+                {
+                    Sprite = mask,
+                });
 
-        public Color GetColor()
-        {
-            return _uiSpriteRenderer.GetColor();
-        }
+                var layer = UIStencilMaterials.Create(1,
+                    insideMask ? CompareFunction.Equal : CompareFunction.NotEqual, StencilOp.Replace, 1, 1);
 
-        public float GetOpacity()
-        {
-            return _uiSpriteRenderer.GetOpacity();
-        }
+                SpriteMask.UIRenderer.material = layer.CanvasMaterial;
+                SpriteMask.UIRenderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
+                SpriteMask.UIRenderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
+                SpriteMask.UIRenderer.color = new Color32(255, 255, 255, 0);
+                UIRenderer.material = layer.SpritesMaterial;
+            }
 
-        public IUIColored SetColor(Color32 color)
-        {
-            _uiSpriteRenderer.SetColor(color);
-            return this;
-        }
-
-        public IUIColored SetColor(UIColor color)
-        {
-            _uiSpriteRenderer.SetColor(color);
-            return this;
-        }
-
-        public IUIColored SetOpacity(float opacity)
-        {
-            _uiSpriteRenderer.SetOpacity(opacity);
-            return this;
+            return SpriteMask;
         }
     }
 }

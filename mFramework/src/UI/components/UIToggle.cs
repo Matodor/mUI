@@ -8,7 +8,7 @@ namespace mFramework.UI
         public bool DefaultSelected = false;
     }
 
-    public class UIToggle : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable
+    public class UIToggle : UIComponent, IUISpriteRenderer, IUIColored, IUIClickableOld
     {
         public UIClickableOld UiClickableOld { get; private set; }
         public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
@@ -155,9 +155,9 @@ namespace mFramework.UI
             return this;
         }
 
-        public IUIColored SetColor(UIColor color)
+        public IUIColored SetColor(UIColorOldd colorOldd)
         {
-            _uiSpriteRenderer.SetColor(color);
+            _uiSpriteRenderer.SetColor(colorOldd);
             return this;
         }
 

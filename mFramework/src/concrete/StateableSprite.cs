@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework
 {
-    public class SpriteStates
+    public struct SpriteStates
     {
         public Sprite Default;
         public Sprite Highlighted;
@@ -20,15 +20,13 @@ namespace mFramework
         }
 
         public event Action<StateableSprite, Sprite> StateChanged = delegate { };
-        public State CurrentState => _state;
-
-        private readonly SpriteStates _spriteStates;
-        private State _state;
+        public State CurrentState { get; private set; }
+        public SpriteStates SpriteStates { get; set; }
 
         private StateableSprite(SpriteStates spriteStates)
         {
-            _spriteStates = spriteStates;
-            _state = State.DEFAULT;
+            SpriteStates = spriteStates;
+            CurrentState = State.DEFAULT;
         }
 
         public static StateableSprite Create(SpriteStates spriteStates)
@@ -38,20 +36,20 @@ namespace mFramework
 
         public void SetDefault()
         {
-            _state = State.DEFAULT;
-            StateChanged.Invoke(this, _spriteStates.Default);
+            CurrentState = State.DEFAULT;
+            StateChanged.Invoke(this, SpriteStates.Default);
         }
 
         public void SetHighlighted()
         {
-            _state = State.HIGHLIGHTED;
-            StateChanged.Invoke(this, _spriteStates.Highlighted);
+            CurrentState = State.HIGHLIGHTED;
+            StateChanged.Invoke(this, SpriteStates.Highlighted);
         }
 
         public void SetSelected()
         {
-            _state = State.SELECTED;
-            StateChanged.Invoke(this, _spriteStates.Selected);
+            CurrentState = State.SELECTED;
+            StateChanged.Invoke(this, SpriteStates.Selected);
         }
     }
 }

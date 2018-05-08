@@ -85,6 +85,18 @@ namespace mFramework.UI
             }
         }
 
+        public int LocalSortingOrder
+        {
+            get => _localSortingOrder;
+            set { _localSortingOrder = value; OnSortingOrderChanged(); }
+        }
+
+        public int SortingOrder
+        {
+            get => (Parent?.SortingOrder ?? 0) + _localSortingOrder;
+            set { _localSortingOrder = value; OnSortingOrderChanged(); }
+        }
+        
         public ulong GUID { get; private set; }
         public UIObject Parent { get; private set; }
 
@@ -380,24 +392,7 @@ namespace mFramework.UI
             base.gameObject.name = $"{newName} ({GUID})";
             return this;
         }
-
-        public IUIObject SortingOrder(int sortingOrder)
-        {
-            _localSortingOrder = sortingOrder;
-            OnSortingOrderChanged();
-            return this;
-        }
-
-        public int LocalSortingOrder()
-        {
-            return _localSortingOrder;
-        }
-
-        public int SortingOrder()
-        {
-            return (Parent?.SortingOrder() ?? 0) + _localSortingOrder;
-        }
-
+        
         private void OnSortingOrderChanged()
         {
             SortingOrderChanged(this);

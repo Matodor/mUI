@@ -114,9 +114,9 @@ namespace mFramework.UI
             return this;
         }
 
-        public IUIColored SetColor(UIColor color)
+        public IUIColored SetColor(UIColorOldd colorOldd)
         {
-            return SetColor(color.Color32);
+            return SetColor(colorOldd.Color32);
         }
 
         public IUIColored SetOpacity(float opacity)

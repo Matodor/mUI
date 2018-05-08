@@ -1,150 +1,150 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace mFramework.UI
 {
-    public enum UIColorType
+    public struct UIColor
     {
-        RGBA = 0,
-        HSVA,
-    }
-
-    public class UIColor
-    {
-        public static UIColor Black = new UIColor(0, 0, 0);
-        public static UIColor White = new UIColor(255, 255, 255);
-
-        public Color32 Color32 => ToColor32();
-
-        public readonly UIColorType Type;
-        public float n1; // r 0-255, h 0-360
-        public float n2; // g 0-255, s 0-255
-        public float n3; // b 0-255, v 0-255
-        public float Alpha; // alpha 0-255
-
-        public UIColor(string hexColor)
+        public enum Type
         {
-            Type = UIColorType.RGBA;
-
-            if (ColorUtility.TryParseHtmlString(hexColor, out var color))
-            {
-                n1 = ((Color32) color).r;
-                n2 = ((Color32) color).g;
-                n3 = ((Color32) color).b;
-                Alpha = ((Color32) color).a;
-            }
-            else
-            {
-                throw new Exception("Can't parse hex color");
-            }
+            RGBA = 0,
+            HSV,
         }
 
-        public UIColor(string hexColor, byte alpha)
-        {
-            Type = UIColorType.RGBA;
+        public UIColor ToRGBA => HSVToRGBA(this);
+        public UIColor ToHSV => RGBAToHSV(this);
+        public UIColor ToGrayscale => RGBAToGrayscale(this);
 
-            if (ColorUtility.TryParseHtmlString(hexColor, out var color))
-            {
-                n1 = ((Color32) color).r;
-                n2 = ((Color32) color).g;
-                n3 = ((Color32) color).b;
-                Alpha = alpha;
-            }
-            else
-            {
-                throw new Exception("Can't parse hex color");
-            }
+        /// <summary>
+        /// Color type RGBA or HSV
+        /// </summary>
+        public readonly Type ColorType;
+
+        /// <summary>
+        /// Normalized color component (R - rgba, H - hsv)
+        /// </summary>
+        public float N1;
+
+        /// <summary>
+        /// Normalized color component (G - rgba, S - hsv)
+        /// </summary>
+        public float N2;
+
+        /// <summary>
+        /// Normalized color component (B - rgba, V - hsv)
+        /// </summary>
+        public float N3;
+
+        /// <summary>
+        /// Normalized opacity (alpha channel)
+        /// </summary>
+        public float Alpha;
+
+        public UIColor(float n1, float n2, float n3, float alpha, Type type)
+        {
+            N1 = n1;
+            N2 = n2;
+            N3 = n3;
+            Alpha = alpha;
+            ColorType = type;
         }
 
-        public UIColor(Color32 color, UIColorType t = UIColorType.RGBA)
-        {
-            n1 = color.r;
-            n2 = color.g;
-            n3 = color.b;
-            Alpha = color.a;
-            Type = t;
-        }
-
-        public UIColor(float a1, float a2, float a3, float a4 = 255, UIColorType t = UIColorType.RGBA)
-        {
-            n1 = mMath.Clamp(a1, 0f, t == UIColorType.HSVA ? 359f : 255f);
-            n2 = mMath.Clamp(a2, 0f, 255f);
-            n3 = mMath.Clamp(a3, 0f, 255f);
-            Alpha = mMath.Clamp(a4, 0f, 255f);
-            Type = t;
-        }
-        
-        private Color32 ToColor32()
-        {
-            if (Type == UIColorType.RGBA)
-                return new Color32((byte)n1, (byte)n2, (byte)n3, (byte)Alpha);
-            return HSVToRGB(n1, n2, n3, Alpha);
-        }
-
-        public override string ToString()
-        {
-            return $"Type: {Type} | n1: {n1} | n2: {n2} | n3: {n3} | Alpha: {Alpha}";
-        }
-
-        public UIColor Copy(float alpha)
-        {
-            return new UIColor(n1, n2, n3, alpha, Type);
-        }
-
-        public UIColor Copy()
-        {
-            return new UIColor(n1, n2, n3, Alpha, Type);
-        }
-
-        public static Color FromHtmlString(string hexColor)
+        /// <summary>
+        /// Create UIColor by the given color in html format
+        /// </summary>
+        /// <param name="hexColor">Html color in hex format (example "#ffffff")</param>
+        /// <returns></returns>
+        public static UIColor FromHTML(string hexColor)
         {
             if (ColorUtility.TryParseHtmlString(hexColor, out var color))
+                return (UIColor) color;
+            return new UIColor(1, 1, 1, 1, Type.RGBA);
+        }
+
+        /// <summary>
+        /// Create UIColor by the given normalized r,g,b,a color components
+        /// </summary>
+        /// <param name="r">Normalized red color component</param>
+        /// <param name="g">Normalized green color component</param>
+        /// <param name="b">Normalized blue color component</param>
+        /// <param name="a">Normalized alpha color component</param>
+        /// <returns></returns>
+        public static UIColor RGBA(float r, float g, float b, float a = 1)
+        {
+            return new UIColor(r, g, b, a, Type.RGBA);
+        }
+
+        /// <summary>
+        /// Create UIColor by the given r,g,b,a color components
+        /// </summary>
+        /// <param name="r">Red color component 0-255</param>
+        /// <param name="g">Green color component 0-255</param>
+        /// <param name="b">Blue color component 0-255</param>
+        /// <param name="a">Alpha color component 0-255</param>
+        /// <returns></returns>
+        public static UIColor RGBA(byte r, byte g, byte b, byte a = 255)
+        {
+            return new UIColor(255f / r, 255f / g, 255f / b, 255f / a, Type.RGBA);
+        }
+
+        /// <summary>
+        /// Create UIColor by the given r,g,b,a color components
+        /// </summary>
+        /// <param name="h">Normalized hue color component 0-360</param>
+        /// <param name="s">Normalized saturation  color component 0-255</param>
+        /// <param name="v">Normalized value color component 0-255</param>
+        /// <param name="a">Normalized alpha color component 0-255</param>
+        /// <returns></returns>
+        public static UIColor HSV(float h, float s, float v, float a = 1)
+        {
+            return new UIColor(h, s, v, a, Type.HSV);
+        }
+
+        /// <summary>
+        /// Create UIColor by the given r,g,b,a color components
+        /// </summary>
+        /// <param name="h">Hue color component 0-360</param>
+        /// <param name="s">Saturation  color component 0-255</param>
+        /// <param name="v">Value color component 0-255</param>
+        /// <param name="a">Alpha color component 0-255</param>
+        /// <returns></returns>
+        public static UIColor HSV(int h, byte s, byte v, byte a = 255)
+        {
+            return new UIColor(360f / h, 255f / s, 255f / v, 255f / a, Type.HSV);
+        }
+
+        public static UIColor RGBAToHSV(UIColor color)
+        {
+            if (color.ColorType == Type.HSV)
                 return color;
-            return Color.white;
+
+            Color.RGBToHSV((Color) color, out var h, out var s, out var v);
+            return new UIColor(h, s, v, color.Alpha, Type.HSV);
         }
 
-        public static Color RGBToGrayscale(Color color)
+        public static UIColor HSVToRGBA(UIColor color)
         {
-            var y = 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
-            return new Color(y, y, y, color.a);
+            if (color.ColorType == Type.RGBA)
+                return color;
+
+            return (UIColor) Color.HSVToRGB(color.N1, color.N2, color.N3);
         }
 
-        public static UIColor RGBToHSV(Color rgbColor)
+        public static UIColor RGBAToGrayscale(UIColor color)
         {
-            Color.RGBToHSV(rgbColor, out var h, out var s, out var v);
-            return new UIColor(h * 360, s * 255, v * 255, rgbColor.a * 255, UIColorType.HSVA);
+            color = color.ColorType == Type.RGBA ? color : HSVToRGBA(color);
+            var y = 0.2126f * color.N1 + 0.7152f * color.N2 + 0.0722f * color.N3;
+            return new UIColor(y, y, y, color.Alpha, Type.RGBA);
         }
 
-        public static Color HSVToRGB(float H, float S, float V, float A)
+        public static explicit operator Color(UIColor color)
         {
-            Color c;
+            color = color.ColorType == Type.RGBA ? color : HSVToRGBA(color);
+            return new Color(color.N1, color.N2, color.N3, color.Alpha);
+        }
 
-            S /= 255f;
-            V /= 255f;
-            A /= 255f;
-
-            if (H <= 180)
-            {
-                if (H <= 60) c = new Color(1, H / 60, 0);
-                else if (H <= 120) c = new Color(1 - (H - 60) / 60, 1, 0);
-                else c = new Color(0, 1, (H - 120) / 60);
-            }
-            else
-            {
-                if (H <= 240) c = new Color(0, 1 - (H - 180) / 60, 1);
-                else if (H <= 300) c = new Color((H - 240) / 60, 0, 1);
-                else c = new Color(1, 0, 1 - (H - 300) / 60);
-            }
-
-            c.r *= V;
-            c.g *= V;
-            c.b *= V;
-
-            c.r += (V - c.r) * (1 - S);
-            c.g += (V - c.g) * (1 - S);
-            c.b += (V - c.b) * (1 - S);
-            c.a = A;
-            return c;
+        public static explicit operator UIColor(Color color)
+        {
+            return new UIColor(color.r, color.g, color.b, color.a, Type.RGBA);
         }
     }
 }

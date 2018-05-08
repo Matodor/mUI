@@ -6,4 +6,9 @@ namespace mFramework.UI
     {
         Renderer UIRenderer { get; }
     }
+
+    public interface IUIRenderer<out T> : IUIObject where T : Renderer
+    {
+        T UIRenderer { get; }
+    }
 }

@@ -1,31 +1,15 @@
-﻿using UnityEngine;
+﻿using mFramework.UI;
+using UnityEngine;
 
 namespace mFramework
 {
     internal static class EventsController
     {
         private static readonly Event _currentEvent;
-        private static readonly UnidirectionalList<MouseEventListener> _mouseEventListeners;
 
         static EventsController()
         {
             _currentEvent = new Event();
-            _mouseEventListeners = UnidirectionalList<MouseEventListener>.Create();
-        }
-
-        public static bool RemoveMouseEventListener(MouseEventListener listener)
-        {
-            return _mouseEventListeners.Remove(listener.GUID);
-        }
-
-        public static MouseEventListener AddMouseEventListener(MouseEventListener listener)
-        {
-            if (!_mouseEventListeners.Contains(listener))
-            {
-                _mouseEventListeners.Add(listener);
-                return listener;
-            }
-            return null;
         }
 
         public static void Update()
@@ -36,24 +20,23 @@ namespace mFramework
                 DesktopEvents();
         }
 
-        private static void MouseWheelEvent(MouseEvent @event)
+        private static void MouseWheelEvent(MouseEvent e)
         {
-            _mouseEventListeners.ForEach(listener => listener.OnMouseWheel(@event));
         }
 
-        private static void MouseDragEvent(MouseEvent @event)
+        private static void MouseDragEvent(MouseEvent e)
         {
-            _mouseEventListeners.ForEach(listener => listener.OnMouseDrag(@event));
+            mUI.MouseDrag(e);
         }
 
-        private static void MouseUpEvent(MouseEvent @event)
+        private static void MouseUpEvent(MouseEvent e)
         {
-            _mouseEventListeners.ForEach(listener => listener.OnMouseUp(@event));
+            mUI.MouseUp(e);
         }
 
-        private static void MouseDownEvent(MouseEvent @event)
+        private static void MouseDownEvent(MouseEvent e)
         {
-            _mouseEventListeners.ForEach(listener => listener.OnMouseDown(@event));
+            mUI.MouseDown(e);
         }
 
         private static void MouseEvent(MouseEvent mouseEvent)

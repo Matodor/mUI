@@ -3,12 +3,6 @@ using UnityEngine.Rendering;
 
 namespace mFramework.UI
 {
-    public sealed class UISpriteSettings : UIComponentSettings
-    {
-        public Sprite Sprite { get; set; }
-        public Color? Color { get; set; } = null;
-    }
-
     public sealed class UISpriteRenderer
     {
         public SpriteRenderer Renderer { get; }

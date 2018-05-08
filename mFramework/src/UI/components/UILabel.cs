@@ -12,7 +12,7 @@ namespace mFramework.UI
         public string Font = "Arial";
         public int Size = 40;
         public TextAnchor? TextAnchor = null;
-        public UIColor Color = UIColor.White;
+        public UIColorOldd ColorOldd = UIColorOldd.White;
         public FontStyle FontStyle = FontStyle.Normal;
         public TextAlignment TextAlignment = TextAlignment.Left;
         public float LetterSpacing = 1f;
@@ -162,7 +162,7 @@ namespace mFramework.UI
                 TextAnchor = labelSettings.TextAnchor.Value;
             }
 
-            _color = labelSettings.Color.Color32;
+            _color = labelSettings.ColorOldd.Color32;
             _cachedFont = mUI.GetFont(labelSettings.Font);
 
             if (_cachedFont == null)
@@ -797,9 +797,9 @@ namespace mFramework.UI
             return this;
         }
 
-        public IUIColored SetColor(UIColor color)
+        public IUIColored SetColor(UIColorOldd colorOldd)
         {
-            return SetColor(color.Color32);
+            return SetColor(colorOldd.Color32);
         }
 
         public IUIColored SetOpacity(float opacity)

@@ -11,7 +11,7 @@ namespace mFramework.UI
         public float Friction = 0f;
     }
 
-    public class UIJoystick : UIComponent, IUIClickable
+    public class UIJoystick : UIComponent, IUIClickableOld
     {
         public event UIEventHandler<UIJoystick> PointMoved = delegate { };
 

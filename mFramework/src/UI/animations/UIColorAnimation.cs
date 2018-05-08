@@ -5,14 +5,14 @@ namespace mFramework.UI
 {
     public class UIColorAnimationSettings : UIAnimationSettings
     {
-        public UIColor FromColor { get; set; }
-        public UIColor ToColor { get; set; }
+        public UIColorOldd FromColorOldd { get; set; }
+        public UIColorOldd ToColorOldd { get; set; }
     }
 
     public class UIColorAnimation : UIAnimation
     {
-        private UIColor _fromColor;
-        private UIColor _toColor;
+        private UIColorOldd _fromColorOldd;
+        private UIColorOldd _toColorOldd;
         private float n1, n2, n3, Alpha;
         private IUIColored _animatedObj;
 
@@ -33,31 +33,31 @@ namespace mFramework.UI
             if (!(settings is UIColorAnimationSettings colorSettings))
                 throw new ArgumentException("UIColorAnimation: The given settings is not UIColorAnimationSettings");
 
-            if (colorSettings.FromColor.Type != colorSettings.ToColor.Type)
+            if (colorSettings.FromColorOldd.OldType != colorSettings.ToColorOldd.OldType)
                 throw new Exception("UIColorAnimationSettings.FromColor.Type != UIColorAnimationSettings.ToColor.Type");
 
-            _fromColor = colorSettings.FromColor;
-            _toColor = colorSettings.ToColor;
+            _fromColorOldd = colorSettings.FromColorOldd;
+            _toColorOldd = colorSettings.ToColorOldd;
 
-            n1 = _fromColor.n1;
-            n2 = _fromColor.n2;
-            n3 = _fromColor.n3;
-            Alpha = _fromColor.Alpha;
+            n1 = _fromColorOldd.n1;
+            n2 = _fromColorOldd.n2;
+            n3 = _fromColorOldd.n3;
+            Alpha = _fromColorOldd.Alpha;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            n1 = BezierHelper.Linear(CurrentEasingTime, _fromColor.n1, _toColor.n1);
-            n2 = BezierHelper.Linear(CurrentEasingTime, _fromColor.n2, _toColor.n2);
-            n3 = BezierHelper.Linear(CurrentEasingTime, _fromColor.n3, _toColor.n3);
-            Alpha = BezierHelper.Linear(CurrentEasingTime, _fromColor.Alpha, _toColor.Alpha);
+            n1 = BezierHelper.Linear(CurrentEasingTime, _fromColorOldd.n1, _toColorOldd.n1);
+            n2 = BezierHelper.Linear(CurrentEasingTime, _fromColorOldd.n2, _toColorOldd.n2);
+            n3 = BezierHelper.Linear(CurrentEasingTime, _fromColorOldd.n3, _toColorOldd.n3);
+            Alpha = BezierHelper.Linear(CurrentEasingTime, _fromColorOldd.Alpha, _toColorOldd.Alpha);
 
-            if (_fromColor.Type == UIColorType.RGBA)
+            if (_fromColorOldd.OldType == UIColorOldType.RGBA)
                 _animatedObj.SetColor(new Color32((byte) n1, (byte) n2, (byte) n3, (byte) Alpha));
             else
-                _animatedObj.SetColor(UIColor.HSVToRGB(n1, n2, n3, Alpha));
+                _animatedObj.SetColor(UIColorOldd.HSVToRGB(n1, n2, n3, Alpha));
         }
     }
 }

@@ -20,7 +20,7 @@ namespace mFramework.UI
         public readonly TouchScreenKeyboardSettings KeyboardSettings = new TouchScreenKeyboardSettings();
     }
 
-    public class UITextBox : UIComponent, IUIClickable
+    public class UITextBox : UIComponent, IUIClickableOld
     {
         public event UIEventHandler<UITextBox> Selected = delegate { };
         public event UIEventHandler<UITextBox> Deselected = delegate { };
@@ -56,7 +56,7 @@ namespace mFramework.UI
 
             Background = this.Button(textBoxSettings.BackgroundSettings);
             Background.Click += OnClickTextBox;
-            Background.ButtonUp += CheckForLeave;
+            Background.OnButtonUp += CheckForLeave;
             Label = Background.Label(textBoxSettings.LabelSettings);
             Label.SortingOrder(1);
         }

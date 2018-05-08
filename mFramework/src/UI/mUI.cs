@@ -11,9 +11,9 @@ namespace mFramework.UI
 
     public sealed class mUI
     {
-        public event Action<MouseEvent> OnMouseDown = delegate { };
-        public event Action<MouseEvent> OnMouseUp = delegate { };
-        public event Action<MouseEvent> OnMouseDrag = delegate { };
+        public static event Action<MouseEvent> OnMouseDown = delegate { };
+        public static event Action<MouseEvent> OnMouseUp = delegate { };
+        public static event Action<MouseEvent> OnMouseDrag = delegate { };
 
         public static event Action<UIObject> UIObjectCreated = delegate {};
         public static event Action<UIObject> UIObjectRemoved = delegate {};
@@ -79,19 +79,22 @@ namespace mFramework.UI
             _instance = null;
         }
 
-        internal void MouseDown(MouseEvent e)
+        internal static void MouseDown(MouseEvent e)
         {
             OnMouseDown(e);
+            UIClickablesHandler.MouseDown(e);
         }
 
-        internal void MouseUp(MouseEvent e)
+        internal static void MouseUp(MouseEvent e)
         {
             OnMouseUp(e);
+            UIClickablesHandler.MouseUp(e);
         }
 
-        internal void MouseDrag(MouseEvent e)
+        internal static void MouseDrag(MouseEvent e)
         {
             OnMouseDrag(e);
+            UIClickablesHandler.MouseDrag(e);
         }
 
         /*public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)

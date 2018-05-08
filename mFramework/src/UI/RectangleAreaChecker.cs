@@ -1,0 +1,18 @@
+﻿using UnityEngine;
+
+namespace mFramework.UI
+{
+    public class RectangleAreaChecker : IAreaChecker
+    {
+        public static RectangleAreaChecker Default { get; } = new RectangleAreaChecker();
+
+        public bool InAreaShape(IUIObject obj, Vector2 worldPos)
+        {
+            var rect = obj.Rect;
+
+            return
+                mMath.TriangleContainsPoint(rect.TopLeft, rect.BottomLeft, rect.BottomRight, worldPos) ||
+                mMath.TriangleContainsPoint(rect.BottomRight, rect.TopRight, rect.TopLeft, worldPos);
+        }
+    }
+}

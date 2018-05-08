@@ -19,7 +19,7 @@ namespace mFramework.UI
         public float Step = 0.2f;
     }
 
-    public abstract class UIBaseScrollBar : UIComponent, IUIClickable
+    public abstract class UIBaseScrollBar : UIComponent, IUIClickableOld
     {
         public event UIEventHandler<UIBaseScrollBar> Changed = delegate { };
 

@@ -1,4 +1,5 @@
 ﻿using mFramework.UI;
+using UnityEngine;
 
 namespace mFramework
 {
@@ -48,6 +49,14 @@ namespace mFramework
         {
             return obj.Component<UIHorizontalSlider>(settings);
         }*/
+
+        public static UISprite Sprite(this IUIObject obj, Sprite sprite)
+        {
+            return obj.Component<UISprite>(new UISpriteSettings
+            {
+                Sprite = sprite
+            });
+        }
 
         public static UISprite Sprite(this IUIObject obj, UISpriteSettings settings)
         {
