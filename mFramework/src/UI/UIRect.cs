@@ -15,11 +15,12 @@ namespace mFramework.UI
         public readonly Vector2 BottomRight;
 
         public readonly Vector2 Center;
+        public readonly Vector2 Anchor;
 
         public UIRect(
             Vector2 topLeft, Vector2 top, Vector2 topRight,
             Vector2 left, Vector2 center, Vector2 right,
-            Vector2 bottomLeft, Vector2 bottom, Vector2 bottomRight)
+            Vector2 bottomLeft, Vector2 bottom, Vector2 bottomRight, Vector2 anchor)
         {
             Top = top;
             Bottom = bottom;
@@ -29,6 +30,7 @@ namespace mFramework.UI
             TopRight = topRight;
             BottomLeft = bottomLeft;
             BottomRight = bottomRight;
+            Anchor = anchor;
             Center = center;
         }
     }

@@ -18,10 +18,6 @@ namespace mFramework.UI
         private Vector2 _thirdPoint;
         private bool _isLocalPos;
 
-        protected UIBezierQuadraticAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-        }
-
         protected override void ApplySettings(UIAnimationSettings settings)
         {
             if (settings == null)
@@ -42,8 +38,8 @@ namespace mFramework.UI
         {
             if (_isLocalPos)
             {
-                AnimatedObject.LocalPosition = BezierHelper.Quadratic(
-                    CurrentEasingTime,
+                UIObject.LocalPosition = BezierHelper.Quadratic(
+                    EasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint
@@ -51,8 +47,8 @@ namespace mFramework.UI
             }
             else
             {
-                AnimatedObject.Position = BezierHelper.Quadratic(
-                    CurrentEasingTime,
+                UIObject.Position = BezierHelper.Quadratic(
+                    EasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint

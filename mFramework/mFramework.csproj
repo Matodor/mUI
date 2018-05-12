@@ -62,9 +62,12 @@
     <Compile Include="src\concrete\AreaShape.cs" />
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
     <Compile Include="src\patching\mPatching.cs" />
+    <Compile Include="src\UI\extensions\ViewsExtensions.cs" />
+    <Compile Include="src\UI\views\ScrollView.cs" />
+    <Compile Include="src\UI\extensions\LayoutsExtensions.cs" />
     <Compile Include="src\UI\interfaces\IAreaChecker.cs" />
-    <Compile Include="src\UI\interfaces\IMeshRenderer.cs" />
     <Compile Include="src\UI\interfaces\IDimensions.cs" />
+    <Compile Include="src\UI\interfaces\IUIButton.cs" />
     <Compile Include="src\UI\interfaces\IUIClickable.cs" />
     <Compile Include="src\UI\interfaces\IUIDragable.cs" />
     <Compile Include="src\UI\interfaces\IView.cs" />
@@ -101,6 +104,7 @@
     <Compile Include="src\UI\components\Slider\UIVerticalSlider.cs" />
     <Compile Include="src\UI\extensions\AnimationsExtensions.cs" />
     <Compile Include="src\UI\extensions\ComponentsExtensions.cs" />
+    <Compile Include="src\UI\layouts\LayoutOrientation.cs" />
     <Compile Include="src\UI\RectangleAreaChecker.cs" />
     <Compile Include="src\UI\UIAnchor.cs" />
     <Compile Include="src\UI\components\UIJoystick.cs" />
@@ -118,9 +122,7 @@
     <Compile Include="src\UI\components\UIContainer.cs" />
     <Compile Include="src\UI\components\UIMesh.cs" />
     <Compile Include="src\UI\components\UITextBox.cs" />
-    <Compile Include="src\UI\extensions\ViewsExtensions.cs" />
-    <Compile Include="src\UI\layouts\StackLayout.cs" />
-    <Compile Include="src\UI\layouts\FlexDirection.cs" />
+    <Compile Include="src\UI\layouts\FlexboxLayout.cs" />
     <Compile Include="src\UI\layouts\UILayout.cs" />
     <Compile Include="src\UI\UIClickablesHandler.cs" />
     <Compile Include="src\UI\UIColor.cs" />

@@ -49,38 +49,77 @@ namespace mFramework
             return obj;
         }
 
-        public static void Disable(this IEnumerable<IUIClickableOld> objs)
+        public static T Position<T>(this T obj, Vector2 position, UIAnchor anchor)
+            where T : UIObject
         {
-            foreach (var o in objs)
-                o.UiClickableOld.Enabled = false;
+            obj.PositionByAnchor(position, anchor);
+            return obj;
         }
 
-        public static void Enable(this IEnumerable<IUIClickableOld> objs)
+        public static T Position<T>(this T obj, Vector3 position, UIAnchor anchor) 
+            where T : UIObject
         {
-            foreach (var o in objs)
-                o.UiClickableOld.Enabled = true;
+            obj.PositionByAnchor(position, anchor);
+            return obj;
         }
 
-        public static void SetColor(this IEnumerable<IUIColored> objs, Color color)
+        public static Vector3 GetPos<T>(this T obj, UIAnchor anchor) where T : UIObject
         {
-            foreach (var o in objs)
-                o.SetColor(color);
+            return obj.GetAnchorPos(anchor);
         }
 
-        public static void SetColor(this IEnumerable<IUIColored> objs, UIColorOldd colorOldd)
+        public static T Color<T>(this T obj, Color color) where T : IUIColored
         {
-            foreach (var o in objs)
-                o.SetColor(colorOldd);
+            obj.Color = color;
+            return obj;
         }
 
-        public static void SetOpacity(this IEnumerable<IUIColored> objs, float opacity)
+        public static T Color<T>(this T obj, UIColor color) where T : IUIColored
         {
-            opacity = mMath.Clamp(opacity, 0f, 255f);
-            foreach (var o in objs)
-                o.SetOpacity(opacity);
+            obj.Color = (Color) color;
+            return obj;
         }
 
-        public static void ForEach<T>(this IEnumerable<T> objs, Action<T> action) where T : IUIObject
+        /// <summary>
+        /// Set not normilized opacity
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj">IUIColored object</param>
+        /// <param name="opacity">Opacity (0 - 255)</param>
+        /// <returns></returns>
+        public static T Opacity<T>(this T obj, float opacity) where T : IUIColored
+        {
+            obj.Opacity = mMath.Clamp(opacity, 0f, 255f) / 255f;
+            return obj;
+        }
+
+        public static void Color(this IEnumerable<IUIColored> objs, Color color)
+        {
+            foreach (var o in objs)
+                o.Color = color;
+        }
+
+        public static void Color(this IEnumerable<IUIColored> objs, UIColor color)
+        {
+            var ucolor = (Color) color;
+            foreach (var o in objs)
+                o.Color = ucolor;
+        }
+
+        /// <summary>
+        /// Set not normilized opacity for each item
+        /// </summary>
+        /// <param name="objs">Collection of IUIColored objects</param>
+        /// <param name="opacity">Opacity (0 - 255)</param>
+        public static void Opacity(this IEnumerable<IUIColored> objs, float opacity)
+        {
+            opacity = mMath.Clamp(opacity, 0f, 255f) / 255f;
+            foreach (var o in objs)
+                o.Opacity = opacity;
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> objs, Action<T> action) 
+            where T : IUIObject
         {
             foreach (var o in objs)
             {

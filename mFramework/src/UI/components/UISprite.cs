@@ -12,24 +12,24 @@ namespace mFramework.UI
 
     public class UISprite : UIComponent, IUIRenderer<SpriteRenderer>, IUIRenderer, IUIColored
     {
-        public override float UnscaledHeight => _spriteRenderer.sprite.bounds.size.y;
-        public override float UnscaledWidth => _spriteRenderer.sprite.bounds.size.x;
-        public override Vector2 CenterOffset => _spriteRenderer.sprite.bounds.center;
+        public override float UnscaledHeight => UIRenderer.sprite.bounds.size.y;
+        public override float UnscaledWidth => UIRenderer.sprite.bounds.size.x;
+        public override Vector2 CenterOffset => UIRenderer.sprite.bounds.center;
 
         public Color Color
         {
-            get => _spriteRenderer.color;
-            set => _spriteRenderer.color = value;
+            get => UIRenderer.color;
+            set => UIRenderer.color = value;
         }
 
         public float Opacity
         {
-            get => _spriteRenderer.color.a;
+            get => UIRenderer.color.a;
             set
             {
-                var color = _spriteRenderer.color;
+                var color = UIRenderer.color;
                 color.a = value;
-                _spriteRenderer.color = color;
+                UIRenderer.color = color;
             }
         }
 
@@ -37,14 +37,18 @@ namespace mFramework.UI
 
         public Sprite Sprite
         {
-            get => _spriteRenderer.sprite;
-            set => _spriteRenderer.sprite = value;
+            get => UIRenderer.sprite;
+            set => UIRenderer.sprite = value;
         }
 
-        public SpriteRenderer UIRenderer => _spriteRenderer;
-        Renderer IUIRenderer.UIRenderer => _spriteRenderer;
+        public SpriteRenderer UIRenderer { get; private set; }
+        Renderer IUIRenderer.UIRenderer => UIRenderer;
 
-        private SpriteRenderer _spriteRenderer; 
+        protected override void AfterAwake()
+        {
+            UIRenderer = GameObject.AddComponent<SpriteRenderer>();
+            base.AfterAwake();
+        }
 
         protected override void ApplySettings(UIComponentSettings settings)
         {
@@ -54,9 +58,8 @@ namespace mFramework.UI
             if (!(settings is UISpriteSettings spriteSettings))
                 throw new ArgumentException("UISprite: The given settings is not UISpriteSettings");
 
-            _spriteRenderer = GameObject.AddComponent<SpriteRenderer>();
-            _spriteRenderer.sprite = spriteSettings.Sprite;
-            _spriteRenderer.sharedMaterial = UIStencilMaterials
+            UIRenderer.sprite = spriteSettings.Sprite;
+            UIRenderer.sharedMaterial = UIStencilMaterials
                 .GetOrCreate(ParentView.StencilId ?? 0)
                 .SpritesMaterial;
 
@@ -69,13 +72,13 @@ namespace mFramework.UI
 
         private void OnSortingOrderChanged(IUIObject sender)
         {
-            _spriteRenderer.sortingOrder = SortingOrder;
+            UIRenderer.sortingOrder = SortingOrder;
         }
 
         public void Flip(bool flipX, bool flipY)
         {
-            _spriteRenderer.flipX = flipX;
-            _spriteRenderer.flipY = flipY;
+            UIRenderer.flipX = flipX;
+            UIRenderer.flipY = flipY;
         }
 
         public void RemoveMask()

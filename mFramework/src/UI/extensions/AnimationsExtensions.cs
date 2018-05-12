@@ -6,10 +6,9 @@ namespace mFramework
 {
     public static partial class UIExtensions
     {
-
         // BezierQuadraticAnimation
-        public static IEnumerable<UIBezierQuadraticAnimation> BezierQuadraticAnimation(this IEnumerable<IUIObject> objs,
-            UIBezierQuadraticAnimationSettings settings)
+        public static IEnumerable<UIBezierQuadraticAnimation> BezierQuadraticAnimation(
+            this IEnumerable<IUIObject> objs, UIBezierQuadraticAnimationSettings settings)
         {
             return objs.Select(uiObject => uiObject.Animation<UIBezierQuadraticAnimation>(settings)).ToArray();
         }
@@ -21,8 +20,8 @@ namespace mFramework
         }
 
         // BezierCubicAnimation
-        public static IEnumerable<UIBezierCubicAnimation> BezierCubicAnimation(this IEnumerable<IUIObject> objs,
-            UIBezierCubicAnimationSettings settings)
+        public static IEnumerable<UIBezierCubicAnimation> BezierCubicAnimation(
+            this IEnumerable<IUIObject> objs, UIBezierCubicAnimationSettings settings)
         {
             return objs.Select(uiObject => uiObject.Animation<UIBezierCubicAnimation>(settings)).ToArray();
         }
@@ -34,8 +33,8 @@ namespace mFramework
         }
 
         // ColorAnimation
-        public static IEnumerable<UIColorAnimation> ColorAnimation(this IEnumerable<IUIColored> objs,
-            UIColorAnimationSettings settings)
+        public static IEnumerable<UIColorAnimation> ColorAnimation(
+            this IEnumerable<IUIColored> objs, UIColorAnimationSettings settings)
         {
             return objs.Select(uiObject => uiObject.Animation<UIColorAnimation>(settings)).ToArray();
         }
@@ -46,37 +45,40 @@ namespace mFramework
         }
 
         // LinearAnimation
-        public static IEnumerable<UILinearAnimation> LinearAnimation(this IEnumerable<IUIObject> objs,
-            UILinearAnimationSettings settings)
+        public static IEnumerable<UILinearAnimation> LinearAnimation(
+            this IEnumerable<IUIObject> objs, UILinearAnimationSettings settings)
         {
             return objs.Select(uiObject => uiObject.Animation<UILinearAnimation>(settings)).ToArray();
         }
 
-        public static UILinearAnimation LinearAnimation(this IUIObject obj, UILinearAnimationSettings settings)
+        public static UILinearAnimation LinearAnimation(this IUIObject obj, 
+            UILinearAnimationSettings settings)
         {
             return obj.Animation<UILinearAnimation>(settings);
         }
 
         // RotateAnimation
-        public static IEnumerable<UIRotateAnimation> RotateAnimation(this IEnumerable<IUIObject> objs,
-            UIRotateAnimationSettings settings)
+        public static IEnumerable<UIRotateAnimation> RotateAnimation(
+            this IEnumerable<IUIObject> objs, UIRotateAnimationSettings settings)
         {
             return objs.Select(uiObject => uiObject.Animation<UIRotateAnimation>(settings)).ToArray();
         }
 
-        public static UIRotateAnimation RotateAnimation(this IUIObject obj, UIRotateAnimationSettings settings)
+        public static UIRotateAnimation RotateAnimation(this IUIObject obj, 
+            UIRotateAnimationSettings settings)
         {
             return obj.Animation<UIRotateAnimation>(settings);
         }
 
         // ScaleAnimation
-        public static IEnumerable<UIScaleAnimation> ScaleAnimation(this IEnumerable<IUIObject> objs,
-            UIScaleAnimationSettings settings)
+        public static IEnumerable<UIScaleAnimation> ScaleAnimation(
+            this IEnumerable<IUIObject> objs, UIScaleAnimationSettings settings)
         {
             return objs.Select(uiObject => uiObject.Animation<UIScaleAnimation>(settings)).ToArray();
         }
 
-        public static UIScaleAnimation ScaleAnimation(this IUIObject obj, UIScaleAnimationSettings settings)
+        public static UIScaleAnimation ScaleAnimation(this IUIObject obj, 
+            UIScaleAnimationSettings settings)
         {
             return obj.Animation<UIScaleAnimation>(settings);
         }

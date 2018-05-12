@@ -146,5 +146,17 @@ namespace mFramework.UI
         {
             return new UIColor(color.r, color.g, color.b, color.a, Type.RGBA);
         }
+
+        public static UIColor Lerp(UIColor a, UIColor b, float t)
+        {
+            t = Mathf.Clamp01(t);
+            return new UIColor(
+                a.N1 + (b.N1 - a.N1) * t,
+                a.N2 + (b.N2 - a.N2) * t,
+                a.N3 + (b.N3 - a.N3) * t,
+                a.Alpha + (b.Alpha - a.Alpha) * t,
+                a.ColorType
+            );
+        }
     }
 }

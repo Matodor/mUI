@@ -1,10 +1,26 @@
 ﻿using System;
-using JetBrains.Annotations;
-using mFramework.UI;
 using UnityEngine;
 
 namespace mFramework.UI
 {
+    internal struct NotRotatedRect
+    {
+        public readonly Vector2 Center;
+        public readonly float LocalLeft;
+        public readonly float LocalRight;
+        public readonly float LocalTop;
+        public readonly float LocalBottom;
+
+        public NotRotatedRect(Vector2 center, float localLeft, float localRight, float localTop, float localBottom)
+        {
+            Center = center;
+            LocalLeft = localLeft;
+            LocalRight = localRight;
+            LocalTop = localTop;
+            LocalBottom = localBottom;
+        }
+    }
+
     public abstract class UIObject : MonoBehaviour, IUIObject
     {
         internal Transform Transform => base.transform;
@@ -28,14 +44,14 @@ namespace mFramework.UI
         public virtual Vector2 CenterOffset => Vector2.zero;
         public virtual Vector3 GlobalScale => Transform.lossyScale;
 
-        public virtual float Height => UnscaledHeight * GlobalScale.y +
-                               (Padding.Top + Padding.Bottom) * GlobalScale.y;
+        public virtual float Height => UnscaledHeight * GlobalScale.y 
+            + (Padding.Top + Padding.Bottom) * GlobalScale.y;
 
-        public virtual float Width => UnscaledWidth * GlobalScale.x +
-                              (Padding.Left + Padding.Right) * GlobalScale.x;
+        public virtual float Width => UnscaledWidth * GlobalScale.x 
+            + (Padding.Left + Padding.Right) * GlobalScale.x;
 
-        public virtual float UnscaledHeight => 0f;
-        public virtual float UnscaledWidth => 0f;
+        public virtual float UnscaledHeight { get; protected set; }
+        public virtual float UnscaledWidth { get; protected set; }
 
         public virtual UIAnchor Anchor
         {
@@ -45,22 +61,23 @@ namespace mFramework.UI
                 if (value == _anchor)
                     return;
 
-                Transform.position -= AnchorTranslate();
+                Transform.position = Transform.position + AnchorLocalPos(_anchorPivot);
                 _anchor = value;
-                Transform.position += AnchorTranslate();
+                _anchorPivot = PivotByAnchor(value);
+                Transform.position = Transform.position - AnchorLocalPos(_anchorPivot);
             }
         }
 
         public Vector3 LocalPosition
         {
-            get => Transform.localPosition - AnchorTranslate();
-            set => Transform.localPosition = value + AnchorTranslate();
+            get => Transform.localPosition + AnchorLocalPos(_anchorPivot);
+            set => Transform.localPosition = value - AnchorLocalPos(_anchorPivot);
         }
 
         public virtual Vector3 Position
         {
-            get => Transform.position - AnchorTranslate();
-            set => Transform.position = value + AnchorTranslate();
+            get => Transform.position + AnchorLocalPos(_anchorPivot);
+            set => Transform.position = value - AnchorLocalPos(_anchorPivot);
         }
         
         public virtual Vector3 Scale
@@ -114,6 +131,7 @@ namespace mFramework.UI
         public event UIEventHandler<IUIObject, UIAnimation> AnimationAdded = delegate { };
         #endregion
 
+        private Vector2 _anchorPivot;
         private UIAnchor _anchor;
         private int _localSortingOrder;
         private bool _destroyed;
@@ -139,6 +157,7 @@ namespace mFramework.UI
             Childs = UnidirectionalList<IUIObject>.Create();
 
             _anchor = UIAnchor.MiddleCenter;
+            _anchorPivot = PivotByAnchor(_anchor);
             _destroyed = false;
             _localSortingOrder = 0;
 
@@ -147,75 +166,60 @@ namespace mFramework.UI
             AfterAwake();
         }
 
-        private Vector3 AnchorTranslate()
+        internal Vector3 GetAnchorPos(UIAnchor anchor)
         {
-            var rect = Rect;
-            Vector3 translate;
-
-            switch (_anchor)
-            {
-                case UIAnchor.UpperLeft:
-                    translate = new Vector3(
-                        Transform.position.x - rect.TopLeft.x,
-                        Transform.position.y - rect.TopLeft.y
-                    );
-                    break;
-                case UIAnchor.UpperCenter:
-                    translate = new Vector3(
-                        Transform.position.x - rect.Top.x,
-                        Transform.position.y - rect.Top.y
-                    );
-                    break;
-                case UIAnchor.UpperRight:
-                    translate = new Vector3(
-                        Transform.position.x - rect.TopRight.x,
-                        Transform.position.y - rect.TopRight.y
-                    );
-                    break;
-                case UIAnchor.MiddleLeft:
-                    translate = new Vector3(
-                        Transform.position.x - rect.Left.x,
-                        Transform.position.y - rect.Left.y
-                    );
-                    break;
-                case UIAnchor.MiddleCenter:
-                    translate = new Vector3(
-                        Transform.position.x - rect.Center.x,
-                        Transform.position.y - rect.Center.y
-                    );
-                    break;
-                case UIAnchor.MiddleRight:
-                    translate = new Vector3(
-                        Transform.position.x - rect.Right.x,
-                        Transform.position.y - rect.Right.y
-                    );
-                    break;
-                case UIAnchor.LowerLeft:
-                    translate = new Vector3(
-                        Transform.position.x - rect.BottomLeft.x,
-                        Transform.position.y - rect.BottomLeft.y
-                    );
-                    break;
-                case UIAnchor.LowerCenter:
-                    translate = new Vector3(
-                        Transform.position.x - rect.Bottom.x,
-                        Transform.position.y - rect.Bottom.y
-                    );
-                    break;
-                case UIAnchor.LowerRight:
-                    translate = new Vector3(
-                        Transform.position.x - rect.BottomRight.x,
-                        Transform.position.y - rect.BottomRight.y
-                    );
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return translate;
+            return Transform.position + AnchorLocalPos(PivotByAnchor(anchor));
         }
 
-        private UIRect GetRect()
+        internal void PositionByAnchor(Vector3 pos, UIAnchor anchor)
+        {
+            Transform.position = pos - AnchorLocalPos(PivotByAnchor(anchor));
+        } 
+
+        // x - from left to right, y from bottom to top
+        private static Vector2 PivotByAnchor(UIAnchor anchor)
+        {
+            switch (anchor)
+            {
+                case UIAnchor.UpperLeft:
+                    return new Vector2(0f, 1f);
+                case UIAnchor.UpperCenter:
+                    return new Vector2(0.5f, 1f);
+                case UIAnchor.UpperRight:
+                    return new Vector2(1f, 1f);
+
+                case UIAnchor.MiddleLeft:
+                    return new Vector2(0f, 0.5f);
+                case UIAnchor.MiddleCenter:
+                    return new Vector2(0.5f, 0.5f);
+                case UIAnchor.MiddleRight:
+                    return new Vector2(1f, 0.5f);
+
+                case UIAnchor.LowerLeft:
+                    return new Vector2(0f, 0f);
+                case UIAnchor.LowerCenter:
+                    return new Vector2(0.5f, 0f);
+                case UIAnchor.LowerRight:
+                    return new Vector2(1f, 0f);
+
+                default:
+                    return new Vector2(0.5f, 0.5f);
+            }
+        }
+
+        private Vector3 AnchorLocalPos(Vector2 pivot)
+        {
+            var rect = NotRotatedLocalRect();
+
+            var anchorLocalPos = new Vector2(
+                BezierHelper.Linear(pivot.x, rect.LocalLeft, rect.LocalRight),
+                BezierHelper.Linear(pivot.y, rect.LocalBottom, rect.LocalTop)
+            );
+
+            return mMath.GetRotatedPoint(Vector2.zero, anchorLocalPos, Rotation);
+        }
+
+        private NotRotatedRect NotRotatedLocalRect()
         {
             var centerPos = (Vector2) Transform.position + CenterOffset;
 
@@ -229,21 +233,33 @@ namespace mFramework.UI
                 centerPos.y + (top + bottom) / 2f
             );
 
+            return new NotRotatedRect(centerPos, left, right, top, bottom);
+        }
+
+        private UIRect GetRect()
+        {
+            var rect = NotRotatedLocalRect();
+            var anchorLocalPos = new Vector2(
+                BezierHelper.Linear(_anchorPivot.x, rect.LocalLeft, rect.LocalRight),
+                BezierHelper.Linear(_anchorPivot.y, rect.LocalBottom, rect.LocalTop)
+            );
+
             var points = new[]
             {
-                new Vector2(left, top),     // top left
-                new Vector2(0, top),        // top
-                new Vector2(right, top),    // top right
+                new Vector2(rect.LocalLeft, rect.LocalTop),     // top left
+                new Vector2(0, rect.LocalTop),                  // top
+                new Vector2(rect.LocalRight, rect.LocalTop),    // top right
 
-                new Vector2(left, 0),       // left
-                new Vector2(right, 0),      // right
+                new Vector2(rect.LocalLeft, 0),                 // left
+                new Vector2(rect.LocalRight, 0),                // right
 
-                new Vector2(left, bottom),  // bottom left
-                new Vector2(0, bottom),     // bottom
-                new Vector2(right, bottom)  // bottom right
+                new Vector2(rect.LocalLeft, rect.LocalBottom),  // bottom left
+                new Vector2(0, rect.LocalBottom),               // bottom
+                new Vector2(rect.LocalRight, rect.LocalBottom), // bottom right
+                anchorLocalPos                                  // anchor pos
             };
 
-            mMath.GetRotatedPoints(Rotation, centerPos, points);
+            mMath.GetRotatedPoints(Rotation, rect.Center, points);
 
             return new UIRect(
                 points[0],
@@ -251,12 +267,13 @@ namespace mFramework.UI
                 points[2],
 
                 points[3],
-                centerPos,
+                rect.Center,
                 points[4],
 
                 points[5],
                 points[6],
-                points[7]
+                points[7],
+                points[8]
             );
         }
 
@@ -281,44 +298,6 @@ namespace mFramework.UI
                 Transform.ParentTransform(Parent.Transform);
             }
         }
-
-        /*internal void UpdatePositionWithAnchor()
-        {
-            var middleCenter = Transform.position - _pivot;
-
-            switch (_anchor)
-            {
-                case UIAnchor.UpperLeft:
-                    _pivot = new Vector3(+Width / 2, -Height / 2);
-                    break;
-                case UIAnchor.UpperCenter:
-                    _pivot = new Vector3(0f, -Height / 2);
-                    break;
-                case UIAnchor.UpperRight:
-                    _pivot = new Vector3(-Width / 2, -Height / 2);
-                    break;
-                case UIAnchor.MiddleLeft:
-                    _pivot = new Vector3(+Width / 2, 0f);
-                    break;
-                case UIAnchor.MiddleCenter:
-                    _pivot = new Vector3(0f, 0f);
-                    break;
-                case UIAnchor.MiddleRight:
-                    _pivot = new Vector3(-Width / 2, 0f);
-                    break;
-                case UIAnchor.LowerLeft:
-                    _pivot = new Vector3(+Width / 2, +Height / 2);
-                    break;
-                case UIAnchor.LowerCenter:
-                    _pivot = new Vector3(0f, +Height / 2);
-                    break;
-                case UIAnchor.LowerRight:
-                    _pivot = new Vector3(-Width / 2, +Height / 2);
-                    break;
-            }
-
-            Transform.position = middleCenter + _pivot;
-        }*/
 
         private void DestroyImpl()
         {
@@ -468,12 +447,12 @@ namespace mFramework.UI
             Childs.ForEach(c => c.LateTick());
         }
 
-        public T Component<T>(UIComponentSettings settings) where T : UIComponent
+        public virtual T Component<T>(UIComponentSettings settings) where T : UIComponent
         {
             return UIComponent.Create<T>(this, settings);
         }
 
-        public T Animation<T>(UIAnimationSettings settings) where T : UIAnimation
+        public virtual T Animation<T>(UIAnimationSettings settings) where T : UIAnimation, new()
         {
             var uiAnimation = UIAnimation.Create<T>(this, settings);
 

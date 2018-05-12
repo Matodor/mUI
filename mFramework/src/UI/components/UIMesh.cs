@@ -11,28 +11,58 @@ namespace mFramework.UI
         public float Height;
     }
 
-    public class UIMesh : UIComponent, IMeshRenderer, IUIColored
+    public class UIMesh : UIComponent, IUIColored, IUIRenderer<MeshRenderer>, IUIRenderer
     {
-        public Renderer UIRenderer => MeshRenderer;
+        public virtual Color Color
+        {
+            get => _color ?? Color.black;
+            set
+            {
+                _color = value;
+                SetColor(value);
+            }
+        }
+
+        public virtual float Opacity
+        {
+            get => _color?.a ?? 1;
+            set
+            {
+                if (_color == null)
+                {
+                    var colors = new Color[MeshFilter.mesh.colors.Length];
+                    for (int i = 0; i < colors.Length; i++)
+                    {
+                        var color = MeshFilter.mesh.colors[i];
+                        color.a = value;
+                        colors[i] = color;
+                    }
+
+                    MeshFilter.mesh.colors = colors;
+                }
+                else
+                {
+                    var color = _color.Value;
+                    color.a = value;
+                    SetColor(color);
+                }
+            }
+        }
+
         public MeshFilter MeshFilter { get; private set; }
-        public MeshRenderer MeshRenderer { get; private set; }
+        public MeshRenderer UIRenderer { get; private set; }
+        Renderer IUIRenderer.UIRenderer => UIRenderer;
 
-        public override float UnscaledHeight => _height * GlobalScale.y;
-        public override float UnscaledWidth => _width * GlobalScale.x;
-        public override Vector2 CenterOffset => Vector2.zero;
-
-        private float _width;
-        private float _height;
         private Color? _color;
 
         protected override void AfterAwake()
         {
-            MeshRenderer = GameObject.AddComponent<MeshRenderer>();
+            UIRenderer = GameObject.AddComponent<MeshRenderer>();
             MeshFilter = GameObject.AddComponent<MeshFilter>();
 
             SortingOrderChanged += s =>
             {
-                UIRenderer.sortingOrder = SortingOrder();
+                UIRenderer.sortingOrder = SortingOrder;
             };
 
             base.AfterAwake();
@@ -47,8 +77,8 @@ namespace mFramework.UI
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
             _color = null;
-            _width = meshSettings.Width;
-            _height = meshSettings.Height;
+            UnscaledWidth = meshSettings.Width;
+            UnscaledHeight = meshSettings.Height;
 
             if (meshSettings.Mesh != null)
             {
@@ -62,69 +92,44 @@ namespace mFramework.UI
                 _color = MeshFilter.mesh.colors[0];
             }
             
-            MeshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0).SpritesMaterial;
+            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0).SpritesMaterial;
 
             base.ApplySettings(settings);
         }
 
-        public IMeshRenderer SetWidth(float width)
+        public UIMesh SetWidth(float width)
         {
-            _width = width;
+            UnscaledWidth = width;
             return this;
         }
 
-        public IMeshRenderer SetHeight(float height)
+        public UIMesh SetHeight(float height)
         {
-            _height = height;
+            UnscaledHeight = height;
             return this;
         }
 
-        public IMeshRenderer SetSharedMesh(Mesh mesh)
+        public UIMesh SetSharedMesh(Mesh mesh)
         {
             MeshFilter.sharedMesh = mesh;
             return this;
         }
 
-        public IMeshRenderer SetMesh(Mesh mesh)
+        public UIMesh SetMesh(Mesh mesh)
         {
             MeshFilter.mesh = mesh;
             return this;
         }
 
-        public Color GetColor()
+        private void SetColor(Color color)
         {
-            return _color ?? new Color(0, 0, 0, 0);
-        }
-
-        public float GetOpacity()
-        {
-            return GetColor().a * 255f;
-        }
-
-        public IUIColored SetColor(Color32 color)
-        {
-            if (_color == color)
-                return this;
             _color = color;
 
             var colors = new Color[MeshFilter.mesh.colors.Length];
             for (int i = 0; i < colors.Length; i++)
                 colors[i] = color;
+
             MeshFilter.mesh.colors = colors;
-            return this;
-        }
-
-        public IUIColored SetColor(UIColorOldd colorOldd)
-        {
-            return SetColor(colorOldd.Color32);
-        }
-
-        public IUIColored SetOpacity(float opacity)
-        {
-            var c = GetColor();
-            c.a = opacity / 255f;
-            SetColor(c);
-            return this;
         }
     }
 }

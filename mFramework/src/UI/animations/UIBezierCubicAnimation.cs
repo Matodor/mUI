@@ -20,10 +20,6 @@ namespace mFramework.UI
         private Vector2 _fourthPoint;
         private bool _isLocalPos;
 
-        protected UIBezierCubicAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-        }
-
         protected override void ApplySettings(UIAnimationSettings settings)
         {
             if (settings == null)
@@ -45,8 +41,8 @@ namespace mFramework.UI
         {
             if (_isLocalPos)
             {
-                AnimatedObject.LocalPosition = BezierHelper.Cubic(
-                    CurrentEasingTime,
+                UIObject.LocalPosition = BezierHelper.Cubic(
+                    EasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint,
@@ -55,8 +51,8 @@ namespace mFramework.UI
             }
             else
             {
-                AnimatedObject.Position = BezierHelper.Cubic(
-                    CurrentEasingTime,
+                UIObject.Position = BezierHelper.Cubic(
+                    EasingTime,
                     _firstPoint,
                     _secondPoint,
                     _thirdPoint,

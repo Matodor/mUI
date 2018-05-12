@@ -10,17 +10,6 @@ namespace mFramework.UI
 
     public class UIContainer : UIComponent
     {
-        public override float UnscaledWidth => _width;
-        public override float UnscaledHeight => _height;
-
-        private float _width;
-        private float _height;
-
-        protected override void AfterAwake()
-        {
-            base.AfterAwake();
-        }
-
         protected override void ApplySettings(UIComponentSettings settings)
         {
             if (settings == null)
@@ -29,21 +18,21 @@ namespace mFramework.UI
             if (!(settings is UIContainerSettings containerSettings))
                 throw new ArgumentException("UIContainer: The given settings is not UIContainerSettings");
 
-            _width = containerSettings.Width;
-            _height = containerSettings.Height;
+            UnscaledWidth = containerSettings.Width;
+            UnscaledHeight = containerSettings.Height;
 
             base.ApplySettings(settings);
         }
 
         public UIContainer SetWidth(float width)
         {
-            _width = width;
+            UnscaledWidth = width;
             return this;
         }
 
         public UIContainer SetHeight(float height)
         {
-            _height = height;
+            UnscaledHeight = height;
             return this;
         }
     }

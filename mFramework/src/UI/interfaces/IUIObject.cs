@@ -21,6 +21,7 @@ namespace mFramework.UI
         /// Parent UIObject
         /// </summary>
         UIObject Parent { get; }
+
         IView ParentView { get; }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace mFramework.UI
         event UIEventHandler<IUIObject> SortingOrderChanged;
         event UIEventHandler<IUIObject> VisibleChanged;
 
-        T Animation<T>(UIAnimationSettings settings) where T : UIAnimation;
+        T Animation<T>(UIAnimationSettings settings) where T : UIAnimation, new();
         T Component<T>(UIComponentSettings settings) where T : UIComponent;
 
         void RemoveAnimations();

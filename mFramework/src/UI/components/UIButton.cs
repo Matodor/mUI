@@ -6,16 +6,16 @@ namespace mFramework.UI
     public class UIButtonSettings : UISpriteSettings
     {
         public virtual ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
-        public virtual SpriteStates ButtonSpriteStates { get; set; }
+        public virtual SpriteStates SpriteStates { get; set; }
 
         public override Sprite Sprite
         {
-            get => ButtonSpriteStates.Default;
+            get => SpriteStates.Default;
             set
             {
-                var buttonSpriteStates = ButtonSpriteStates;
-                buttonSpriteStates.Default = value;
-                ButtonSpriteStates = buttonSpriteStates;
+                var spriteStates = SpriteStates;
+                spriteStates.Default = value;
+                SpriteStates = spriteStates;
             }
         }
     }
@@ -27,18 +27,18 @@ namespace mFramework.UI
         BUTTON_PRESSED
     }
     
-    public class UIButton : UISprite, IUIClickable
+    public class UIButton : UISprite, IUIButton
     {
-        public IAreaChecker AreaChecker { get; set; }
-
         public StateableSprite StateableSprite { get; private set; }
+
+        public IAreaChecker AreaChecker { get; set; }
         public ClickCondition ClickCondition { get; set; }
 
-        public event UIEventHandler<UIButton> OnClick = delegate { };
-        public event Func<UIButton, bool> CanClick = delegate { return true; };
+        public event UIEventHandler<IUIButton> OnClick = delegate { };
+        public event Func<IUIButton, bool> CanClick = delegate { return true; };
 
-        public event UIEventHandler<UIButton, Vector2> OnButtonDown = delegate { };
-        public event UIEventHandler<UIButton, Vector2> OnButtonUp = delegate { };
+        public event UIEventHandler<IUIButton, Vector2> ButtonDown = delegate { };
+        public event UIEventHandler<IUIButton, Vector2> ButtonUp = delegate { };
 
         private bool _isPressed;
 
@@ -61,7 +61,7 @@ namespace mFramework.UI
             UIClickablesHandler.AddClickable(this);
             ClickCondition = buttonSettings.ClickCondition;
 
-            StateableSprite = StateableSprite.Create(buttonSettings.ButtonSpriteStates);
+            StateableSprite = StateableSprite.Create(buttonSettings.SpriteStates);
             StateableSprite.StateChanged += (s, sprite) =>
             {
                 if (sprite != null && sprite != Sprite)
@@ -89,7 +89,7 @@ namespace mFramework.UI
                 OnClick(this);
             }
 
-            OnButtonDown(this, worldPos);
+            ButtonDown(this, worldPos);
         }
 
         public virtual void MouseUp(Vector2 worldPos)
@@ -105,7 +105,7 @@ namespace mFramework.UI
                 OnClick(this);
             }
 
-            OnButtonUp(this, worldPos);
+            ButtonUp(this, worldPos);
             _isPressed = false;
         }
     }

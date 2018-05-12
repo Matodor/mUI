@@ -69,19 +69,20 @@ namespace mFramework
 
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.LongField("GUID", (long)_object.GUID);
-            EditorGUILayout.IntField("Sorting order", _object.SortingOrder());
+            EditorGUILayout.IntField("Sorting order", _object.SortingOrder);
             EditorGUI.EndDisabledGroup();
 
-            var localSorting = EditorGUILayout.IntField("Local sorting order", _object.LocalSortingOrder());
-            if (localSorting != _object.LocalSortingOrder())
             {
-                _object.SortingOrder(localSorting);
+                EditorGUI.BeginChangeCheck();
+                var sorting = EditorGUILayout.IntField("Local sorting order", _object.LocalSortingOrder);
+                if (EditorGUI.EndChangeCheck())
+                    _object.SortingOrder = sorting;
+
             }
 
             {
                 EditorGUI.BeginChangeCheck();
                 var anchor = (UIAnchor) EditorGUILayout.EnumPopup("Anchor", _object.Anchor, GUIStyle.none);
-
                 if (EditorGUI.EndChangeCheck())
                     _object.Anchor = anchor;
             }

@@ -12,14 +12,9 @@ namespace mFramework.UI
 
     public class UILinearAnimation : UIAnimation
     {
-        private Vector2 _startPos;
-        private Vector2 _endPos;
+        private Vector3 _startPos;
+        private Vector3 _endPos;
         private bool _isLocal;
-
-        protected UILinearAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-
-        }
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -37,11 +32,11 @@ namespace mFramework.UI
 
         protected override void OnAnimate()
         {
-            var newPos = BezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
+            var newPos = BezierHelper.Linear(EasingTime, _startPos, _endPos);
             if (_isLocal)
-                AnimatedObject.LocalPosition = newPos;
+                UIObject.LocalPosition = newPos;
             else
-                AnimatedObject.Position = newPos;
+                UIObject.Position = newPos;
         }
     }
 }

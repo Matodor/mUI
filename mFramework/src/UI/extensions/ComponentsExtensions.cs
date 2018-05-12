@@ -15,10 +15,10 @@ namespace mFramework
             return obj.Component<UIRectAreaButton>(settings);
         }
 
-        public static UITextBox TextBox(this IUIObject obj, UITextBoxSettings settings)
+        /*public static UITextBox TextBox(this IUIObject obj, UITextBoxSettings settings)
         {
             return obj.Component<UITextBox>(settings);
-        }
+        }*/
 
         public static UIMesh Mesh(this IUIObject obj, UIMeshSettings settings)
         {
@@ -88,9 +88,9 @@ namespace mFramework
             return obj.Component<UIVerticalScrollBar>(settings);
         }*/
 
-        public static UIJoystick Joystick(this IUIObject obj, UIJoystickSettings settings)
+        /*public static UIJoystick Joystick(this IUIObject obj, UIJoystickSettings settings)
         {
             return obj.Component<UIJoystick>(settings);
-        }
+        }*/
     }
 }

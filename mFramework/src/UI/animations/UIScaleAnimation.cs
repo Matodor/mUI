@@ -14,10 +14,6 @@ namespace mFramework.UI
         private Vector2 _startScale;
         private Vector2 _endScale;
 
-        protected UIScaleAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-        }
-
         protected override void ApplySettings(UIAnimationSettings settings)
         {
             if (settings == null)
@@ -34,8 +30,7 @@ namespace mFramework.UI
 
         protected override void OnAnimate()
         {
-            var newScale = BezierHelper.Linear(CurrentEasingTime, _startScale, _endScale);
-            AnimatedObject.Scale = new Vector2(newScale.x, newScale.y);
+            UIObject.Scale = BezierHelper.Linear(EasingTime, _startScale, _endScale);
         }
     }
 }

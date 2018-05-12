@@ -5,11 +5,17 @@ namespace mFramework.UI
 {
     public class UIViewSettings
     {
-        public float? Height = null;
-        public float? Width = null;
-        public int? SortingOrder = null;
-        public Vector2? DefaultPos = null;
-        public ushort? StencilId = null;
+        /// <summary>
+        /// View height in wolrd units
+        /// </summary>
+        public virtual float? Height { get; set; } = null;
+
+        /// <summary>
+        /// View width in wolrd units
+        /// </summary>
+        public virtual float? Width { get; set; } = null;
+        public virtual int? SortingOrder { get; set; } = null;
+        public virtual ushort? StencilId { get; set; } = null;
     }
 
     /*public static class NewView<T> where T : UIView
@@ -28,17 +34,49 @@ namespace mFramework.UI
     public abstract class UIView : UIObject, IView
     {
         public ushort? StencilId => _stencilId ?? ParentView.StencilId;
-
-        public override float UnscaledWidth => _width;
-        public override float UnscaledHeight => _height;
-
-        private float _height;
-        private float _width;
         private ushort? _stencilId;
+
+        public static bool IsViewType(Type viewType)
+        {
+            return typeof(UIView).IsAssignableFrom(viewType);
+        }
+
+        public virtual UIView View(Type viewType, UIViewSettings settings, params object[] @params)
+        {
+            if (!IsViewType(viewType))
+                throw new Exception("The given viewType paramater is not UIView");
+
+            var view = (UIView)new GameObject(viewType.Name).AddComponent(viewType);
+            view.SetupView(settings, this, @params);
+            return view;
+        }
+
+        public UIView View(Type viewType, params object[] @params)
+        {
+            return View(viewType, new UIViewSettings
+            {
+                Width = UnscaledWidth,
+                Height = UnscaledHeight,
+            }, @params);
+        }
+        
+        public T View<T>(params object[] @params) where T : UIView
+        {
+            return (T) View(typeof(T), new UIViewSettings
+            {
+                Width = UnscaledWidth,
+                Height = UnscaledHeight,
+            }, @params);
+        }
+
+        public T View<T>(UIViewSettings settings, params object[] @params) where T : UIView
+        {
+            return (T) View(typeof(T), settings, @params);
+        }
 
         internal static UIView Create(Type viewType, UIViewSettings settings, IView parent, params object[] @params)
         {
-            if (!typeof(UIView).IsAssignableFrom(viewType))
+            if (!IsViewType(viewType))
                 throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
@@ -48,12 +86,10 @@ namespace mFramework.UI
 
         internal static T Create<T>(UIViewSettings settings, IView parent, params object[] @params) where T : UIView
         {
-            var view = new GameObject(typeof(T).Name).AddComponent<T>();
-            view.SetupView(settings, parent, @params);
-            return view;
+            return (T) Create(typeof(T), settings, parent, @params);
         }
         
-        private void SetupView(UIViewSettings settings, IView parent, object[] @params)
+        internal virtual void SetupView(UIViewSettings settings, IView parent, object[] @params)
         {
             SetupParent((UIObject) parent);
             ApplySettings(settings, parent);
@@ -71,25 +107,22 @@ namespace mFramework.UI
         protected virtual void ApplySettings(UIViewSettings settings, IView parent)
         {
             _stencilId = settings.StencilId;
-            _height = settings.Height ?? parent.Height;
-            _width = settings.Width ?? parent.Width;
-
-            if (settings.DefaultPos.HasValue)
-                Position = settings.DefaultPos.Value;
+            UnscaledHeight = settings.Height ?? parent.Height;
+            UnscaledWidth = settings.Width ?? parent.Width;
 
             if (settings.SortingOrder.HasValue)
-                SortingOrder(settings.SortingOrder.Value);
+                SortingOrder = settings.SortingOrder.Value;
 
             if (_stencilId.HasValue && _stencilId.Value != 0)
             {
                 var meshRenderer = GameObject.AddComponent<MeshRenderer>();
                 meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId.Value).CanvasMaterial;
                 meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
-                meshRenderer.sortingOrder = SortingOrder();
+                meshRenderer.sortingOrder = SortingOrder;
 
                 SortingOrderChanged += sender =>
                 {
-                    meshRenderer.sortingOrder = SortingOrder();
+                    meshRenderer.sortingOrder = SortingOrder;
                 };
             }
         }

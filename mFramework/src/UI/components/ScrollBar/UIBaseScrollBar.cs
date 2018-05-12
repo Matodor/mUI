@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace mFramework.UI
+/*namespace mFramework.UI
 {
     public class UIScrollBarSettings : UIComponentSettings
     {
@@ -154,4 +154,4 @@ namespace mFramework.UI
             MovePoint(worldPos);
         }
     }
-}
+}*/

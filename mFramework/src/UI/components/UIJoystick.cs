@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIJoystickSettings : UIComponentSettings
+    /*public class UIJoystickSettings : UIComponentSettings
     {
         public Sprite BackgroundSprite;
         public Sprite PointSprite;
@@ -117,5 +117,5 @@ namespace mFramework.UI
 
             UpdatePos(worldPos);
         }
-    }
+    }*/
 }

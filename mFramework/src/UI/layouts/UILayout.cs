@@ -2,6 +2,11 @@
 
 namespace mFramework.UI.Layouts
 {
+    public abstract class UILayoutSettings : UIViewSettings
+    {
+        
+    }
+
     public abstract class UILayout : UIView
     {
         protected override void AfterAwake()
@@ -10,9 +15,11 @@ namespace mFramework.UI.Layouts
             base.AfterAwake();
         }
 
-        protected virtual void OnChildObjectAdded(IUIObject sender, IUIObject child)
+        protected abstract void OnChildObjectAdded(IUIObject sender, IUIObject child);
+
+        protected override void ApplySettings(UIViewSettings settings, IView parent)
         {
-            
+            base.ApplySettings(settings, parent);
         }
     }
 }

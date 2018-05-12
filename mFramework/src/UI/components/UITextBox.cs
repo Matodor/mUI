@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class TouchScreenKeyboardSettings
+    /*public class TouchScreenKeyboardSettings
     {
         public TouchScreenKeyboardType KeyboardType = TouchScreenKeyboardType.Default;
         public bool Autocorrection = false;
@@ -15,17 +15,16 @@ namespace mFramework.UI
 
     public class UITextBoxSettings : UIComponentSettings
     {
-        public readonly UIButtonSettings BackgroundSettings = new UIButtonSettings();
-        public readonly UILabelSettings LabelSettings = new UILabelSettings();
-        public readonly TouchScreenKeyboardSettings KeyboardSettings = new TouchScreenKeyboardSettings();
+        public virtual UIButtonSettings BackgroundSettings { get; set; } = new UIButtonSettings();
+        public virtual UILabelSettings LabelSettings { get; set; } = new UILabelSettings();
+        public virtual TouchScreenKeyboardSettings KeyboardSettings { get; set; } = new TouchScreenKeyboardSettings();
     }
 
-    public class UITextBox : UIComponent, IUIClickableOld
+    public class UITextBox : UIComponent
     {
         public event UIEventHandler<UITextBox> Selected = delegate { };
         public event UIEventHandler<UITextBox> Deselected = delegate { };
 
-        public UIClickableOld UiClickableOld => Background.UiClickableOld;
         public UILabel Label { get; private set; }
         public UIButton Background { get; private set; }
 
@@ -56,7 +55,7 @@ namespace mFramework.UI
 
             Background = this.Button(textBoxSettings.BackgroundSettings);
             Background.Click += OnClickTextBox;
-            Background.OnButtonUp += CheckForLeave;
+            Background.ButtonUp += CheckForLeave;
             Label = Background.Label(textBoxSettings.LabelSettings);
             Label.SortingOrder(1);
         }
@@ -123,17 +122,5 @@ namespace mFramework.UI
             Deselected.Invoke(this);
             _keyboard = null;
         }
-
-        public void MouseDown(Vector2 worldPos)
-        {
-        }
-
-        public void MouseUp(Vector2 worldPos)
-        {
-        }
-
-        public void MouseDrag(Vector2 worldPos)
-        {
-        }
-    }
+    }*/
 }

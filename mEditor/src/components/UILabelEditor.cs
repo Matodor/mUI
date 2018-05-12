@@ -23,16 +23,33 @@ namespace mFramework
         {
             base.OnInspectorGUI();
 
-            _label.SetColor(EditorGUILayout.ColorField("Text color", _label.GetColor()));
-            _label.SetText(EditorGUILayout.TextField("Text", _label.Text));
-            _label.SetFontSize(EditorGUILayout.IntSlider("Text size", _label.Size, 1, 128));
+            {
+                EditorGUI.BeginChangeCheck();
+                var color = EditorGUILayout.ColorField("Text color", _label.Color);
+                if (EditorGUI.EndChangeCheck())
+                    _label.Color = color;
+            }
 
-            _label.SetLetterSpacing(EditorGUILayout.FloatField("Letter spacing", _label.LetterSpacing));
-            _label.SetWordSpacing(EditorGUILayout.FloatField("Word spacing", _label.WordSpacing));
-            _label.SetLinesSpacing(EditorGUILayout.FloatField("Lines spacing", _label.LinesSpacing));
+            {
+                EditorGUI.BeginChangeCheck();
+                var text = EditorGUILayout.TextField("Text", _label.Text);
+                if (EditorGUI.EndChangeCheck())
+                    _label.Text = text;
+            }
 
-            _label.SetTextAnchor((TextAnchor)EditorGUILayout.EnumPopup("Anchor", _label.TextAnchor, GUIStyle.none));
-            _label.SetTextAlignment((TextAlignment)EditorGUILayout.EnumPopup("Alignment", _label.TextAlignment, GUIStyle.none));
+            {
+                EditorGUI.BeginChangeCheck();
+                var style = _label.TextStyle;
+                style.Size = EditorGUILayout.IntSlider("Text size", style.Size, 1, 128);
+                style.LetterSpacing = EditorGUILayout.FloatField("Letter spacing", style.LetterSpacing);
+                style.WordSpacing = EditorGUILayout.FloatField("Word spacing", style.WordSpacing);
+                style.LinesSpacing = EditorGUILayout.FloatField("Lines spacing", style.LinesSpacing);
+                style.TextAlignment = (TextAlignment) EditorGUILayout
+                    .EnumPopup("Alignment", style.TextAlignment, GUIStyle.none);
+                
+                if (EditorGUI.EndChangeCheck())
+                    _label.TextStyle = style;
+            }
         }
     }
 }

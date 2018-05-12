@@ -66,7 +66,6 @@ namespace mFramework.UI
                 Width = UICamera.Width,
                 SortingOrder = 0,
                 StencilId = 0,
-                DefaultPos = Vector2.zero
             }, null);
             
             mCore.ApplicationQuitEvent += OnApplicationQuitEvent;
