@@ -6,10 +6,10 @@ namespace mFramework.UI
 {
     public class ScrollViewSettings : UIViewSettings
     {
-        public virtual FlexboxLayoutSettings FlexboxSettings { get; set; } = new FlexboxLayoutSettings();
+        public virtual FlexboxLayoutSettings FlexboxSettings { get; set; }
     }
 
-    public abstract class ScrollView : UIView, IUIDragable
+    public class ScrollView : UIView, IUIDragable
     {
         public IAreaChecker AreaChecker { get; set; }
 
@@ -26,10 +26,10 @@ namespace mFramework.UI
             if (!(settings is ScrollViewSettings viewSettings))
                 throw new ArgumentException("ScrollView: The given settings is not ScrollViewSettings");
 
-            _flexboxLayout = this.Flexbox(viewSettings.FlexboxSettings);
+            _flexboxLayout = Create<FlexboxLayout>(viewSettings.FlexboxSettings, this);
 
             AreaChecker = RectangleAreaChecker.Default;
-            UIClickablesHandler.AddClickable(this);
+            UIClickablesHandler.AddDragable(this);
 
             base.ApplySettings(settings, parent);
         }

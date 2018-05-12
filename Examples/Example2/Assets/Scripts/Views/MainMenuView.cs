@@ -1,18 +1,33 @@
 ﻿using mFramework;
 using mFramework.UI;
+using mFramework.UI.Layouts;
 
 namespace Example
 {
     public class MainMenuView : UIView
     {
+        private ScrollView _scrollView;
+
         protected override void CreateInterface(object[] @params)
         {
-            var button = this.Button(new UIButtonSettings
+            _scrollView = this.ScrollView(new ScrollViewSettings
             {
-                Sprite = Game.GetSprite("mp_bar_text")
+                FlexboxSettings = new FlexboxLayoutSettings
+                {
+                    Direction = FlexboxDirection.COLUMN,
+                    MarginBetween = 0.5f,
+                },
             });
 
-            button.Anchor = UIAnchor.LowerLeft;
+            CreateItemMenu("Button");
+        }
+
+        private void CreateItemMenu(string text)
+        {
+            var button = _scrollView.Button(new UIButtonSettings
+            {
+                Sprite = Game.GetSprite("mp_bar_text"),
+            });
         }
     }
 }
