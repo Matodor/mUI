@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace mFramework
+namespace mFramework.UI
 {
     [CustomEditor(typeof(UIObject), true)]
     public class UIBaseEditor : Editor
@@ -24,6 +24,12 @@ namespace mFramework
             Gizmos.DrawLine(rect.TopRight, rect.BottomRight);
             Gizmos.DrawLine(rect.BottomRight, rect.BottomLeft);
             Gizmos.DrawLine(rect.BottomLeft, rect.TopLeft);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(rect.Center, 0.1f);
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(rect.Anchor, new Vector3(0.1f, 0.1f, 0.1f));
         }
 
         public override void OnInspectorGUI()
@@ -33,6 +39,13 @@ namespace mFramework
                 var pos = EditorGUILayout.Vector2Field("Position", _object.Position);
                 if (EditorGUI.EndChangeCheck())
                     _object.Position = pos;
+            }
+            
+            {
+                EditorGUI.BeginChangeCheck();
+                var pos = EditorGUILayout.Vector2Field("Local position", _object.LocalPosition);
+                if (EditorGUI.EndChangeCheck())
+                    _object.LocalPosition = pos;
             }
 
             {
@@ -68,8 +81,14 @@ namespace mFramework
             }
 
             EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.LongField("GUID", (long)_object.GUID);
+            EditorGUILayout.LongField("GUID", (long) _object.GUID);
             EditorGUILayout.IntField("Sorting order", _object.SortingOrder);
+
+            EditorGUILayout.Vector2Field("CenterOffset", _object.CenterOffset);
+            EditorGUILayout.Vector2Field("UnscaledCenterOffset", _object.UnscaledCenterOffset);
+
+            //EditorGUILayout.Vector3Field("AnchorLocalPosition", _object.AnchorLocalPosition(_object.AnchorPivot, out _));
+            //EditorGUILayout.Vector3Field("AnchorPosition", _object.AnchorPosition(_object.AnchorPivot, out _));
             EditorGUI.EndDisabledGroup();
 
             {
@@ -77,7 +96,6 @@ namespace mFramework
                 var sorting = EditorGUILayout.IntField("Local sorting order", _object.LocalSortingOrder);
                 if (EditorGUI.EndChangeCheck())
                     _object.SortingOrder = sorting;
-
             }
 
             {

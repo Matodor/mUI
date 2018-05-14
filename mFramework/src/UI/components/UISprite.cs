@@ -14,7 +14,7 @@ namespace mFramework.UI
     {
         public override float UnscaledHeight => UIRenderer.sprite.bounds.size.y;
         public override float UnscaledWidth => UIRenderer.sprite.bounds.size.x;
-        public override Vector2 CenterOffset => UIRenderer.sprite.bounds.center;
+        public override Vector2 UnscaledCenterOffset => UIRenderer.sprite.bounds.center;
 
         public Color Color
         {

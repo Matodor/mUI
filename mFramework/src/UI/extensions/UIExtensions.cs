@@ -31,41 +31,98 @@ namespace mFramework
             return obj;
         }
 
-        public static T Position<T>(this T obj, float x, float y) where T : IUIObject
+        public static T Translate<T>(this T obj, float x, float y, 
+            Space relativeTo = Space.World) where T : IUIObject
         {
-            obj.Position = new Vector2(x, y);
+            if (relativeTo == Space.Self)
+                obj.LocalPosition += new Vector3(x, y, 0);
+            else
+                obj.Position += new Vector3(x, y, 0);
             return obj;
         }
 
-        public static T Position<T>(this T obj, Vector2 position) where T : IUIObject
+        public static T Translate<T>(this T obj, Vector2 position, 
+            Space relativeTo = Space.World) where T : IUIObject
         {
-            obj.Position = position;
+            if (relativeTo == Space.Self)
+                obj.LocalPosition += new Vector3(position.x, position.y);
+            else
+                obj.Position += new Vector3(position.x, position.y);
             return obj;
         }
 
-        public static T Position<T>(this T obj, Vector3 position) where T : IUIObject
+        public static T Translate<T>(this T obj, Vector3 position, 
+            Space relativeTo = Space.World) where T : IUIObject
         {
-            obj.Position = position;
+            if (relativeTo == Space.Self)
+                obj.LocalPosition += position;
+            else
+                obj.Position += position;
             return obj;
         }
 
-        public static T Position<T>(this T obj, Vector2 position, UIAnchor anchor)
-            where T : UIObject
+        public static T Position<T>(this T obj, float x, float y, 
+            Space relativeTo = Space.World) where T : IUIObject
         {
-            obj.PositionByAnchor(position, anchor);
+            if (relativeTo == Space.Self)
+                obj.LocalPosition = new Vector2(x, y);
+            else
+                obj.Position = new Vector2(x, y);
             return obj;
         }
 
-        public static T Position<T>(this T obj, Vector3 position, UIAnchor anchor) 
-            where T : UIObject
+        public static T Position<T>(this T obj, Vector2 position, 
+            Space relativeTo = Space.World) where T : IUIObject
         {
-            obj.PositionByAnchor(position, anchor);
+            if (relativeTo == Space.Self)
+                obj.LocalPosition = position;
+            else
+                obj.Position = position;
             return obj;
         }
 
-        public static Vector3 GetPos<T>(this T obj, UIAnchor anchor) where T : UIObject
+        public static T Position<T>(this T obj, Vector3 position, 
+            Space relativeTo = Space.World) where T : IUIObject
         {
-            return obj.GetAnchorPos(anchor);
+            if (relativeTo == Space.Self)
+                obj.LocalPosition = position;
+            else
+                obj.Position = position;
+            return obj;
+        }
+
+        public static T Position<T>(this T obj, Vector2 position,
+            UIAnchor anchor, Space relativeTo = Space.World) where T : IUIObject
+        {
+            if (relativeTo == Space.Self)
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).LocalPositionByAnchor(position, anchor);
+            else
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).PositionByAnchor(position, anchor);
+            return obj;
+        }
+
+        public static T Position<T>(this T obj, Vector3 position, UIAnchor anchor,
+            Space relativeTo = Space.World) where T : IUIObject
+        {
+            if (relativeTo == Space.Self)
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).LocalPositionByAnchor(position, anchor);
+            else
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).PositionByAnchor(position, anchor);
+            return obj;
+        }
+
+        public static Vector3 GetPos<T>(this T obj, UIAnchor anchor, 
+            Space relativeTo = Space.World) where T : IUIObject
+        {
+            return relativeTo == Space.Self
+                // ReSharper disable once PossibleNullReferenceException
+                ? (obj as UIObject).GetLocalAnchorPos(anchor)
+                // ReSharper disable once PossibleNullReferenceException
+                : (obj as UIObject).GetAnchorPos(anchor);
         }
 
         public static T Color<T>(this T obj, Color color) where T : IUIColored

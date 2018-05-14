@@ -47,7 +47,9 @@ namespace mFramework.UI
         Vector3 Position { get; set; }
         Vector3 Scale { get; set; }
         Vector3 GlobalScale { get; }
+
         Vector2 CenterOffset { get; }
+        Vector2 UnscaledCenterOffset { get; }
 
         event UIEventHandler<IUIObject> ActiveChanged;
         event UIEventHandler<IUIObject, UIAnimation> AnimationAdded;

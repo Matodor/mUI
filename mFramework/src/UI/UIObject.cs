@@ -3,17 +3,22 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    internal struct NotRotatedRect
+    public struct NotRotatedRect
     {
-        public readonly Vector2 Center;
+        /// <summary>
+        /// Center offset with transform position
+        /// </summary>
+        public readonly Vector2 CenterOffset;
+
         public readonly float LocalLeft;
         public readonly float LocalRight;
         public readonly float LocalTop;
         public readonly float LocalBottom;
 
-        public NotRotatedRect(Vector2 center, float localLeft, float localRight, float localTop, float localBottom)
+        public NotRotatedRect(Vector2 centerOffset, float localLeft, 
+            float localRight, float localTop, float localBottom)
         {
-            Center = center;
+            CenterOffset = centerOffset;
             LocalLeft = localLeft;
             LocalRight = localRight;
             LocalTop = localTop;
@@ -41,7 +46,12 @@ namespace mFramework.UI
 
         public virtual UIPadding Padding { get; set; }
 
-        public virtual Vector2 CenterOffset => Vector2.zero;
+        public virtual Vector2 CenterOffset => new Vector2(
+            UnscaledCenterOffset.x * GlobalScale.x,
+            UnscaledCenterOffset.y * GlobalScale.y
+        );
+
+        public virtual Vector2 UnscaledCenterOffset { get; protected set; } = Vector2.zero;
         public virtual Vector3 GlobalScale => Transform.lossyScale;
 
         public virtual float Height => UnscaledHeight * GlobalScale.y 
@@ -53,6 +63,12 @@ namespace mFramework.UI
         public virtual float UnscaledHeight { get; protected set; }
         public virtual float UnscaledWidth { get; protected set; }
 
+        public Vector2 AnchorPivot
+        {
+            get => _anchorPivot;
+            set => _anchorPivot = value;
+        }
+
         public virtual UIAnchor Anchor
         {
             get => _anchor;
@@ -61,25 +77,25 @@ namespace mFramework.UI
                 if (value == _anchor)
                     return;
 
-                Transform.position = Transform.position + AnchorLocalPos(_anchorPivot);
+                var pos = Position;
                 _anchor = value;
                 _anchorPivot = PivotByAnchor(value);
-                Transform.position = Transform.position - AnchorLocalPos(_anchorPivot);
+                Position = pos;
             }
         }
 
         public Vector3 LocalPosition
         {
-            get => Transform.localPosition + AnchorLocalPos(_anchorPivot);
-            set => Transform.localPosition = value - AnchorLocalPos(_anchorPivot);
+            get => Transform.localPosition + AnchorDiffWithTransformPos(_anchorPivot);
+            set => Transform.localPosition = value - AnchorDiffWithTransformPos(_anchorPivot);
         }
 
         public virtual Vector3 Position
         {
-            get => Transform.position + AnchorLocalPos(_anchorPivot);
-            set => Transform.position = value - AnchorLocalPos(_anchorPivot);
+            get => Transform.position + AnchorDiffWithTransformPos(_anchorPivot);
+            set => Transform.position = value - AnchorDiffWithTransformPos(_anchorPivot);
         }
-        
+
         public virtual Vector3 Scale
         {
             get => Transform.localScale;
@@ -96,10 +112,10 @@ namespace mFramework.UI
         public float Rotation
         {
             get => Transform.eulerAngles.z;
-            set
-            {
-                Transform.RotateAround(Position, Vector3.forward, value - Transform.eulerAngles.z);
-            }
+            set => Transform.RotateAround(
+                Position, Vector3.forward, 
+                value - Transform.eulerAngles.z
+            );
         }
 
         public int LocalSortingOrder
@@ -144,13 +160,14 @@ namespace mFramework.UI
 
         internal void InitCompleted()
         {
+            LocalPosition = Vector3.zero;
             Parent?.AddChild(this);
             SortingOrderChanged(this);
         }
 
         private void Awake()
         {
-            Transform.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
+            //Transform.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
             GUID = ++_guid;
             Parent = null;
             Animations = UnidirectionalList<UIAnimation>.Create();
@@ -165,19 +182,9 @@ namespace mFramework.UI
             mUI.AddUIObject(this);
             AfterAwake();
         }
-
-        internal Vector3 GetAnchorPos(UIAnchor anchor)
-        {
-            return Transform.position + AnchorLocalPos(PivotByAnchor(anchor));
-        }
-
-        internal void PositionByAnchor(Vector3 pos, UIAnchor anchor)
-        {
-            Transform.position = pos - AnchorLocalPos(PivotByAnchor(anchor));
-        } 
-
+        
         // x - from left to right, y from bottom to top
-        private static Vector2 PivotByAnchor(UIAnchor anchor)
+        public static Vector2 PivotByAnchor(UIAnchor anchor)
         {
             switch (anchor)
             {
@@ -207,42 +214,71 @@ namespace mFramework.UI
             }
         }
 
-        private Vector3 AnchorLocalPos(Vector2 pivot)
+        internal Vector3 GetLocalAnchorPos(UIAnchor anchor)
         {
-            var rect = NotRotatedLocalRect();
+            return Transform.localPosition + AnchorDiffWithTransformPos(PivotByAnchor(anchor));
+        }
 
-            var anchorLocalPos = new Vector2(
-                BezierHelper.Linear(pivot.x, rect.LocalLeft, rect.LocalRight),
-                BezierHelper.Linear(pivot.y, rect.LocalBottom, rect.LocalTop)
+        internal Vector3 GetAnchorPos(UIAnchor anchor)
+        {
+            return Transform.position + AnchorDiffWithTransformPos(PivotByAnchor(anchor));
+        }
+
+        internal void LocalPositionByAnchor(Vector3 pos, UIAnchor anchor)
+        {
+            Transform.localPosition = pos - AnchorDiffWithTransformPos(PivotByAnchor(anchor));
+        }
+
+        internal void PositionByAnchor(Vector3 pos, UIAnchor anchor)
+        {
+            Transform.position = pos - AnchorDiffWithTransformPos(PivotByAnchor(anchor));
+        } 
+
+        private static Vector2 NotRotatedAnchorOffset(NotRotatedRect rect, Vector2 anchorPivor)
+        {
+            return new Vector2(
+                BezierHelper.Linear(anchorPivor.x, rect.LocalLeft, rect.LocalRight),
+                BezierHelper.Linear(anchorPivor.y, rect.LocalBottom, rect.LocalTop)
             );
-
-            return mMath.GetRotatedPoint(Vector2.zero, anchorLocalPos, Rotation);
         }
 
         private NotRotatedRect NotRotatedLocalRect()
         {
-            var centerPos = (Vector2) Transform.position + CenterOffset;
+            var centerOffset = CenterOffset;
+            var scale = GlobalScale;
 
-            var left = -UnscaledWidth / 2 * GlobalScale.x - Padding.Left * GlobalScale.x;
-            var right = UnscaledWidth / 2 * GlobalScale.x + Padding.Right * GlobalScale.x;
-            var top = UnscaledHeight / 2 * GlobalScale.y + Padding.Top * GlobalScale.y;
-            var bottom = -UnscaledHeight / 2 * GlobalScale.y - Padding.Bottom * GlobalScale.y;
+            var left =   -UnscaledWidth  / 2 * scale.x - Padding.Left   * scale.x;
+            var right =  +UnscaledWidth  / 2 * scale.x + Padding.Right  * scale.x;
+            var top =    +UnscaledHeight / 2 * scale.y + Padding.Top    * scale.y;
+            var bottom = -UnscaledHeight / 2 * scale.y - Padding.Bottom * scale.y;
 
-            centerPos = new Vector2(
-                centerPos.x + (left + right) / 2f,
-                centerPos.y + (top + bottom) / 2f
+            var centerOffsetWithPadding = new Vector2(
+                centerOffset.x + (left + right) / 2f,
+                centerOffset.y + (top + bottom) / 2f
             );
 
-            return new NotRotatedRect(centerPos, left, right, top, bottom);
+            return new NotRotatedRect(
+                centerOffset: centerOffsetWithPadding,
+                localLeft: left,
+                localRight: right,
+                localTop: top,
+                localBottom: bottom
+            );
+        }
+
+        internal Vector3 AnchorDiffWithTransformPos(Vector2 anchorPivor)
+        {
+            var rect = NotRotatedLocalRect();
+            var center = mMath.GetRotatedPoint(Vector2.zero, rect.CenterOffset, Rotation);
+            var notRotatedAnchorOffset = NotRotatedAnchorOffset(rect, anchorPivor);
+            return mMath.GetRotatedPoint(center, notRotatedAnchorOffset, Rotation);
         }
 
         private UIRect GetRect()
         {
             var rect = NotRotatedLocalRect();
-            var anchorLocalPos = new Vector2(
-                BezierHelper.Linear(_anchorPivot.x, rect.LocalLeft, rect.LocalRight),
-                BezierHelper.Linear(_anchorPivot.y, rect.LocalBottom, rect.LocalTop)
-            );
+            var center = mMath.GetRotatedPoint(Transform.position, rect.CenterOffset, Rotation);
+            var notRotatedAnchorOffset = NotRotatedAnchorOffset(rect, _anchorPivot);
 
             var points = new[]
             {
@@ -256,24 +292,24 @@ namespace mFramework.UI
                 new Vector2(rect.LocalLeft, rect.LocalBottom),  // bottom left
                 new Vector2(0, rect.LocalBottom),               // bottom
                 new Vector2(rect.LocalRight, rect.LocalBottom), // bottom right
-                anchorLocalPos                                  // anchor pos
+                notRotatedAnchorOffset                          // anchor pos
             };
 
-            mMath.GetRotatedPoints(Rotation, rect.Center, points);
+            mMath.GetRotatedPoints(Rotation, center, points);
 
             return new UIRect(
-                points[0],
-                points[1],
-                points[2],
+                topLeft: points[0],
+                top: points[1],
+                topRight: points[2],
 
-                points[3],
-                rect.Center,
-                points[4],
+                left: points[3],
+                center: center,
+                right: points[4],
 
-                points[5],
-                points[6],
-                points[7],
-                points[8]
+                bottomLeft: points[5],
+                bottom: points[6],
+                bottomRight: points[7],
+                anchor: points[8]
             );
         }
 

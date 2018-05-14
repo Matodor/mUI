@@ -1,6 +1,7 @@
 ﻿using mFramework;
 using mFramework.UI;
 using mFramework.UI.Layouts;
+using UnityEngine;
 
 namespace Example
 {
@@ -14,11 +15,18 @@ namespace Example
             {
                 FlexboxSettings = new FlexboxLayoutSettings
                 {
-                    Direction = FlexboxDirection.COLUMN,
+                    Direction = FlexboxDirection.ROW_REVERSE,
                     MarginBetween = 0.5f,
                 },
             });
-
+            
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
             CreateItemMenu("Button");
         }
 
