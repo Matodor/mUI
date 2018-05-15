@@ -35,9 +35,11 @@ namespace mFramework
             Space relativeTo = Space.World) where T : IUIObject
         {
             if (relativeTo == Space.Self)
-                obj.LocalPosition += new Vector3(x, y, 0);
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).Transform.localPosition += new Vector3(x, y, 0);
             else
-                obj.Position += new Vector3(x, y, 0);
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).Transform.position += new Vector3(x, y, 0);
             return obj;
         }
 
@@ -45,9 +47,11 @@ namespace mFramework
             Space relativeTo = Space.World) where T : IUIObject
         {
             if (relativeTo == Space.Self)
-                obj.LocalPosition += new Vector3(position.x, position.y);
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).Transform.localPosition += new Vector3(position.x, position.y);
             else
-                obj.Position += new Vector3(position.x, position.y);
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).Transform.position += new Vector3(position.x, position.y);
             return obj;
         }
 
@@ -55,9 +59,11 @@ namespace mFramework
             Space relativeTo = Space.World) where T : IUIObject
         {
             if (relativeTo == Space.Self)
-                obj.LocalPosition += position;
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).Transform.localPosition += position;
             else
-                obj.Position += position;
+                // ReSharper disable once PossibleNullReferenceException
+                (obj as UIObject).Transform.position += position;
             return obj;
         }
 

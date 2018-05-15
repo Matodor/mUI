@@ -7,20 +7,23 @@ namespace mFramework.UI
     {
         public virtual bool DefaultSelected { get; set; } = false;
     }
-
-    public class UIToggle : UIButton
+    
+    public class UIToggle : UIButton, IUIToggle
     {
-        public bool IsSelected { get; private set; }
+        public bool IsSelected { get; protected set; }
 
-        public event Func<UIToggle, bool> CanSelect = delegate { return true; };
-        public event Func<UIToggle, bool> CanDeselect = delegate { return true; };
+        public event UIToggleAllowChangeState CanSelect = delegate { return true; };
+        public event UIToggleAllowChangeState CanDeselect = delegate { return true; };
 
-        public event UIEventHandler<UIToggle> Selected = delegate { };
-        public event UIEventHandler<UIToggle> Deselected = delegate { };
-        public event UIEventHandler<UIToggle> Changed = delegate { };
+        public event UIToggleStateChangedEvent Selected = delegate { };
+        public event UIToggleStateChangedEvent Deselected = delegate { };
+        public event UIToggleStateChangedEvent Changed = delegate { };
 
         protected override void AfterAwake()
         {
+            OnClick += OnToggleClick;
+            MouseUp += OnUIMouseUp;
+
             IsSelected = false;
             base.AfterAwake();
         }
@@ -35,13 +38,11 @@ namespace mFramework.UI
 
             if (toggleSettings.DefaultSelected)
                 Select();
-
-            OnClick += OnToggleClick;
-            ButtonUp += OnButtonUp;
+            
             base.ApplySettings(settings);
         }
 
-        private void OnButtonUp(IUIButton sender, Vector2 vector2)
+        private void OnUIMouseUp(IUIClickable sender, ref Vector2 vector2)
         {
             if (IsSelected)
                 StateableSprite.SetSelected();
@@ -49,7 +50,7 @@ namespace mFramework.UI
                 StateableSprite.SetDefault();
         }
 
-        public UIToggle Toggle()
+        public IUIToggle Toggle()
         {
             if (IsSelected)
                 Deselect();
@@ -59,7 +60,7 @@ namespace mFramework.UI
             return this;
         }
 
-        public UIToggle Select()
+        public IUIToggle Select()
         {
             if (!CanSelect(this))
                 return this;
@@ -67,12 +68,12 @@ namespace mFramework.UI
             IsSelected = true;
             StateableSprite.SetSelected();
 
-            Selected.Invoke(this);
-            Changed.Invoke(this);
+            Selected(this);
+            Changed(this);
             return this;
         }
 
-        public UIToggle Deselect()
+        public IUIToggle Deselect()
         {
             if (!CanDeselect(this))
                 return this;
@@ -80,8 +81,8 @@ namespace mFramework.UI
             IsSelected = false;
             StateableSprite.SetDefault();
 
-            Deselected.Invoke(this);
-            Changed.Invoke(this);
+            Deselected(this);
+            Changed(this);
             return this;
         }
 

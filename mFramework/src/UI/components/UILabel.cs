@@ -130,6 +130,9 @@ namespace mFramework.UI
 
         protected override void AfterAwake()
         {
+            Font.textureRebuilt += FontRebuilt;
+            BeforeDestroy += s => Font.textureRebuilt -= FontRebuilt;
+
             UIRenderer = GameObject.AddComponent<MeshRenderer>();
             _meshFilter = GameObject.AddComponent<MeshFilter>();
             _textFormatting = new Dictionary<int, TextFormatting>();
@@ -203,9 +206,6 @@ namespace mFramework.UI
 
             if (!(settings is UILabelSettings labelSettings))
                 throw new ArgumentException("UILabel: The given settings is not UILabelSettings");
-
-            Font.textureRebuilt += FontRebuilt;
-            BeforeDestroy += s => Font.textureRebuilt -= FontRebuilt;
 
             _textColor = labelSettings.Color;
             _text = labelSettings.Text;

@@ -63,6 +63,7 @@
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
     <Compile Include="src\patching\mPatching.cs" />
     <Compile Include="src\UI\extensions\ViewsExtensions.cs" />
+    <Compile Include="src\UI\interfaces\IUIToggle.cs" />
     <Compile Include="src\UI\views\ScrollView.cs" />
     <Compile Include="src\UI\extensions\LayoutsExtensions.cs" />
     <Compile Include="src\UI\interfaces\IAreaChecker.cs" />
@@ -153,7 +154,6 @@
     <Compile Include="src\UI\components\UISprite.cs" />
     <Compile Include="src\UI\components\UIToggle.cs" />
     <Compile Include="src\UI\UIObject.cs" />
-    <Compile Include="src\UI\UIObjectOrientation.cs" />
     <Compile Include="src\UI\UIRect.cs" />
     <Compile Include="src\UI\views\BaseView.cs" />
     <Compile Include="src\UI\mUI.cs" />

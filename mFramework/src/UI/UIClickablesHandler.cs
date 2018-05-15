@@ -15,6 +15,7 @@ namespace mFramework.UI
 
         public static void AddDragable(IUIDragable dragable)
         {
+            AddClickable(dragable);
             dragable.BeforeDestroy += sender => _dragables.Remove(dragable);
             _dragables.Add(dragable);
         }
@@ -33,8 +34,7 @@ namespace mFramework.UI
             {
                 if (!dragable.IsActive)
                     continue;
-
-                dragable.MouseDrag(worldPos);
+                dragable.DoMouseDrag(worldPos);
             }
         }
 
@@ -46,8 +46,7 @@ namespace mFramework.UI
             {
                 if (!clickable.IsActive)
                     continue;
-
-                clickable.MouseUp(worldPos);
+                clickable.DoMouseUp(worldPos);
             }
         }
 
@@ -59,9 +58,7 @@ namespace mFramework.UI
             {
                 if (!clickable.IsActive)
                     continue;
-
-                if (clickable.AreaChecker.InAreaShape(clickable, worldPos))
-                    clickable.MouseDown(worldPos);
+                clickable.DoMouseDown(worldPos);
             }
         }
     }

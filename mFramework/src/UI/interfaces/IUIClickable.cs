@@ -2,11 +2,21 @@
 
 namespace mFramework.UI
 {
+    public delegate void UIMouseEvent(IUIClickable sender, ref Vector2 worldPos);
+    public delegate bool UIMouseAllowEvent(IUIClickable sender, ref Vector2 worldPos);
+
     public interface IUIClickable : IUIObject
     {
+        event UIMouseEvent MouseDown;
+        event UIMouseEvent MouseUp;
+
+        event UIMouseAllowEvent CanMouseDown;
+        event UIMouseAllowEvent CanMouseUp;
+
+        bool IsPressed { get; }
         IAreaChecker AreaChecker { get; set; }
 
-        void MouseDown(Vector2 worldPos);
-        void MouseUp(Vector2 worldPos);
+        void DoMouseDown(Vector2 worldPos);
+        void DoMouseUp(Vector2 worldPos);
     }
 }

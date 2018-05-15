@@ -46,6 +46,7 @@ namespace mFramework.UI
 
         protected override void AfterAwake()
         {
+            SortingOrderChanged += OnSortingOrderChanged;
             UIRenderer = GameObject.AddComponent<SpriteRenderer>();
             base.AfterAwake();
         }
@@ -66,7 +67,6 @@ namespace mFramework.UI
             if (spriteSettings.Color.HasValue)
                 Color = spriteSettings.Color.Value;
 
-            SortingOrderChanged += OnSortingOrderChanged;
             base.ApplySettings(spriteSettings);
         }
 

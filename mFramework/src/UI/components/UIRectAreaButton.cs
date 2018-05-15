@@ -8,29 +8,47 @@ namespace mFramework.UI
         public virtual ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
         public virtual float AreaWidth { get; set; } = 0f;
         public virtual float AreaHeight { get; set; } = 0f;
-        public virtual Vector2 AreaOffset { get; set; } = Vector2.zero;
     }
 
     public class UIRectAreaButton : UIComponent, IUIButton
     {
-        public Vector2 AreaOffset = Vector2.zero;
+        public event UIMouseEvent MouseDown;
+        public event UIMouseEvent MouseUp;
 
-        public ClickCondition ClickCondition { get; set; }
+        public event UIMouseAllowEvent CanMouseDown = delegate { return true; };
+        public event UIMouseAllowEvent CanMouseUp = delegate { return true; };
+
+        public event UIButtonClickEvent OnClick = delegate { };
+        public event UIButtonAllowClick CanClick = delegate { return true; };
+
+        public bool IsPressed { get; protected set; }
         public IAreaChecker AreaChecker { get; set; }
-
-        public event UIEventHandler<IUIButton> OnClick = delegate { };
-        public event Func<IUIButton, bool> CanClick = delegate { return true; };
-
-        public event UIEventHandler<IUIButton, Vector2> ButtonDown = delegate { };
-        public event UIEventHandler<IUIButton, Vector2> ButtonUp = delegate { };
-        
-        private bool _isPressed;
+        public ClickCondition ClickCondition { get; set; }
 
         protected override void AfterAwake()
         {
-            _isPressed = false;
+            MouseDown += OnUIMouseDown;
+            MouseUp += OnUIMouseUp;
+            CanMouseDown += OnUICanMouseDown;
+            CanMouseUp += OnUICanMouseUp;
+
+            IsPressed = false;
             ClickCondition = ClickCondition.BUTTON_UP;
+
+            AreaChecker = RectangleAreaChecker.Default;
+            UIClickablesHandler.AddClickable(this);
+
             base.AfterAwake();
+        }
+
+        private bool OnUICanMouseUp(IUIClickable sender, ref Vector2 worldPos)
+        {
+            return IsPressed;
+        }
+
+        private bool OnUICanMouseDown(IUIClickable sender, ref Vector2 worldPos)
+        {
+            return !IsPressed && AreaChecker.InAreaShape(this, worldPos);
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
@@ -44,20 +62,8 @@ namespace mFramework.UI
             ClickCondition = buttonSettings.ClickCondition;
             UnscaledHeight = buttonSettings.AreaHeight;
             UnscaledWidth = buttonSettings.AreaWidth;
-            AreaOffset = buttonSettings.AreaOffset;
-
-            AreaChecker = RectangleAreaChecker.Default;
-            UIClickablesHandler.AddClickable(this);
-
+            
             base.ApplySettings(buttonSettings);
-        }
-
-        public void Click()
-        {
-            if (CanClick(this))
-            {
-                OnClick(this);
-            }
         }
 
         public UIRectAreaButton SetWidth(float width)
@@ -72,31 +78,49 @@ namespace mFramework.UI
             return this;
         }
 
-        public virtual void MouseDown(Vector2 worldPos)
+        public void Click()
         {
-            _isPressed = true;
+            if (CanClick(this))
+            {
+                OnClick(this);
+            }
+        }
 
+        private void OnUIMouseDown(IUIClickable clickable, ref Vector2 worldPos)
+        {
             if (CanClick(this) && ClickCondition == ClickCondition.BUTTON_DOWN)
             {
                 OnClick(this);
             }
-
-            ButtonDown(this, worldPos);
         }
 
-        public virtual void MouseUp(Vector2 worldPos)
+        public void DoMouseDown(Vector2 worldPos)
         {
-            if (!_isPressed)
+            if (!CanMouseDown(this, ref worldPos))
                 return;
 
-            if (CanClick(this) && _isPressed &&
-                ClickCondition == ClickCondition.BUTTON_UP && AreaChecker.InAreaShape(this, worldPos))
+            IsPressed = true;
+            // ReSharper disable once PossibleNullReferenceException
+            MouseDown(this, ref worldPos);
+        }
+
+        private void OnUIMouseUp(IUIClickable clickable, ref Vector2 worldPos)
+        {
+            if (CanClick(this) && ClickCondition == ClickCondition.BUTTON_UP &&
+                AreaChecker.InAreaShape(this, worldPos))
             {
                 OnClick(this);
             }
+        }
 
-            ButtonUp(this, worldPos);
-            _isPressed = false;
+        public void DoMouseUp(Vector2 worldPos)
+        {
+            if (!CanMouseUp(this, ref worldPos))
+                return;
+
+            // ReSharper disable once PossibleNullReferenceException
+            MouseUp(this, ref worldPos);
+            IsPressed = false;
         }
     }
 }

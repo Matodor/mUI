@@ -4,6 +4,9 @@ namespace mFramework.UI
 {
     public interface IUIDragable : IUIClickable
     {
-        void MouseDrag(Vector2 worldPos);
+        event UIMouseEvent MouseDrag;
+        event UIMouseAllowEvent CanMouseDrag;
+
+        void DoMouseDrag(Vector2 worldPos);
     }
 }

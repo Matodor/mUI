@@ -10,7 +10,7 @@ namespace mFramework.UI
     public class UIRadioGroup : UIComponent
     {
         public event Action<UIRadioGroup> Selected = delegate { };
-        public UIToggle CurrentSelected { get; private set; }
+        public IUIToggle CurrentSelected { get; private set; }
 
         private bool _canDeselectCurrent;
 
@@ -55,7 +55,7 @@ namespace mFramework.UI
             return toggle;
         }
 
-        private void SetupToggle(UIToggle toggle)
+        private void SetupToggle(IUIToggle toggle)
         {
             toggle.BeforeDestroy += ToggleOnBeforeDestroy;
             toggle.Selected += ToggleSelected;
@@ -65,29 +65,24 @@ namespace mFramework.UI
 
         private void ToggleOnBeforeDestroy(IUIObject sender)
         {
-            if ((UIToggle) sender == CurrentSelected)
+            if (sender == CurrentSelected)
                 CurrentSelected = null;
         }
 
-        private bool ToggleOnCanDeselect(UIToggle toggle)
+        private bool ToggleOnCanDeselect(IUIToggle toggle)
         {
             if (_canDeselectCurrent)
-            {
                 return true;
-            }
-
-            if (CurrentSelected == toggle)
-                return false;
-            return true;
+            return CurrentSelected != toggle;
         }
 
-        private void ToggleDeselected(UIToggle toggle)
+        private void ToggleDeselected(IUIToggle toggle)
         {
             if (CurrentSelected == toggle)
                 CurrentSelected = null;
         }
 
-        private void ToggleSelected(UIToggle toggle)
+        private void ToggleSelected(IUIToggle toggle)
         {
             var prev = CurrentSelected;
             CurrentSelected = toggle;

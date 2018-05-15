@@ -15,7 +15,7 @@ namespace Example
             {
                 FlexboxSettings = new FlexboxLayoutSettings
                 {
-                    Direction = FlexboxDirection.ROW_REVERSE,
+                    Direction = FlexboxDirection.COLUMN,
                     MarginBetween = 0.5f,
                 },
             });
@@ -36,6 +36,8 @@ namespace Example
             {
                 Sprite = Game.GetSprite("mp_bar_text"),
             });
+
+            button.OnClick += sender => Debug.Log(sender.GUID);
         }
     }
 }
