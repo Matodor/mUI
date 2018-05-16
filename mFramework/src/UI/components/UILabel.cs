@@ -402,7 +402,7 @@ namespace mFramework.UI
             var formattingIndex = -1;
             var startLineIndex = 0;
             var lines = 1;
-            var pureLineHeight = 0f;
+            var lastLinePureHeight = 0f;
 
             var lastLineHeight = 0f;
             var lastLineWidth = 0f;
@@ -497,8 +497,8 @@ namespace mFramework.UI
                 if (lastLineHeight < characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness)
                     lastLineHeight = characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness;
 
-                if (pureLineHeight < rightTop.y - rightBottom.y)
-                    pureLineHeight = rightTop.y - rightBottom.y;
+                if (lastLinePureHeight < rightTop.y - rightBottom.y)
+                    lastLinePureHeight = rightTop.y - rightBottom.y;
 
                 //mCore.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
                 //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
@@ -559,7 +559,7 @@ namespace mFramework.UI
                     }
                     else
                     {
-                        UnscaledHeight += pureLineHeight;
+                        UnscaledHeight = lastLinePureHeight;
                     }
 
                     linesInfo.Add(new LineInfo
@@ -568,7 +568,7 @@ namespace mFramework.UI
                         EndIndex = verticesList.Count - 1,
                         Width = lastLineWidth,
                         Height = lastLineHeight,
-                        PureHeight = pureLineHeight
+                        PureHeight = lastLinePureHeight
                     });
 
                     if (UnscaledWidth < lastLineWidth)
@@ -578,13 +578,12 @@ namespace mFramework.UI
                     lastLineWidth = 0f;
                     lastLineHeight = 0f;
                     startLineIndex = verticesList.Count;
-                    pureLineHeight = 0f;
+                    lastLinePureHeight = 0f;
                     lines++;
                 }
             }
 
-            var yOffset = 0f;
-            
+            var yOffset = UnscaledHeight / 2;
             for (var lineIndex = 0; lineIndex < linesInfo.Count; lineIndex++)
             {
                 var xOffset = -verticesList[linesInfo[lineIndex].StartIndex].x;
@@ -595,14 +594,11 @@ namespace mFramework.UI
                 switch (style.TextAlignment)
                 {
                     case TextAlignment.Center:
-                        xOffset += UnscaledWidth / 2 - linesInfo[lineIndex].Width / 2f;
+                        xOffset = -linesInfo[lineIndex].Width / 2f;
                         break;
 
                     case TextAlignment.Right:
-                        xOffset += UnscaledWidth - linesInfo[lineIndex].Width;
-                        break;
-
-                    case TextAlignment.Left:
+                        xOffset = -linesInfo[lineIndex].Width;
                         break;
                 }
                 

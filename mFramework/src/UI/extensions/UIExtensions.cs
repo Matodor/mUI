@@ -7,6 +7,51 @@ namespace mFramework
 {
     public static partial class UIExtensions
     {
+        public static T Anchor<T>(this T obj, UIAnchor newAnchor) where T : IUIObject
+        {
+            obj.Anchor = newAnchor;
+            return obj;
+        }
+
+        public static T SortingOrder<T>(this T obj, int localOrder) where T : IUIObject
+        {
+            obj.LocalSortingOrder = localOrder;
+            return obj;
+        }
+
+        public static Vector3 TranslatedPos<T>(this T obj, float shiftX, float shiftY,
+            Space relativeTo = Space.World) where T : IUIObject
+        {
+            if (relativeTo == Space.Self)
+                // ReSharper disable once PossibleNullReferenceException
+                return (obj as UIObject).Transform.localPosition + new Vector3(shiftX, shiftY, 0);
+            
+            // ReSharper disable once PossibleNullReferenceException
+            return (obj as UIObject).Transform.position + new Vector3(shiftX, shiftY, 0);
+        }
+
+        public static Vector3 TranslatedPos<T>(this T obj, Vector2 shift,
+            Space relativeTo = Space.World) where T : IUIObject
+        {
+            if (relativeTo == Space.Self)
+                // ReSharper disable once PossibleNullReferenceException
+                return (obj as UIObject).Transform.localPosition + new Vector3(shift.x, shift.y);
+            
+            // ReSharper disable once PossibleNullReferenceException
+            return (obj as UIObject).Transform.position + new Vector3(shift.x, shift.y);
+        }
+
+        public static Vector3 TranslatedPos<T>(this T obj, Vector3 shift,
+            Space relativeTo = Space.World) where T : IUIObject
+        {
+            if (relativeTo == Space.Self)
+                // ReSharper disable once PossibleNullReferenceException
+                return (obj as UIObject).Transform.localPosition + shift;
+
+            // ReSharper disable once PossibleNullReferenceException
+            return (obj as UIObject).Transform.position + shift;
+        }
+
         public static T Rotation<T>(this T obj, float value) where T : IUIObject
         {
             obj.Rotation = value;
@@ -31,39 +76,39 @@ namespace mFramework
             return obj;
         }
 
-        public static T Translate<T>(this T obj, float x, float y, 
+        public static T Translate<T>(this T obj, float shiftX, float shiftY, 
             Space relativeTo = Space.World) where T : IUIObject
         {
             if (relativeTo == Space.Self)
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.localPosition += new Vector3(x, y, 0);
+                (obj as UIObject).Transform.localPosition += new Vector3(shiftX, shiftY, 0);
             else
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.position += new Vector3(x, y, 0);
+                (obj as UIObject).Transform.position += new Vector3(shiftX, shiftY, 0);
             return obj;
         }
 
-        public static T Translate<T>(this T obj, Vector2 position, 
+        public static T Translate<T>(this T obj, Vector2 shift, 
             Space relativeTo = Space.World) where T : IUIObject
         {
             if (relativeTo == Space.Self)
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.localPosition += new Vector3(position.x, position.y);
+                (obj as UIObject).Transform.localPosition += new Vector3(shift.x, shift.y);
             else
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.position += new Vector3(position.x, position.y);
+                (obj as UIObject).Transform.position += new Vector3(shift.x, shift.y);
             return obj;
         }
 
-        public static T Translate<T>(this T obj, Vector3 position, 
+        public static T Translate<T>(this T obj, Vector3 shift, 
             Space relativeTo = Space.World) where T : IUIObject
         {
             if (relativeTo == Space.Self)
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.localPosition += position;
+                (obj as UIObject).Transform.localPosition += shift;
             else
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.position += position;
+                (obj as UIObject).Transform.position += shift;
             return obj;
         }
 

@@ -28,7 +28,7 @@ namespace mFramework.UI
 
     public abstract class UIObject : MonoBehaviour, IUIObject
     {
-        internal Transform Transform => base.transform;
+        public Transform Transform => base.transform;
         internal GameObject GameObject => base.gameObject;
 
         [Obsolete("mUI disallow use gameObject property")]
@@ -84,10 +84,20 @@ namespace mFramework.UI
             }
         }
 
+        // TODO
+        // TODO
+        // TODO
+        // TODO
+        // TODO
+        // TODO
+        // TODO
+        // TODO
+        // TODO
+        // TODO
         public Vector3 LocalPosition
         {
-            get => Transform.localPosition + AnchorDiffWithTransformPos(_anchorPivot);
-            set => Transform.localPosition = value - AnchorDiffWithTransformPos(_anchorPivot);
+            get => (Parent?.Position ?? Vector3.zero) - Position;
+            set => Position = (Parent?.Position ?? Vector3.zero) + value;
         }
 
         public virtual Vector3 Position
@@ -107,7 +117,7 @@ namespace mFramework.UI
             }
         }
 
-        public virtual UIRect Rect => GetRect();
+        public virtual UIRect Rect => GetRect(Transform.position);
 
         public float Rotation
         {
@@ -160,8 +170,11 @@ namespace mFramework.UI
 
         internal void InitCompleted()
         {
-            LocalPosition = Vector3.zero;
-            Parent?.AddChild(this);
+            if (Parent != null)
+            {
+                Position = Parent.Position;
+                Parent.AddChild(this);
+            }
             SortingOrderChanged(this);
         }
 
@@ -274,10 +287,10 @@ namespace mFramework.UI
             return mMath.GetRotatedPoint(center, notRotatedAnchorOffset, Rotation);
         }
 
-        private UIRect GetRect()
+        internal UIRect GetRect(Vector2 centerPosition)
         {
             var rect = NotRotatedLocalRect();
-            var center = mMath.GetRotatedPoint(Transform.position, rect.CenterOffset, Rotation);
+            var center = mMath.GetRotatedPoint(centerPosition, rect.CenterOffset, Rotation);
             var notRotatedAnchorOffset = NotRotatedAnchorOffset(rect, _anchorPivot);
 
             var points = new[]

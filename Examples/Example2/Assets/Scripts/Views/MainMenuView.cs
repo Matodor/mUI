@@ -28,6 +28,16 @@ namespace Example
             CreateItemMenu("Button");
             CreateItemMenu("Button");
             CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+            CreateItemMenu("Button");
+
+            Debug.Log(mMath.ClosestPointOnLine(new Vector2(0, 5), new Vector2(0, -5),  new Vector2(-5, -12)));
         }
 
         private void CreateItemMenu(string text)
@@ -35,7 +45,20 @@ namespace Example
             var button = _scrollView.Button(new UIButtonSettings
             {
                 Sprite = Game.GetSprite("mp_bar_text"),
-            });
+            }).Anchor(UIAnchor.MiddleCenter);
+
+            button.Label(new UILabelSettings
+            {
+                Text = text,
+                Color = Color.black,
+                Font = "Arial",
+                TextStyle =
+                {
+                    FontStyle = FontStyle.Bold,
+                    TextAlignment = TextAlignment.Center,
+                    Size = 40
+                }
+            }).SortingOrder(1);
 
             button.OnClick += sender => Debug.Log(sender.GUID);
         }

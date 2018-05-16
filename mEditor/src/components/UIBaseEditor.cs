@@ -34,6 +34,8 @@ namespace mFramework.UI
 
         public override void OnInspectorGUI()
         {
+            EditorGUILayout.Vector2Field("RR", _object.Transform.localPosition);
+            
             {
                 EditorGUI.BeginChangeCheck();
                 var pos = EditorGUILayout.Vector2Field("Position", _object.Position);

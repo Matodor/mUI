@@ -23,12 +23,13 @@ namespace mFramework.UI
         public IAreaChecker AreaChecker { get; set; }
 
         private const float MAX_PATH_TO_CLICK = 0.03f;
-        private const float MIN_DIFF_TO_MOVE = 0.0001f;
+        private const float MIN_DIFF_TO_MOVE = 0.001f;
 
         private FlexboxLayout _flexboxLayout;
-        private Vector2 _lastMousePos;
-        private Vector2 _lastMoveDiff;
+        private Vector2 _lastDragPos;
+        private Vector2 _averageDiff;
         private float _dragDistance;
+        private float _lastMagnetizationLength;
 
         protected override void AfterAwake()
         {
@@ -64,44 +65,126 @@ namespace mFramework.UI
 
         private void OnUIMouseUp(IUIClickable sender, ref Vector2 worldPos)
         {
-            _lastMousePos = worldPos;
+            _lastDragPos = worldPos;
+            _averageDiff *= 10f;
         }
 
         private void OnUIMouseDown(IUIClickable sender, ref Vector2 worldPos)
         {
+            var sliderRect = Rect;
+            var itemsRect = _flexboxLayout.Rect;
+
             _dragDistance = 0f;
-            _lastMousePos = worldPos;
-            _lastMoveDiff = Vector2.zero;
+            _lastDragPos = worldPos;
+            _averageDiff = Vector2.zero;
+            _lastMagnetizationLength = GetNormilizedMagnetization(sliderRect, 
+                itemsRect, out _, out _, out _);
         }
 
         private void OnUIMouseDrag(IUIClickable sender, ref Vector2 worldPos)
         {
-            var shift = worldPos - _lastMousePos;
-            _lastMousePos = worldPos;
-            _dragDistance += _lastMoveDiff.Length();
+            var sliderRect = Rect;
+            var point1 = mMath.ClosestPointOnLine(sliderRect.Top, sliderRect.Bottom, _lastDragPos);
+            var point2 = mMath.ClosestPointOnLine(sliderRect.Top, sliderRect.Bottom, worldPos);
+            var shift = point2 - point1;
 
-            Move(shift);
+            _averageDiff = (_averageDiff + shift) / 2f;
+            Move(sliderRect, shift);
+
+            _lastDragPos = worldPos;
+            _dragDistance += shift.Length();
         }
 
-        public void Move(Vector2 shift)
+        protected override void OnTick()
         {
+            if (!IsActive || IsPressed)
+                return;
+
             var sliderRect = Rect;
             var itemsRect = _flexboxLayout.Rect;
 
-            // horizontal
-            if (_flexboxLayout.Direction == FlexboxDirection.ROW ||
-                _flexboxLayout.Direction == FlexboxDirection.ROW_REVERSE)
+            var magnetizationLength = GetNormilizedMagnetization(sliderRect, itemsRect,
+                out var point1InArea, out var point2InArea, out var magnetization);
+
+            if (!point1InArea && !point2InArea)
             {
-                shift.y = 0;
-            }
-            // vertical
-            else
-            {
-                shift.x = 0f;
+                if (_averageDiff.Length() >= MIN_DIFF_TO_MOVE)
+                {
+                    _flexboxLayout.Translate(_averageDiff * Time.deltaTime * 5f);
+                    _averageDiff *= 0.92f;
+                }
+
+                return;
             }
 
-            _flexboxLayout.Translate(shift);
-            _lastMoveDiff = shift;
+            if (magnetizationLength >= 0.999f)
+                return;
+
+            _flexboxLayout.Translate(magnetization * Time.deltaTime * 5f);
+        }
+
+        private float GetNormilizedMagnetization(UIRect sliderRect, UIRect itemsRect,
+            out bool point1InArea, out bool point2InArea, out Vector2 magnetization)
+        {
+            if (_flexboxLayout.Direction == FlexboxDirection.COLUMN ||
+                _flexboxLayout.Direction == FlexboxDirection.COLUMN_REVERSE)
+            {
+                point1InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Top);
+                point2InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Bottom);
+            }
+            else
+            {
+                point1InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Left);
+                point2InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Right);
+            }
+
+            if (_flexboxLayout.Direction == FlexboxDirection.COLUMN ||
+                _flexboxLayout.Direction == FlexboxDirection.COLUMN_REVERSE)
+            {
+                if (point1InArea)
+                    magnetization = sliderRect.Top - itemsRect.Top;
+                else
+                    magnetization = sliderRect.Bottom - itemsRect.Bottom;
+            }
+            else
+            {
+                if (point1InArea)
+                    magnetization = sliderRect.Left - itemsRect.Left;
+                else
+                    magnetization = sliderRect.Right - itemsRect.Right;
+            }
+
+            var maxMagnetization =
+                _flexboxLayout.Direction == FlexboxDirection.COLUMN ||
+                _flexboxLayout.Direction == FlexboxDirection.COLUMN_REVERSE
+                    ? Height / 4f
+                    : Width / 4f;
+
+            return 1f - magnetization.Length() / maxMagnetization;
+        }
+
+        private void Move(UIRect sliderRect, Vector2 shift)
+        {
+            var translatedItemRect = _flexboxLayout.GetRect(_flexboxLayout.TranslatedPos(shift));
+            var magnetizationLength = GetNormilizedMagnetization(sliderRect, translatedItemRect,
+                out var point1InArea, out var point2InArea, out var magnetization);
+
+            if (!point1InArea && !point2InArea)
+            {
+                _flexboxLayout.Translate(shift);
+                return;
+            }
+
+            if (magnetizationLength >= 0 && magnetizationLength <= _lastMagnetizationLength)
+            {
+                _flexboxLayout.Translate(shift * magnetizationLength);
+                _lastMagnetizationLength = magnetizationLength;
+            }
+            else if (magnetizationLength > _lastMagnetizationLength)
+            {
+                _flexboxLayout.Translate(shift);
+                _lastMagnetizationLength = magnetizationLength;
+            }
         }
 
         public void DoMouseDrag(Vector2 worldPos)
