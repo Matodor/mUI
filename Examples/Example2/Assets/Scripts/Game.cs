@@ -30,7 +30,7 @@ namespace Example
                     CameraClearFlags = CameraClearFlags.SolidColor
                 }
             });
-
+            
             //mUI.UICamera.Camera.backgroundColor = Color.gray;
             mUI.LoadOSFont("Arial");
             mUI.BaseView.View<MainMenuView>();

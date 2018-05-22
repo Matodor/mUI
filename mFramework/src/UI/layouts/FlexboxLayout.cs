@@ -37,19 +37,19 @@ namespace mFramework.UI.Layouts
                 switch (Direction)
                 {
                     case FlexboxDirection.ROW:
-                        child.Position(this.GetPos(UIAnchor.MiddleCenter), UIAnchor.MiddleLeft);
+                        child.Position(this.Position(UIAnchor.MiddleCenter), UIAnchor.MiddleLeft);
                         UnscaledCenterOffset = new Vector2(+child.Width / 2, 0);
                         break;
                     case FlexboxDirection.ROW_REVERSE:
-                        child.Position(this.GetPos(UIAnchor.MiddleCenter), UIAnchor.MiddleRight);
+                        child.Position(this.Position(UIAnchor.MiddleCenter), UIAnchor.MiddleRight);
                         UnscaledCenterOffset = new Vector2(-child.Width / 2, 0);
                         break;
                     case FlexboxDirection.COLUMN:
-                        child.Position(this.GetPos(UIAnchor.MiddleCenter), UIAnchor.UpperCenter);
+                        child.Position(this.Position(UIAnchor.MiddleCenter), UIAnchor.UpperCenter);
                         UnscaledCenterOffset = new Vector2(0, -child.Height / 2);
                         break;
                     case FlexboxDirection.COLUMN_REVERSE:
-                        child.Position(this.GetPos(UIAnchor.MiddleCenter), UIAnchor.LowerCenter);
+                        child.Position(this.Position(UIAnchor.MiddleCenter), UIAnchor.LowerCenter);
                         UnscaledCenterOffset = new Vector2(0, +child.Height / 2);
                         break;
                     default:
@@ -63,25 +63,25 @@ namespace mFramework.UI.Layouts
             switch (Direction)
             {
                 case FlexboxDirection.ROW:
-                    var right = prev.GetPos(UIAnchor.MiddleRight) 
+                    var right = prev.Position(UIAnchor.MiddleRight) 
                         + new Vector3(MarginBetween * GlobalScale.x, 0);
                     child.Position(right, UIAnchor.MiddleLeft);
                     break;
 
                 case FlexboxDirection.ROW_REVERSE:
-                    var left = prev.GetPos(UIAnchor.MiddleLeft) 
+                    var left = prev.Position(UIAnchor.MiddleLeft) 
                         - new Vector3(MarginBetween * GlobalScale.x, 0);
                     child.Position(left, UIAnchor.MiddleRight);
                     break;
 
                 case FlexboxDirection.COLUMN:
-                    var bottom = prev.GetPos(UIAnchor.LowerCenter) 
+                    var bottom = prev.Position(UIAnchor.LowerCenter) 
                         - new Vector3(0, MarginBetween * GlobalScale.y);
                     child.Position(bottom, UIAnchor.UpperCenter);
                     break;
 
                 case FlexboxDirection.COLUMN_REVERSE:
-                    var top = prev.GetPos(UIAnchor.UpperCenter)
+                    var top = prev.Position(UIAnchor.UpperCenter)
                         + new Vector3(0, MarginBetween * GlobalScale.y);
                     child.Position(top, UIAnchor.LowerCenter);
                     break;

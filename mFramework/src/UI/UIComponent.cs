@@ -5,7 +5,7 @@ namespace mFramework.UI
 {
     public abstract class UIComponentSettings
     {
-        
+        public virtual UIAnchor Anchor { get; set; } = UIAnchor.MiddleCenter;
     }
 
     /*public static class NewComponent<T> where T : UIComponent
@@ -39,6 +39,7 @@ namespace mFramework.UI
 
         protected virtual void ApplySettings(UIComponentSettings settings)
         {
+            Anchor = settings.Anchor;
         }
     }
 }

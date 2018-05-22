@@ -48,14 +48,14 @@ namespace mFramework.UI
 
         private bool OnUICanMouseDown(IUIClickable sender, ref Vector2 worldPos)
         {
-            return !IsPressed && AreaChecker.InAreaShape(this, worldPos);
+            return IsActive && !IsPressed && AreaChecker.InAreaShape(this, worldPos);
         }
 
         protected override void ApplySettings(UIComponentSettings settings)
         {
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
-
+                
             if (!(settings is UIRectAreaButtonSettings buttonSettings))
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
 

@@ -35,6 +35,7 @@ namespace mFramework.UI
         int LocalSortingOrder { get; set; }
 
         float Rotation { get; set; }
+        float LocalRotation { get; set; }
 
         /// <summary>
         /// Return rotated rectangle of UIObject, borders in world unit space

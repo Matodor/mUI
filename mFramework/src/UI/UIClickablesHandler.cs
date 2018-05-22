@@ -32,8 +32,6 @@ namespace mFramework.UI
 
             foreach (var dragable in _dragables)
             {
-                if (!dragable.IsActive)
-                    continue;
                 dragable.DoMouseDrag(worldPos);
             }
         }
@@ -44,8 +42,6 @@ namespace mFramework.UI
 
             foreach (var clickable in _clickables)
             {
-                if (!clickable.IsActive)
-                    continue;
                 clickable.DoMouseUp(worldPos);
             }
         }
@@ -56,8 +52,6 @@ namespace mFramework.UI
 
             foreach (var clickable in _clickables)
             {
-                if (!clickable.IsActive)
-                    continue;
                 clickable.DoMouseDown(worldPos);
             }
         }

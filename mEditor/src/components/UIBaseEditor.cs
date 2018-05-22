@@ -64,6 +64,13 @@ namespace mFramework.UI
                     _object.Rotation = rotation;
             }
 
+            {
+                EditorGUI.BeginChangeCheck();
+                var rotation = EditorGUILayout.FloatField("Local Rotation", _object.LocalRotation);
+                if (EditorGUI.EndChangeCheck())
+                    _object.LocalRotation = rotation;
+            }
+
             var active = EditorGUILayout.Toggle("IsActive", _object.IsActive);
             if (active != _object.IsActive)
             {
@@ -72,7 +79,7 @@ namespace mFramework.UI
                 else
                     _object.Disable();
             }
-
+            
             var show = EditorGUILayout.Toggle("IsShowing", _object.IsShowing);
             if (show != _object.IsShowing)
             {

@@ -62,8 +62,8 @@ namespace mFramework.UI
             _isCreated = true;
             BaseView = UIView.Create<BaseView>(new UIViewSettings
             {
-                Height = UICamera.Height,
-                Width = UICamera.Width,
+                UnscaledHeight = UICamera.UnscaledHeight,
+                UnscaledWidth = UICamera.UnscaledWidth,
                 SortingOrder = 0,
                 StencilId = 0,
             }, null);

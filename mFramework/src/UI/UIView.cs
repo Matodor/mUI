@@ -6,14 +6,15 @@ namespace mFramework.UI
     public class UIViewSettings
     {
         /// <summary>
-        /// View height in wolrd units
+        /// Unscaled view height in world units
         /// </summary>
-        public virtual float? Height { get; set; } = null;
+        public virtual float? UnscaledHeight { get; set; } = null;
 
         /// <summary>
-        /// View width in wolrd units
+        /// Unscaled view width in world units
         /// </summary>
-        public virtual float? Width { get; set; } = null;
+        public virtual float? UnscaledWidth { get; set; } = null;
+
         public virtual int? SortingOrder { get; set; } = null;
         public virtual ushort? StencilId { get; set; } = null;
     }
@@ -55,8 +56,8 @@ namespace mFramework.UI
         {
             return View(viewType, new UIViewSettings
             {
-                Width = UnscaledWidth,
-                Height = UnscaledHeight,
+                UnscaledWidth = UnscaledWidth,
+                UnscaledHeight = UnscaledHeight,
             }, @params);
         }
         
@@ -64,8 +65,8 @@ namespace mFramework.UI
         {
             return (T) View(typeof(T), new UIViewSettings
             {
-                Width = UnscaledWidth,
-                Height = UnscaledHeight,
+                UnscaledWidth = UnscaledWidth,
+                UnscaledHeight = UnscaledHeight,
             }, @params);
         }
 
@@ -107,8 +108,8 @@ namespace mFramework.UI
         protected virtual void ApplySettings(UIViewSettings settings, IView parent)
         {
             _stencilId = settings.StencilId;
-            UnscaledHeight = settings.Height ?? parent.Height;
-            UnscaledWidth = settings.Width ?? parent.Width;
+            UnscaledHeight = settings.UnscaledHeight ?? parent.UnscaledHeight;
+            UnscaledWidth = settings.UnscaledWidth ?? parent.UnscaledWidth;
 
             if (settings.SortingOrder.HasValue)
                 SortingOrder = settings.SortingOrder.Value;

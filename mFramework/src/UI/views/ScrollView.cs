@@ -60,7 +60,7 @@ namespace mFramework.UI
 
         private bool OnUICanMouseDown(IUIClickable sender, ref Vector2 worldPos)
         {
-            return !IsPressed && AreaChecker.InAreaShape(this, worldPos);
+            return IsActive && !IsPressed && AreaChecker.InAreaShape(this, worldPos);
         }
 
         private void OnUIMouseUp(IUIClickable sender, ref Vector2 worldPos)

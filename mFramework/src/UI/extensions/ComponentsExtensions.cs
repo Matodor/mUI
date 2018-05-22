@@ -1,7 +1,6 @@
-﻿using mFramework.UI;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace mFramework
+namespace mFramework.UI
 {
     public static partial class UIExtensions
     {

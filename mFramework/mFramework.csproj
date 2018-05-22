@@ -62,6 +62,7 @@
     <Compile Include="src\concrete\AreaShape.cs" />
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
     <Compile Include="src\patching\mPatching.cs" />
+    <Compile Include="src\UI\animations\UIShiftAnimation.cs" />
     <Compile Include="src\UI\extensions\ViewsExtensions.cs" />
     <Compile Include="src\UI\interfaces\IUIToggle.cs" />
     <Compile Include="src\UI\views\ScrollView.cs" />

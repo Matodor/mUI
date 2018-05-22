@@ -1,7 +1,6 @@
-﻿using mFramework.UI;
-using mFramework.UI.Layouts;
+﻿using mFramework.UI.Layouts;
 
-namespace mFramework
+namespace mFramework.UI
 {
     public static partial class UIExtensions
     {

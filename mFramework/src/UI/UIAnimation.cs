@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Reflection;
-using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -54,14 +50,16 @@ namespace mFramework.UI
     public abstract class UIAnimation : IGlobalUniqueIdentifier
     {
         /// <summary>
-        /// Normilized time of animation
+        /// Normilized animation time
         /// </summary>
         public float Time { get; private set; }
+        public float DeltaTime { get; private set; }
 
         /// <summary>
-        /// Normilized easing time
+        /// Normilized animation easing time
         /// </summary>
         public float EasingTime { get; private set; }
+        public float DeltaEasingTime { get; private set; }
 
         public UIObject UIObject { get; private set; }
         public ulong GUID { get; }
@@ -83,7 +81,6 @@ namespace mFramework.UI
         private static ulong _guid;
 
         private float _nextAnimationFrame;
-        private float _animationStart;
 
         protected UIAnimation()
         {
@@ -112,13 +109,7 @@ namespace mFramework.UI
             return animation;
         }
 
-        public void SetStartOffset(float time)
-        {
-            _animationStart = UnityEngine.Time.time + time;
-        }
-
-
-        public void SetAnimationPos(float time)
+        public void SetTime(float time)
         {
             Time = mMath.Clamp(time, 0, 1);
         }
@@ -152,10 +143,8 @@ namespace mFramework.UI
             AnimationEnded?.Invoke(this);
         }
 
-        public void Animate(bool forcibly = false)
+        private void Animate(bool forcibly = false)
         {
-            EasingTime = EasingFunctions.GetValue(EasingType, 1f, Time, 1f);
-
             if (forcibly || _nextAnimationFrame <= UnityEngine.Time.time)
             {
                 OnAnimate();
@@ -193,11 +182,16 @@ namespace mFramework.UI
 
         internal void Tick()
         {
-            if (State == UIAnimationState.STOPPED || UnityEngine.Time.time < _animationStart)
+            if (State == UIAnimationState.STOPPED)
                 return;
             
-            Time += (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) * (UnityEngine.Time.deltaTime / Duration);
-            Time = mMath.Clamp(Time, 0f, 1f);
+            DeltaTime = (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) *
+                        (UnityEngine.Time.deltaTime / Duration);
+            Time = mMath.Clamp(Time + DeltaTime, 0f, 1f);
+
+            var easingTime = EasingFunctions.GetValue(EasingType, 1f, Time, 1f);
+            DeltaEasingTime = easingTime - EasingTime;
+            EasingTime = easingTime;
 
             Animate();
         }

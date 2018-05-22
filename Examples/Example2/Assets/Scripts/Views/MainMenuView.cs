@@ -1,4 +1,5 @@
-﻿using mFramework;
+﻿using Example.Examples;
+using mFramework;
 using mFramework.UI;
 using mFramework.UI.Layouts;
 using UnityEngine;
@@ -11,6 +12,11 @@ namespace Example
 
         protected override void CreateInterface(object[] @params)
         {
+            //Debug.Log("center = " + Game.GetSprite("mp_bar_text").bounds.center.ToString("F4"));
+            //Debug.Log("extents = " + Game.GetSprite("mp_bar_text").bounds.extents.ToString("F4"));
+            //Debug.Log("size = " + Game.GetSprite("mp_bar_text").bounds.size.ToString("F4"));
+            //return;
+
             _scrollView = this.ScrollView(new ScrollViewSettings
             {
                 FlexboxSettings = new FlexboxLayoutSettings
@@ -19,33 +25,19 @@ namespace Example
                     MarginBetween = 0.5f,
                 },
             });
-            
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
-            CreateItemMenu("Button");
 
-            Debug.Log(mMath.ClosestPointOnLine(new Vector2(0, 5), new Vector2(0, -5),  new Vector2(-5, -12)));
+            CreateItemMenu<UIButtonExample>("UIButton");
+            CreateItemMenu<UIAnchorExample>("UIAnchor");
+
+            Debug.Log("ClosestPointOnLine = " + mMath.ClosestPointOnLine(new Vector2(0, 5), new Vector2(0, -5),  new Vector2(-5, -12)));
         }
 
-        private void CreateItemMenu(string text)
+        private void CreateItemMenu<T>(string text) where T : BaseExampleView
         {
             var button = _scrollView.Button(new UIButtonSettings
             {
                 Sprite = Game.GetSprite("mp_bar_text"),
-            }).Anchor(UIAnchor.MiddleCenter);
+            });
 
             button.Label(new UILabelSettings
             {
@@ -60,7 +52,14 @@ namespace Example
                 }
             }).SortingOrder(1);
 
-            button.OnClick += sender => Debug.Log(sender.GUID);
+            button.OnClick += sender =>
+            {
+                Hide();
+                ParentView.View<T>().BeforeDestroy += s =>
+                {
+                    Show();
+                };
+            };
         }
     }
 }

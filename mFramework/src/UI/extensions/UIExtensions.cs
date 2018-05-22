@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using mFramework.UI;
 using UnityEngine;
 
-namespace mFramework
+namespace mFramework.UI
 {
     public static partial class UIExtensions
     {
@@ -81,10 +80,10 @@ namespace mFramework
         {
             if (relativeTo == Space.Self)
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.localPosition += new Vector3(shiftX, shiftY, 0);
+                (obj as UIObject).Transform.localPosition += new Vector3(shiftX, shiftY);
             else
                 // ReSharper disable once PossibleNullReferenceException
-                (obj as UIObject).Transform.position += new Vector3(shiftX, shiftY, 0);
+                (obj as UIObject).Transform.position += new Vector3(shiftX, shiftY);
             return obj;
         }
 
@@ -166,7 +165,7 @@ namespace mFramework
             return obj;
         }
 
-        public static Vector3 GetPos<T>(this T obj, UIAnchor anchor, 
+        public static Vector3 Position<T>(this T obj, UIAnchor anchor, 
             Space relativeTo = Space.World) where T : IUIObject
         {
             return relativeTo == Space.Self

@@ -10,6 +10,7 @@ namespace mFramework.UI
         public float FarClipPlane { get; set; } = 0.01f;
         public float NearClipPlane { get; set; } = -0.01f;
         public float OrthographicSize { get; set; } = 5;
+        public Color BackgroundColor { get; set; } = Color.gray;
     }
 
     public sealed class UICamera : IDimensions
@@ -20,6 +21,12 @@ namespace mFramework.UI
         public float Width => UnscaledWidth * _camera.transform.lossyScale.x;
         public float UnscaledWidth => _camera.orthographicSize * _camera.aspect * 2;
         public float UnscaledHeight => _camera.orthographicSize * 2;
+
+        public Color BackgroundColor
+        {
+            get => _camera.backgroundColor;
+            set => _camera.backgroundColor = value;
+        }
 
         private readonly Camera _camera;
 
@@ -32,6 +39,7 @@ namespace mFramework.UI
             _camera.farClipPlane = settings.FarClipPlane;
             _camera.nearClipPlane = settings.NearClipPlane;
             _camera.orthographicSize = settings.OrthographicSize;
+            _camera.backgroundColor = settings.BackgroundColor;
         }
 
         public static UICamera Create(UICameraSettings settings)

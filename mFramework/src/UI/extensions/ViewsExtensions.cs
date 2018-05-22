@@ -1,6 +1,4 @@
-﻿using mFramework.UI;
-
-namespace mFramework
+﻿namespace mFramework.UI
 {
     public static partial class UIExtensions
     {

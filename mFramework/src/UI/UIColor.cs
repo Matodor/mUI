@@ -39,6 +39,11 @@ namespace mFramework.UI
         /// </summary>
         public float Alpha;
 
+        public UIColor(string hexColor)
+        {
+            this = FromHTML(hexColor);
+        }
+
         public UIColor(float n1, float n2, float n3, float alpha, Type type)
         {
             N1 = n1;
