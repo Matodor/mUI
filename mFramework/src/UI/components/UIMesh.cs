@@ -7,53 +7,38 @@ namespace mFramework.UI
     {
         public Mesh Mesh = null;
         public Mesh SharedMesh = null;
-        public float Width;
-        public float Height;
+        public float UnscaledWidth;
+        public float UnscaledHeight;
     }
 
     public class UIMesh : UIComponent, IUIColored, IUIRenderer<MeshRenderer>, IUIRenderer
     {
         public virtual Color Color
         {
-            get => _color ?? Color.black;
-            set
-            {
-                _color = value;
-                SetColor(value);
-            }
+            get => throw new Exception("UIMesh not support getter color");
+            set => SetColor(value);
         }
 
         public virtual float Opacity
         {
-            get => _color?.a ?? 1;
+            get => throw new Exception("UIMesh not support getter opacity");
             set
             {
-                if (_color == null)
+                var colors = new Color[MeshFilter.mesh.colors.Length];
+                for (int i = 0; i < colors.Length; i++)
                 {
-                    var colors = new Color[MeshFilter.mesh.colors.Length];
-                    for (int i = 0; i < colors.Length; i++)
-                    {
-                        var color = MeshFilter.mesh.colors[i];
-                        color.a = value;
-                        colors[i] = color;
-                    }
-
-                    MeshFilter.mesh.colors = colors;
-                }
-                else
-                {
-                    var color = _color.Value;
+                    var color = MeshFilter.mesh.colors[i];
                     color.a = value;
-                    SetColor(color);
+                    colors[i] = color;
                 }
+
+                MeshFilter.mesh.colors = colors;
             }
         }
 
         public MeshFilter MeshFilter { get; private set; }
         public MeshRenderer UIRenderer { get; private set; }
         Renderer IUIRenderer.UIRenderer => UIRenderer;
-
-        private Color? _color;
 
         protected override void AfterAwake()
         {
@@ -76,36 +61,34 @@ namespace mFramework.UI
             if (!(settings is UIMeshSettings meshSettings))
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
-            _color = null;
-            UnscaledWidth = meshSettings.Width;
-            UnscaledHeight = meshSettings.Height;
+            UnscaledWidth = meshSettings.UnscaledWidth;
+            UnscaledHeight = meshSettings.UnscaledHeight;
 
             if (meshSettings.Mesh != null)
             {
                 MeshFilter.mesh = meshSettings.Mesh;
-                _color = MeshFilter.mesh.colors[0];
             }
 
             if (meshSettings.SharedMesh != null)
             {
                 MeshFilter.sharedMesh = meshSettings.SharedMesh;
-                _color = MeshFilter.mesh.colors[0];
             }
             
-            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0).SpritesMaterial;
+            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(
+                ParentView.StencilId ?? 0).SpritesMaterial;
 
             base.ApplySettings(settings);
         }
 
-        public UIMesh SetWidth(float width)
+        public UIMesh SetWidth(float unscaledWidth)
         {
-            UnscaledWidth = width;
+            UnscaledWidth = unscaledWidth;
             return this;
         }
 
-        public UIMesh SetHeight(float height)
+        public UIMesh SetHeight(float unscaledHeight)
         {
-            UnscaledHeight = height;
+            UnscaledHeight = unscaledHeight;
             return this;
         }
 
@@ -123,12 +106,9 @@ namespace mFramework.UI
 
         private void SetColor(Color color)
         {
-            _color = color;
-
             var colors = new Color[MeshFilter.mesh.colors.Length];
             for (int i = 0; i < colors.Length; i++)
                 colors[i] = color;
-
             MeshFilter.mesh.colors = colors;
         }
     }

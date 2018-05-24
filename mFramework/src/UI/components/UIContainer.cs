@@ -4,8 +4,8 @@ namespace mFramework.UI
 {
     public class UIContainerSettings : UIComponentSettings
     {
-        public float Height;
-        public float Width;
+        public float UnscaledHeight;
+        public float UnscaledWidth;
     }
 
     public class UIContainer : UIComponent
@@ -18,8 +18,8 @@ namespace mFramework.UI
             if (!(settings is UIContainerSettings containerSettings))
                 throw new ArgumentException("UIContainer: The given settings is not UIContainerSettings");
 
-            UnscaledWidth = containerSettings.Width;
-            UnscaledHeight = containerSettings.Height;
+            UnscaledWidth = containerSettings.UnscaledWidth;
+            UnscaledHeight = containerSettings.UnscaledHeight;
 
             base.ApplySettings(settings);
         }

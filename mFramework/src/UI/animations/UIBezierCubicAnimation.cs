@@ -9,7 +9,7 @@ namespace mFramework.UI
         public Vector2 SecondPoint;
         public Vector2 ThirdPoint;
         public Vector2 FourthPoint;
-        public bool IsLocalPos;
+        public Space RelativeTo = Space.World;
     }
 
     public class UIBezierCubicAnimation : UIAnimation
@@ -18,7 +18,7 @@ namespace mFramework.UI
         private Vector2 _secondPoint;
         private Vector2 _thirdPoint;
         private Vector2 _fourthPoint;
-        private bool _isLocalPos;
+        private Space _relativeTo = Space.World;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -28,7 +28,7 @@ namespace mFramework.UI
             if (!(settings is UIBezierCubicAnimationSettings bezierSettings))
                 throw new ArgumentException("UIBezierCubicAnimation: The given settings is not UIBezierCubicAnimationSettings");
 
-            _isLocalPos = bezierSettings.IsLocalPos;
+            _relativeTo = bezierSettings.RelativeTo;
             _firstPoint = bezierSettings.FirstPoint;
             _secondPoint = bezierSettings.SecondPoint;
             _thirdPoint = bezierSettings.ThirdPoint;
@@ -39,26 +39,8 @@ namespace mFramework.UI
 
         protected override void OnAnimate()
         {
-            if (_isLocalPos)
-            {
-                UIObject.LocalPosition = BezierHelper.Cubic(
-                    EasingTime,
-                    _firstPoint,
-                    _secondPoint,
-                    _thirdPoint,
-                    _fourthPoint
-                );
-            }
-            else
-            {
-                UIObject.Position = BezierHelper.Cubic(
-                    EasingTime,
-                    _firstPoint,
-                    _secondPoint,
-                    _thirdPoint,
-                    _fourthPoint
-                );
-            }
+            UIObject.Position(BezierHelper.Cubic(EasingTime, 
+                _firstPoint, _secondPoint, _thirdPoint, _fourthPoint), _relativeTo);
         }
     }
 }

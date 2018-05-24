@@ -63,12 +63,6 @@ namespace mFramework.UI
         public virtual float UnscaledHeight { get; protected set; }
         public virtual float UnscaledWidth { get; protected set; }
 
-        public Vector2 AnchorPivot
-        {
-            get => _anchorPivot;
-            set => _anchorPivot = value;
-        }
-
         public virtual UIAnchor Anchor
         {
             get => _anchor;
@@ -87,10 +81,10 @@ namespace mFramework.UI
         public Vector3 LocalPosition
         {
             get => Transform.localPosition -
-                   (Parent?.AnchorOffsetFromTransformPos(Parent.AnchorPivot, 0) ?? Vector3.zero) +
+                   (Parent?.AnchorOffsetFromTransformPos(Parent._anchorPivot, 0) ?? Vector3.zero) +
                    AnchorOffsetFromTransformPos(_anchorPivot, LocalRotation);
             set => Transform.localPosition = value +
-                   (Parent?.AnchorOffsetFromTransformPos(Parent.AnchorPivot, 0) ?? Vector3.zero) -
+                   (Parent?.AnchorOffsetFromTransformPos(Parent._anchorPivot, 0) ?? Vector3.zero) -
                    AnchorOffsetFromTransformPos(_anchorPivot, LocalRotation);
         }
 
@@ -105,9 +99,34 @@ namespace mFramework.UI
             get => Transform.localScale;
             set
             {
-                var pos = Position;
+                var h = UnscaledHeight * Transform.localScale.y
+                        + (Padding.Top + Padding.Bottom) * Transform.localScale.y;
+
+                var w = UnscaledWidth * Transform.localScale.x
+                        + (Padding.Left + Padding.Right) * Transform.localScale.x;
+
+                var nh = UnscaledHeight * value.y
+                        + (Padding.Top + Padding.Bottom) * value.y;
+
+                var nw = UnscaledWidth * value.x
+                        + (Padding.Left + Padding.Right) * value.x;
+
+                var diff = new Vector2(nw - w, nh - h);
+                var pivotDir = -PivotDirectionFromCenter(_anchor);
+
+                var dir = -new Vector2(
+                    UnscaledCenterOffset.x / UnscaledWidth,
+                    UnscaledCenterOffset.y / UnscaledHeight
+                );
+
+                var diffToCenter = new Vector2(diff.x * dir.x, diff.y * dir.y);
+                diffToCenter = mMath.GetRotatedPoint(Vector2.zero, diffToCenter, LocalRotation);
+
+                diff = new Vector2(diff.x * pivotDir.x, diff.y * pivotDir.y);
+                diff = mMath.GetRotatedPoint(Vector2.zero, diff, LocalRotation);
+
                 Transform.localScale = value;
-                Position = pos;
+                Transform.localPosition += (Vector3) (diffToCenter + diff);
             }
         }
 
@@ -177,7 +196,7 @@ namespace mFramework.UI
                 Position = Parent.Position;
                 Parent.AddChild(this);
             }
-            SortingOrderChanged(this);
+            OnSortingOrderChanged();
         }
 
         private void Awake()
@@ -197,7 +216,37 @@ namespace mFramework.UI
             mUI.AddUIObject(this);
             AfterAwake();
         }
-        
+
+        public static Vector2 PivotDirectionFromCenter(UIAnchor anchor)
+        {
+            switch (anchor)
+            {
+                case UIAnchor.UpperLeft:
+                    return new Vector2(-0.5f, 0.5f);
+                case UIAnchor.UpperCenter:
+                    return new Vector2(0f, 0.5f);
+                case UIAnchor.UpperRight:
+                    return new Vector2(0.5f, 0.5f);
+
+                case UIAnchor.MiddleLeft:
+                    return new Vector2(-0.5f, 0f);
+                case UIAnchor.MiddleCenter:
+                    return new Vector2(0f, 0f);
+                case UIAnchor.MiddleRight:
+                    return new Vector2(0.5f, 0f);
+
+                case UIAnchor.LowerLeft:
+                    return new Vector2(-0.5f, -0.5f);
+                case UIAnchor.LowerCenter:
+                    return new Vector2(0f, -0.5f);
+                case UIAnchor.LowerRight:
+                    return new Vector2(0.5f, -0.5f);
+
+                default:
+                    return new Vector2(0f, 0f);
+            }
+        }
+
         // x - from left to right, y from bottom to top
         public static Vector2 PivotByAnchor(UIAnchor anchor)
         {

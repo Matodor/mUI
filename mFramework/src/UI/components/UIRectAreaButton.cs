@@ -6,8 +6,8 @@ namespace mFramework.UI
     public class UIRectAreaButtonSettings : UIComponentSettings
     {
         public virtual ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
-        public virtual float AreaWidth { get; set; } = 0f;
-        public virtual float AreaHeight { get; set; } = 0f;
+        public virtual float UnscaledWidth { get; set; } = 0f;
+        public virtual float UnscaledHeight { get; set; } = 0f;
     }
 
     public class UIRectAreaButton : UIComponent, IUIButton
@@ -60,8 +60,8 @@ namespace mFramework.UI
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
 
             ClickCondition = buttonSettings.ClickCondition;
-            UnscaledHeight = buttonSettings.AreaHeight;
-            UnscaledWidth = buttonSettings.AreaWidth;
+            UnscaledHeight = buttonSettings.UnscaledHeight;
+            UnscaledWidth = buttonSettings.UnscaledWidth;
             
             base.ApplySettings(buttonSettings);
         }

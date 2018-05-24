@@ -32,7 +32,8 @@ namespace mFramework
 
             {
                 EditorGUI.BeginChangeCheck();
-                var text = EditorGUILayout.TextArea("Text", _label.Text);
+                EditorGUILayout.LabelField("Text");
+                var text = EditorGUILayout.TextArea(_label.Text);
                 if (EditorGUI.EndChangeCheck())
                     _label.Text = text;
             }

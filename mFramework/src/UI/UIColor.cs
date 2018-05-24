@@ -2,6 +2,32 @@
 
 namespace mFramework.UI
 {
+    public static class ColorExtensions
+    {
+        public static UIColor UIColor(this Color color)
+        {
+            return (UIColor) color;
+        }
+
+        public static UIColor UIColor(this Color color, byte opacity)
+        {
+            return new UIColor(color.r, color.g, color.b, opacity / 255f, 
+                UI.UIColor.Type.RGBA);
+        }
+
+        public static Color Opacity(this Color color, byte opacity)
+        {
+            color.a = opacity / 255f;
+            return color;
+        }
+
+        public static Color Opacity(this Color color, float opacity)
+        {
+            color.a = opacity;
+            return color;
+        }
+    }
+
     public struct UIColor
     {
         public enum Type
@@ -44,6 +70,20 @@ namespace mFramework.UI
             this = FromHTML(hexColor);
         }
 
+        public UIColor Opacity(float opacity)
+        {
+            var color = this;
+            color.Alpha = opacity;
+            return color;
+        }
+
+        public UIColor Opacity(byte opacity)
+        {
+            var color = this;
+            color.Alpha = opacity / 255f;
+            return color;
+        }
+
         public UIColor(float n1, float n2, float n3, float alpha, Type type)
         {
             N1 = n1;
@@ -51,6 +91,36 @@ namespace mFramework.UI
             N3 = n3;
             Alpha = alpha;
             ColorType = type;
+        }
+
+        /// <summary>
+        /// Create UIColor by the given color in html format
+        /// </summary>
+        /// <param name="hexColor">Html color in hex format (example "#ffffff")</param>
+        /// <param name="opacity">Normilized opacity</param>
+        /// <returns></returns>
+        public static UIColor FromHTML(string hexColor, float opacity)
+        {
+            if (!ColorUtility.TryParseHtmlString(hexColor, out var color))
+                return new UIColor(1, 1, 1, 1, Type.RGBA);
+
+            color.a = opacity;
+            return (UIColor)color;
+        }
+
+        /// <summary>
+        /// Create UIColor by the given color in html format
+        /// </summary>
+        /// <param name="hexColor">Html color in hex format (example "#ffffff")</param>
+        /// <param name="opacity">Opacity</param>
+        /// <returns></returns>
+        public static UIColor FromHTML(string hexColor, byte opacity)
+        {
+            if (!ColorUtility.TryParseHtmlString(hexColor, out var color))
+                return new UIColor(1, 1, 1, 1, Type.RGBA);
+
+            color.a = opacity / 255f;
+            return (UIColor) color;
         }
 
         /// <summary>
@@ -88,16 +158,16 @@ namespace mFramework.UI
         /// <returns></returns>
         public static UIColor RGBA(byte r, byte g, byte b, byte a = 255)
         {
-            return new UIColor(255f / r, 255f / g, 255f / b, 255f / a, Type.RGBA);
+            return new UIColor(r / 255f, g / 255f, b / 255f, a / 255f, Type.RGBA);
         }
 
         /// <summary>
         /// Create UIColor by the given r,g,b,a color components
         /// </summary>
-        /// <param name="h">Normalized hue color component 0-360</param>
-        /// <param name="s">Normalized saturation  color component 0-255</param>
-        /// <param name="v">Normalized value color component 0-255</param>
-        /// <param name="a">Normalized alpha color component 0-255</param>
+        /// <param name="h">Normalized hue color component</param>
+        /// <param name="s">Normalized saturation  color component</param>
+        /// <param name="v">Normalized value color component</param>
+        /// <param name="a">Normalized alpha color component</param>
         /// <returns></returns>
         public static UIColor HSV(float h, float s, float v, float a = 1)
         {
@@ -114,7 +184,7 @@ namespace mFramework.UI
         /// <returns></returns>
         public static UIColor HSV(int h, byte s, byte v, byte a = 255)
         {
-            return new UIColor(360f / h, 255f / s, 255f / v, 255f / a, Type.HSV);
+            return new UIColor(h / 360f, s / 255f, v / 255f, a / 255f, Type.HSV);
         }
 
         public static UIColor RGBAToHSV(UIColor color)

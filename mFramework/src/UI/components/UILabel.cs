@@ -220,8 +220,7 @@ namespace mFramework.UI
 
             _needUpdate = true;
             RequestCharactersInFont();
-            //UpdateMesh(true);
-
+            UpdateMesh();
             base.ApplySettings(settings);
         }
 
@@ -377,6 +376,7 @@ namespace mFramework.UI
 
             const float pixelsPerWorldUnit = 100f;
 
+            var pos = Position;
             var style = _textStyle;
             style.Size = mMath.Clamp(style.Size, 1, MAX_SIZE);
 
@@ -471,6 +471,8 @@ namespace mFramework.UI
                 var maxY = characterInfo.maxY / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var w = characterInfo.glyphWidth / pixelsPerWorldUnit / _cachedFont.Harshness;
 
+                //Debug.Log($"minX={minX} minY={minY}");
+
                 if (_maxWidth.HasValue && lastLineWidth + w > _maxWidth)
                 {
                     i--;
@@ -479,7 +481,7 @@ namespace mFramework.UI
                 }
 
                 //var h = characterInfo.glyphHeight / devider;
-                var bearing = characterInfo.bearing / pixelsPerWorldUnit / _cachedFont.Harshness;
+                //var bearing = characterInfo.bearing / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var advance = characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness;
 
                 var leftBottom = new Vector3(textXOffset + minX, minY);
@@ -593,12 +595,16 @@ namespace mFramework.UI
 
                 switch (style.TextAlignment)
                 {
+                    case TextAlignment.Left:
+                        xOffset = -UnscaledWidth / 2;
+                        break;
+
                     case TextAlignment.Center:
                         xOffset = -linesInfo[lineIndex].Width / 2f;
                         break;
 
                     case TextAlignment.Right:
-                        xOffset = -linesInfo[lineIndex].Width;
+                        xOffset = -linesInfo[lineIndex].Width + UnscaledWidth / 2;
                         break;
                 }
                 
@@ -618,9 +624,9 @@ namespace mFramework.UI
             _meshFilter.mesh.colors32 = colorsList.ToArray();
             _meshFilter.mesh.normals = normalsList.ToArray();
             _meshFilter.mesh.uv = uvList.ToArray();
-
             _needUpdate = false;
-            //Scale = localScale;
+
+            Position = pos;
             TextUpdated.Invoke(this);
         }
     }

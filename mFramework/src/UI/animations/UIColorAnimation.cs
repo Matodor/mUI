@@ -38,8 +38,7 @@ namespace mFramework.UI
 
         protected override void OnAnimate()
         {
-            var color = UIColor.Lerp(_fromColor, _toColor, EasingTime);
-            _animatedObj.Color = (Color) color;
+            _animatedObj.Color = (Color) UIColor.Lerp(_fromColor, _toColor, EasingTime);
         }
     }
 }

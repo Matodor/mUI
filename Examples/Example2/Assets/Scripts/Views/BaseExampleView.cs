@@ -17,6 +17,7 @@ namespace Example
             });
 
             button.Position(this.Position(UIAnchor.LowerRight), UIAnchor.LowerRight);
+
             button.OnClick += s => Destroy();
         }
     }

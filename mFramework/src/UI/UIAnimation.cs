@@ -184,7 +184,9 @@ namespace mFramework.UI
         {
             if (State == UIAnimationState.STOPPED)
                 return;
-            
+         
+            Animate();
+
             DeltaTime = (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) *
                         (UnityEngine.Time.deltaTime / Duration);
             Time = mMath.Clamp(Time + DeltaTime, 0f, 1f);
@@ -192,8 +194,6 @@ namespace mFramework.UI
             var easingTime = EasingFunctions.GetValue(EasingType, 1f, Time, 1f);
             DeltaEasingTime = easingTime - EasingTime;
             EasingTime = easingTime;
-
-            Animate();
         }
 
         public void Remove()

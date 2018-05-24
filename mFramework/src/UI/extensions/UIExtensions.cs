@@ -51,15 +51,25 @@ namespace mFramework.UI
             return (obj as UIObject).Transform.position + shift;
         }
 
-        public static T Rotation<T>(this T obj, float value) where T : IUIObject
+        public static T Rotation<T>(this T obj, float value, 
+            Space relativeTo = Space.World) where T : IUIObject
         {
-            obj.Rotation = value;
+            if (relativeTo == Space.Self)
+                obj.LocalRotation = value;
+            else
+                obj.Rotation = value;
+            return obj;
+        }
+
+        public static T Scale<T>(this T obj, float v) where T : IUIObject
+        {
+            obj.Scale = new Vector3(v, v, 1);
             return obj;
         }
 
         public static T Scale<T>(this T obj, float x, float y) where T : IUIObject
         {
-            obj.Scale = new Vector2(x, y);
+            obj.Scale = new Vector3(x, y, 1);
             return obj;
         }
 

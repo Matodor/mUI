@@ -17,6 +17,7 @@ namespace mFramework.UI
 
         public virtual int? SortingOrder { get; set; } = null;
         public virtual ushort? StencilId { get; set; } = null;
+        public virtual UIAnchor Anchor { get; set; } = UIAnchor.MiddleCenter;
     }
 
     /*public static class NewView<T> where T : UIView
@@ -110,6 +111,7 @@ namespace mFramework.UI
             _stencilId = settings.StencilId;
             UnscaledHeight = settings.UnscaledHeight ?? parent.UnscaledHeight;
             UnscaledWidth = settings.UnscaledWidth ?? parent.UnscaledWidth;
+            Anchor = settings.Anchor;
 
             if (settings.SortingOrder.HasValue)
                 SortingOrder = settings.SortingOrder.Value;
