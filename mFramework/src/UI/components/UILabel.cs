@@ -40,7 +40,6 @@ namespace mFramework.UI
         public float? LetterSpacing = null;
         public float? WordSpacing = null;
         public FontStyle? FontStyle = null;
-        public float? LinesSpacing = null;
     }
 
     public struct TextStyle
@@ -359,9 +358,10 @@ namespace mFramework.UI
         {
             public int StartIndex;
             public int EndIndex;
-            public float Width;
+
             public float Height;
-            public float PureHeight;
+            public float MaxY;
+            public float MinY;
         }
 
         private const int MAX_SIZE = 256 / 2;
@@ -401,13 +401,14 @@ namespace mFramework.UI
 
             var formattingIndex = -1;
             var startLineIndex = 0;
-            var lines = 1;
-            var lastLinePureHeight = 0f;
 
             var lastLineHeight = 0f;
             var lastLineWidth = 0f;
             var linesInfo = new List<LineInfo>();
-            
+
+            var lineMaxY = 0f;
+            var lineMinY = 0f;
+
             //mCore.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
 
             for (int i = 0; i < text.Length; i++)
@@ -471,6 +472,12 @@ namespace mFramework.UI
                 var maxY = characterInfo.maxY / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var w = characterInfo.glyphWidth / pixelsPerWorldUnit / _cachedFont.Harshness;
 
+                if (lineMaxY < maxY)
+                    lineMaxY = maxY;
+
+                if (lineMinY > minY)
+                    lineMinY = minY;
+
                 //Debug.Log($"minX={minX} minY={minY}");
 
                 if (_maxWidth.HasValue && lastLineWidth + w > _maxWidth)
@@ -484,10 +491,10 @@ namespace mFramework.UI
                 //var bearing = characterInfo.bearing / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var advance = characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness;
 
-                var leftBottom = new Vector3(textXOffset + minX, minY);
-                var leftTop = new Vector3(textXOffset + minX, maxY);
-                var rightTop = new Vector3(textXOffset + maxX, maxY);
-                var rightBottom = new Vector3(textXOffset + maxX, minY);
+                var leftBottom = new Vector3(textXOffset, minY);
+                var leftTop = new Vector3(textXOffset, maxY);
+                var rightTop = new Vector3(textXOffset + (maxX - minX), maxY);
+                var rightBottom = new Vector3(textXOffset + (maxX - minX), minY);
 
                 verticesList.Add(leftBottom);
                 verticesList.Add(leftTop);
@@ -498,9 +505,6 @@ namespace mFramework.UI
 
                 if (lastLineHeight < characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness)
                     lastLineHeight = characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness;
-
-                if (lastLinePureHeight < rightTop.y - rightBottom.y)
-                    lastLinePureHeight = rightTop.y - rightBottom.y;
 
                 //mCore.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
                 //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
@@ -552,25 +556,24 @@ namespace mFramework.UI
             End:
                 if (forceNewLine || i + 1 >= text.Length || i + 1 < text.Length && text[i + 1] == '\n')
                 {
-                    if (lines > 1)
+                    lastLineHeight = lastLineHeight * style.LinesSpacing;
+
+                    if (linesInfo.Count == 0)
                     {
-                        lastLineHeight = lastLineHeight * (currentFormatting == null
-                                             ? style.LinesSpacing
-                                             : currentFormatting.LinesSpacing.GetValueOrDefault(style.LinesSpacing));
-                        UnscaledHeight += lastLineHeight;
+                        UnscaledHeight = lineMaxY - lineMinY;
                     }
                     else
                     {
-                        UnscaledHeight = lastLinePureHeight;
+                        UnscaledHeight += lastLineHeight;
                     }
 
                     linesInfo.Add(new LineInfo
                     {
                         StartIndex = startLineIndex,
                         EndIndex = verticesList.Count - 1,
-                        Width = lastLineWidth,
                         Height = lastLineHeight,
-                        PureHeight = lastLinePureHeight
+                        MaxY = lineMaxY,
+                        MinY = lineMinY
                     });
 
                     if (UnscaledWidth < lastLineWidth)
@@ -580,31 +583,36 @@ namespace mFramework.UI
                     lastLineWidth = 0f;
                     lastLineHeight = 0f;
                     startLineIndex = verticesList.Count;
-                    lastLinePureHeight = 0f;
-                    lines++;
+
+                    lineMaxY = 0f;
+                    lineMinY = 0f;
                 }
             }
 
-            var yOffset = UnscaledHeight / 2;
+            if (linesInfo.Count > 1)
+                UnscaledHeight += linesInfo[0].MinY - linesInfo[linesInfo.Count - 1].MinY;
+
+            var yOffset = 0f;
             for (var lineIndex = 0; lineIndex < linesInfo.Count; lineIndex++)
             {
-                var xOffset = -verticesList[linesInfo[lineIndex].StartIndex].x;
-                yOffset -= lineIndex == 0 
-                    ? linesInfo[lineIndex].PureHeight 
-                    : linesInfo[lineIndex].Height;
+                var lineWidth =
+                    verticesList[linesInfo[lineIndex].EndIndex].x -
+                    verticesList[linesInfo[lineIndex].StartIndex].x;
 
+                if (lineIndex == 0)
+                    yOffset = -linesInfo[lineIndex].MaxY;
+                else
+                    yOffset -= linesInfo[lineIndex].Height;
+
+                var xOffset = -UnscaledWidth / 2f;
                 switch (style.TextAlignment)
                 {
-                    case TextAlignment.Left:
-                        xOffset = -UnscaledWidth / 2;
-                        break;
-
                     case TextAlignment.Center:
-                        xOffset = -linesInfo[lineIndex].Width / 2f;
+                        xOffset = -lineWidth / 2f;
                         break;
 
                     case TextAlignment.Right:
-                        xOffset = -linesInfo[lineIndex].Width + UnscaledWidth / 2;
+                        xOffset = -lineWidth + UnscaledWidth / 2f;
                         break;
                 }
                 
@@ -612,7 +620,7 @@ namespace mFramework.UI
                 {
                     verticesList[vI] = new Vector3(
                         verticesList[vI].x + xOffset,
-                        verticesList[vI].y + yOffset,
+                        verticesList[vI].y + yOffset + UnscaledHeight / 2,
                         verticesList[vI].z
                     );
                 }

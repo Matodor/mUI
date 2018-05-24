@@ -85,6 +85,34 @@ namespace mFramework.UI
             return obj;
         }
 
+        public static T Scale<T>(this T obj, float v, UIAnchor anchor) where T : IUIObject
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            (obj as UIObject).ScaleByAnchor(new Vector3(v, v), anchor);
+            return obj;
+        }
+
+        public static T Scale<T>(this T obj, float x, float y, UIAnchor anchor) where T : IUIObject
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            (obj as UIObject).ScaleByAnchor(new Vector3(x, y), anchor);
+            return obj;
+        }
+
+        public static T Scale<T>(this T obj, Vector2 scale, UIAnchor anchor) where T : IUIObject
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            (obj as UIObject).ScaleByAnchor(scale, anchor);
+            return obj;
+        }
+
+        public static T Scale<T>(this T obj, Vector3 scale, UIAnchor anchor) where T : IUIObject
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            (obj as UIObject).ScaleByAnchor(scale, anchor);
+            return obj;
+        }
+
         public static T Translate<T>(this T obj, float shiftX, float shiftY, 
             Space relativeTo = Space.World) where T : IUIObject
         {
