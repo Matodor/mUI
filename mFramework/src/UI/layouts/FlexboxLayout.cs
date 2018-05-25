@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI.Layouts
 {
-    public class FlexboxLayoutSettings : UILayoutSettings
+    public class FlexboxLayoutProps : UILayoutProps
     {
         public virtual FlexboxDirection Direction { get; set; } = FlexboxDirection.COLUMN;
         public virtual float MarginBetween { get; set; } = 0f;
@@ -125,15 +125,15 @@ namespace mFramework.UI.Layouts
             }
         }
 
-        protected override void ApplySettings(UIViewSettings settings, IView parent)
+        protected override void ApplyProps(UIViewProps props, IView parent)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+            if (props == null)
+                throw new ArgumentNullException(nameof(props));
 
-            if (!(settings is FlexboxLayoutSettings layoutSettings))
+            if (!(props is FlexboxLayoutProps layoutSettings))
                 throw new ArgumentException("FlexboxLayout: The given settings is not FlexboxLayoutSettings");
 
-            base.ApplySettings(settings, parent);
+            base.ApplyProps(props, parent);
 
             Direction = layoutSettings.Direction;
             MarginBetween = layoutSettings.MarginBetween;

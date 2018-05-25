@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public class UIContainerSettings : UIComponentSettings
+    public class UIContainerProps : UIComponentProps
     {
         public float UnscaledHeight;
         public float UnscaledWidth;
@@ -10,18 +10,15 @@ namespace mFramework.UI
 
     public class UIContainer : UIComponent
     {
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UIContainerSettings containerSettings))
+            if (!(props is UIContainerProps containerSettings))
                 throw new ArgumentException("UIContainer: The given settings is not UIContainerSettings");
 
             UnscaledWidth = containerSettings.UnscaledWidth;
             UnscaledHeight = containerSettings.UnscaledHeight;
 
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
         public UIContainer SetWidth(float width)

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UILabelSettings : UIComponentSettings
+    public class UILabelProps : UIComponentProps
     {
         public string Text = string.Empty;
         public string Font = "Arial";
@@ -137,14 +137,6 @@ namespace mFramework.UI
             _textFormatting = new Dictionary<int, TextFormatting>();
 
             SortingOrderChanged += OnSortingOrderChanged;
-            /*ActiveChanged += s =>
-            {
-                if (IsActive && _needUpdate)
-                {
-                    UpdateMesh();
-                }
-            };*/
-
             base.AfterAwake();
         }
 
@@ -164,7 +156,7 @@ namespace mFramework.UI
             else
             {
                 var colors = new Color[_meshFilter.mesh.colors.Length];
-                for (int i = 0; i < colors.Length; i++)
+                for (var i = 0; i < colors.Length; i++)
                     colors[i] = color;
                 _meshFilter.mesh.colors = colors;
             }
@@ -176,7 +168,7 @@ namespace mFramework.UI
                 return;
 
             var layers = UIStencilMaterials.Layers();
-            for (int i = 0; i < layers.Length; i++)
+            for (var i = 0; i < layers.Length; i++)
             {
                 if (layers[i] == null)
                     continue;
@@ -198,12 +190,9 @@ namespace mFramework.UI
             //mCore.Log($"Font rebuilt: {font.name}");
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UILabelSettings labelSettings))
+            if (!(props is UILabelProps labelSettings))
                 throw new ArgumentException("UILabel: The given settings is not UILabelSettings");
 
             _textColor = labelSettings.Color;
@@ -220,12 +209,12 @@ namespace mFramework.UI
             _needUpdate = true;
             RequestCharactersInFont();
             UpdateMesh();
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
         protected override void OnTick()
         {
-            if (_needUpdate)
+            if (IsShowing && _needUpdate)
                 UpdateMesh();
             base.OnTick();
         }
@@ -251,7 +240,7 @@ namespace mFramework.UI
             var style = _textStyle;
             style.Size = mMath.Clamp(style.Size, 1, MAX_SIZE);
 
-            for (int i = 0; i < text.Length; i++)
+            for (var i = 0; i < text.Length; i++)
             {
                 CharacterInfo characterInfo;
                 var currentCharacter = text[i];
@@ -411,7 +400,7 @@ namespace mFramework.UI
 
             //mCore.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
 
-            for (int i = 0; i < text.Length; i++)
+            for (var i = 0; i < text.Length; i++)
             {
                 var forceNewLine = false;
                 CharacterInfo characterInfo;

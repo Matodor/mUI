@@ -2,7 +2,7 @@
 
 namespace mFramework.UI.Layouts
 {
-    public abstract class UILayoutSettings : UIViewSettings
+    public abstract class UILayoutProps : UIViewProps
     {
         
     }
@@ -17,9 +17,9 @@ namespace mFramework.UI.Layouts
 
         protected abstract void OnChildObjectAdded(IUIObject sender, IUIObject child);
 
-        protected override void ApplySettings(UIViewSettings settings, IView parent)
+        protected override void ApplyProps(UIViewProps props, IView parent)
         {
-            base.ApplySettings(settings, parent);
+            base.ApplyProps(props, parent);
         }
     }
 }

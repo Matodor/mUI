@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIRectAreaButtonSettings : UIComponentSettings
+    public class UIRectAreaButtonProps : UIComponentProps
     {
         public virtual ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
         public virtual float UnscaledWidth { get; set; } = 0f;
@@ -51,19 +51,16 @@ namespace mFramework.UI
             return IsActive && !IsPressed && AreaChecker.InAreaShape(this, worldPos);
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
-        {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-                
-            if (!(settings is UIRectAreaButtonSettings buttonSettings))
+        protected override void ApplyProps(UIComponentProps props)
+        { 
+            if (!(props is UIRectAreaButtonProps buttonSettings))
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
 
             ClickCondition = buttonSettings.ClickCondition;
             UnscaledHeight = buttonSettings.UnscaledHeight;
             UnscaledWidth = buttonSettings.UnscaledWidth;
             
-            base.ApplySettings(buttonSettings);
+            base.ApplyProps(buttonSettings);
         }
 
         public UIRectAreaButton SetWidth(float width)

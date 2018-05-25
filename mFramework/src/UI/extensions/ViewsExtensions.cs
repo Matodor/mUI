@@ -2,9 +2,9 @@
 {
     public static partial class UIExtensions
     {
-        public static ScrollView ScrollView(this IView view, ScrollViewSettings settings)
+        public static ScrollView ScrollView(this IView view, ScrollViewProps props)
         {
-            return view.View<ScrollView>(settings);
+            return view.View<ScrollView>(props);
         }
     }
 }

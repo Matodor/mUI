@@ -60,7 +60,7 @@ namespace mFramework.UI
             UICamera = UICamera.Create(settings.CameraSettings);
             UICamera.Transform.ParentTransform(mCore.Behaviour.transform);
             _isCreated = true;
-            BaseView = UIView.Create<BaseView>(new UIViewSettings
+            BaseView = UIView.Create<BaseView>(new UIViewProps
             {
                 UnscaledHeight = UICamera.UnscaledHeight,
                 UnscaledWidth = UICamera.UnscaledWidth,

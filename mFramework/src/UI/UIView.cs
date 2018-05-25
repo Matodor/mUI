@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIViewSettings
+    public class UIViewProps : UIObjectProps
     {
         /// <summary>
         /// Unscaled view height in world units
@@ -14,12 +14,8 @@ namespace mFramework.UI
         /// Unscaled view width in world units
         /// </summary>
         public virtual float? UnscaledWidth { get; set; } = null;
-
-        public virtual int? SortingOrder { get; set; } = null;
+        
         public virtual ushort? StencilId { get; set; } = null;
-
-        public virtual UIAnchor? Anchor { get; set; }
-        public virtual UIPadding? Padding { get; set; }
     }
 
     /*public static class NewView<T> where T : UIView
@@ -45,19 +41,19 @@ namespace mFramework.UI
             return typeof(UIView).IsAssignableFrom(viewType);
         }
 
-        public virtual UIView View(Type viewType, UIViewSettings settings, params object[] @params)
+        public virtual UIView View(Type viewType, UIViewProps props, params object[] @params)
         {
             if (!IsViewType(viewType))
                 throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView)new GameObject(viewType.Name).AddComponent(viewType);
-            view.SetupView(settings, this, @params);
+            view.SetupView(props, this, @params);
             return view;
         }
 
         public UIView View(Type viewType, params object[] @params)
         {
-            return View(viewType, new UIViewSettings
+            return View(viewType, new UIViewProps
             {
                 UnscaledWidth = UnscaledWidth,
                 UnscaledHeight = UnscaledHeight,
@@ -66,37 +62,40 @@ namespace mFramework.UI
         
         public T View<T>(params object[] @params) where T : UIView
         {
-            return (T) View(typeof(T), new UIViewSettings
+            return (T) View(typeof(T), new UIViewProps
             {
                 UnscaledWidth = UnscaledWidth,
                 UnscaledHeight = UnscaledHeight,
             }, @params);
         }
 
-        public T View<T>(UIViewSettings settings, params object[] @params) where T : UIView
+        public T View<T>(UIViewProps props, params object[] @params) where T : UIView
         {
-            return (T) View(typeof(T), settings, @params);
+            return (T) View(typeof(T), props, @params);
         }
 
-        internal static UIView Create(Type viewType, UIViewSettings settings, IView parent, params object[] @params)
+        internal static UIView Create(Type viewType, UIViewProps props, IView parent, params object[] @params)
         {
             if (!IsViewType(viewType))
                 throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
-            view.SetupView(settings, parent, @params);
+            view.SetupView(props, parent, @params);
             return view;
         }
 
-        internal static T Create<T>(UIViewSettings settings, IView parent, params object[] @params) where T : UIView
+        internal static T Create<T>(UIViewProps props, IView parent, params object[] @params) where T : UIView
         {
-            return (T) Create(typeof(T), settings, parent, @params);
+            return (T) Create(typeof(T), props, parent, @params);
         }
         
-        internal virtual void SetupView(UIViewSettings settings, IView parent, object[] @params)
+        internal virtual void SetupView(UIViewProps props, IView parent, object[] @params)
         {
+            if (props == null)
+                throw new Exception("UIView: UIViewProps can not be null");
+
             SetupParent((UIObject) parent);
-            ApplySettings(settings, parent);
+            ApplyProps(props, parent);
             InitCompleted();
             CreateInterface(@params);
 
@@ -108,20 +107,13 @@ namespace mFramework.UI
 
         protected abstract void CreateInterface(object[] @params);
 
-        protected virtual void ApplySettings(UIViewSettings settings, IView parent)
+        protected virtual void ApplyProps(UIViewProps props, IView parent)
         {
-            _stencilId = settings.StencilId;
-            UnscaledHeight = settings.UnscaledHeight ?? parent.UnscaledHeight;
-            UnscaledWidth = settings.UnscaledWidth ?? parent.UnscaledWidth;
+            base.ApplyProps(props);
 
-            if (settings.Anchor.HasValue)
-                Anchor = settings.Anchor.Value;
-
-            if (settings.Padding.HasValue)
-                Padding = settings.Padding.Value;
-
-            if (settings.SortingOrder.HasValue)
-                SortingOrder = settings.SortingOrder.Value;
+            _stencilId = props.StencilId;
+            UnscaledHeight = props.UnscaledHeight ?? parent.UnscaledHeight;
+            UnscaledWidth = props.UnscaledWidth ?? parent.UnscaledWidth;
 
             if (_stencilId.HasValue && _stencilId.Value != 0)
             {

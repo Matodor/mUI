@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIMeshSettings : UIComponentSettings
+    public class UIMeshProps : UIComponentProps
     {
         public Mesh Mesh = null;
         public Mesh SharedMesh = null;
@@ -53,12 +53,9 @@ namespace mFramework.UI
             base.AfterAwake();
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UIMeshSettings meshSettings))
+            if (!(props is UIMeshProps meshSettings))
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
             UnscaledWidth = meshSettings.UnscaledWidth;
@@ -77,7 +74,7 @@ namespace mFramework.UI
             UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(
                 ParentView.StencilId ?? 0).SpritesMaterial;
 
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
         public UIMesh SetWidth(float unscaledWidth)

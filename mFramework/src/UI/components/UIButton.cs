@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIButtonSettings : UISpriteSettings
+    public class UIButtonProps : UISpriteProps
     {
         public virtual ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
         public virtual SpriteStates SpriteStates { get; set; }
@@ -69,12 +69,9 @@ namespace mFramework.UI
             return IsActive && !IsPressed && AreaChecker.InAreaShape(this, worldPos);
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UIButtonSettings buttonSettings))
+            if (!(props is UIButtonProps buttonSettings))
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
             
             ClickCondition = buttonSettings.ClickCondition;
@@ -85,7 +82,7 @@ namespace mFramework.UI
                     Sprite = sprite;
             };
 
-            base.ApplySettings(buttonSettings);
+            base.ApplyProps(buttonSettings);
         }
 
         public void Click()

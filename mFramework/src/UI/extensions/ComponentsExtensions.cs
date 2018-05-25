@@ -4,14 +4,14 @@ namespace mFramework.UI
 {
     public static partial class UIExtensions
     {
-        public static UIContainer Container(this IUIObject obj, UIContainerSettings settings)
+        public static UIContainer Container(this IUIObject obj, UIContainerProps props)
         {
-            return obj.Component<UIContainer>(settings);
+            return obj.Component<UIContainer>(props);
         }
 
-        public static UIRectAreaButton RectAreaButton(this IUIObject obj, UIRectAreaButtonSettings settings)
+        public static UIRectAreaButton RectAreaButton(this IUIObject obj, UIRectAreaButtonProps props)
         {
-            return obj.Component<UIRectAreaButton>(settings);
+            return obj.Component<UIRectAreaButton>(props);
         }
 
         /*public static UITextBox TextBox(this IUIObject obj, UITextBoxSettings settings)
@@ -19,24 +19,24 @@ namespace mFramework.UI
             return obj.Component<UITextBox>(settings);
         }*/
 
-        public static UIMesh Mesh(this IUIObject obj, UIMeshSettings settings)
+        public static UIMesh Mesh(this IUIObject obj, UIMeshProps props)
         {
-            return obj.Component<UIMesh>(settings);
+            return obj.Component<UIMesh>(props);
         }
 
-        public static UIButton Button(this IUIObject obj, UIButtonSettings settings)
+        public static UIButton Button(this IUIObject obj, UIButtonProps props)
         {
-            return obj.Component<UIButton>(settings);
+            return obj.Component<UIButton>(props);
         }
 
-        public static UILabel Label(this IUIObject obj, UILabelSettings settings)
+        public static UILabel Label(this IUIObject obj, UILabelProps props)
         {
-            return obj.Component<UILabel>(settings);
+            return obj.Component<UILabel>(props);
         }
 
-        public static UIRadioGroup RadioGroup(this IUIObject obj, UIRadioGroupSettings settings)
+        public static UIRadioGroup RadioGroup(this IUIObject obj, UIRadioGroupProps props)
         {
-            return obj.Component<UIRadioGroup>(settings);
+            return obj.Component<UIRadioGroup>(props);
         }
 
         /*public static UIVerticalSlider VerticalSlider(this IUIObject obj, UISliderSettings settings)
@@ -51,20 +51,20 @@ namespace mFramework.UI
 
         public static UISprite Sprite(this IUIObject obj, Sprite sprite)
         {
-            return obj.Component<UISprite>(new UISpriteSettings
+            return obj.Component<UISprite>(new UISpriteProps
             {
                 Sprite = sprite
             });
         }
 
-        public static UISprite Sprite(this IUIObject obj, UISpriteSettings settings)
+        public static UISprite Sprite(this IUIObject obj, UISpriteProps props)
         {
-            return obj.Component<UISprite>(settings);
+            return obj.Component<UISprite>(props);
         }
 
-        public static UIToggle Toggle(this IUIObject obj, UIToggleSettings settings)
+        public static UIToggle Toggle(this IUIObject obj, UIToggleProps props)
         {
-            return obj.Component<UIToggle>(settings);
+            return obj.Component<UIToggle>(props);
         }
 
         /*public static UIHorizontalPageSlider HorizontalPageSlider(this IUIObject obj, UIPageSliderSettings settings)

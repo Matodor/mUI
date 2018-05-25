@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIToggleSettings : UIButtonSettings
+    public class UIToggleProps : UIButtonProps
     {
         public virtual bool DefaultSelected { get; set; } = false;
     }
@@ -28,18 +28,15 @@ namespace mFramework.UI
             base.AfterAwake();
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UIToggleSettings toggleSettings))
+            if (!(props is UIToggleProps toggleSettings))
                 throw new ArgumentException("UIToggle: The given settings is not UIToggleSettings");
 
             if (toggleSettings.DefaultSelected)
                 Select();
             
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
         private void OnUIMouseUp(IUIClickable sender, ref Vector2 vector2)

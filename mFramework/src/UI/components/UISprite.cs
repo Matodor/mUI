@@ -4,7 +4,7 @@ using UnityEngine.Rendering;
 
 namespace mFramework.UI
 {
-    public class UISpriteSettings : UIComponentSettings
+    public class UISpriteProps : UIComponentProps
     {
         public virtual Sprite Sprite { get; set; }
         public virtual Color? Color { get; set; } = null;
@@ -51,12 +51,9 @@ namespace mFramework.UI
             base.AfterAwake();
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UISpriteSettings spriteSettings))
+            if (!(props is UISpriteProps spriteSettings))
                 throw new ArgumentException("UISprite: The given settings is not UISpriteSettings");
 
             UIRenderer.sprite = spriteSettings.Sprite;
@@ -67,7 +64,7 @@ namespace mFramework.UI
             if (spriteSettings.Color.HasValue)
                 Color = spriteSettings.Color.Value;
 
-            base.ApplySettings(spriteSettings);
+            base.ApplyProps(spriteSettings);
         }
 
         private void OnSortingOrderChanged(IUIObject sender)
@@ -94,7 +91,7 @@ namespace mFramework.UI
         {
             if (SpriteMask == null)
             {
-                SpriteMask = this.Sprite(new UISpriteSettings
+                SpriteMask = this.Sprite(new UISpriteProps
                 {
                     Sprite = mask,
                 });

@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class ScrollViewSettings : UIViewSettings
+    public class ScrollViewProps : UIViewProps
     {
-        public virtual FlexboxLayoutSettings FlexboxSettings { get; set; }
+        public virtual FlexboxLayoutProps FlexboxProps { get; set; }
     }
 
     public class ScrollView : UIView, IUIDragable
@@ -216,20 +216,20 @@ namespace mFramework.UI
             IsPressed = false;
         }
 
-        protected override void ApplySettings(UIViewSettings settings, IView parent)
+        protected override void ApplyProps(UIViewProps props, IView parent)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+            if (props == null)
+                throw new ArgumentNullException(nameof(props));
 
-            if (!(settings is ScrollViewSettings viewSettings))
+            if (!(props is ScrollViewProps viewSettings))
                 throw new ArgumentException("ScrollView: The given settings is not ScrollViewSettings");
 
-            _flexboxLayout = Create<FlexboxLayout>(viewSettings.FlexboxSettings, this);
+            _flexboxLayout = Create<FlexboxLayout>(viewSettings.FlexboxProps, this);
             _flexboxLayout.ChildObjectAdded += FlexboxLayoutOnChildObjectAdded;
             AreaChecker = RectangleAreaChecker.Default;
             UIClickablesHandler.AddDragable(this);
 
-            base.ApplySettings(settings, parent);
+            base.ApplyProps(props, parent);
         }
 
         private void FlexboxLayoutOnChildObjectAdded(IUIObject sender, IUIObject child)
@@ -253,19 +253,19 @@ namespace mFramework.UI
             return true;
         }
 
-        public override UIView View(Type viewType, UIViewSettings settings, params object[] @params)
+        public override UIView View(Type viewType, UIViewProps props, params object[] @params)
         {
             if (!IsViewType(viewType))
                 throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
-            view.SetupView(settings, _flexboxLayout, @params);
+            view.SetupView(props, _flexboxLayout, @params);
             return view;
         }
 
-        public override T Component<T>(UIComponentSettings settings)
+        public override T Component<T>(UIComponentProps props)
         {
-            return _flexboxLayout.Component<T>(settings);
+            return _flexboxLayout.Component<T>(props);
         }
 
         protected override void CreateInterface(object[] @params)

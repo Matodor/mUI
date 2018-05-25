@@ -61,7 +61,7 @@ namespace mFramework.UI
         event UIEventHandler<IUIObject> VisibleChanged;
 
         T Animation<T>(UIAnimationSettings settings) where T : UIAnimation, new();
-        T Component<T>(UIComponentSettings settings) where T : UIComponent;
+        T Component<T>(UIComponentProps props) where T : UIComponent;
 
         void RemoveAnimations();
         void RemoveAnimations<T>() where T : UIAnimation;

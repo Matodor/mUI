@@ -26,6 +26,13 @@ namespace mFramework.UI
         }
     }
 
+    public class UIObjectProps
+    {
+        public virtual UIAnchor? Anchor { get; set; }
+        public virtual UIPadding? Padding { get; set; }
+        public virtual int SortingOrder { get; set; } = 0;
+    }
+
     public abstract class UIObject : MonoBehaviour, IUIObject
     {
         public Transform Transform => base.transform;
@@ -44,8 +51,6 @@ namespace mFramework.UI
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
         public UnidirectionalList<IUIObject> Childs { get; private set; }
 
-        public virtual UIPadding Padding { get; set; }
-
         public virtual Vector2 CenterOffset => new Vector2(
             UnscaledCenterOffset.x * GlobalScale.x,
             UnscaledCenterOffset.y * GlobalScale.y
@@ -63,6 +68,17 @@ namespace mFramework.UI
         public virtual float UnscaledHeight { get; protected set; }
         public virtual float UnscaledWidth { get; protected set; }
 
+        public virtual UIPadding Padding
+        {
+            get => _padding;
+            set
+            {
+                var pos = Position;
+                _padding = value;
+                Position = pos;
+            }
+        }
+        
         public virtual UIAnchor Anchor
         {
             get => _anchor;
@@ -151,12 +167,21 @@ namespace mFramework.UI
 
         private Vector2 _anchorPivot;
         private UIAnchor _anchor;
+        private UIPadding _padding;
         private int _localSortingOrder;
         private bool _destroyed;
         private static ulong _guid;
 
         protected virtual void AfterAwake()
         {
+        }
+
+        protected virtual void ApplyProps(UIObjectProps props)
+        {
+            _anchor = props.Anchor.GetValueOrDefault(UIAnchor.MiddleCenter);
+            _anchorPivot = PivotByAnchor(_anchor);
+            _padding = props.Padding.GetValueOrDefault(new UIPadding());
+            _localSortingOrder = props.SortingOrder;
         }
 
         internal void ScaleByAnchor(Vector2 scale, UIAnchor anchor)
@@ -209,8 +234,6 @@ namespace mFramework.UI
             Animations = UnidirectionalList<UIAnimation>.Create();
             Childs = UnidirectionalList<IUIObject>.Create();
 
-            _anchor = UIAnchor.MiddleCenter;
-            _anchorPivot = PivotByAnchor(_anchor);
             _destroyed = false;
             _localSortingOrder = 0;
 
@@ -478,7 +501,8 @@ namespace mFramework.UI
 
         public IUIObject SetName(string newName)
         {
-            base.gameObject.name = $"{newName} ({GUID})";
+            if (mCore.IsEditor)
+                base.gameObject.name = $"{newName} ({GUID})";
             return this;
         }
         
@@ -557,9 +581,9 @@ namespace mFramework.UI
             Childs.ForEach(c => c.LateTick());
         }
 
-        public virtual T Component<T>(UIComponentSettings settings) where T : UIComponent
+        public virtual T Component<T>(UIComponentProps props) where T : UIComponent
         {
-            return UIComponent.Create<T>(this, settings);
+            return UIComponent.Create<T>(this, props);
         }
 
         public virtual T Animation<T>(UIAnimationSettings settings) where T : UIAnimation, new()

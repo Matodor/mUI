@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public class UIRadioGroupSettings : UIComponentSettings
+    public class UIRadioGroupProps : UIComponentProps
     {
         public virtual bool CanDeselectCurrent { get; set; }
     }
@@ -28,17 +28,14 @@ namespace mFramework.UI
             SetupToggle(toggle);
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UIRadioGroupSettings radioGroupSettings))
+            if (!(props is UIRadioGroupProps radioGroupSettings))
                 throw new ArgumentException("UIRadioGroup: The given settings is not UIRadioGroupSettings");
 
             _canDeselectCurrent = radioGroupSettings.CanDeselectCurrent;
 
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
         public UIToggle AddToggle(UIToggle toggle)
@@ -47,10 +44,10 @@ namespace mFramework.UI
             return toggle;
         }
 
-        public UIToggle CreateToggle(UIToggleSettings toggleSettings)
+        public UIToggle CreateToggle(UIToggleProps toggleProps)
         {
-            toggleSettings.DefaultSelected = false;
-            var toggle = this.Toggle(toggleSettings);
+            toggleProps.DefaultSelected = false;
+            var toggle = this.Toggle(toggleProps);
             SetupToggle(toggle);
             return toggle;
         }
