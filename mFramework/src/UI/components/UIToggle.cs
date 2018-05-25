@@ -10,6 +10,7 @@ namespace mFramework.UI
     
     public class UIToggle : UIButton, IUIToggle
     {
+        public bool IgnoreByHandler { get; set; }
         public bool IsSelected { get; protected set; }
 
         public event UIToggleAllowChangeState CanSelect = delegate { return true; };
@@ -21,7 +22,7 @@ namespace mFramework.UI
 
         protected override void AfterAwake()
         {
-            OnClick += OnToggleClick;
+            Clicked += OnToggleClick;
             MouseUp += OnUIMouseUp;
 
             IsSelected = false;

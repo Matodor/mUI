@@ -19,7 +19,9 @@ namespace mFramework.UI
         public event UIMouseAllowEvent CanMouseUp = delegate { return true; };
         public event UIMouseAllowEvent CanMouseDrag = delegate { return true; };
 
+        public bool IgnoreByHandler { get; set; }
         public bool IsPressed { get; protected set; }
+
         public IAreaChecker AreaChecker { get; set; }
 
         private const float MAX_PATH_TO_CLICK = 0.03f;

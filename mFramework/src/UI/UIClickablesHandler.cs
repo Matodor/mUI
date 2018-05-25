@@ -13,6 +13,22 @@ namespace mFramework.UI
             _dragables = UnidirectionalList<IUIDragable>.Create();
         }
 
+        public static void DisableClickables()
+        {
+            foreach (var clickable in _clickables)
+            {
+                clickable.IgnoreByHandler = true;
+            }
+        }
+
+        public static void EnableClickables()
+        {
+            foreach (var clickable in _clickables)
+            {
+                clickable.IgnoreByHandler = false;
+            }
+        }
+
         public static void AddDragable(IUIDragable dragable)
         {
             AddClickable(dragable);
@@ -32,6 +48,9 @@ namespace mFramework.UI
 
             foreach (var dragable in _dragables)
             {
+                if (dragable.IgnoreByHandler)
+                    continue;
+
                 dragable.DoMouseDrag(worldPos);
             }
         }
@@ -42,6 +61,9 @@ namespace mFramework.UI
 
             foreach (var clickable in _clickables)
             {
+                if (clickable.IgnoreByHandler)
+                    continue;
+
                 clickable.DoMouseUp(worldPos);
             }
         }
@@ -52,6 +74,9 @@ namespace mFramework.UI
 
             foreach (var clickable in _clickables)
             {
+                if (clickable.IgnoreByHandler)
+                    continue;
+
                 clickable.DoMouseDown(worldPos);
             }
         }

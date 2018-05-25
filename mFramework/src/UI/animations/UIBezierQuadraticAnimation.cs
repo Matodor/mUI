@@ -13,10 +13,10 @@ namespace mFramework.UI
 
     public class UIBezierQuadraticAnimation : UIAnimation
     {
-        private Vector2 _firstPoint;
-        private Vector2 _secondPoint;
-        private Vector2 _thirdPoint;
-        private Space _relativeTo = Space.World;
+        public Vector2 FirstPoint;
+        public Vector2 SecondPoint;
+        public Vector2 ThirdPoint;
+        public Space RelativeTo = Space.World;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -26,10 +26,10 @@ namespace mFramework.UI
             if (!(settings is UIBezierQuadraticAnimationSettings bezierSettings))
                 throw new ArgumentException("UIBezierQuadraticAnimation: The given settings is not UIBezierQuadraticAnimationSettings");
 
-            _relativeTo = bezierSettings.RelativeTo;
-            _firstPoint = bezierSettings.FirstPoint;
-            _secondPoint = bezierSettings.SecondPoint;
-            _thirdPoint = bezierSettings.ThirdPoint;
+            RelativeTo = bezierSettings.RelativeTo;
+            FirstPoint = bezierSettings.FirstPoint;
+            SecondPoint = bezierSettings.SecondPoint;
+            ThirdPoint = bezierSettings.ThirdPoint;
 
             base.ApplySettings(settings);
         }
@@ -37,7 +37,7 @@ namespace mFramework.UI
         protected override void OnAnimate()
         {
             UIObject.Position(BezierHelper.Quadratic(EasingTime,
-                _firstPoint, _secondPoint, _thirdPoint), _relativeTo);
+                FirstPoint, SecondPoint, ThirdPoint), RelativeTo);
         }
     }
 }

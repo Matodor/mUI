@@ -13,6 +13,7 @@ namespace mFramework.UI
         event UIMouseAllowEvent CanMouseDown;
         event UIMouseAllowEvent CanMouseUp;
 
+        bool IgnoreByHandler { get; set; }
         bool IsPressed { get; }
         IAreaChecker AreaChecker { get; set; }
 

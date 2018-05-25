@@ -18,10 +18,12 @@ namespace mFramework.UI
         public event UIMouseAllowEvent CanMouseDown = delegate { return true; };
         public event UIMouseAllowEvent CanMouseUp = delegate { return true; };
 
-        public event UIButtonClickEvent OnClick = delegate { };
+        public event UIButtonClickEvent Clicked = delegate { };
         public event UIButtonAllowClick CanClick = delegate { return true; };
 
+        public bool IgnoreByHandler { get; set; }
         public bool IsPressed { get; protected set; }
+
         public IAreaChecker AreaChecker { get; set; }
         public ClickCondition ClickCondition { get; set; }
 
@@ -79,7 +81,7 @@ namespace mFramework.UI
         {
             if (CanClick(this))
             {
-                OnClick(this);
+                Clicked(this);
             }
         }
 
@@ -87,7 +89,7 @@ namespace mFramework.UI
         {
             if (CanClick(this) && ClickCondition == ClickCondition.BUTTON_DOWN)
             {
-                OnClick(this);
+                Clicked(this);
             }
         }
 
@@ -106,7 +108,7 @@ namespace mFramework.UI
             if (CanClick(this) && ClickCondition == ClickCondition.BUTTON_UP &&
                 AreaChecker.InAreaShape(this, worldPos))
             {
-                OnClick(this);
+                Clicked(this);
             }
         }
 

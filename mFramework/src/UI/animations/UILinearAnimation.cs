@@ -12,9 +12,9 @@ namespace mFramework.UI
 
     public class UILinearAnimation : UIAnimation
     {
-        private Vector3 _startPos;
-        private Vector3 _endPos;
-        private Space _relativeTo = Space.World;
+        public Vector3 StartPos;
+        public Vector3 EndPos;
+        public Space RelativeTo = Space.World;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -24,16 +24,16 @@ namespace mFramework.UI
             if (!(settings is UILinearAnimationSettings linearSettings))
                 throw new ArgumentException("UILinearAnimation: The given settings is not UILinearAnimationSettings");
 
-            _startPos = linearSettings.StartPos;
-            _endPos = linearSettings.EndPos;
-            _relativeTo = linearSettings.RelativeTo;
+            StartPos = linearSettings.StartPos;
+            EndPos = linearSettings.EndPos;
+            RelativeTo = linearSettings.RelativeTo;
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            UIObject.Position(BezierHelper.Linear(EasingTime, _startPos, _endPos),
-                _relativeTo);
+            UIObject.Position(BezierHelper.Linear(EasingTime, StartPos, EndPos),
+                RelativeTo);
         }
     }
 }

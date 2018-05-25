@@ -11,8 +11,8 @@ namespace mFramework.UI
 
     public class UIColorAnimation : UIAnimation
     {
-        private UIColor _fromColor;
-        private UIColor _toColor;
+        public UIColor FromColor;
+        public UIColor ToColor;
         private IUIColored _animatedObj;
 
         protected override void ApplySettings(UIAnimationSettings settings)
@@ -30,15 +30,15 @@ namespace mFramework.UI
             if (colorSettings.FromColor.ColorType != colorSettings.ToColor.ColorType)
                 throw new Exception("UIColorAnimationSettings.FromColor.Type != UIColorAnimationSettings.ToColor.Type");
 
-            _fromColor = colorSettings.FromColor;
-            _toColor = colorSettings.ToColor;
+            FromColor = colorSettings.FromColor;
+            ToColor = colorSettings.ToColor;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            _animatedObj.Color = (Color) UIColor.Lerp(_fromColor, _toColor, EasingTime);
+            _animatedObj.Color = (Color) UIColor.Lerp(FromColor, ToColor, EasingTime);
         }
     }
 }

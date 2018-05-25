@@ -158,6 +158,16 @@ namespace mFramework.UI
             return BaseView.Height;
         }
 
+        public static void OnClickables()
+        {
+            UIClickablesHandler.EnableClickables();
+        }
+
+        public static void OffClickables()
+        {
+            UIClickablesHandler.DisableClickables();    
+        }
+
         internal static bool RemoveUIObject(UIObject obj)
         {
             if (!_uiObjects.ContainsKey(obj.GUID))

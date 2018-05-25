@@ -12,9 +12,9 @@ namespace mFramework.UI
 
     public class UIScaleAnimation : UIAnimation
     {
-        private Vector2 _startScale;
-        private Vector2 _endScale;
-        private UIAnchor? _anchor;
+        public Vector2 StartScale;
+        public Vector2 EndScale;
+        public UIAnchor? Anchor;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -24,9 +24,9 @@ namespace mFramework.UI
             if (!(settings is UIScaleAnimationSettings scaleSettings))
                 throw new ArgumentException("UIScaleAnimation: The given settings is not UIScaleAnimationSettings");
 
-            _startScale = scaleSettings.StartScale;
-            _endScale = scaleSettings.EndScale;
-            _anchor = scaleSettings.Anchor;
+            StartScale = scaleSettings.StartScale;
+            EndScale = scaleSettings.EndScale;
+            Anchor = scaleSettings.Anchor;
 
             base.ApplySettings(settings);
         }
@@ -34,8 +34,8 @@ namespace mFramework.UI
         protected override void OnAnimate()
         {
             UIObject.Scale(
-                BezierHelper.Linear(EasingTime, _startScale, _endScale),
-                _anchor.GetValueOrDefault(UIObject.Anchor)
+                BezierHelper.Linear(EasingTime, StartScale, EndScale),
+                Anchor.GetValueOrDefault(UIObject.Anchor)
             );
         }
     }

@@ -12,9 +12,9 @@ namespace mFramework.UI
 
     public class UIRotateAnimation : UIAnimation
     {
-        private float _fromAngle;
-        private float _endAngle;
-        private Space _relativeTo = Space.World;
+        public float FromAngle;
+        public float EndAngle;
+        public Space RelativeTo = Space.World;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -24,17 +24,17 @@ namespace mFramework.UI
             if (!(settings is UIRotateAnimationSettings rotateSettings))
                 throw new ArgumentException("UILinearAnimation: The given settings is not UIRotateAnimationSettings");
 
-            _fromAngle = rotateSettings.FromAngle;
-            _endAngle = rotateSettings.ToAngle;
-            _relativeTo = rotateSettings.RelativeTo;
+            FromAngle = rotateSettings.FromAngle;
+            EndAngle = rotateSettings.ToAngle;
+            RelativeTo = rotateSettings.RelativeTo;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            UIObject.Rotation(BezierHelper.Linear(EasingTime, _fromAngle, _endAngle), 
-                _relativeTo);
+            UIObject.Rotation(BezierHelper.Linear(EasingTime, FromAngle, EndAngle), 
+                RelativeTo);
         }
     }
 }

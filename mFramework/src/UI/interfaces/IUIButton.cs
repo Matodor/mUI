@@ -10,7 +10,7 @@ namespace mFramework.UI
     {
         ClickCondition ClickCondition { get; set; }
 
-        event UIButtonClickEvent OnClick;
+        event UIButtonClickEvent Clicked;
         event UIButtonAllowClick CanClick;
 
         void Click();

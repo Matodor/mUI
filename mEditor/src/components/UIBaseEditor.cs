@@ -113,6 +113,19 @@ namespace mFramework.UI
                 if (EditorGUI.EndChangeCheck())
                     _object.Anchor = anchor;
             }
+
+            if (GUILayout.Button("Copy Position"))
+                GUIUtility.systemCopyBuffer = Vector2(_object.Position);
+            if (GUILayout.Button("Copy LocalPos"))
+                GUIUtility.systemCopyBuffer = Vector2(_object.LocalPosition);
+        }
+
+        private static string Vector2(Vector3 vector3)
+        {
+            return "new Vector2(" +
+                $"{vector3.x.ToString("F").Replace(",", ".")}f," +
+                $"{vector3.y.ToString("F").Replace(",", ".")}f" +
+            ")";
         }
     }
 }
