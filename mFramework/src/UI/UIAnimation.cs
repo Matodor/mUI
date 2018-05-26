@@ -145,6 +145,7 @@ namespace mFramework.UI
 
         private void Animate(bool forcibly = false)
         {
+            // TODO: выключение анимации, когда объект скрыт
             if (forcibly || _nextAnimationFrame <= UnityEngine.Time.time)
             {
                 OnAnimate();

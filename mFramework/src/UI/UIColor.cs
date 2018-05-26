@@ -27,6 +27,15 @@ namespace mFramework.UI
             return color;
         }
 
+        public static Color Grayscale(this Color color)
+        {
+            var y = 0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b;
+            color.r = y;
+            color.g = y;
+            color.b = y;
+            return color;
+        }
+
         /// <summary>
         /// Make color darken
         /// </summary>
@@ -85,6 +94,7 @@ namespace mFramework.UI
 
         public UIColor ToRGBA => HSVToRGBA(this);
         public UIColor ToHSV => RGBAToHSV(this);
+        public UIColor ToGrayscale => RGBAToGrayscale(this);
 
         /// <summary>
         /// Color type RGBA or HSV
@@ -248,6 +258,13 @@ namespace mFramework.UI
                 return color;
 
             return (UIColor) Color.HSVToRGB(color.N1, color.N2, color.N3);
+        }
+
+        public static UIColor RGBAToGrayscale(UIColor color)
+        {
+            color = color.ColorType == Type.RGBA ? color : HSVToRGBA(color);
+            var y = 0.2126f * color.N1 + 0.7152f * color.N2 + 0.0722f * color.N3;
+            return new UIColor(y, y, y, color.Alpha, Type.RGBA);
         }
 
         public static explicit operator Color(UIColor color)

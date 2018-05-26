@@ -117,6 +117,7 @@ namespace mFramework.UI
 
             if (_stencilId.HasValue && _stencilId.Value != 0)
             {
+                // TODO при изменении padding изменение canvas
                 var meshRenderer = GameObject.AddComponent<MeshRenderer>();
                 meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId.Value).CanvasMaterial;
                 meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);

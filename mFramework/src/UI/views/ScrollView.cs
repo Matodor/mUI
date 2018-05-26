@@ -7,6 +7,7 @@ namespace mFramework.UI
     public class ScrollViewProps : UIViewProps
     {
         public virtual FlexboxLayoutProps FlexboxProps { get; set; }
+        public override ushort? StencilId { get; set; } = 1 << 2;
     }
 
     public class ScrollView : UIView, IUIDragable
@@ -226,6 +227,10 @@ namespace mFramework.UI
             if (!(props is ScrollViewProps viewSettings))
                 throw new ArgumentException("ScrollView: The given settings is not ScrollViewSettings");
 
+            if (viewSettings.FlexboxProps == null)
+                throw new ArgumentException("ScrollView: FlexboxProps is null");
+
+            viewSettings.FlexboxProps.SortingOrder = Mathf.Max(1, viewSettings.FlexboxProps.SortingOrder);
             _flexboxLayout = Create<FlexboxLayout>(viewSettings.FlexboxProps, this);
             _flexboxLayout.ChildObjectAdded += FlexboxLayoutOnChildObjectAdded;
             AreaChecker = RectangleAreaChecker.Default;
