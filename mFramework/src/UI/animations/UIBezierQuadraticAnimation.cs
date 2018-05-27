@@ -20,9 +20,6 @@ namespace mFramework.UI
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UIBezierQuadraticAnimationSettings bezierSettings))
                 throw new ArgumentException("UIBezierQuadraticAnimation: The given settings is not UIBezierQuadraticAnimationSettings");
 

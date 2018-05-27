@@ -14,6 +14,13 @@ namespace mFramework.UI
 
         private bool _canDeselectCurrent;
 
+        protected override void OnBeforeDestroy()
+        {
+            ChildObjectAdded -= CheckChildren;
+            Selected = null;
+            base.OnBeforeDestroy();
+        }
+
         protected override void AfterAwake()
         {
             ChildObjectAdded += CheckChildren;

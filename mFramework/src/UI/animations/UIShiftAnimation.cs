@@ -35,9 +35,6 @@ namespace mFramework.UI
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UIShiftAnimationSettings translateSettings))
                 throw new ArgumentException("TranslateAnimation: The given settings is not TranslateAnimationSettings");
 

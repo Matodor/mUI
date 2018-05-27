@@ -432,12 +432,18 @@ namespace mFramework.UI
             }
         }
 
+        protected virtual void OnBeforeDestroy()
+        {
+            
+        }
+
         private void DestroyImpl()
         {
             if (_destroyed)
                 return;
 
             _destroyed = true;
+            OnBeforeDestroy();
             BeforeDestroy(this);
 
             Childs.ForEach(c => c.Destroy());

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace mFramework.UI
@@ -12,14 +14,27 @@ namespace mFramework.UI
 
     public class UIRectAreaButton : UIComponent, IUIButton
     {
-        public event UIMouseEvent MouseDown;
-        public event UIMouseEvent MouseUp;
+        public event UIMouseEvent MouseDown = delegate { };
+        public event UIMouseEvent MouseUp = delegate { };
 
-        public event UIMouseAllowEvent CanMouseDown = delegate { return true; };
-        public event UIMouseAllowEvent CanMouseUp = delegate { return true; };
+        public event UIMouseAllowEvent CanMouseDown
+        {
+            add => _canMouseDownEvents.Add(value);
+            remove => _canMouseDownEvents.Remove(value);
+        }
+
+        public event UIMouseAllowEvent CanMouseUp
+        {
+            add => _canMouseUpEvents.Add(value);
+            remove => _canMouseUpEvents.Remove(value);
+        }
 
         public event UIButtonClickEvent Clicked = delegate { };
-        public event UIButtonAllowClick CanClick = delegate { return true; };
+        public event UIButtonAllowClick CanClick
+        {
+            add => _canClickButtonEvents.Add(value);
+            remove => _canClickButtonEvents.Remove(value);
+        }
 
         public bool IgnoreByHandler { get; set; }
         public bool IsPressed { get; protected set; }
@@ -27,13 +42,28 @@ namespace mFramework.UI
         public IAreaChecker AreaChecker { get; set; }
         public ClickCondition ClickCondition { get; set; }
 
+        private List<UIMouseAllowEvent> _canMouseDownEvents;
+        private List<UIMouseAllowEvent> _canMouseUpEvents;
+        private List<UIButtonAllowClick> _canClickButtonEvents;
+
+        protected override void OnBeforeDestroy()
+        {
+            MouseDown = null;
+            MouseUp = null;
+            Clicked = null;
+
+            _canMouseDownEvents.Clear();
+            _canMouseUpEvents.Clear();
+            _canClickButtonEvents.Clear();
+            base.OnBeforeDestroy();
+        }
+
         protected override void AfterAwake()
         {
-            MouseDown += OnUIMouseDown;
-            MouseUp += OnUIMouseUp;
-            CanMouseDown += OnUICanMouseDown;
-            CanMouseUp += OnUICanMouseUp;
-
+            _canMouseDownEvents = new List<UIMouseAllowEvent>();
+            _canMouseUpEvents = new List<UIMouseAllowEvent>();
+            _canClickButtonEvents = new List<UIButtonAllowClick>();
+            
             IsPressed = false;
             ClickCondition = ClickCondition.BUTTON_UP;
 
@@ -41,16 +71,6 @@ namespace mFramework.UI
             UIClickablesHandler.AddClickable(this);
 
             base.AfterAwake();
-        }
-
-        private bool OnUICanMouseUp(IUIClickable sender, ref Vector2 worldPos)
-        {
-            return IsPressed;
-        }
-
-        private bool OnUICanMouseDown(IUIClickable sender, ref Vector2 worldPos)
-        {
-            return IsActive && !IsPressed && AreaChecker.InAreaShape(this, worldPos);
         }
 
         protected override void ApplyProps(UIComponentProps props)
@@ -77,48 +97,59 @@ namespace mFramework.UI
             return this;
         }
 
-        public void Click()
+        public bool Click()
         {
-            if (CanClick(this))
+            if (_canClickButtonEvents.Count != 0 &&
+                !_canClickButtonEvents.TrueForAll(e => e(this)))
             {
-                Clicked(this);
+                return false;
             }
+
+            Clicked(this);
+            return true;
         }
 
-        private void OnUIMouseDown(IUIClickable clickable, ref Vector2 worldPos)
+        private void OnUIMouseDown()
         {
-            if (CanClick(this) && ClickCondition == ClickCondition.BUTTON_DOWN)
-            {
-                Clicked(this);
-            }
+            if (ClickCondition == ClickCondition.BUTTON_DOWN)
+                Click();
         }
 
+        private void OnUIMouseUp(Vector2 worldPos)
+        {
+            if (ClickCondition == ClickCondition.BUTTON_UP && AreaChecker.InAreaShape(this, worldPos))
+                Click();
+        }
+        
         public void DoMouseDown(Vector2 worldPos)
         {
-            if (!CanMouseDown(this, ref worldPos))
+            if (!IsActive || IsPressed || !AreaChecker.InAreaShape(this, worldPos))
                 return;
 
-            IsPressed = true;
-            // ReSharper disable once PossibleNullReferenceException
-            MouseDown(this, ref worldPos);
-        }
-
-        private void OnUIMouseUp(IUIClickable clickable, ref Vector2 worldPos)
-        {
-            if (CanClick(this) && ClickCondition == ClickCondition.BUTTON_UP &&
-                AreaChecker.InAreaShape(this, worldPos))
+            if (_canMouseDownEvents.Count != 0 &&
+                !_canMouseDownEvents.TrueForAll(e => e(this, ref worldPos)))
             {
-                Clicked(this);
+                return;
             }
+
+            IsPressed = true;
+            OnUIMouseDown();
+            MouseDown(this, worldPos);
         }
 
         public void DoMouseUp(Vector2 worldPos)
         {
-            if (!CanMouseUp(this, ref worldPos))
+            if (!IsPressed)
                 return;
 
-            // ReSharper disable once PossibleNullReferenceException
-            MouseUp(this, ref worldPos);
+            if (_canMouseUpEvents.Count != 0 &&
+                !_canMouseUpEvents.TrueForAll(e => e(this, ref worldPos)))
+            {
+                return;
+            }
+
+            OnUIMouseUp(worldPos);
+            MouseUp(this, worldPos);
             IsPressed = false;
         }
     }

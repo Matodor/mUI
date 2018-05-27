@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using mFramework.UI.Layouts;
 using UnityEngine;
 
@@ -12,14 +14,28 @@ namespace mFramework.UI
 
     public class ScrollView : UIView, IUIDragable
     {
-        public event UIMouseEvent MouseDown;
-        public event UIMouseEvent MouseUp;
-        public event UIMouseEvent MouseDrag;
+        public event UIMouseEvent MouseDown = delegate {};
+        public event UIMouseEvent MouseUp = delegate { };
+        public event UIMouseEvent MouseDrag = delegate { };
 
-        public event UIMouseAllowEvent CanMouseDown = delegate { return true; };
-        public event UIMouseAllowEvent CanMouseUp = delegate { return true; };
-        public event UIMouseAllowEvent CanMouseDrag = delegate { return true; };
+        public event UIMouseAllowEvent CanMouseDown
+        {
+            add => _canMouseDownEvents.Add(value);
+            remove => _canMouseDownEvents.Remove(value);
+        }
 
+        public event UIMouseAllowEvent CanMouseUp
+        {
+            add => _canMouseUpEvents.Add(value);
+            remove => _canMouseUpEvents.Remove(value);
+        }
+
+        public event UIMouseAllowEvent CanMouseDrag
+        {
+            add => _canMouseDragEvents.Add(value);
+            remove => _canMouseDragEvents.Remove(value);
+        }
+        
         public bool IgnoreByHandler { get; set; }
         public bool IsPressed { get; protected set; }
 
@@ -27,6 +43,10 @@ namespace mFramework.UI
 
         private const float MAX_PATH_TO_CLICK = 0.03f;
         private const float MIN_DIFF_TO_MOVE = 0.001f;
+
+        private List<UIMouseAllowEvent> _canMouseDownEvents;
+        private List<UIMouseAllowEvent> _canMouseUpEvents;
+        private List<UIMouseAllowEvent> _canMouseDragEvents;
 
         private FlexboxLayout _flexboxLayout;
         private Vector2 _lastDragPos;
@@ -36,13 +56,9 @@ namespace mFramework.UI
 
         protected override void AfterAwake()
         {
-            MouseDown += OnUIMouseDown;
-            MouseUp += OnUIMouseUp;
-            MouseDrag += OnUIMouseDrag;
-
-            CanMouseDown += OnUICanMouseDown;
-            CanMouseUp += OnUICanMouseUp;
-            CanMouseDrag += OnUICanMouseDrag;
+            _canMouseDownEvents = new List<UIMouseAllowEvent>();
+            _canMouseUpEvents = new List<UIMouseAllowEvent>();
+            _canMouseDragEvents = new List<UIMouseAllowEvent>();
 
             IsPressed = false;
             AreaChecker = RectangleAreaChecker.Default;
@@ -51,28 +67,13 @@ namespace mFramework.UI
             base.AfterAwake();
         }
 
-        private bool OnUICanMouseDrag(IUIClickable sender, ref Vector2 worldPos)
-        {
-            return IsPressed;
-        }
-
-        private bool OnUICanMouseUp(IUIClickable sender, ref Vector2 worldPos)
-        {
-            return IsPressed;
-        }
-
-        private bool OnUICanMouseDown(IUIClickable sender, ref Vector2 worldPos)
-        {
-            return IsActive && !IsPressed && AreaChecker.InAreaShape(this, worldPos);
-        }
-
-        private void OnUIMouseUp(IUIClickable sender, ref Vector2 worldPos)
+        private void OnUIMouseUp(Vector2 worldPos)
         {
             _lastDragPos = worldPos;
             _averageDiff *= 10f;
         }
 
-        private void OnUIMouseDown(IUIClickable sender, ref Vector2 worldPos)
+        private void OnUIMouseDown(Vector2 worldPos)
         {
             var sliderRect = Rect;
             var itemsRect = _flexboxLayout.Rect;
@@ -84,7 +85,7 @@ namespace mFramework.UI
                 itemsRect, out _, out _, out _);
         }
 
-        private void OnUIMouseDrag(IUIClickable sender, ref Vector2 worldPos)
+        private void OnUIMouseDrag(Vector2 worldPos)
         {
             var sliderRect = Rect;
             var point1 = mMath.ClosestPointOnLine(sliderRect.Top, sliderRect.Bottom, _lastDragPos);
@@ -192,30 +193,48 @@ namespace mFramework.UI
 
         public void DoMouseDrag(Vector2 worldPos)
         {
-            if (!CanMouseDrag(this, ref worldPos))
+            if (!IsPressed)
                 return;
 
-            // ReSharper disable once PossibleNullReferenceException
-            MouseDrag(this, ref worldPos);
+            if (_canMouseDragEvents.Count != 0 &&
+                !_canMouseDragEvents.TrueForAll(e => e(this, ref worldPos)))
+            {
+                return;
+            }
+
+            OnUIMouseDrag(worldPos);
+            MouseDrag(this, worldPos);
         }
 
         public void DoMouseDown(Vector2 worldPos)
         {
-            if (!CanMouseDown(this, ref worldPos))
+            if (!IsActive || IsPressed || !AreaChecker.InAreaShape(this, worldPos))
                 return;
 
+            if (_canMouseDownEvents.Count != 0 &&
+                !_canMouseDownEvents.TrueForAll(e => e(this, ref worldPos)))
+            {
+                return;
+            }
+
             IsPressed = true;
-            // ReSharper disable once PossibleNullReferenceException
-            MouseDown(this, ref worldPos);
+            OnUIMouseDown(worldPos);
+            MouseDown(this, worldPos);
         }
 
         public void DoMouseUp(Vector2 worldPos)
         {
-            if (!CanMouseUp(this, ref worldPos))
+            if (!IsPressed)
                 return;
 
-            // ReSharper disable once PossibleNullReferenceException
-            MouseUp(this, ref worldPos);
+            if (_canMouseUpEvents.Count != 0 &&
+                !_canMouseUpEvents.TrueForAll(e => e(this, ref worldPos)))
+            {
+                return;
+            }
+
+            OnUIMouseUp(worldPos);
+            MouseUp(this, worldPos);
             IsPressed = false;
         }
 
@@ -246,6 +265,8 @@ namespace mFramework.UI
                 clickable.CanMouseUp += ChildClickableOnCanMouseUp;
                 clickable.CanMouseDown += ChildClickableOnCanMouseDown;
             }
+
+            child.ChildObjectAdded += FlexboxLayoutOnChildObjectAdded;
         }
 
         private bool ChildClickableOnCanMouseDown(IUIClickable sender, ref Vector2 worldPos)

@@ -44,11 +44,22 @@ namespace mFramework.UI
         public SpriteRenderer UIRenderer { get; private set; }
         Renderer IUIRenderer.UIRenderer => UIRenderer;
 
+        protected override void OnBeforeDestroy()
+        {
+            SortingOrderChanged -= OnSortingOrderChanged;
+            base.OnBeforeDestroy();
+        }
+
         protected override void AfterAwake()
         {
             SortingOrderChanged += OnSortingOrderChanged;
             UIRenderer = GameObject.AddComponent<SpriteRenderer>();
             base.AfterAwake();
+        }
+
+        private void OnSortingOrderChanged(IUIObject sender)
+        {
+            UIRenderer.sortingOrder = SortingOrder;
         }
 
         protected override void ApplyProps(UIComponentProps props)
@@ -66,12 +77,7 @@ namespace mFramework.UI
 
             base.ApplyProps(spriteSettings);
         }
-
-        private void OnSortingOrderChanged(IUIObject sender)
-        {
-            UIRenderer.sortingOrder = SortingOrder;
-        }
-
+        
         public void Flip(bool flipX, bool flipY)
         {
             UIRenderer.flipX = flipX;

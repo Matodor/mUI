@@ -127,16 +127,23 @@ namespace mFramework.UI
         private UIFont _cachedFont;
         private MeshFilter _meshFilter; private Dictionary<int, TextFormatting> _textFormatting;
 
+        protected override void OnBeforeDestroy()
+        {
+            Font.textureRebuilt -= FontRebuilt;
+            SortingOrderChanged -= OnSortingOrderChanged;
+            TextUpdated = null;
+            base.OnBeforeDestroy();
+        }
+
         protected override void AfterAwake()
         {
-            Font.textureRebuilt += FontRebuilt;
-            BeforeDestroy += s => Font.textureRebuilt -= FontRebuilt;
-
             UIRenderer = GameObject.AddComponent<MeshRenderer>();
             _meshFilter = GameObject.AddComponent<MeshFilter>();
             _textFormatting = new Dictionary<int, TextFormatting>();
 
+            Font.textureRebuilt += FontRebuilt;
             SortingOrderChanged += OnSortingOrderChanged;
+
             base.AfterAwake();
         }
 
@@ -624,7 +631,7 @@ namespace mFramework.UI
             _needUpdate = false;
 
             Position = pos;
-            TextUpdated.Invoke(this);
+            TextUpdated(this);
         }
     }
 }

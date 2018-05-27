@@ -40,17 +40,24 @@ namespace mFramework.UI
         public MeshRenderer UIRenderer { get; private set; }
         Renderer IUIRenderer.UIRenderer => UIRenderer;
 
+        protected override void OnBeforeDestroy()
+        {
+            SortingOrderChanged -= OnSortingOrderChanged;
+            base.OnBeforeDestroy();
+        }
+
         protected override void AfterAwake()
         {
             UIRenderer = GameObject.AddComponent<MeshRenderer>();
             MeshFilter = GameObject.AddComponent<MeshFilter>();
 
-            SortingOrderChanged += s =>
-            {
-                UIRenderer.sortingOrder = SortingOrder;
-            };
-
+            SortingOrderChanged += OnSortingOrderChanged;
             base.AfterAwake();
+        }
+
+        private void OnSortingOrderChanged(IUIObject sender)
+        {
+            UIRenderer.sortingOrder = SortingOrder;
         }
 
         protected override void ApplyProps(UIComponentProps props)

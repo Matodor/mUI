@@ -18,9 +18,6 @@ namespace mFramework.UI
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UIScaleAnimationSettings scaleSettings))
                 throw new ArgumentException("UIScaleAnimation: The given settings is not UIScaleAnimationSettings");
 

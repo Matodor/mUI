@@ -104,6 +104,9 @@ namespace mFramework.UI
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
 
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
             var animation = new T {UIObject = parent};
             animation.ApplySettings(settings);
             return animation;

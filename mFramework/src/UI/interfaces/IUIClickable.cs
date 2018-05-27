@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public delegate void UIMouseEvent(IUIClickable sender, ref Vector2 worldPos);
+    public delegate void UIMouseEvent(IUIClickable sender, Vector2 worldPos);
     public delegate bool UIMouseAllowEvent(IUIClickable sender, ref Vector2 worldPos);
 
     public interface IUIClickable : IUIObject

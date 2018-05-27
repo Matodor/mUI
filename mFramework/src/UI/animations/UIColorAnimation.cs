@@ -17,9 +17,6 @@ namespace mFramework.UI
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             _animatedObj = UIObject as IUIColored;
             if (_animatedObj == null)
                 throw new Exception("The animated object is not IColored");

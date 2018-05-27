@@ -13,6 +13,6 @@ namespace mFramework.UI
         event UIButtonClickEvent Clicked;
         event UIButtonAllowClick CanClick;
 
-        void Click();
+        bool Click();
     }
 }

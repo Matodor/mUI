@@ -18,9 +18,6 @@ namespace mFramework.UI
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UILinearAnimationSettings linearSettings))
                 throw new ArgumentException("UILinearAnimation: The given settings is not UILinearAnimationSettings");
 
