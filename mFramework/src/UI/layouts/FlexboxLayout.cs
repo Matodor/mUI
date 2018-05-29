@@ -27,7 +27,7 @@ namespace mFramework.UI.Layouts
 
         }
 
-        protected override void OnChildObjectAdded(IUIObject sender, IUIObject child)
+        protected override void OnChildAdded(IUIObject sender, IUIObject child)
         {
             if (Childs.Count == 1)
             {

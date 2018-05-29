@@ -55,8 +55,7 @@ namespace mFramework.UI
         event UIEventHandler<IUIObject> ActiveChanged;
         event UIEventHandler<IUIObject, UIAnimation> AnimationAdded;
         event UIEventHandler<IUIObject> BeforeDestroy;
-        event UIEventHandler<IUIObject, IUIObject> ChildObjectAdded;
-        event UIEventHandler<IUIObject, IUIObject> ChildObjectRemoved;
+        event UIEventHandler<IUIObject, IUIObject> ChildAdded;
         event UIEventHandler<IUIObject> SortingOrderChanged;
         event UIEventHandler<IUIObject> VisibleChanged;
 

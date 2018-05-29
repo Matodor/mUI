@@ -25,9 +25,9 @@ namespace mFramework.UI
             remove => _canDeselectEvents.Remove(value);
         }
 
-        public event UIToggleStateChangedEvent Selected = delegate { };
-        public event UIToggleStateChangedEvent Deselected = delegate { };
-        public event UIToggleStateChangedEvent Changed = delegate { };
+        public event UIToggleStateChangedEvent Selected;
+        public event UIToggleStateChangedEvent Deselected;
+        public event UIToggleStateChangedEvent Changed;
 
         private List<UIToggleAllowChangeState> _canSelectEvents;
         private List<UIToggleAllowChangeState> _canDeselectEvents;
@@ -95,8 +95,8 @@ namespace mFramework.UI
             IsSelected = true;
             StateableSprite.SetSelected();
 
-            Selected(this);
-            Changed(this);
+            Selected?.Invoke(this);
+            Changed?.Invoke(this);
             return this;
         }
 
@@ -108,8 +108,8 @@ namespace mFramework.UI
             IsSelected = false;
             StateableSprite.SetDefault();
 
-            Deselected(this);
-            Changed(this);
+            Deselected?.Invoke(this);
+            Changed?.Invoke(this);
             return this;
         }
 

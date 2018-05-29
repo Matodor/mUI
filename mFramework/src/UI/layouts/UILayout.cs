@@ -9,13 +9,19 @@ namespace mFramework.UI.Layouts
 
     public abstract class UILayout : UIView
     {
+        protected override void OnBeforeDestroy()
+        {
+            ChildAdded -= OnChildAdded;
+            base.OnBeforeDestroy();
+        }
+
         protected override void AfterAwake()
         {
-            ChildObjectAdded += OnChildObjectAdded;
+            ChildAdded += OnChildAdded;
             base.AfterAwake();
         }
 
-        protected abstract void OnChildObjectAdded(IUIObject sender, IUIObject child);
+        protected abstract void OnChildAdded(IUIObject sender, IUIObject child);
 
         protected override void ApplyProps(UIViewProps props, IView parent)
         {

@@ -77,6 +77,7 @@ namespace mFramework.UI
 
         public event UIAnimationEventHandler AnimationRepeat;
         public event UIAnimationEventHandler AnimationEnded;
+        public event UIAnimationEventHandler AnimationRemoved;
 
         private static ulong _guid;
 
@@ -200,11 +201,18 @@ namespace mFramework.UI
             EasingTime = easingTime;
         }
 
-        public void Remove()
+        internal void RemoveInternal()
         {
+            AnimationRemoved?.Invoke(this);
             AnimationRepeat = null;
             AnimationEnded = null;
-            UIObject.RemoveAnimation(this);
+            AnimationRemoved = null;
+        }
+
+        public void Remove()
+        {
+            RemoveInternal();
+            UIObject.Animations.Remove(this);
         }
     }
 }

@@ -108,13 +108,14 @@ namespace mFramework
             return false;
         }
 
-        public void Clear()
+        public void Clear(Action<T> beforeRemove = null)
         {
             var current = LastItem;
 
             while (current != null)
             {
                 var prev = current.Prev;
+                beforeRemove?.Invoke(current.Value);
                 current.Prev = null;
                 current.Value = default(T);
                 current = prev;

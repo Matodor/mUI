@@ -22,7 +22,6 @@ namespace mFramework.UI
         public static UICamera UICamera { get; private set; }
 
         private static Dictionary<string, UIFont> _fonts;
-        private static Dictionary<ulong, UIObject> _uiObjects;
         private static mUI _instance;
         private static bool _isCreated;
 
@@ -44,7 +43,6 @@ namespace mFramework.UI
         private mUI()
         {
             _fonts = new Dictionary<string, UIFont>();
-            _uiObjects = new Dictionary<ulong, UIObject>();
         }
 
         public static void Create()
@@ -57,9 +55,9 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
+            _isCreated = true;
             UICamera = UICamera.Create(settings.CameraSettings);
             UICamera.Transform.ParentTransform(mCore.Behaviour.transform);
-            _isCreated = true;
             BaseView = UIView.Create<BaseView>(new UIViewProps
             {
                 UnscaledHeight = UICamera.UnscaledHeight,
@@ -74,7 +72,7 @@ namespace mFramework.UI
          
         private static void OnApplicationQuitEvent()
         {
-            BaseView.DestroyWithoutChecks();
+            BaseView.DestroyImpl();
             _instance = null;
         }
 
@@ -168,26 +166,14 @@ namespace mFramework.UI
             UIClickablesHandler.DisableClickables();    
         }
 
-        internal static bool RemoveUIObject(UIObject obj)
+        internal static void RemoveUIObject(UIObject obj)
         {
-            if (!_uiObjects.ContainsKey(obj.GUID))
-                return false;
-
-            _uiObjects.Remove(obj.GUID);
             UIObjectRemoved.Invoke(obj);
-
-            return true;
         }
 
-        internal static bool AddUIObject(UIObject obj)
+        internal static void AddUIObject(UIObject obj)
         {
-            if (_uiObjects.ContainsKey(obj.GUID))
-                return false;
-
-            _uiObjects.Add(obj.GUID, obj);
             UIObjectCreated.Invoke(obj);
-
-            return true;
         }
 
         internal static void Tick()

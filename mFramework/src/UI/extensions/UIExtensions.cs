@@ -6,6 +6,15 @@ namespace mFramework.UI
 {
     public static partial class UIExtensions
     {
+        public static T Parent<T>(this T obj, UIObject parent) where T : IUIObject
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            (obj as UIObject).SetupParent(parent);
+            // ReSharper disable once PossibleNullReferenceException
+            (obj as UIObject).InitCompleted();
+            return obj;
+        }
+
         public static T Anchor<T>(this T obj, UIAnchor newAnchor) where T : IUIObject
         {
             obj.Anchor = newAnchor;

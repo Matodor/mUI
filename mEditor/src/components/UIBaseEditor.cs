@@ -8,9 +8,11 @@ namespace mFramework.UI
     public class UIBaseEditor : Editor
     {
         private UIObject _object;
+        private bool _showAnimations;
 
         public virtual void Awake()
         {
+            _showAnimations = false;
             _object = target as UIObject;
         }
 
@@ -56,7 +58,7 @@ namespace mFramework.UI
                 if (EditorGUI.EndChangeCheck())
                     _object.Scale = scale;
             }
-
+            EditorGUILayout.Space();
             {
                 EditorGUI.BeginChangeCheck();
                 var rotation = EditorGUILayout.FloatField("Rotation", _object.Rotation);
@@ -70,7 +72,7 @@ namespace mFramework.UI
                 if (EditorGUI.EndChangeCheck())
                     _object.LocalRotation = rotation;
             }
-
+            EditorGUILayout.Space();
             var active = EditorGUILayout.Toggle("IsActive", _object.IsActive);
             if (active != _object.IsActive)
             {
@@ -118,6 +120,30 @@ namespace mFramework.UI
                 GUIUtility.systemCopyBuffer = Vector2(_object.Position);
             if (GUILayout.Button("Copy LocalPos"))
                 GUIUtility.systemCopyBuffer = Vector2(_object.LocalPosition);
+
+            _showAnimations = EditorGUILayout.Foldout(_showAnimations, "Animations");
+            if (_showAnimations)
+            {
+                foreach (var animation in _object.Animations)
+                {
+                    EditorGUILayout.LabelField(animation.ToString());
+                    EditorGUI.indentLevel += 1;
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        var easingType = (EasingType)EditorGUILayout.EnumPopup("EasingType", animation.EasingType, GUIStyle.none);
+                        if (EditorGUI.EndChangeCheck())
+                            animation.EasingType = easingType;
+                    }
+                    {
+                        EditorGUI.BeginChangeCheck();
+                        var duration = EditorGUILayout.FloatField("Duration", animation.Duration);
+                        if (EditorGUI.EndChangeCheck())
+                            animation.Duration = duration;
+                    }
+                    EditorGUI.indentLevel -= 1;
+                    EditorGUILayout.Space();
+                }
+            }
         }
 
         private static string Vector2(Vector3 vector3)

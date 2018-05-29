@@ -30,8 +30,8 @@ namespace mFramework.UI
     
     public class UIButton : UISprite, IUIButton
     {
-        public event UIMouseEvent MouseDown = delegate { };
-        public event UIMouseEvent MouseUp = delegate { };
+        public event UIMouseEvent MouseDown;
+        public event UIMouseEvent MouseUp;
 
         public event UIMouseAllowEvent CanMouseDown
         {
@@ -45,7 +45,7 @@ namespace mFramework.UI
             remove => _canMouseUpEvents.Remove(value);
         }
 
-        public event UIButtonClickEvent Clicked = delegate { };
+        public event UIButtonClickEvent Clicked;
         public event UIButtonAllowClick CanClick
         {
             add => _canClickButtonEvents.Add(value);
@@ -119,7 +119,7 @@ namespace mFramework.UI
                 return false;
             }
 
-            Clicked(this);
+            Clicked?.Invoke(this);
             return true;
         }
         
@@ -152,7 +152,7 @@ namespace mFramework.UI
 
             IsPressed = true;
             OnUIMouseDown();
-            MouseDown(this, worldPos);
+            MouseDown?.Invoke(this, worldPos);
         }
 
         public void DoMouseUp(Vector2 worldPos)
@@ -167,7 +167,7 @@ namespace mFramework.UI
             }
 
             OnUIMouseUp(worldPos);
-            MouseUp(this, worldPos);
+            MouseUp?.Invoke(this, worldPos);
             IsPressed = false;
         }
     }

@@ -107,7 +107,6 @@
     <Compile Include="src\UI\components\Slider\UIVerticalSlider.cs" />
     <Compile Include="src\UI\extensions\AnimationsExtensions.cs" />
     <Compile Include="src\UI\extensions\ComponentsExtensions.cs" />
-    <Compile Include="src\UI\layouts\LayoutOrientation.cs" />
     <Compile Include="src\UI\RectangleAreaChecker.cs" />
     <Compile Include="src\UI\UIAnchor.cs" />
     <Compile Include="src\UI\components\UIJoystick.cs" />

@@ -14,9 +14,9 @@ namespace mFramework.UI
 
     public class ScrollView : UIView, IUIDragable
     {
-        public event UIMouseEvent MouseDown = delegate {};
-        public event UIMouseEvent MouseUp = delegate { };
-        public event UIMouseEvent MouseDrag = delegate { };
+        public event UIMouseEvent MouseDown;
+        public event UIMouseEvent MouseUp;
+        public event UIMouseEvent MouseDrag;
 
         public event UIMouseAllowEvent CanMouseDown
         {
@@ -71,6 +71,7 @@ namespace mFramework.UI
         {
             _lastDragPos = worldPos;
             _averageDiff *= 10f;
+            _dragDistance = 0f;
         }
 
         private void OnUIMouseDown(Vector2 worldPos)
@@ -203,7 +204,7 @@ namespace mFramework.UI
             }
 
             OnUIMouseDrag(worldPos);
-            MouseDrag(this, worldPos);
+            MouseDrag?.Invoke(this, worldPos);
         }
 
         public void DoMouseDown(Vector2 worldPos)
@@ -219,7 +220,7 @@ namespace mFramework.UI
 
             IsPressed = true;
             OnUIMouseDown(worldPos);
-            MouseDown(this, worldPos);
+            MouseDown?.Invoke(this, worldPos);
         }
 
         public void DoMouseUp(Vector2 worldPos)
@@ -234,7 +235,7 @@ namespace mFramework.UI
             }
 
             OnUIMouseUp(worldPos);
-            MouseUp(this, worldPos);
+            MouseUp?.Invoke(this, worldPos);
             IsPressed = false;
         }
 
@@ -251,14 +252,14 @@ namespace mFramework.UI
 
             viewSettings.FlexboxProps.SortingOrder = Mathf.Max(1, viewSettings.FlexboxProps.SortingOrder);
             _flexboxLayout = Create<FlexboxLayout>(viewSettings.FlexboxProps, this);
-            _flexboxLayout.ChildObjectAdded += FlexboxLayoutOnChildObjectAdded;
+            _flexboxLayout.ChildAdded += FlexboxLayoutOnChildAdded;
             AreaChecker = RectangleAreaChecker.Default;
             UIClickablesHandler.AddDragable(this);
 
             base.ApplyProps(props, parent);
         }
 
-        private void FlexboxLayoutOnChildObjectAdded(IUIObject sender, IUIObject child)
+        private void FlexboxLayoutOnChildAdded(IUIObject sender, IUIObject child)
         {
             if (child is IUIClickable clickable)
             {
@@ -266,7 +267,7 @@ namespace mFramework.UI
                 clickable.CanMouseDown += ChildClickableOnCanMouseDown;
             }
 
-            child.ChildObjectAdded += FlexboxLayoutOnChildObjectAdded;
+            child.ChildAdded += FlexboxLayoutOnChildAdded;
         }
 
         private bool ChildClickableOnCanMouseDown(IUIClickable sender, ref Vector2 worldPos)

@@ -103,7 +103,7 @@ namespace mFramework.UI
             }
         }
 
-        public event UIEventHandler<UILabel> TextUpdated = delegate { };
+        public event UIEventHandler<UILabel> TextUpdated;
 
         /// <summary>
         /// Text with formatting
@@ -631,7 +631,7 @@ namespace mFramework.UI
             _needUpdate = false;
 
             Position = pos;
-            TextUpdated(this);
+            TextUpdated?.Invoke(this);
         }
     }
 }

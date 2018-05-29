@@ -159,9 +159,7 @@ namespace mFramework.UI
         public event UIEventHandler<IUIObject> VisibleChanged = delegate { };
         public event UIEventHandler<IUIObject> SortingOrderChanged = delegate { };
         public event UIEventHandler<IUIObject> BeforeDestroy = delegate { };
-
-        public event UIEventHandler<IUIObject, IUIObject> ChildObjectRemoved = delegate { };
-        public event UIEventHandler<IUIObject, IUIObject> ChildObjectAdded = delegate { };
+        public event UIEventHandler<IUIObject, IUIObject> ChildAdded = delegate { };
         public event UIEventHandler<IUIObject, UIAnimation> AnimationAdded = delegate { };
         #endregion
 
@@ -221,9 +219,33 @@ namespace mFramework.UI
             if (Parent != null)
             {
                 Position = Parent.Position;
-                Parent.AddChild(this);
+                Parent.Childs.Add(this);
+                Parent.ChildAdded(Parent, this);
             }
+
             OnSortingOrderChanged();
+        }
+
+        internal void SetupParent(UIObject parent)
+        {
+            Parent?.Childs.Remove(this);
+            Parent = parent;
+
+            if (parent is IView parentView)
+                ParentView = parentView;
+            else
+                ParentView = parent?.ParentView;
+
+            if (Parent == null)
+            {
+                Transform.ParentTransform(mUI.BaseView == null
+                    ? mUI.UICamera.Transform
+                    : mUI.BaseView.Transform);
+            }
+            else
+            {
+                Transform.ParentTransform(Parent.Transform);
+            }
         }
 
         private void Awake()
@@ -409,35 +431,13 @@ namespace mFramework.UI
                 anchor: points[8]
             );
         }
-
-        internal void SetupParent(UIObject parent)
-        {
-            Parent?.RemoveChild(this);
-            Parent = parent;
-
-            if (parent is IView parentView)
-                ParentView = parentView;
-            else
-                ParentView = parent?.ParentView;
-
-            if (Parent == null)
-            { 
-                Transform.ParentTransform(mUI.BaseView == null
-                    ? mUI.UICamera.Transform
-                    : mUI.BaseView.Transform);
-            }
-            else
-            {
-                Transform.ParentTransform(Parent.Transform);
-            }
-        }
-
+        
         protected virtual void OnBeforeDestroy()
         {
             
         }
 
-        private void DestroyImpl()
+        internal void DestroyImpl()
         {
             if (_destroyed)
                 return;
@@ -446,20 +446,17 @@ namespace mFramework.UI
             OnBeforeDestroy();
             BeforeDestroy(this);
 
-            Childs.ForEach(c => c.Destroy());
-            Childs.Clear();
-            Animations.Clear();
+            DestroyChilds();
+            RemoveAnimations();
 
-            Parent?.RemoveChild(this);
+            Parent?.Childs.Remove(this);
             mUI.RemoveUIObject(this);
 
             ActiveChanged = null;
             VisibleChanged = null;
             SortingOrderChanged = null;
             BeforeDestroy = null;
-
-            ChildObjectRemoved = null;
-            ChildObjectAdded = null;
+            ChildAdded = null;
             AnimationAdded = null;
 
             UnityEngine.Object.Destroy(base.gameObject);
@@ -486,15 +483,9 @@ namespace mFramework.UI
             ActiveChanged(this);
         }
 
-        internal void DestroyWithoutChecks()
-        {
-            DestroyImpl();
-        }
-
         public void DestroyChilds()
         {
-            Childs.ForEach(c => c.Destroy());
-            Childs.Clear();
+            Childs.Clear(o => o.Destroy());
         }
 
         public void Destroy()
@@ -502,7 +493,7 @@ namespace mFramework.UI
             if (this == mUI.BaseView)
                 throw new Exception("Can't destroy BaseView");
 
-            DestroyWithoutChecks();
+            DestroyImpl();
         }
 
         public IUIObject SetName(string newName)
@@ -604,7 +595,7 @@ namespace mFramework.UI
 
         public void RemoveAnimations()
         {
-            Animations.Clear();
+            Animations.Clear(a => a.RemoveInternal());
         }
 
         public void RemoveAnimations<T>() where T : UIAnimation
@@ -614,25 +605,6 @@ namespace mFramework.UI
                 if (a is T)
                     a.Remove();
             });
-        }
-
-        internal void RemoveAnimation(UIAnimation anim)
-        {
-            Animations.Remove(anim);
-        }
-
-        internal void RemoveChild(IUIObject obj)
-        {
-            if (Childs.Remove(obj))
-            {
-                ChildObjectRemoved(this, obj);       
-            }
-        }
-
-        private void AddChild(IUIObject obj)
-        {
-            Childs.Add(obj);
-            ChildObjectAdded(this, obj);
         }
     }
 }

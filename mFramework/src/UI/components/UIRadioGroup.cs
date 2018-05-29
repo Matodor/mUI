@@ -9,21 +9,21 @@ namespace mFramework.UI
 
     public class UIRadioGroup : UIComponent
     {
-        public event Action<UIRadioGroup> Selected = delegate { };
+        public event Action<UIRadioGroup> Selected;
         public IUIToggle CurrentSelected { get; private set; }
 
         private bool _canDeselectCurrent;
 
         protected override void OnBeforeDestroy()
         {
-            ChildObjectAdded -= CheckChildren;
+            ChildAdded -= CheckChildren;
             Selected = null;
             base.OnBeforeDestroy();
         }
 
         protected override void AfterAwake()
         {
-            ChildObjectAdded += CheckChildren;
+            ChildAdded += CheckChildren;
             base.AfterAwake();
         }
 
@@ -94,7 +94,7 @@ namespace mFramework.UI
             if (prev != null && prev != toggle)
                 prev.Deselect();
 
-            Selected.Invoke(this);
+            Selected?.Invoke(this);
         }
     }
 }

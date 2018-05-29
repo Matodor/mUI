@@ -30,24 +30,24 @@ namespace mFramework.UI
 
     public class UIShiftAnimation : UIAnimation
     {
-        private Vector3 _shift;
-        private Space _relativeTo = Space.World;
+        public Vector3 Shift;
+        public Space RelativeTo = Space.World;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
             if (!(settings is UIShiftAnimationSettings translateSettings))
                 throw new ArgumentException("TranslateAnimation: The given settings is not TranslateAnimationSettings");
 
-            _shift = translateSettings.Shift;
-            _relativeTo = translateSettings.RelativeTo;
+            Shift = translateSettings.Shift;
+            RelativeTo = translateSettings.RelativeTo;
             
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            var shift = _shift * DeltaEasingTime;
-            UIObject.Translate(shift, _relativeTo);
+            var shift = Shift * DeltaEasingTime;
+            UIObject.Translate(shift, RelativeTo);
         }
     }
 }
