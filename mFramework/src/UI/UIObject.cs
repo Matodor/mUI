@@ -73,6 +73,7 @@ namespace mFramework.UI
             get => _padding;
             set
             {
+                // TODO make faster
                 var pos = Position;
                 _padding = value;
                 Position = pos;

@@ -22,6 +22,8 @@ namespace mFramework.UI
             TextAlignment = TextAlignment.Left,
             MaxWidth = null
         };
+
+        public IDictionary<int, TextFormatting> TextFormatting = null;
     }
 
     /*
@@ -33,13 +35,13 @@ namespace mFramework.UI
     }
     */
 
-    public class TextFormatting
+    public struct TextFormatting
     {
-        public int? Size = null;
-        public Color? Color = null; 
-        public float? LetterSpacing = null;
-        public float? WordSpacing = null;
-        public FontStyle? FontStyle = null;
+        public int? Size;
+        public Color? Color; 
+        public float? LetterSpacing;
+        public float? WordSpacing;
+        public FontStyle? FontStyle;
     }
 
     public struct TextStyle
@@ -81,7 +83,6 @@ namespace mFramework.UI
             {
                 _needUpdate = true;
                 _textStyle = value;
-                RequestCharactersInFont();
             }
         }
 
@@ -99,7 +100,6 @@ namespace mFramework.UI
                     _textFormatting.Add(index, value);
 
                 _needUpdate = true;
-                RequestCharactersInFont();
             }
         }
 
@@ -115,7 +115,6 @@ namespace mFramework.UI
             {
                 _needUpdate = true;
                 _text = value;
-                RequestCharactersInFont();
             }
         }
 
@@ -139,7 +138,6 @@ namespace mFramework.UI
         {
             UIRenderer = GameObject.AddComponent<MeshRenderer>();
             _meshFilter = GameObject.AddComponent<MeshFilter>();
-            _textFormatting = new Dictionary<int, TextFormatting>();
 
             Font.textureRebuilt += FontRebuilt;
             SortingOrderChanged += OnSortingOrderChanged;
@@ -202,6 +200,9 @@ namespace mFramework.UI
             if (!(props is UILabelProps labelSettings))
                 throw new ArgumentException("UILabel: The given settings is not UILabelSettings");
 
+            _textFormatting = labelSettings.TextFormatting == null 
+                ? new Dictionary<int, TextFormatting>() 
+                : new Dictionary<int, TextFormatting>(labelSettings.TextFormatting);
             _textColor = labelSettings.Color;
             _text = labelSettings.Text;
             _textStyle = labelSettings.TextStyle;
@@ -213,7 +214,6 @@ namespace mFramework.UI
             UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0)
                 .TextMaterials[labelSettings.Font];
 
-            _needUpdate = true;
             RequestCharactersInFont();
             UpdateMesh();
             base.ApplyProps(props);
@@ -222,7 +222,11 @@ namespace mFramework.UI
         protected override void OnTick()
         {
             if (IsShowing && _needUpdate)
+            {
+                RequestCharactersInFont();
                 UpdateMesh();
+            }
+
             base.OnTick();
         }
 
@@ -232,14 +236,13 @@ namespace mFramework.UI
             {
                 //UpdateMaterial(font);
                 UIRenderer.sharedMaterial.SetVector("_TextureSampleAdd", new Vector4(1f, 1f, 1f, 0f));
-                RequestCharactersInFont();
                 _needUpdate = true;
+                RequestCharactersInFont();
             }
         }
 
         private void RequestCharactersInFont()
         {
-            var formattingIndex = -1;
             var text = Text
                 .Replace('\t', ' ')
                 .TrimStart('\n');
@@ -247,56 +250,69 @@ namespace mFramework.UI
             var style = _textStyle;
             style.Size = mMath.Clamp(style.Size, 1, MAX_SIZE);
 
+            var size = (int) (style.Size * _cachedFont.Harshness);
+            var fontStyle = style.FontStyle;
+            var prevFormatting = -1;
+
             for (var i = 0; i < text.Length; i++)
             {
                 CharacterInfo characterInfo;
                 var currentCharacter = text[i];
-                var size = 0;
 
                 if (_textFormatting.Count > 0)
                 {
-                    var skip = ParseFormatting(i, text, ref formattingIndex);
+                    if (IsNewFormatting(i, text, prevFormatting, out var skip, out var newFormatting))
+                    {
+                        // reset to default
+                        if (newFormatting == -1)
+                        {
+                            size = (int)(style.Size * _cachedFont.Harshness);
+                            fontStyle = style.FontStyle;
+                        }
+                        else if (_textFormatting.TryGetValue(newFormatting, out var formatting))
+                        {
+                            size = (int) (formatting.Size.GetValueOrDefault(style.Size) *
+                                _cachedFont.Harshness);
+                            fontStyle = formatting.FontStyle.GetValueOrDefault(style.FontStyle);
+                        }
+
+                        prevFormatting = newFormatting;
+                    }
+
+                    if (!_cachedFont.Font.GetCharacterInfo(
+                        ch: currentCharacter,
+                        info: out characterInfo,
+                        size: size,
+                        style: fontStyle)
+                    )
+                    {
+                        _cachedFont.Font.RequestCharactersInTexture(
+                            characters: currentCharacter.ToString(),
+                            size: size,
+                            style: fontStyle
+                        );
+                    }
+
                     if (skip != 0)
                     {
                         i += skip;
                         i--;
-                        continue;
-                    }
-
-                    if (formattingIndex != -1 && _textFormatting.ContainsKey(formattingIndex))
-                    {
-                        var currentFormatting = _textFormatting[formattingIndex];
-                        size = (int) (currentFormatting.Size.GetValueOrDefault(style.Size) 
-                            * _cachedFont.Harshness);
-
-                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, out characterInfo,
-                            size, currentFormatting.FontStyle.GetValueOrDefault(style.FontStyle)))
-                        {
-                            _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(),
-                                size, currentFormatting.FontStyle.GetValueOrDefault(style.FontStyle));
-                        }
-                    }
-                    else
-                    {
-                        size = (int) (style.Size * _cachedFont.Harshness);
-
-                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
-                            out characterInfo, size, style.FontStyle))
-                        {
-                            _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), 
-                                size, style.FontStyle);
-                        }
                     }
                 }
                 else
                 {
-                    size = (int)(style.Size * _cachedFont.Harshness);
-
-                    if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
-                        out characterInfo, size, style.FontStyle))
+                    if (!_cachedFont.Font.GetCharacterInfo(
+                        ch: currentCharacter,
+                        info: out characterInfo, 
+                        size: size, 
+                        style: fontStyle)
+                    )
                     {
-                        _cachedFont.Font.RequestCharactersInTexture(currentCharacter.ToString(), 
-                            size, style.FontStyle);
+                        _cachedFont.Font.RequestCharactersInTexture(
+                            characters: currentCharacter.ToString(), 
+                            size: size, 
+                            style: fontStyle
+                        );
                     }
                 }
             }
@@ -309,7 +325,7 @@ namespace mFramework.UI
             _meshRenderer.sharedMaterial.SetTextureScale("_MainTex", font.material.mainTextureScale);
         }*/
 
-        private static int ParseFormatting(int i, string text, ref int formattingIndex)
+        private static bool IsNewFormatting(int i, string text, int prevFormatting, out int skip, out int newFormatting)
         {
             // [=0]
             if (i + 3 < text.Length &&
@@ -319,8 +335,22 @@ namespace mFramework.UI
                 char.IsNumber(text[i + 2]))
             {
                 if (int.TryParse(text.Substring(i + 2, 1), out var index))
-                    formattingIndex = index;
-                return 4;
+                {
+                    skip = 4;
+
+                    if (index != prevFormatting)
+                    {
+                        newFormatting = index;
+                        return true;
+                    }
+
+                    newFormatting = prevFormatting;
+                    return false;
+                }
+
+                skip = 0;
+                newFormatting = prevFormatting;
+                return false;
             }
 
             // [=10]
@@ -332,8 +362,22 @@ namespace mFramework.UI
                 char.IsNumber(text[i + 3]))
             {
                 if (int.TryParse(text.Substring(i + 2, 2), out var index))
-                    formattingIndex = index;
-                return 5;
+                {
+                    skip = 5;
+
+                    if (index != prevFormatting)
+                    {
+                        newFormatting = index;
+                        return true;
+                    }
+
+                    newFormatting = prevFormatting;
+                    return false;
+                }
+
+                skip = 0;
+                newFormatting = prevFormatting;
+                return false;
             }
 
             // [=/]
@@ -343,11 +387,14 @@ namespace mFramework.UI
                 text[i + 2] == '/' &&
                 text[i + 3] == ']')
             {
-                formattingIndex = -1;
-                return 4;
+                skip = 4;
+                newFormatting = -1;
+                return true;
             }
 
-            return 0;
+            skip = 0;
+            newFormatting = prevFormatting;
+            return false;
         }
 
         private struct LineInfo
@@ -371,13 +418,7 @@ namespace mFramework.UI
             //    return;
 
             const float pixelsPerWorldUnit = 100f;
-
             var pos = Position;
-            var style = _textStyle;
-            style.Size = mMath.Clamp(style.Size, 1, MAX_SIZE);
-
-            //var localScale = Scale;
-            //Scale = Vector2.one;
 
             var text = Text
                 .Replace("\t", "   ")
@@ -392,9 +433,7 @@ namespace mFramework.UI
             UnscaledHeight = 0f;
             UnscaledWidth = 0f;
 
-            var currentFormatting = (TextFormatting) null;
             var textXOffset = 0f;
-
             var formattingIndex = -1;
             var startLineIndex = 0;
 
@@ -407,16 +446,58 @@ namespace mFramework.UI
 
             //mCore.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
 
+            var style = _textStyle;
+            style.Size = mMath.Clamp(style.Size, 1, MAX_SIZE);
+
+            var size = (int)(style.Size * _cachedFont.Harshness);
+            var color = _textColor;
+            var letterSpacing = style.LetterSpacing;
+            var wordSpacing = style.WordSpacing;
+            var fontStyle = style.FontStyle;
+            var prevFormatting = -1;
+
             for (var i = 0; i < text.Length; i++)
             {
                 var forceNewLine = false;
                 CharacterInfo characterInfo;
                 var currentCharacter = text[i];
-                var size = 0;
 
                 if (_textFormatting.Count > 0)
                 {
-                    var skip = ParseFormatting(i, text, ref formattingIndex);
+                    if (IsNewFormatting(i, text, prevFormatting, out var skip, out var newFormatting))
+                    {
+                        // reset to default
+                        if (newFormatting == -1)
+                        {
+                            size = (int)(style.Size * _cachedFont.Harshness);
+                            color = _textColor;
+                            letterSpacing = style.LetterSpacing;
+                            wordSpacing = style.WordSpacing;
+                            fontStyle = style.FontStyle;
+                        }
+                        else if (_textFormatting.TryGetValue(newFormatting, out var formatting))
+                        {
+                            size = (int) (formatting.Size.GetValueOrDefault(style.Size) * 
+                                _cachedFont.Harshness);
+                            color = formatting.Color.GetValueOrDefault(_textColor);
+                            letterSpacing = formatting.LetterSpacing.GetValueOrDefault(style.LetterSpacing);
+                            wordSpacing = formatting.WordSpacing.GetValueOrDefault(style.WordSpacing);
+                            fontStyle = formatting.FontStyle.GetValueOrDefault(style.FontStyle);
+                        }
+
+                        prevFormatting = newFormatting;
+                    }
+
+                    if (!_cachedFont.Font.GetCharacterInfo(
+                        ch: currentCharacter,
+                        info: out characterInfo,
+                        size: size,
+                        style: fontStyle)
+                    )
+                    {
+                        continue;
+                    }
+
                     if (skip != 0)
                     {
                         i += skip;
@@ -429,38 +510,19 @@ namespace mFramework.UI
                         i--;
                         continue;
                     }
-
-                    if (formattingIndex != -1 && _textFormatting.ContainsKey(formattingIndex))
-                    {
-                        currentFormatting = _textFormatting[formattingIndex];
-                        size = (int) (currentFormatting.Size.GetValueOrDefault(style.Size) * _cachedFont.Harshness);
-
-                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, out characterInfo,
-                            size, currentFormatting.FontStyle.GetValueOrDefault(style.FontStyle)))
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        currentFormatting = null;
-                        size = (int) (style.Size * _cachedFont.Harshness);
-
-                        if (!_cachedFont.Font.GetCharacterInfo(currentCharacter,
-                            out characterInfo, size, style.FontStyle))
-                        {
-                            continue;
-                        }
-                    }
                 }
                 else
                 {
-                    size = (int) (style.Size * _cachedFont.Harshness);
-
-                    if (!_cachedFont.Font.GetCharacterInfo(currentCharacter, 
-                        out characterInfo, size, style.FontStyle))
+                    if (!_cachedFont.Font.GetCharacterInfo(
+                        ch: currentCharacter,
+                        info: out characterInfo,
+                        size: size,
+                        style: fontStyle)
+                    )
+                    {
                         continue;
-                }
+                    }
+                }              
 
                 var minX = characterInfo.minX / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var maxX = characterInfo.maxX / pixelsPerWorldUnit / _cachedFont.Harshness;
@@ -508,22 +570,12 @@ namespace mFramework.UI
 
                 if (currentCharacter == ' ')
                 {
-                    textXOffset += advance *
-                                   (currentFormatting == null
-                                       ? style.WordSpacing
-                                       : currentFormatting.WordSpacing.GetValueOrDefault(style.WordSpacing));
+                    textXOffset += advance * wordSpacing;
                 }
                 else
                 {
-                    textXOffset += advance *
-                                   (currentFormatting == null
-                                       ? style.LetterSpacing
-                                       : currentFormatting.LetterSpacing.GetValueOrDefault(style.LetterSpacing));
+                    textXOffset += advance * letterSpacing;
                 }
-
-                var color = currentFormatting == null 
-                    ? _textColor
-                    : currentFormatting.Color.GetValueOrDefault(_textColor);
 
                 colorsList.Add(color);
                 colorsList.Add(color);
