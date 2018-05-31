@@ -222,6 +222,16 @@ namespace mFramework.UI
                 : (obj as UIObject).GetAnchorPos(anchor);
         }
 
+        public static Vector3 PositionByPivot<T>(this T obj, 
+            Vector2 pivot, Space relativeTo = Space.World) where T : IUIObject
+        {
+            return relativeTo == Space.Self
+                // ReSharper disable once PossibleNullReferenceException
+                ? (obj as UIObject).GetLocalAnchorPos(pivot)
+                // ReSharper disable once PossibleNullReferenceException
+                : (obj as UIObject).GetAnchorPos(pivot);
+        }
+
         public static T Color<T>(this T obj, Color color) where T : IUIColored
         {
             obj.Color = color;

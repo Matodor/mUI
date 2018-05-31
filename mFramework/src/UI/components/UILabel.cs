@@ -89,6 +89,8 @@ namespace mFramework.UI
         public MeshRenderer UIRenderer { get; private set; }
         Renderer IUIRenderer.UIRenderer => UIRenderer;
 
+        public int TextFormattings => _textFormatting.Count;
+
         public TextFormatting this[int index]
         {
             get => _textFormatting[index];

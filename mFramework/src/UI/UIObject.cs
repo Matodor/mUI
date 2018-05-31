@@ -35,7 +35,7 @@ namespace mFramework.UI
 
     public abstract class UIObject : MonoBehaviour, IUIObject
     {
-        public Transform Transform => base.transform;
+        internal Transform Transform => base.transform;
         internal GameObject GameObject => base.gameObject;
 
         [Obsolete("mUI disallow use gameObject property")]
@@ -73,7 +73,6 @@ namespace mFramework.UI
             get => _padding;
             set
             {
-                // TODO make faster
                 var pos = Position;
                 _padding = value;
                 Position = pos;
@@ -185,34 +184,11 @@ namespace mFramework.UI
 
         internal void ScaleByAnchor(Vector2 scale, UIAnchor anchor)
         {
-            var h = UnscaledHeight * Transform.localScale.y
-                    + (Padding.Top + Padding.Bottom) * Transform.localScale.y;
-
-            var w = UnscaledWidth * Transform.localScale.x
-                    + (Padding.Left + Padding.Right) * Transform.localScale.x;
-
-            var nh = UnscaledHeight * scale.y
-                     + (Padding.Top + Padding.Bottom) * scale.y;
-
-            var nw = UnscaledWidth * scale.x
-                     + (Padding.Left + Padding.Right) * scale.x;
-
-            var diff = new Vector2(nw - w, nh - h);
-            var pivotDir = -PivotDirectionFromCenter(anchor);
-
-            var dir = -new Vector2(
-                UnscaledCenterOffset.x / UnscaledWidth,
-                UnscaledCenterOffset.y / UnscaledHeight
-            );
-
-            var diffToCenter = new Vector2(diff.x * dir.x, diff.y * dir.y);
-            diffToCenter = mMath.GetRotatedPoint(Vector2.zero, diffToCenter, LocalRotation);
-
-            diff = new Vector2(diff.x * pivotDir.x, diff.y * pivotDir.y);
-            diff = mMath.GetRotatedPoint(Vector2.zero, diff, LocalRotation);
+            var pos = Transform.localPosition + 
+                AnchorOffsetFromTransformPos(PivotByAnchor(anchor), Rotation);
 
             Transform.localScale = scale;
-            Transform.localPosition += (Vector3)(diffToCenter + diff);
+            Transform.localPosition = pos - AnchorOffsetFromTransformPos(PivotByAnchor(anchor), Rotation);
         }
 
         internal void InitCompleted()
@@ -251,7 +227,7 @@ namespace mFramework.UI
 
         private void Awake()
         {
-            //Transform.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
+            Transform.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
             GUID = ++_guid;
             Parent = null;
             Animations = UnidirectionalList<UIAnimation>.Create();
@@ -264,37 +240,7 @@ namespace mFramework.UI
             mUI.AddUIObject(this);
             AfterAwake();
         }
-
-        public static Vector2 PivotDirectionFromCenter(UIAnchor anchor)
-        {
-            switch (anchor)
-            {
-                case UIAnchor.UpperLeft:
-                    return new Vector2(-0.5f, 0.5f);
-                case UIAnchor.UpperCenter:
-                    return new Vector2(0f, 0.5f);
-                case UIAnchor.UpperRight:
-                    return new Vector2(0.5f, 0.5f);
-
-                case UIAnchor.MiddleLeft:
-                    return new Vector2(-0.5f, 0f);
-                case UIAnchor.MiddleCenter:
-                    return new Vector2(0f, 0f);
-                case UIAnchor.MiddleRight:
-                    return new Vector2(0.5f, 0f);
-
-                case UIAnchor.LowerLeft:
-                    return new Vector2(-0.5f, -0.5f);
-                case UIAnchor.LowerCenter:
-                    return new Vector2(0f, -0.5f);
-                case UIAnchor.LowerRight:
-                    return new Vector2(0.5f, -0.5f);
-
-                default:
-                    return new Vector2(0f, 0f);
-            }
-        }
-
+        
         // x - from left to right, y from bottom to top
         public static Vector2 PivotByAnchor(UIAnchor anchor)
         {
@@ -326,16 +272,26 @@ namespace mFramework.UI
             }
         }
 
+        internal Vector3 GetLocalAnchorPos(Vector2 pivot)
+        {
+            return Transform.localPosition +
+                   AnchorOffsetFromTransformPos(pivot, LocalRotation);
+        }
+
+        internal Vector3 GetAnchorPos(Vector2 pivot)
+        {
+            return Transform.position +
+                   AnchorOffsetFromTransformPos(pivot, Rotation);
+        }
+
         internal Vector3 GetLocalAnchorPos(UIAnchor anchor)
         {
-            return Transform.localPosition + 
-                AnchorOffsetFromTransformPos(PivotByAnchor(anchor), LocalRotation);
+            return GetLocalAnchorPos(PivotByAnchor(anchor));
         }
 
         internal Vector3 GetAnchorPos(UIAnchor anchor)
         {
-            return Transform.position +
-                AnchorOffsetFromTransformPos(PivotByAnchor(anchor), Rotation);
+            return GetAnchorPos(PivotByAnchor(anchor));
         }
 
         internal void LocalPositionByAnchor(Vector3 pos, UIAnchor anchor)
@@ -358,11 +314,9 @@ namespace mFramework.UI
             );
         }
 
-        private NotRotatedRect NotRotatedLocalRect()
+        private NotRotatedRect NotRotatedLocalRect(Vector2 scale)
         {
             var centerOffset = CenterOffset;
-            var scale = GlobalScale;
-
             var left =   -UnscaledWidth  / 2 * scale.x - Padding.Left   * scale.x;
             var right =  +UnscaledWidth  / 2 * scale.x + Padding.Right  * scale.x;
             var top =    +UnscaledHeight / 2 * scale.y + Padding.Top    * scale.y;
@@ -385,9 +339,9 @@ namespace mFramework.UI
             );
         }
 
-        private Vector3 AnchorOffsetFromTransformPos(Vector2 anchorPivot, float rotation)
+        internal Vector3 AnchorOffsetFromTransformPos(Vector2 anchorPivot, float rotation)
         {
-            var rect = NotRotatedLocalRect();
+            var rect = NotRotatedLocalRect(GlobalScale);
             var notRotatedAnchorOffset = NotRotatedAnchorOffset(rect, anchorPivot);
             var center = mMath.GetRotatedPoint(Vector2.zero, rect.CenterOffset, rotation);
             return mMath.GetRotatedPoint(center, notRotatedAnchorOffset, rotation);
@@ -395,7 +349,7 @@ namespace mFramework.UI
 
         internal UIRect GetRect(Vector2 transformPosition)
         {
-            var rect = NotRotatedLocalRect();
+            var rect = NotRotatedLocalRect(GlobalScale);
             var center = mMath.GetRotatedPoint(transformPosition, rect.CenterOffset, Rotation);
             var notRotatedAnchorOffset = NotRotatedAnchorOffset(rect, _anchorPivot);
 

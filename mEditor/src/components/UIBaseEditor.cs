@@ -32,11 +32,18 @@ namespace mFramework.UI
 
             Gizmos.color = Color.red;
             Gizmos.DrawWireCube(rect.Anchor, new Vector3(0.1f, 0.1f, 0.1f));
+
+            /*Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(source.Transform.position, 0.05f);
+
+            Gizmos.DrawLine(source.Transform.position, source.Transform.position +
+                                                       source.AnchorOffsetFromTransformPos(
+                                                           UIObject.PivotByAnchor(source.Anchor), source.Rotation));*/
         }
 
         public override void OnInspectorGUI()
         {
-            EditorGUILayout.Vector2Field("RR", _object.Transform.localPosition);
+            //EditorGUILayout.Vector2Field("RR", _object.Transform.localPosition);
             
             {
                 EditorGUI.BeginChangeCheck();
@@ -149,8 +156,8 @@ namespace mFramework.UI
         private static string Vector2(Vector3 vector3)
         {
             return "new Vector2(" +
-                $"{vector3.x.ToString("F").Replace(",", ".")}f," +
-                $"{vector3.y.ToString("F").Replace(",", ".")}f" +
+                $"{vector3.x.ToString("F4").Replace(",", ".")}f," +
+                $"{vector3.y.ToString("F4").Replace(",", ".")}f" +
             ")";
         }
     }
