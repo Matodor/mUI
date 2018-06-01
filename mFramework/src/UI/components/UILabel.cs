@@ -217,7 +217,7 @@ namespace mFramework.UI
                 .TextMaterials[labelSettings.Font];
 
             RequestCharactersInFont();
-            UpdateMesh();
+            UpdateMesh(true);
             base.ApplyProps(props);
         }
 
@@ -226,7 +226,7 @@ namespace mFramework.UI
             if (IsShowing && _needUpdate)
             {
                 RequestCharactersInFont();
-                UpdateMesh();
+                UpdateMesh(false);
             }
 
             base.OnTick();
@@ -238,8 +238,10 @@ namespace mFramework.UI
             {
                 //UpdateMaterial(font);
                 UIRenderer.sharedMaterial.SetVector("_TextureSampleAdd", new Vector4(1f, 1f, 1f, 0f));
+
                 _needUpdate = true;
                 RequestCharactersInFont();
+                UpdateMesh(true);
             }
         }
 
@@ -411,9 +413,9 @@ namespace mFramework.UI
 
         private const int MAX_SIZE = 256 / 2;
 
-        private void UpdateMesh()
+        private void UpdateMesh(bool force)
         {
-            if (!IsActive)
+            if (!force && !IsActive)
                 return;
 
             //if (string.IsNullOrEmpty(Text))

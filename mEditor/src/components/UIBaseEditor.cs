@@ -100,13 +100,9 @@ namespace mFramework.UI
 
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.LongField("GUID", (long) _object.GUID);
-            EditorGUILayout.IntField("Sorting order", _object.SortingOrder);
-
             EditorGUILayout.Vector2Field("CenterOffset", _object.CenterOffset);
             EditorGUILayout.Vector2Field("UnscaledCenterOffset", _object.UnscaledCenterOffset);
-
-            //EditorGUILayout.Vector3Field("AnchorLocalPosition", _object.AnchorLocalPosition(_object.AnchorPivot, out _));
-            //EditorGUILayout.Vector3Field("AnchorPosition", _object.AnchorPosition(_object.AnchorPivot, out _));
+            EditorGUILayout.IntField("Sorting order", _object.SortingOrder);
             EditorGUI.EndDisabledGroup();
 
             {

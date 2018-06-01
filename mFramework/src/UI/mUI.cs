@@ -30,13 +30,11 @@ namespace mFramework.UI
             if (_instance == null)
             {
                 _instance = new mUI();
-                Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
             }
         }
 
         ~mUI()
         {
-            Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
             mCore.Log("~mUI");
         }
 
@@ -65,13 +63,15 @@ namespace mFramework.UI
                 SortingOrder = 0,
                 StencilId = 0,
             }, null);
-            
+
+            Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
             mCore.ApplicationQuitEvent += OnApplicationQuitEvent;
             mCore.Log("[mFramework][UI] created");
         }
          
         private static void OnApplicationQuitEvent()
         {
+            Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
             BaseView.DestroyImpl();
             _instance = null;
         }

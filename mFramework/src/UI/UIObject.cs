@@ -397,12 +397,12 @@ namespace mFramework.UI
             if (_destroyed)
                 return;
 
+            DestroyChilds();
+            RemoveAnimations();
+
             _destroyed = true;
             OnBeforeDestroy();
             BeforeDestroy(this);
-
-            DestroyChilds();
-            RemoveAnimations();
 
             Parent?.Childs.Remove(this);
             mUI.RemoveUIObject(this);
@@ -426,6 +426,7 @@ namespace mFramework.UI
         {
             if (_destroyed)
                 return;
+
             VisibleChanged(this);
             ActiveChanged(this);
         }
@@ -434,6 +435,7 @@ namespace mFramework.UI
         {
             if (_destroyed)
                 return;
+
             VisibleChanged(this);
             ActiveChanged(this);
         }
