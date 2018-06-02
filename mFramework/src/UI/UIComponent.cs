@@ -36,7 +36,7 @@ namespace mFramework.UI
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
             component.SetupParent(parent);
             component.ApplyProps(props);
-            component.InitCompleted();
+            component.InitCompleted(true);
             return component;
         }
 

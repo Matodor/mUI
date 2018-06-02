@@ -191,11 +191,12 @@ namespace mFramework.UI
             Transform.localPosition = pos - AnchorOffsetFromTransformPos(PivotByAnchor(anchor), Rotation);
         }
 
-        internal void InitCompleted()
+        internal void InitCompleted(bool setPosition)
         {
             if (Parent != null)
             {
-                Position = Parent.Position;
+                if (setPosition)
+                    Position = Parent.Position;
                 Parent.Childs.Add(this);
                 Parent.ChildAdded(Parent, this);
             }

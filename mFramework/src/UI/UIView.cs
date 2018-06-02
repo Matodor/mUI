@@ -96,7 +96,7 @@ namespace mFramework.UI
 
             SetupParent((UIObject) parent);
             ApplyProps(props, parent);
-            InitCompleted();
+            InitCompleted(true);
             CreateInterface(@params);
 
             if (_stencilId.HasValue)

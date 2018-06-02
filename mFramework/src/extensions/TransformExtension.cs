@@ -32,7 +32,6 @@ namespace mFramework
                 throw new ArgumentNullException(nameof(parent));
 
             transform.parent = parent;
-            transform.localPosition = Vector3.zero;
         }
     }
 }

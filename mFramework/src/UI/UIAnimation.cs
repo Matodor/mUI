@@ -60,6 +60,8 @@ namespace mFramework.UI
         /// </summary>
         public float EasingTime { get; private set; }
         public float DeltaEasingTime { get; private set; }
+        public float Duration { get; set; }
+        public readonly float AttachTime;
 
         public UIObject UIObject { get; private set; }
         public ulong GUID { get; }
@@ -71,7 +73,6 @@ namespace mFramework.UI
 
         public float AnimateEvery { get; set; }
         public bool DestroyUIObjectOnEnd { get; set; }
-        public float Duration { get; set; }
         public ulong MaxRepeats { get; set; }
         public ulong Repeats { get; private set; }
 
@@ -97,6 +98,7 @@ namespace mFramework.UI
             DestroyUIObjectOnEnd = false;
 
             GUID = ++_guid;
+            AttachTime = UnityEngine.Time.time;
         }
 
         internal static T Create<T>(UIObject parent, UIAnimationSettings settings) 
@@ -189,8 +191,6 @@ namespace mFramework.UI
         {
             if (State == UIAnimationState.STOPPED)
                 return;
-         
-            Animate();
 
             DeltaTime = (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) *
                         (UnityEngine.Time.deltaTime / Duration);
@@ -199,10 +199,13 @@ namespace mFramework.UI
             var easingTime = EasingFunctions.GetValue(EasingType, 1f, Time, 1f);
             DeltaEasingTime = easingTime - EasingTime;
             EasingTime = easingTime;
+
+            Animate();
         }
 
         internal void RemoveInternal()
         {
+            State = UIAnimationState.STOPPED;
             AnimationRemoved?.Invoke(this);
             AnimationRepeat = null;
             AnimationEnded = null;
