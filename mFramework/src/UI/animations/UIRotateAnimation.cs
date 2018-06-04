@@ -8,6 +8,7 @@ namespace mFramework.UI
         public float FromAngle;
         public float ToAngle;
         public Space RelativeTo = Space.World;
+        public Vector3? RotateAround;
     }
 
     public class UIRotateAnimation : UIAnimation
@@ -15,6 +16,7 @@ namespace mFramework.UI
         public float FromAngle;
         public float EndAngle;
         public Space RelativeTo = Space.World;
+        public Vector3? RotateAround;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -24,14 +26,23 @@ namespace mFramework.UI
             FromAngle = rotateSettings.FromAngle;
             EndAngle = rotateSettings.ToAngle;
             RelativeTo = rotateSettings.RelativeTo;
+            RotateAround = rotateSettings.RotateAround;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            UIObject.Rotation(BezierHelper.Linear(EasingTime, FromAngle, EndAngle), 
-                RelativeTo);
+            var rotation = BezierHelper.Linear(EasingTime, FromAngle, EndAngle);
+
+            if (RotateAround != null)
+            {
+                UIObject.RotateAround(RotateAround.Value, rotation, RelativeTo);
+            }
+            else
+            {
+                UIObject.Rotation(rotation, RelativeTo);
+            }
         }
     }
 }

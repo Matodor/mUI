@@ -80,22 +80,37 @@ namespace mFramework.UI
                     _object.LocalRotation = rotation;
             }
             EditorGUILayout.Space();
-            var active = EditorGUILayout.Toggle("IsActive", _object.IsActive);
-            if (active != _object.IsActive)
+
             {
-                if (active)
-                    _object.Enable();
-                else
-                    _object.Disable();
+                EditorGUI.BeginChangeCheck();
+                var active = EditorGUILayout.Toggle("IsActive", _object.IsActive);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (active)
+                        _object.Enable();
+                    else
+                        _object.Disable();
+                }
             }
-            
-            var show = EditorGUILayout.Toggle("IsShowing", _object.IsShowing);
-            if (show != _object.IsShowing)
+
             {
-                if (show)
-                    _object.Show();
-                else
-                    _object.Hide();
+                EditorGUI.BeginChangeCheck();
+                var show = EditorGUILayout.Toggle("IsShowing", _object.IsShowing);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (show)
+                        _object.Show();
+                    else
+                        _object.Hide();
+                }
+            }
+
+            if (_object is IUIClickable clickable)
+            {
+                EditorGUI.BeginChangeCheck();
+                var ignoreByHandler = EditorGUILayout.Toggle("IgnoreByHandler", clickable.IgnoreByHandler);
+                if (EditorGUI.EndChangeCheck())
+                    clickable.IgnoreByHandler = ignoreByHandler;
             }
 
             EditorGUI.BeginDisabledGroup(true);

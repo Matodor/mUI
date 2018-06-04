@@ -121,19 +121,13 @@ namespace mFramework.UI
         public float Rotation
         {
             get => Transform.eulerAngles.z;
-            set => Transform.RotateAround(
-                Position, Vector3.forward, 
-                value - Transform.eulerAngles.z
-            );
+            set => RotateAround(Position, value, Space.World);
         }
 
         public float LocalRotation
         {
             get => Transform.localEulerAngles.z;
-            set => Transform.RotateAround(
-                Position, Vector3.forward,
-                value - Transform.localEulerAngles.z
-            );
+            set => RotateAround(Position, value, Space.Self);
         }
 
         public int LocalSortingOrder
@@ -180,6 +174,14 @@ namespace mFramework.UI
             _anchorPivot = PivotByAnchor(_anchor);
             _padding = props.Padding.GetValueOrDefault(new UIPadding());
             _localSortingOrder = props.SortingOrder;
+        }
+
+        internal void RotateAround(Vector3 point, float rotation, Space relativeTo)
+        {
+            Transform.RotateAround(point, Vector3.forward, rotation - (relativeTo == Space.Self
+                ? Transform.localEulerAngles.z
+                : Transform.eulerAngles.z)
+            );
         }
 
         internal void ScaleByAnchor(Vector2 scale, UIAnchor anchor)

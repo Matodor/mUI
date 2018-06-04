@@ -43,6 +43,7 @@ namespace mFramework.UI
         protected override void OnBeforeDestroy()
         {
             SortingOrderChanged -= OnSortingOrderChanged;
+            UnityEngine.GameObject.Destroy(MeshFilter.mesh);
             base.OnBeforeDestroy();
         }
 
