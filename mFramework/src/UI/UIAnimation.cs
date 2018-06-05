@@ -215,8 +215,8 @@ namespace mFramework.UI
 
         public void Remove()
         {
-            RemoveInternal();
             UIObject.Animations.Remove(this);
+            RemoveInternal();
         }
     }
 }

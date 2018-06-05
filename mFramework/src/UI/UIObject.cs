@@ -49,7 +49,7 @@ namespace mFramework.UI
 
         public IView ParentView { get; private set; }
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
-        public UnidirectionalList<IUIObject> Childs { get; private set; }
+        public UnidirectionalList<UIObject> Childs { get; private set; }
 
         public virtual Vector2 CenterOffset => new Vector2(
             UnscaledCenterOffset.x * GlobalScale.x,
@@ -96,18 +96,14 @@ namespace mFramework.UI
 
         public Vector3 LocalPosition
         {
-            get => Transform.localPosition -
-                   (Parent?.AnchorOffsetFromTransformPos(Parent._anchorPivot, 0) ?? Vector3.zero) +
-                   AnchorOffsetFromTransformPos(_anchorPivot, LocalRotation);
-            set => Transform.localPosition = value +
-                   (Parent?.AnchorOffsetFromTransformPos(Parent._anchorPivot, 0) ?? Vector3.zero) -
-                   AnchorOffsetFromTransformPos(_anchorPivot, LocalRotation);
+            get => GetLocalAnchorPos(_anchorPivot);
+            set => LocalPositionByPivot(value, _anchorPivot);
         }
 
         public virtual Vector3 Position
         {
-            get => Transform.position + AnchorOffsetFromTransformPos(_anchorPivot, Rotation);
-            set => Transform.position = value - AnchorOffsetFromTransformPos(_anchorPivot, Rotation);
+            get => GetAnchorPos(_anchorPivot);
+            set => PositionByPivot(value, _anchorPivot);
         }
 
         public virtual Vector3 Scale
@@ -198,7 +194,11 @@ namespace mFramework.UI
             if (Parent != null)
             {
                 if (setPosition)
+                {
                     Position = Parent.Position;
+                    Rotation = Parent.Rotation;
+                }
+
                 Parent.Childs.Add(this);
                 Parent.ChildAdded(Parent, this);
             }
@@ -234,7 +234,7 @@ namespace mFramework.UI
             GUID = ++_guid;
             Parent = null;
             Animations = UnidirectionalList<UIAnimation>.Create();
-            Childs = UnidirectionalList<IUIObject>.Create();
+            Childs = UnidirectionalList<UIObject>.Create();
 
             _destroyed = false;
             _localSortingOrder = 0;
@@ -277,7 +277,8 @@ namespace mFramework.UI
 
         internal Vector3 GetLocalAnchorPos(Vector2 pivot)
         {
-            return Transform.localPosition +
+            return Transform.localPosition -
+                   (Parent?.AnchorOffsetFromTransformPos(Parent._anchorPivot, 0) ?? Vector3.zero) +
                    AnchorOffsetFromTransformPos(pivot, LocalRotation);
         }
 
@@ -297,27 +298,28 @@ namespace mFramework.UI
             return GetAnchorPos(PivotByAnchor(anchor));
         }
 
-        internal void LocalPositionByAnchor(Vector3 pos, UIAnchor anchor)
+        internal void LocalPositionByPivot(Vector3 pos, Vector2 anchorPivot)
         {
-            Transform.localPosition = pos - 
-                AnchorOffsetFromTransformPos(PivotByAnchor(anchor), LocalRotation);
+            Transform.localPosition = pos +
+                (Parent?.AnchorOffsetFromTransformPos(Parent._anchorPivot, 0) ?? Vector3.zero) -
+                AnchorOffsetFromTransformPos(anchorPivot, LocalRotation);
         }
 
-        internal void PositionByAnchor(Vector3 pos, UIAnchor anchor)
+        internal void PositionByPivot(Vector3 pos, Vector2 anchorPivot)
         {
             Transform.position = pos - 
-                AnchorOffsetFromTransformPos(PivotByAnchor(anchor), Rotation);
+                AnchorOffsetFromTransformPos(anchorPivot, Rotation);
         } 
 
-        private static Vector2 NotRotatedAnchorOffset(NotRotatedRect rect, Vector2 anchorPivor)
+        private static Vector2 NotRotatedAnchorOffset(NotRotatedRect rect, Vector2 anchorPivot)
         {
             return new Vector2(
-                BezierHelper.Linear(anchorPivor.x, rect.LocalLeft, rect.LocalRight),
-                BezierHelper.Linear(anchorPivor.y, rect.LocalBottom, rect.LocalTop)
+                BezierHelper.Linear(anchorPivot.x, rect.LocalLeft, rect.LocalRight),
+                BezierHelper.Linear(anchorPivot.y, rect.LocalBottom, rect.LocalTop)
             );
         }
 
-        private NotRotatedRect NotRotatedLocalRect(Vector2 scale)
+        internal NotRotatedRect NotRotatedLocalRect(Vector2 scale)
         {
             var centerOffset = CenterOffset;
             var left =   -UnscaledWidth  / 2 * scale.x - Padding.Left   * scale.x;
@@ -395,7 +397,7 @@ namespace mFramework.UI
             
         }
 
-        internal void DestroyImpl()
+        internal void DestroyImpl(bool removeFromParent)
         {
             if (_destroyed)
                 return;
@@ -407,7 +409,8 @@ namespace mFramework.UI
             OnBeforeDestroy();
             BeforeDestroy(this);
 
-            Parent?.Childs.Remove(this);
+            if (removeFromParent)
+                Parent?.Childs.Remove(this);
             mUI.RemoveUIObject(this);
 
             ActiveChanged = null;
@@ -422,7 +425,7 @@ namespace mFramework.UI
 
         private void OnDestroy()
         {
-            DestroyImpl();
+            DestroyImpl(true);
         }
 
         private void OnEnable()
@@ -445,15 +448,12 @@ namespace mFramework.UI
 
         public void DestroyChilds()
         {
-            Childs.Clear(o => o.Destroy());
+            Childs.Clear(o => o.DestroyImpl(false));
         }
 
         public void Destroy()
         {
-            if (this == mUI.BaseView)
-                throw new Exception("Can't destroy BaseView");
-
-            DestroyImpl();
+            DestroyImpl(true);
         }
 
         public IUIObject SetName(string newName)

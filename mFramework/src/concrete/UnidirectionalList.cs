@@ -70,7 +70,7 @@ namespace mFramework
 
         public bool Remove(T value)
         {
-            return value != null && Remove(value.GUID);
+            return Remove(value.GUID);
         }
 
         public bool Remove(ulong guid)
@@ -110,19 +110,24 @@ namespace mFramework
 
         public void Clear(Action<T> beforeRemove = null)
         {
-            var current = LastItem;
+            if (Count == 0)
+                return;
 
-            while (current != null)
+            while (LastItem != null)
             {
-                var prev = current.Prev;
-                beforeRemove?.Invoke(current.Value);
-                current.Prev = null;
-                current.Value = default(T);
-                current = prev;
+                var obj = LastItem.Value;
+                var prev = LastItem.Prev;
+
+                LastItem.Prev = null;
+                LastItem.Value = default(T);
+                LastItem = prev;
+                Count--;
+
+                beforeRemove?.Invoke(obj);
             }
 
-            FirstItem = null;
             LastItem = null;
+            FirstItem = null;
             Count = 0;
         }
 

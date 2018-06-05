@@ -5,7 +5,7 @@ namespace mFramework.UI
     public interface IUIObject : IGlobalUniqueIdentifier, IDimensions
     {
         UnidirectionalList<UIAnimation> Animations { get; }
-        UnidirectionalList<IUIObject> Childs { get; }
+        UnidirectionalList<UIObject> Childs { get; }
 
         /// <summary>
         /// Object is enabled and active in hierarchy

@@ -65,6 +65,28 @@ namespace mFramework.UI
                 if (EditorGUI.EndChangeCheck())
                     _object.Scale = scale;
             }
+
+            {
+                EditorGUI.BeginChangeCheck();
+                var padding = new Vector4(
+                    _object.Padding.Top,
+                    _object.Padding.Right,
+                    _object.Padding.Bottom,
+                    _object.Padding.Left
+                );
+                padding = EditorGUILayout.Vector4Field("Padding", padding);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    _object.Padding = new UIPadding()
+                    {
+                        Top = padding.x,
+                        Right = padding.y,
+                        Bottom = padding.z,
+                        Left = padding.w,
+                    };
+                }
+            }
+
             EditorGUILayout.Space();
             {
                 EditorGUI.BeginChangeCheck();
@@ -79,6 +101,7 @@ namespace mFramework.UI
                 if (EditorGUI.EndChangeCheck())
                     _object.LocalRotation = rotation;
             }
+            
             EditorGUILayout.Space();
 
             {

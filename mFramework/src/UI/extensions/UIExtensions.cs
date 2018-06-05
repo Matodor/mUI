@@ -199,9 +199,9 @@ namespace mFramework.UI
         {
             // ReSharper disable PossibleNullReferenceException
             if (relativeTo == Space.Self)
-                (obj as UIObject).LocalPositionByAnchor(position, anchor);
+                (obj as UIObject).LocalPositionByPivot(position, UIObject.PivotByAnchor(anchor));
             else
-                (obj as UIObject).PositionByAnchor(position, anchor);
+                (obj as UIObject).PositionByPivot(position, UIObject.PivotByAnchor(anchor));
             return obj;
             // ReSharper restore PossibleNullReferenceException
         }
@@ -211,9 +211,9 @@ namespace mFramework.UI
         {
             // ReSharper disable PossibleNullReferenceException
             if (relativeTo == Space.Self)
-                (obj as UIObject).LocalPositionByAnchor(position, anchor);
+                (obj as UIObject).LocalPositionByPivot(position, UIObject.PivotByAnchor(anchor));
             else
-                (obj as UIObject).PositionByAnchor(position, anchor);
+                (obj as UIObject).PositionByPivot(position, UIObject.PivotByAnchor(anchor));
             return obj;
             // ReSharper restore PossibleNullReferenceException
         }

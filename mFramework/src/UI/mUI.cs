@@ -72,7 +72,7 @@ namespace mFramework.UI
         private static void OnApplicationQuitEvent()
         {
             Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
-            BaseView.DestroyImpl();
+            BaseView.DestroyImpl(false);
             _instance = null;
         }
 

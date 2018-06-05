@@ -67,6 +67,50 @@ namespace mFramework.UI
             base.AfterAwake();
         }
 
+        protected override void ApplyProps(UIViewProps props, IView parent)
+        {
+            if (props == null)
+                throw new ArgumentNullException(nameof(props));
+
+            if (!(props is ScrollViewProps viewSettings))
+                throw new ArgumentException("ScrollView: The given settings is not ScrollViewSettings");
+
+            if (viewSettings.FlexboxProps == null)
+                throw new ArgumentException("ScrollView: FlexboxProps is null");
+
+            AreaChecker = RectangleAreaChecker.Default;
+            UIClickablesHandler.AddDragable(this);
+
+            base.ApplyProps(props, parent);
+
+            viewSettings.FlexboxProps.SortingOrder =
+                Mathf.Max(1, viewSettings.FlexboxProps.SortingOrder);
+
+            _flexboxLayout = Create<FlexboxLayout>(viewSettings.FlexboxProps, this);
+            _flexboxLayout.ChildAdded += FlexboxLayoutOnChildAdded;
+
+            if (viewSettings.FlexboxProps.Direction == FlexboxDirection.COLUMN)
+            {
+                _flexboxLayout.Anchor = UIAnchor.UpperCenter;
+                _flexboxLayout.Position = this.Position(UIAnchor.UpperCenter);
+            }
+            else if (viewSettings.FlexboxProps.Direction == FlexboxDirection.COLUMN_REVERSE)
+            {
+                _flexboxLayout.Anchor = UIAnchor.LowerCenter;
+                _flexboxLayout.Position = this.Position(UIAnchor.LowerCenter);
+            }
+            else if (viewSettings.FlexboxProps.Direction == FlexboxDirection.ROW)
+            {
+                _flexboxLayout.Anchor = UIAnchor.MiddleLeft;
+                _flexboxLayout.Position = this.Position(UIAnchor.MiddleLeft);
+            }
+            else if (viewSettings.FlexboxProps.Direction == FlexboxDirection.ROW_REVERSE)
+            {
+                _flexboxLayout.Anchor = UIAnchor.MiddleRight;
+                _flexboxLayout.Position = this.Position(UIAnchor.MiddleRight);
+            }
+        }
+
         private void OnUIMouseUp(Vector2 worldPos)
         {
             _lastDragPos = worldPos;
@@ -238,27 +282,7 @@ namespace mFramework.UI
             MouseUp?.Invoke(this, worldPos);
             IsPressed = false;
         }
-
-        protected override void ApplyProps(UIViewProps props, IView parent)
-        {
-            if (props == null)
-                throw new ArgumentNullException(nameof(props));
-
-            if (!(props is ScrollViewProps viewSettings))
-                throw new ArgumentException("ScrollView: The given settings is not ScrollViewSettings");
-
-            if (viewSettings.FlexboxProps == null)
-                throw new ArgumentException("ScrollView: FlexboxProps is null");
-
-            viewSettings.FlexboxProps.SortingOrder = Mathf.Max(1, viewSettings.FlexboxProps.SortingOrder);
-            _flexboxLayout = Create<FlexboxLayout>(viewSettings.FlexboxProps, this);
-            _flexboxLayout.ChildAdded += FlexboxLayoutOnChildAdded;
-            AreaChecker = RectangleAreaChecker.Default;
-            UIClickablesHandler.AddDragable(this);
-
-            base.ApplyProps(props, parent);
-        }
-
+        
         private void FlexboxLayoutOnChildAdded(IUIObject sender, IUIObject child)
         {
             if (child is IUIClickable clickable)
