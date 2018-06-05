@@ -14,7 +14,7 @@ namespace mFramework.UI
     public class UIRotateAnimation : UIAnimation
     {
         public float FromAngle;
-        public float EndAngle;
+        public float ToAngle;
         public Space RelativeTo = Space.World;
         public Vector3? RotateAround;
 
@@ -24,7 +24,7 @@ namespace mFramework.UI
                 throw new ArgumentException("UILinearAnimation: The given settings is not UIRotateAnimationSettings");
 
             FromAngle = rotateSettings.FromAngle;
-            EndAngle = rotateSettings.ToAngle;
+            ToAngle = rotateSettings.ToAngle;
             RelativeTo = rotateSettings.RelativeTo;
             RotateAround = rotateSettings.RotateAround;
 
@@ -33,7 +33,7 @@ namespace mFramework.UI
 
         protected override void OnAnimate()
         {
-            var rotation = BezierHelper.Linear(EasingTime, FromAngle, EndAngle);
+            var rotation = BezierHelper.Linear(EasingTime, FromAngle, ToAngle);
 
             if (RotateAround != null)
             {

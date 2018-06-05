@@ -164,7 +164,8 @@ namespace mFramework.UI
                 if (PlayType == UIAnimationPlayType.END_RESET)
                 {
                     OnRepeatAnimation();
-                    Time = 0;
+                    Time = 0f;
+                    EasingTime = 0f;
                 }
                 else if (PlayType == UIAnimationPlayType.END_FLIP)
                 {
