@@ -122,7 +122,6 @@ namespace mFramework.UI
 
         private string _text;
         private bool _needUpdate;
-        private float? _maxWidth = null;
         private TextStyle _textStyle;
         private Color _textColor;
         private UIFont _cachedFont;
@@ -542,7 +541,7 @@ namespace mFramework.UI
 
                 //Debug.Log($"minX={minX} minY={minY}");
 
-                if (_maxWidth.HasValue && lastLineWidth + w > _maxWidth)
+                if (style.MaxWidth.HasValue && lastLineWidth + w > style.MaxWidth)
                 {
                     i--;
                     forceNewLine = true;
