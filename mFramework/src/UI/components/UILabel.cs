@@ -89,7 +89,8 @@ namespace mFramework.UI
         public MeshRenderer UIRenderer { get; private set; }
         Renderer IUIRenderer.UIRenderer => UIRenderer;
 
-        public int TextFormattings => _textFormatting.Count;
+        public int FormattingCount => _textFormatting.Count;
+        public IReadOnlyDictionary<int, TextFormatting> TextFormatting => _textFormatting;
 
         public TextFormatting this[int index]
         {
