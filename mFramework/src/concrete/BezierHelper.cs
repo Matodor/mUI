@@ -13,6 +13,11 @@ namespace mFramework
             return new Color(r, g, b, a);
         }
 
+        public static double Linear(double t, double p0, double p1)
+        {
+            return (1 - t) * p0 + t * p1;
+        }
+
         public static float Linear(float t, float p0, float p1)
         {
             return (1 - t) * p0 + t * p1;
@@ -32,6 +37,11 @@ namespace mFramework
             return new Color(r, g, b, a);
         }
 
+        public static double Quadratic(double t, double p0, double p1, double p2)
+        {
+            return (1 - t) * (1 - t) * p0 + 2 * t * (1 - t) * p1 + t * t * p2;
+        }
+
         public static float Quadratic(float t, float p0, float p1, float p2)
         {
             return (1 - t) * (1 - t) * p0 + 2 * t * (1 - t) * p1 + t * t * p2;
@@ -49,6 +59,11 @@ namespace mFramework
             var b = Cubic(t, c0.b, c1.b, c2.b, c3.b);
             var a = Cubic(t, c0.a, c1.a, c2.a, c3.a);
             return new Color(r, g, b, a);
+        }
+
+        public static double Cubic(double t, double p0, double p1, double p2, double p3)
+        {
+            return (1 - t) * (1 - t) * (1 - t) * p0 + 3 * t * (1 - t) * (1 - t) * p1 + 3 * t * t * (1 - t) * p2 + t * t * t * p3;
         }
 
         public static float Cubic(float t, float p0, float p1, float p2, float p3)
