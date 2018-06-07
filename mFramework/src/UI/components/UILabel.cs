@@ -423,6 +423,12 @@ namespace mFramework.UI
 
             const float pixelsPerWorldUnit = 100f;
             var pos = Position;
+            var childsPos = new Vector3[Childs.Count];
+            var childIndex = 0;
+            foreach (var child in Childs)
+            {
+                childsPos[childIndex++] = child.LocalPosition;
+            }
 
             var text = Text
                 .Replace("\t", "   ")
@@ -447,7 +453,7 @@ namespace mFramework.UI
 
             var lineMaxY = 0f;
             var lineMinY = 0f;
-
+                        
             //mCore.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
 
             var style = _textStyle;
@@ -687,6 +693,13 @@ namespace mFramework.UI
             _needUpdate = false;
 
             Position = pos;
+
+            childIndex = 0;
+            foreach (var child in Childs)
+            {
+                child.LocalPosition = childsPos[childIndex++];
+            }
+
             TextUpdated?.Invoke(this);
         }
     }
