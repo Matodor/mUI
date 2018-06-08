@@ -171,7 +171,7 @@ namespace mFramework.UI
                     EditorGUI.indentLevel += 1;
                     {
                         EditorGUI.BeginChangeCheck();
-                        var easingType = (EasingType)EditorGUILayout.EnumPopup("EasingType", animation.EasingType, GUIStyle.none);
+                        var easingType = (EasingFunctions) EditorGUILayout.EnumPopup("EasingType", animation.EasingType, GUIStyle.none);
                         if (EditorGUI.EndChangeCheck())
                             animation.EasingType = easingType;
                     }

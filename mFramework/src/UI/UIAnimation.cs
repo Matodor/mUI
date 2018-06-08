@@ -25,7 +25,7 @@ namespace mFramework.UI
     {
         public ulong MaxRepeats = 0;
         public UIAnimationPlayType PlayType = UIAnimationPlayType.PLAY_ONCE;
-        public EasingType EasingType = EasingType.linear;
+        public EasingFunctions EasingType = EasingFunctions.Linear;
         public bool DestroyUIObjectOnEnd = false;
         public float Duration = 1f;
         public float AnimateEvery = 0f;
@@ -68,7 +68,7 @@ namespace mFramework.UI
 
         public UIAnimationState State { get; set; }
         public UIAnimationPlayType PlayType { get; set; }
-        public EasingType EasingType { get; set; }
+        public EasingFunctions EasingType { get; set; }
         public UIAnimationDirection Direction { get; set; }
 
         public float AnimateEvery { get; set; }
@@ -94,7 +94,7 @@ namespace mFramework.UI
 
             State = UIAnimationState.PLAYING;
             PlayType = UIAnimationPlayType.PLAY_ONCE;
-            EasingType = EasingType.linear;
+            EasingType = EasingFunctions.Linear;
             DestroyUIObjectOnEnd = false;
 
             GUID = ++_guid;
@@ -197,7 +197,7 @@ namespace mFramework.UI
                         (UnityEngine.Time.deltaTime / Duration);
             Time = mMath.Clamp(Time + DeltaTime, 0f, 1f);
 
-            var easingTime = EasingFunctions.GetValue(EasingType, 1f, Time, 1f);
+            var easingTime = Easings.Interpolate(Time, EasingType);
             DeltaEasingTime = easingTime - EasingTime;
             EasingTime = easingTime;
 
