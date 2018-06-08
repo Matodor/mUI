@@ -68,11 +68,52 @@ namespace mFramework.UI
             return obj;
         }
 
-        public static T RotateAround<T>(this T obj, Vector3 point, float value,
+        public static T RotationAround<T>(this T obj, Vector3 point, float value,
             Space relativeTo = Space.World) where T : IUIObject
         {
             // ReSharper disable once PossibleNullReferenceException
-            (obj as UIObject).RotateAround(point, value, relativeTo);
+            (obj as UIObject).RotationAround(point, value, relativeTo);
+            return obj;
+        }
+
+        public static T RotationAround<T>(this T obj, Vector2 pivot, float value,
+            Space relativeTo = Space.World) where T : IUIObject
+        {
+            var o = obj as UIObject;
+            // ReSharper disable once PossibleNullReferenceException
+            o.RotationAround(o.GetAnchorPos(pivot), value, relativeTo);
+            return obj;
+        }
+
+        public static T RotationAround<T>(this T obj, UIAnchor anchor, float value,
+            Space relativeTo = Space.World) where T : IUIObject
+        {
+            var o = obj as UIObject;
+            // ReSharper disable once PossibleNullReferenceException
+            o.RotationAround(o.GetAnchorPos(anchor), value, relativeTo);
+            return obj;
+        }
+
+        public static T TurnAround<T>(this T obj, Vector2 pivot, float value) where T : IUIObject
+        {
+            var o = obj as UIObject;
+            // ReSharper disable once PossibleNullReferenceException
+            o.TurnAround(o.GetAnchorPos(pivot), value);
+            return obj;
+        }
+
+        public static T TurnAround<T>(this T obj, UIAnchor anchor, float value) where T : IUIObject
+        {
+            var o = obj as UIObject;
+            // ReSharper disable once PossibleNullReferenceException
+            o.TurnAround(o.GetAnchorPos(anchor), value);
+            return obj;
+        }
+
+        public static T TurnAround<T>(this T obj, Vector3 point, float turnValue) where T : IUIObject
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            (obj as UIObject).TurnAround(point, turnValue);
             return obj;
         }
 

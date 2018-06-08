@@ -8,6 +8,7 @@ namespace mFramework.UI
         public Vector2 StartPos;
         public Vector2 EndPos;
         public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor { get; set; } = null;
     }
 
     public class UILinearAnimation : UIAnimation
@@ -15,6 +16,7 @@ namespace mFramework.UI
         public Vector3 StartPos;
         public Vector3 EndPos;
         public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -24,13 +26,18 @@ namespace mFramework.UI
             StartPos = linearSettings.StartPos;
             EndPos = linearSettings.EndPos;
             RelativeTo = linearSettings.RelativeTo;
+            Anchor = linearSettings.Anchor;
+
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            UIObject.Position(BezierHelper.Linear(EasingTime, StartPos, EndPos),
-                RelativeTo);
+            UIObject.Position(
+                position: BezierHelper.Linear(EasingTime, StartPos, EndPos),
+                anchor: Anchor.GetValueOrDefault(UIObject.Anchor),
+                relativeTo: RelativeTo
+            );
         }
     }
 }

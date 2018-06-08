@@ -46,8 +46,7 @@ namespace mFramework.UI
 
         protected override void OnAnimate()
         {
-            var shift = Shift * DeltaEasingTime;
-            UIObject.Translate(shift, RelativeTo);
+            UIObject.Translate(Shift * DeltaEasingTime, RelativeTo);
         }
     }
 }

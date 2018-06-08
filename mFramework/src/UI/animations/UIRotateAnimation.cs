@@ -37,7 +37,7 @@ namespace mFramework.UI
 
             if (RotateAround != null)
             {
-                UIObject.RotateAround(RotateAround.Value, rotation, RelativeTo);
+                UIObject.RotationAround(RotateAround.Value, rotation, RelativeTo);
             }
             else
             {

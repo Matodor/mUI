@@ -64,6 +64,7 @@
     <Compile Include="src\patching\mPatching.cs" />
     <Compile Include="src\UI\animations\LambdaAnimation.cs" />
     <Compile Include="src\UI\animations\UIShiftAnimation.cs" />
+    <Compile Include="src\UI\animations\UITurnAnimation.cs" />
     <Compile Include="src\UI\extensions\ViewsExtensions.cs" />
     <Compile Include="src\UI\interfaces\IUIToggle.cs" />
     <Compile Include="src\UI\views\ScrollView.cs" />

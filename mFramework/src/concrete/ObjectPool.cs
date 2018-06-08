@@ -53,7 +53,7 @@ namespace mFramework
             _list.Add(obj.GUID, new ListItem(obj, inUsage));    
         }
 
-        public void Release(IGlobalUniqueIdentifier obj)
+        public void Release(T obj)
         {
             if (_list.ContainsKey(obj.GUID))
                 _list[obj.GUID].InUsage = false;

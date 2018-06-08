@@ -10,6 +10,8 @@ namespace mFramework.UI
         public Vector2 ThirdPoint;
         public Vector2 FourthPoint;
         public Space RelativeTo = Space.World;
+
+        public UIAnchor? Anchor { get; set; } = null;
     }
 
     public class UIBezierCubicAnimation : UIAnimation
@@ -19,6 +21,7 @@ namespace mFramework.UI
         public Vector2 ThirdPoint;
         public Vector2 FourthPoint;
         public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
@@ -30,14 +33,18 @@ namespace mFramework.UI
             SecondPoint = bezierSettings.SecondPoint;
             ThirdPoint = bezierSettings.ThirdPoint;
             FourthPoint = bezierSettings.FourthPoint;
+            Anchor = bezierSettings.Anchor;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            UIObject.Position(BezierHelper.Cubic(EasingTime, 
-                FirstPoint, SecondPoint, ThirdPoint, FourthPoint), RelativeTo);
+            UIObject.Position(
+                position: BezierHelper.Cubic(EasingTime, FirstPoint, SecondPoint, ThirdPoint, FourthPoint), 
+                anchor: Anchor.GetValueOrDefault(UIObject.Anchor), 
+                relativeTo: RelativeTo
+            );
         }
     }
 }
