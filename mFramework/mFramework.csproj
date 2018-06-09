@@ -61,6 +61,7 @@
     <Compile Include="src\abstract\ISaveableFields.cs" />
     <Compile Include="src\concrete\AreaShape.cs" />
     <Compile Include="src\concrete\Easings.cs" />
+    <Compile Include="src\concrete\KnuthHash.cs" />
     <Compile Include="src\concrete\SynchronizeInvoke.cs" />
     <Compile Include="src\patching\mPatching.cs" />
     <Compile Include="src\UI\animations\LambdaAnimation.cs" />
