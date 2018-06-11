@@ -7,6 +7,11 @@ namespace mFramework.UI
     public sealed class UISettings
     {
         public readonly UICameraSettings CameraSettings = new UICameraSettings();
+        public readonly UIViewProps BaseViewProps = new UIViewProps()
+        {
+            Anchor = UIAnchor.MiddleCenter,
+            StencilId = 0,
+        };
     }
 
     public sealed class mUI
@@ -58,10 +63,12 @@ namespace mFramework.UI
             UICamera.Transform.ParentTransform(mCore.Behaviour.transform);
             BaseView = UIView.Create<BaseView>(new UIViewProps
             {
-                UnscaledHeight = UICamera.UnscaledHeight,
-                UnscaledWidth = UICamera.UnscaledWidth,
-                SortingOrder = 0,
-                StencilId = 0,
+                UnscaledHeight = settings.BaseViewProps.UnscaledHeight ?? UICamera.UnscaledHeight,
+                UnscaledWidth = settings.BaseViewProps.UnscaledWidth ?? UICamera.UnscaledWidth,
+                SortingOrder = settings.BaseViewProps.SortingOrder,
+                StencilId = settings.BaseViewProps.StencilId ?? 0,
+                Padding = settings.BaseViewProps.Padding ?? new UIPadding(),
+                Anchor = settings.BaseViewProps.Anchor ?? UIAnchor.MiddleCenter
             }, null);
 
             Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
