@@ -12,8 +12,8 @@ namespace mFramework.UI
 
     public class UISprite : UIComponent, IUIRenderer<SpriteRenderer>, IUIRenderer, IUIColored
     {
-        public override float UnscaledHeight => UIRenderer.sprite.bounds.size.y;
-        public override float UnscaledWidth => UIRenderer.sprite.bounds.size.x;
+        public override float SizeY => UIRenderer.sprite.bounds.size.y;
+        public override float SizeX => UIRenderer.sprite.bounds.size.x;
         public override Vector2 UnscaledCenterOffset => UIRenderer.sprite.bounds.center;
 
         public Color Color

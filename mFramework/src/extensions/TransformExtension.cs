@@ -31,7 +31,9 @@ namespace mFramework
             if (transform == parent)
                 throw new ArgumentNullException(nameof(parent));
 
+            var scale = transform.localScale;
             transform.parent = parent;
+            transform.localScale = scale;
         }
     }
 }

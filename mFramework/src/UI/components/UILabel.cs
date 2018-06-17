@@ -440,8 +440,8 @@ namespace mFramework.UI
             var colorsList = new List<Color32>(text.Length * 4);
             var trianglesList = new List<int>(text.Length * 6);
 
-            UnscaledHeight = 0f;
-            UnscaledWidth = 0f;
+            SizeY = 0f;
+            SizeX = 0f;
 
             var textXOffset = 0f;
             var formattingIndex = -1;
@@ -618,11 +618,11 @@ namespace mFramework.UI
 
                     if (linesInfo.Count == 0)
                     {
-                        UnscaledHeight = lineMaxY - lineMinY;
+                        SizeY = lineMaxY - lineMinY;
                     }
                     else
                     {
-                        UnscaledHeight += lastLineHeight;
+                        SizeY += lastLineHeight;
                     }
 
                     linesInfo.Add(new LineInfo
@@ -634,8 +634,8 @@ namespace mFramework.UI
                         MinY = lineMinY
                     });
 
-                    if (UnscaledWidth < lastLineWidth)
-                        UnscaledWidth = lastLineWidth;
+                    if (SizeX < lastLineWidth)
+                        SizeX = lastLineWidth;
                     
                     textXOffset = 0f;
                     lastLineWidth = 0f;
@@ -648,7 +648,7 @@ namespace mFramework.UI
             }
 
             if (linesInfo.Count > 1)
-                UnscaledHeight += linesInfo[0].MinY - linesInfo[linesInfo.Count - 1].MinY;
+                SizeY += linesInfo[0].MinY - linesInfo[linesInfo.Count - 1].MinY;
 
             var yOffset = 0f;
             for (var lineIndex = 0; lineIndex < linesInfo.Count; lineIndex++)
@@ -662,7 +662,7 @@ namespace mFramework.UI
                 else
                     yOffset -= linesInfo[lineIndex].Height;
 
-                var xOffset = -UnscaledWidth / 2f;
+                var xOffset = -SizeX / 2f;
                 switch (style.TextAlignment)
                 {
                     case TextAlignment.Center:
@@ -670,7 +670,7 @@ namespace mFramework.UI
                         break;
 
                     case TextAlignment.Right:
-                        xOffset = -lineWidth + UnscaledWidth / 2f;
+                        xOffset = -lineWidth + SizeX / 2f;
                         break;
                 }
                 
@@ -678,7 +678,7 @@ namespace mFramework.UI
                 {
                     verticesList[vI] = new Vector3(
                         verticesList[vI].x + xOffset,
-                        verticesList[vI].y + yOffset + UnscaledHeight / 2,
+                        verticesList[vI].y + yOffset + SizeY / 2,
                         verticesList[vI].z
                     );
                 }

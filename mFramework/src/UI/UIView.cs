@@ -5,17 +5,17 @@ namespace mFramework.UI
 {
     public class UIViewProps : UIObjectProps
     {
+        public virtual ushort? StencilId { get; set; } = null;
+     
         /// <summary>
-        /// Unscaled view height in world units
+        /// Element bound width
         /// </summary>
-        public virtual float? UnscaledHeight { get; set; } = null;
+        public virtual float? SizeX { get; set; }
 
         /// <summary>
-        /// Unscaled view width in world units
+        /// Element bound height
         /// </summary>
-        public virtual float? UnscaledWidth { get; set; } = null;
-        
-        public virtual ushort? StencilId { get; set; } = null;
+        public virtual float? SizeY { get; set; }
     }
 
     /*public static class NewView<T> where T : UIView
@@ -55,8 +55,8 @@ namespace mFramework.UI
         {
             return View(viewType, new UIViewProps
             {
-                UnscaledWidth = UnscaledWidth,
-                UnscaledHeight = UnscaledHeight,
+                SizeX = SizeX,
+                SizeY = SizeY,
             }, @params);
         }
         
@@ -64,8 +64,8 @@ namespace mFramework.UI
         {
             return (T) View(typeof(T), new UIViewProps
             {
-                UnscaledWidth = UnscaledWidth,
-                UnscaledHeight = UnscaledHeight,
+                SizeX = SizeX,
+                SizeY = SizeY,
             }, @params);
         }
 
@@ -97,23 +97,6 @@ namespace mFramework.UI
             SetupParent((UIObject) parent);
             ApplyProps(props, parent);
             InitCompleted(true);
-            CreateInterface(@params);
-
-            if (_stencilId.HasValue)
-            {
-                UIStencilMaterials.CreateMesh(this);
-            }
-        }
-
-        protected abstract void CreateInterface(object[] @params);
-
-        protected virtual void ApplyProps(UIViewProps props, IView parent)
-        {
-            base.ApplyProps(props);
-
-            _stencilId = props.StencilId;
-            UnscaledHeight = props.UnscaledHeight ?? parent.UnscaledHeight;
-            UnscaledWidth = props.UnscaledWidth ?? parent.UnscaledWidth;
 
             if (_stencilId.HasValue && _stencilId.Value != 0)
             {
@@ -127,7 +110,23 @@ namespace mFramework.UI
                 {
                     meshRenderer.sortingOrder = SortingOrder;
                 };
+
+                UIStencilMaterials.CreateMesh(this);
             }
+
+            mUI.ObjectCreated(this);
+            CreateInterface(@params);
+        }
+
+        protected abstract void CreateInterface(object[] @params);
+
+        protected virtual void ApplyProps(UIViewProps props, IView parent)
+        {
+            base.ApplyProps(props);
+
+            _stencilId = props.StencilId;
+            SizeY = props.SizeY ?? parent.SizeY;
+            SizeX = props.SizeX ?? parent.SizeX;
         }
     }
 }

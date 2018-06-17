@@ -68,11 +68,11 @@
     <Compile Include="src\UI\animations\UIShiftAnimation.cs" />
     <Compile Include="src\UI\animations\UITurnAnimation.cs" />
     <Compile Include="src\UI\extensions\ViewsExtensions.cs" />
+    <Compile Include="src\UI\interfaces\ISizeable.cs" />
     <Compile Include="src\UI\interfaces\IUIToggle.cs" />
     <Compile Include="src\UI\views\ScrollView.cs" />
     <Compile Include="src\UI\extensions\LayoutsExtensions.cs" />
     <Compile Include="src\UI\interfaces\IAreaChecker.cs" />
-    <Compile Include="src\UI\interfaces\IDimensions.cs" />
     <Compile Include="src\UI\interfaces\IUIButton.cs" />
     <Compile Include="src\UI\interfaces\IUIClickable.cs" />
     <Compile Include="src\UI\interfaces\IUIDragable.cs" />

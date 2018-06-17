@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIMeshProps : UIComponentProps
+    public class UIMeshProps : UIComponentProps, ISizeable
     {
-        public Mesh Mesh = null;
-        public Mesh SharedMesh = null;
-        public float UnscaledWidth;
-        public float UnscaledHeight;
+        public Mesh Mesh { get; set; } = null;
+        public Mesh SharedMesh { get; set; } = null;
+        public float SizeX { get; set; }
+        public float SizeY { get; set; }
     }
 
     public class UIMesh : UIComponent, IUIColored, IUIRenderer<MeshRenderer>, IUIRenderer
@@ -66,18 +66,14 @@ namespace mFramework.UI
             if (!(props is UIMeshProps meshSettings))
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
-            UnscaledWidth = meshSettings.UnscaledWidth;
-            UnscaledHeight = meshSettings.UnscaledHeight;
+            SizeX = meshSettings.SizeX;
+            SizeY = meshSettings.SizeY;
 
             if (meshSettings.Mesh != null)
-            {
                 MeshFilter.mesh = meshSettings.Mesh;
-            }
 
             if (meshSettings.SharedMesh != null)
-            {
                 MeshFilter.sharedMesh = meshSettings.SharedMesh;
-            }
             
             UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(
                 ParentView.StencilId ?? 0).SpritesMaterial;
@@ -85,15 +81,15 @@ namespace mFramework.UI
             base.ApplyProps(props);
         }
 
-        public UIMesh SetWidth(float unscaledWidth)
+        public UIMesh SetSizeX(float sizeX)
         {
-            UnscaledWidth = unscaledWidth;
+            SizeX = sizeX;
             return this;
         }
 
-        public UIMesh SetHeight(float unscaledHeight)
+        public UIMesh SetSizeY(float sizeY)
         {
-            UnscaledHeight = unscaledHeight;
+            SizeY = sizeY;
             return this;
         }
 

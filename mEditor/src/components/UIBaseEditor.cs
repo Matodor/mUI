@@ -66,6 +66,10 @@ namespace mFramework.UI
                     _object.Scale = scale;
             }
 
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.Vector2Field("GlobalScale", _object.GlobalScale);
+            EditorGUI.EndDisabledGroup();
+
             {
                 EditorGUI.BeginChangeCheck();
                 var padding = new Vector4(
@@ -138,6 +142,12 @@ namespace mFramework.UI
 
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.LongField("GUID", (long) _object.GUID);
+
+            EditorGUILayout.Vector2Field("Width Height", new Vector2(_object.Width, _object.Height));
+            EditorGUILayout.Vector2Field("LocalWidth LocalHeight", new Vector2(_object.LocalWidth, _object.LocalHeight));
+            EditorGUILayout.Vector2Field("UnscaledWidth UnscaledHeight", new Vector2(_object.UnscaledWidth, _object.UnscaledHeight));
+            EditorGUILayout.Vector2Field("SizeX SizeY", new Vector2(_object.SizeX, _object.SizeY));
+
             EditorGUILayout.Vector2Field("CenterOffset", _object.CenterOffset);
             EditorGUILayout.Vector2Field("UnscaledCenterOffset", _object.UnscaledCenterOffset);
             EditorGUILayout.IntField("Sorting order", _object.SortingOrder);

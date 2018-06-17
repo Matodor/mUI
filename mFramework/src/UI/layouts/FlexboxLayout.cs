@@ -52,38 +52,40 @@ namespace mFramework.UI.Layouts
             MarginBetween = layoutSettings.MarginBetween;
 
             if (Direction == FlexboxDirection.COLUMN || Direction == FlexboxDirection.COLUMN_REVERSE)
-                UnscaledHeight = 0f;
+                SizeY = 0f;
             else
-                UnscaledWidth = 0f;
+                SizeX = 0f;
         }
 
         protected override void OnChildAdded(IUIObject sender, IUIObject child)
         {
+            var marginBetween = MarginBetween;
+
             if (Direction == FlexboxDirection.COLUMN || Direction == FlexboxDirection.COLUMN_REVERSE)
             {
                 if (Childs.Count > 1)
-                    UnscaledHeight += MarginBetween + child.Height;
+                    SizeY += marginBetween * GlobalScale.y + child.UnscaledHeight;
                 else
-                    UnscaledHeight += child.Height;
+                    SizeY += child.UnscaledHeight;
 
                 UnscaledCenterOffset = new Vector2(
                     0,
                     Direction == FlexboxDirection.COLUMN
-                        ? -UnscaledHeight / 2
-                        : +UnscaledHeight / 2
+                        ? -SizeY / 2
+                        : +SizeY / 2
                 );
             }
             else
             {
                 if (Childs.Count > 1)
-                    UnscaledWidth += MarginBetween + child.Width;
+                    SizeX += marginBetween * GlobalScale.x + child.UnscaledWidth;
                 else
-                    UnscaledWidth += child.Width;
+                    SizeX += child.UnscaledWidth;
 
                 UnscaledCenterOffset = new Vector2(
                     Direction == FlexboxDirection.ROW
-                        ? +UnscaledWidth / 2
-                        : -UnscaledWidth / 2,
+                        ? +SizeX / 2
+                        : -SizeX / 2,
                     0
                 );
             }
@@ -91,28 +93,36 @@ namespace mFramework.UI.Layouts
             Vector2 localOffset;
             if (Childs.Count > 1)
             {
+                var prevChild = Childs.LastItem.Prev.Value;
+                var w = marginBetween + child.UnscaledWidth / 2f;
+                var h = marginBetween + child.UnscaledHeight / 2f;
+                
                 switch (Direction)
                 {
                     case FlexboxDirection.ROW:
-                        localOffset = Childs.LastItem.Prev.Value.Position(UIAnchor.MiddleRight, Space.Self);
-                        localOffset.x += MarginBetween + child.Width / 2f;
+                        localOffset = prevChild.Position(UIAnchor.MiddleRight, Space.Self);
+                        localOffset.x += w;
                         localOffset.y = 0f;
                         break;
+
                     case FlexboxDirection.ROW_REVERSE:
-                        localOffset = Childs.LastItem.Prev.Value.Position(UIAnchor.MiddleLeft, Space.Self);
-                        localOffset.x -= MarginBetween + child.Width / 2f;
+                        localOffset = prevChild.Position(UIAnchor.MiddleLeft, Space.Self);
+                        localOffset.x -= w;
                         localOffset.y = 0f;
                         break;
+
                     case FlexboxDirection.COLUMN:
-                        localOffset = Childs.LastItem.Prev.Value.Position(UIAnchor.LowerCenter, Space.Self);
-                        localOffset.y -= MarginBetween + child.Height / 2f;
+                        localOffset = prevChild.Position(UIAnchor.LowerCenter, Space.Self);
+                        localOffset.y -= h;
                         localOffset.x = 0f;
                         break;
+
                     case FlexboxDirection.COLUMN_REVERSE:
-                        localOffset = Childs.LastItem.Prev.Value.Position(UIAnchor.UpperCenter, Space.Self);
-                        localOffset.y += MarginBetween + child.Height / 2f;
+                        localOffset = prevChild.Position(UIAnchor.UpperCenter, Space.Self);
+                        localOffset.y += h;
                         localOffset.x = 0f;
                         break;
+
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -124,34 +134,35 @@ namespace mFramework.UI.Layouts
                 switch (Direction)
                 {
                     case FlexboxDirection.ROW:
-                        localOffset.x += Padding.Left;
+                        localOffset.x += Padding.Left * Scale.x;
                         break;
                     case FlexboxDirection.ROW_REVERSE:
-                        localOffset.x -= Padding.Right;
+                        localOffset.x -= Padding.Right * Scale.x;
                         break;
                     case FlexboxDirection.COLUMN:
-                        localOffset.y -= Padding.Top;
+                        localOffset.y -= Padding.Top * Scale.y;
                         break;
                     case FlexboxDirection.COLUMN_REVERSE:
-                        localOffset.y += Padding.Bottom;
+                        localOffset.y += Padding.Bottom * Scale.y;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
 
+            /* TODO FIX
             if (Direction == FlexboxDirection.COLUMN || Direction == FlexboxDirection.COLUMN_REVERSE)
             {
                 switch (AlignItems)
                 {
                     case FlexboxAlignItems.FLEX_START:
-                        localOffset.x = localOffset.x - UnscaledWidth / 2f + child.Width / 2f;
+                        localOffset.x = localOffset.x - SizeX / 2f + child.Width / 2f;
                         break;
                     case FlexboxAlignItems.FLEX_END:
-                        localOffset.x = localOffset.x + UnscaledWidth / 2f - child.Width / 2f;
+                        localOffset.x = localOffset.x + SizeX / 2f - child.Width / 2f;
                         break;
                     case FlexboxAlignItems.STRETCH:
-                        child.Scale(UnscaledWidth / child.Width, child.Scale.y);
+                        child.Scale(SizeX / child.Width, child.Scale.y);
                         break;
                 }
             }
@@ -160,16 +171,16 @@ namespace mFramework.UI.Layouts
                 switch (AlignItems)
                 {
                     case FlexboxAlignItems.FLEX_START:
-                        localOffset.y = localOffset.y - UnscaledHeight / 2f + child.Height / 2f;
+                        localOffset.y = localOffset.y - SizeY / 2f + child.Height / 2f;
                         break;
                     case FlexboxAlignItems.FLEX_END:
-                        localOffset.y = localOffset.y + UnscaledHeight / 2f - child.Height / 2f;
+                        localOffset.y = localOffset.y + SizeY / 2f - child.Height / 2f;
                         break;
                     case FlexboxAlignItems.STRETCH:
-                        child.Scale(child.Scale.x, UnscaledHeight / child.Height);
+                        child.Scale(child.Scale.x, SizeY / child.Height);
                         break;
                 }
-            }
+            }*/
 
             child.Position(localOffset, UIAnchor.MiddleCenter, Space.Self);
         }

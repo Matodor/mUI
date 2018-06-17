@@ -63,8 +63,8 @@ namespace mFramework.UI
             UICamera.Transform.ParentTransform(mCore.Behaviour.transform);
             BaseView = UIView.Create<BaseView>(new UIViewProps
             {
-                UnscaledHeight = settings.BaseViewProps.UnscaledHeight ?? UICamera.UnscaledHeight,
-                UnscaledWidth = settings.BaseViewProps.UnscaledWidth ?? UICamera.UnscaledWidth,
+                SizeY = settings.BaseViewProps.SizeY ?? UICamera.SizeY,
+                SizeX = settings.BaseViewProps.SizeX ?? UICamera.SizeX,
                 SortingOrder = settings.BaseViewProps.SortingOrder,
                 StencilId = settings.BaseViewProps.StencilId ?? 0,
                 Padding = settings.BaseViewProps.Padding ?? new UIPadding(),
@@ -178,7 +178,7 @@ namespace mFramework.UI
             UIObjectRemoved.Invoke(obj);
         }
 
-        internal static void AddUIObject(UIObject obj)
+        internal static void ObjectCreated(UIObject obj)
         {
             UIObjectCreated.Invoke(obj);
         }

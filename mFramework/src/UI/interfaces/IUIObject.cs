@@ -2,7 +2,7 @@
 
 namespace mFramework.UI
 {
-    public interface IUIObject : IGlobalUniqueIdentifier, IDimensions
+    public interface IUIObject : IGlobalUniqueIdentifier, ISizeable
     {
         UnidirectionalList<UIAnimation> Animations { get; }
         UnidirectionalList<UIObject> Childs { get; }
@@ -52,6 +52,36 @@ namespace mFramework.UI
         Vector2 CenterOffset { get; }
         Vector2 UnscaledCenterOffset { get; }
 
+        /// <summary>
+        /// Global scaled height with padding
+        /// </summary>
+        float Height { get; }
+
+        /// <summary>
+        /// Global scaled width with padding
+        /// </summary>
+        float Width { get; }
+
+        /// <summary>
+        /// Local scaled height with padding
+        /// </summary>
+        float LocalHeight { get; }
+
+        /// <summary>
+        /// Local scaled width with padding
+        /// </summary>
+        float LocalWidth { get; }
+
+        /// <summary>
+        /// Scaled height with padding
+        /// </summary>
+        float UnscaledHeight { get; }
+
+        /// <summary>
+        /// Scaled width with padding
+        /// </summary>
+        float UnscaledWidth { get; }
+        
         event UIEventHandler<IUIObject> ActiveChanged;
         event UIEventHandler<IUIObject, UIAnimation> AnimationAdded;
         event UIEventHandler<IUIObject> BeforeDestroy;

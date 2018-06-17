@@ -2,10 +2,10 @@
 
 namespace mFramework.UI
 {
-    public class UIContainerProps : UIComponentProps
+    public class UIContainerProps : UIComponentProps, ISizeable
     {
-        public float UnscaledHeight;
-        public float UnscaledWidth;
+        public float SizeX { get; set; }
+        public float SizeY { get; set; }
     }
 
     public class UIContainer : UIComponent
@@ -15,21 +15,21 @@ namespace mFramework.UI
             if (!(props is UIContainerProps containerSettings))
                 throw new ArgumentException("UIContainer: The given settings is not UIContainerSettings");
 
-            UnscaledWidth = containerSettings.UnscaledWidth;
-            UnscaledHeight = containerSettings.UnscaledHeight;
+            SizeX = containerSettings.SizeX;
+            SizeY = containerSettings.SizeY;
 
             base.ApplyProps(props);
         }
 
         public UIContainer SetWidth(float width)
         {
-            UnscaledWidth = width;
+            SizeX = width;
             return this;
         }
 
         public UIContainer SetHeight(float height)
         {
-            UnscaledHeight = height;
+            SizeY = height;
             return this;
         }
     }

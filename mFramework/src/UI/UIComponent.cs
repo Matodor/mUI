@@ -37,6 +37,7 @@ namespace mFramework.UI
             component.SetupParent(parent);
             component.ApplyProps(props);
             component.InitCompleted(true);
+            mUI.ObjectCreated(component);
             return component;
         }
 

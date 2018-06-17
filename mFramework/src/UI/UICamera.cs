@@ -13,14 +13,17 @@ namespace mFramework.UI
         public Color BackgroundColor { get; set; } = Color.gray;
     }
 
-    public sealed class UICamera : IDimensions
+    public sealed class UICamera : ISizeable
     {
         internal Transform Transform => _camera.transform;
 
-        public float Height => UnscaledHeight * _camera.transform.lossyScale.y;
-        public float Width => UnscaledWidth * _camera.transform.lossyScale.x;
-        public float UnscaledWidth => _camera.orthographicSize * _camera.aspect * 2;
-        public float UnscaledHeight => _camera.orthographicSize * 2;
+        public static float Aspect => (float) Screen.width / Screen.height;
+
+        public float Width => SizeX * _camera.transform.lossyScale.x;
+        public float Height => SizeY * _camera.transform.lossyScale.y;
+
+        public float SizeX => _camera.orthographicSize * _camera.aspect * 2;
+        public float SizeY => _camera.orthographicSize * 2;
 
         public Color BackgroundColor
         {

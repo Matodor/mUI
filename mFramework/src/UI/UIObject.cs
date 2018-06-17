@@ -59,14 +59,19 @@ namespace mFramework.UI
         public virtual Vector2 UnscaledCenterOffset { get; protected set; } = Vector2.zero;
         public virtual Vector3 GlobalScale => Transform.lossyScale;
 
-        public virtual float Height => UnscaledHeight * GlobalScale.y 
-            + (Padding.Top + Padding.Bottom) * GlobalScale.y;
+        public virtual float Height => 
+            SizeY * GlobalScale.y + (Padding.Top + Padding.Bottom) * GlobalScale.y;
+        public virtual float Width => 
+            SizeX * GlobalScale.x + (Padding.Left + Padding.Right) * GlobalScale.x;
 
-        public virtual float Width => UnscaledWidth * GlobalScale.x 
-            + (Padding.Left + Padding.Right) * GlobalScale.x;
+        public float LocalHeight => SizeY * Scale.y + (Padding.Top + Padding.Bottom) * Scale.y;
+        public float LocalWidth => SizeX * Scale.x + (Padding.Left + Padding.Right) * Scale.x;
 
-        public virtual float UnscaledHeight { get; protected set; }
-        public virtual float UnscaledWidth { get; protected set; }
+        public float UnscaledHeight => SizeY + (Padding.Top + Padding.Bottom);
+        public float UnscaledWidth => SizeX + (Padding.Left + Padding.Right);
+
+        public virtual float SizeY { get; protected set; }
+        public virtual float SizeX { get; protected set; }
 
         public virtual UIPadding Padding
         {
@@ -187,11 +192,9 @@ namespace mFramework.UI
 
         internal void ScaleByAnchor(Vector2 scale, UIAnchor anchor)
         {
-            var pos = Transform.localPosition + 
-                AnchorOffsetFromTransformPos(PivotByAnchor(anchor), Rotation);
-
+            var pos = GetAnchorPos(anchor);
             Transform.localScale = scale;
-            Transform.localPosition = pos - AnchorOffsetFromTransformPos(PivotByAnchor(anchor), Rotation);
+            PositionByPivot(pos, PivotByAnchor(anchor));
         }
 
         internal void InitCompleted(bool setPosition)
@@ -245,7 +248,6 @@ namespace mFramework.UI
             _localSortingOrder = 0;
 
             SetName(base.gameObject.name);
-            mUI.AddUIObject(this);
             AfterAwake();
         }
         
@@ -327,13 +329,13 @@ namespace mFramework.UI
         internal NotRotatedRect NotRotatedLocalRect(Vector2 scale)
         {
             var centerOffset = CenterOffset;
-            var left =   -UnscaledWidth  / 2 * scale.x - Padding.Left   * scale.x;
-            var right =  +UnscaledWidth  / 2 * scale.x + Padding.Right  * scale.x;
-            var top =    +UnscaledHeight / 2 * scale.y + Padding.Top    * scale.y;
-            var bottom = -UnscaledHeight / 2 * scale.y - Padding.Bottom * scale.y;
+            var left =   -SizeX / 2f * scale.x - Padding.Left   * scale.x;
+            var right =  +SizeX / 2f * scale.x + Padding.Right  * scale.x;
+            var top =    +SizeY / 2f * scale.y + Padding.Top    * scale.y;
+            var bottom = -SizeY / 2f * scale.y - Padding.Bottom * scale.y;
 
-            var paddingOffsetX = (left + right) / 2;
-            var paddingOffsetY = (top + bottom) / 2;
+            var paddingOffsetX = (left + right) / 2f;
+            var paddingOffsetY = (top + bottom) / 2f;
 
             centerOffset = new Vector2(
                 centerOffset.x + paddingOffsetX,        

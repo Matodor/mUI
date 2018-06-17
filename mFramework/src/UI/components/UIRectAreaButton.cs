@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIRectAreaButtonProps : UIComponentProps
+    public class UIRectAreaButtonProps : UIComponentProps, ISizeable
     {
         public virtual ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
-        public virtual float UnscaledWidth { get; set; } = 0f;
-        public virtual float UnscaledHeight { get; set; } = 0f;
+        public float SizeX { get; set; }
+        public float SizeY { get; set; }
     }
 
     public class UIRectAreaButton : UIComponent, IUIButton
@@ -79,21 +79,21 @@ namespace mFramework.UI
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
 
             ClickCondition = buttonSettings.ClickCondition;
-            UnscaledHeight = buttonSettings.UnscaledHeight;
-            UnscaledWidth = buttonSettings.UnscaledWidth;
+            SizeX = buttonSettings.SizeX;
+            SizeY = buttonSettings.SizeY;
             
             base.ApplyProps(buttonSettings);
         }
 
         public UIRectAreaButton SetWidth(float width)
         {
-            UnscaledWidth = width;
+            SizeX = width;
             return this;
         }
 
         public UIRectAreaButton SetHeight(float height)
         {
-            UnscaledHeight = height;
+            SizeY = height;
             return this;
         }
 
