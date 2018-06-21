@@ -41,7 +41,6 @@ namespace mFramework.Saves
                 return this;
             }
         }
-
     }
 
     public struct SaveableBoolean : ISaveableField
