@@ -13,6 +13,7 @@ namespace mFramework
         /// <summary>
         /// Gets the current DateTime from time-a.nist.gov.
         /// </summary>
+        /// <param name="utc">Use UTC time</param>
         /// <returns>A DateTime containing the current time.</returns>
         public static DateTime GetNetworkTime(bool utc)
         {
@@ -23,6 +24,7 @@ namespace mFramework
         /// Gets the current DateTime from <paramref name="ntpServer"/>.
         /// </summary>
         /// <param name="ntpServer">The hostname of the NTP server.</param>
+        /// <param name="utc">Use UTC time</param>
         /// <returns>A DateTime containing the current time.</returns>
         public static DateTime GetNetworkTime(string ntpServer, bool utc)
         {
@@ -40,6 +42,7 @@ namespace mFramework
         /// Gets the current DateTime form <paramref name="ep"/> IPEndPoint.
         /// </summary>
         /// <param name="ep">The IPEndPoint to connect to.</param>
+        /// <param name="utc">Use UTC time</param>
         /// <returns>A DateTime containing the current time.</returns>
         public static DateTime GetNetworkTime(IPEndPoint ep, bool utc)
         {
@@ -86,6 +89,7 @@ namespace mFramework
         /// <summary>
         /// Gets async the current DateTime from time-a.nist.gov.
         /// </summary>
+        /// <param name="utc">Use UTC time</param>
         /// <returns>A DateTime containing the current time.</returns>
         public static async Task<DateTime> GetNetworkTimeAsync(bool utc)
         {
@@ -96,6 +100,7 @@ namespace mFramework
         /// Gets async the current DateTime from <paramref name="ntpServer"/>.
         /// </summary>
         /// <param name="ntpServer">The hostname of the NTP server.</param>
+        /// <param name="utc">Use UTC time</param>
         /// <returns>A DateTime containing the current time.</returns>
         public static async Task<DateTime> GetNetworkTimeAsync(string ntpServer, bool utc)
         {
@@ -112,6 +117,7 @@ namespace mFramework
         /// Gets async the current DateTime form <paramref name="endPoint"/> IPEndPoint.
         /// </summary>
         /// <param name="endPoint">The IPEndPoint to connect to.</param>
+        /// <param name="utc">Use UTC time</param>
         /// <returns>A DateTime containing the current time.</returns>
         public static async Task<DateTime> GetNetworkTimeAsync(IPEndPoint endPoint, bool utc)
         {
