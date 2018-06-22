@@ -14,9 +14,9 @@ namespace mFramework
         /// Gets the current DateTime from time-a.nist.gov.
         /// </summary>
         /// <returns>A DateTime containing the current time.</returns>
-        public static DateTime GetNetworkTime()
+        public static DateTime GetNetworkTime(bool utc)
         {
-            return GetNetworkTime("time.windows.com"); // time-a.nist.gov
+            return GetNetworkTime("time.windows.com", utc); // time-a.nist.gov
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace mFramework
         /// </summary>
         /// <param name="ntpServer">The hostname of the NTP server.</param>
         /// <returns>A DateTime containing the current time.</returns>
-        public static DateTime GetNetworkTime(string ntpServer)
+        public static DateTime GetNetworkTime(string ntpServer, bool utc)
         {
             var address = Dns.GetHostEntry(ntpServer).AddressList;
 
@@ -33,7 +33,7 @@ namespace mFramework
                     nameof(ntpServer));
 
             var endPoint = new IPEndPoint(address[0], 123);
-            return GetNetworkTime(endPoint);
+            return GetNetworkTime(endPoint, utc);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace mFramework
         /// </summary>
         /// <param name="ep">The IPEndPoint to connect to.</param>
         /// <returns>A DateTime containing the current time.</returns>
-        public static DateTime GetNetworkTime(IPEndPoint ep)
+        public static DateTime GetNetworkTime(IPEndPoint ep, bool utc)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
             {
@@ -76,18 +76,20 @@ namespace mFramework
 
             dateTime += timeSpan;
 
+            if (utc)
+                return dateTime;
+
             var offsetAmount = TimeZone.CurrentTimeZone.GetUtcOffset(dateTime);
-            var networkDateTime = (dateTime + offsetAmount);
-            return networkDateTime;
+            return dateTime + offsetAmount;
         }
 
         /// <summary>
         /// Gets async the current DateTime from time-a.nist.gov.
         /// </summary>
         /// <returns>A DateTime containing the current time.</returns>
-        public static async Task<DateTime> GetNetworkTimeAsync()
+        public static async Task<DateTime> GetNetworkTimeAsync(bool utc)
         {
-            return await GetNetworkTimeAsync("time.windows.com"); // time-a.nist.gov
+            return await GetNetworkTimeAsync("time.windows.com", utc); // time-a.nist.gov
         }
 
         /// <summary>
@@ -95,7 +97,7 @@ namespace mFramework
         /// </summary>
         /// <param name="ntpServer">The hostname of the NTP server.</param>
         /// <returns>A DateTime containing the current time.</returns>
-        public static async Task<DateTime> GetNetworkTimeAsync(string ntpServer)
+        public static async Task<DateTime> GetNetworkTimeAsync(string ntpServer, bool utc)
         {
             var address = (await Dns.GetHostEntryAsync(ntpServer)).AddressList;
             if (address == null || address.Length == 0)
@@ -103,7 +105,7 @@ namespace mFramework
                     nameof(ntpServer));
 
             var endPoint = new IPEndPoint(address[0], 123);
-            return await GetNetworkTimeAsync(endPoint);
+            return await GetNetworkTimeAsync(endPoint, utc);
         }
 
         /// <summary>
@@ -111,7 +113,7 @@ namespace mFramework
         /// </summary>
         /// <param name="endPoint">The IPEndPoint to connect to.</param>
         /// <returns>A DateTime containing the current time.</returns>
-        public static async Task<DateTime> GetNetworkTimeAsync(IPEndPoint endPoint)
+        public static async Task<DateTime> GetNetworkTimeAsync(IPEndPoint endPoint, bool utc)
         {
             using (var udpClient = new UdpClient(AddressFamily.InterNetwork))
             {
@@ -149,9 +151,11 @@ namespace mFramework
 
                 dateTime += timeSpan;
 
+                if (utc)
+                    return dateTime;
+
                 var offsetAmount = TimeZone.CurrentTimeZone.GetUtcOffset(dateTime);
-                var networkDateTime = (dateTime + offsetAmount);
-                return networkDateTime;
+                return dateTime + offsetAmount;
             }
         }
     }

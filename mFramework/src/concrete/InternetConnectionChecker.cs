@@ -2,22 +2,32 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace mFramework.concrete
 {
     public class InternetConnectionChecker
     {
-        public static async void Check(Action onSuccess, Action onFailed)
+        public static void CheckAsync(Action onSuccess, Action<Exception> onFailed)
         {
-            var result = await GetPage(new Uri("http://google.com"));
-            if (result)
-                onSuccess?.Invoke();
-            else 
-                onFailed?.Invoke();
+            var result = GetPageAsync(new Uri("http://google.com"));
+
+            result.ContinueWith(task =>
+            {
+                if (task.Result)
+                    onSuccess?.Invoke();
+                else
+                    onFailed?.Invoke(task.Exception);
+            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+            result.ContinueWith(task =>
+            {
+                onFailed?.Invoke(task.Exception);
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
-        private static async Task<bool> GetPage(Uri uri)
+        private static async Task<bool> GetPageAsync(Uri uri)
         {
             using (var client = new HttpClient())
             {
