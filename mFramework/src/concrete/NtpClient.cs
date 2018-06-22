@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace mFramework
 {
@@ -28,11 +29,11 @@ namespace mFramework
             var address = Dns.GetHostEntry(ntpServer).AddressList;
 
             if (address == null || address.Length == 0)
-                throw new ArgumentException("Could not resolve ip address from '" + ntpServer + "'.", nameof(ntpServer));
+                throw new ArgumentException("Could not resolve ip address from '" + ntpServer + "'.",
+                    nameof(ntpServer));
 
-            var ep = new IPEndPoint(address[0], 123);
-
-            return GetNetworkTime(ep);
+            var endPoint = new IPEndPoint(address[0], 123);
+            return GetNetworkTime(endPoint);
         }
 
         /// <summary>
@@ -42,34 +43,35 @@ namespace mFramework
         /// <returns>A DateTime containing the current time.</returns>
         public static DateTime GetNetworkTime(IPEndPoint ep)
         {
-            var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
             {
                 ReceiveTimeout = 1000
             };
-            s.Connect(ep);
 
-            byte[] ntpData = new byte[48]; // RFC 2030 
+            socket.Connect(ep);
+
+            var ntpData = new byte[48]; // RFC 2030 
             ntpData[0] = 0x1B;
-            for (int i = 1; i < 48; i++)
+            for (var i = 1; i < 48; i++)
                 ntpData[i] = 0;
 
-            s.Send(ntpData);
-            s.Receive(ntpData);
+            socket.Send(ntpData);
+            socket.Receive(ntpData);
 
-            byte offsetTransmitTime = 40;
+            const byte offsetTransmitTime = 40;
             ulong intpart = 0;
             ulong fractpart = 0;
 
-            for (int i = 0; i <= 3; i++)
+            for (var i = 0; i <= 3; i++)
                 intpart = 256 * intpart + ntpData[offsetTransmitTime + i];
 
-            for (int i = 4; i <= 7; i++)
+            for (var i = 4; i <= 7; i++)
                 fractpart = 256 * fractpart + ntpData[offsetTransmitTime + i];
 
             var milliseconds = (intpart * 1000 + (fractpart * 1000) / 0x100000000L);
-            s.Close();
+            socket.Close();
 
-            var timeSpan = TimeSpan.FromTicks((long)milliseconds * TimeSpan.TicksPerMillisecond);
+            var timeSpan = TimeSpan.FromTicks((long) milliseconds * TimeSpan.TicksPerMillisecond);
             var dateTime = new DateTime(1900, 1, 1);
 
             dateTime += timeSpan;
@@ -77,6 +79,80 @@ namespace mFramework
             var offsetAmount = TimeZone.CurrentTimeZone.GetUtcOffset(dateTime);
             var networkDateTime = (dateTime + offsetAmount);
             return networkDateTime;
+        }
+
+        /// <summary>
+        /// Gets async the current DateTime from time-a.nist.gov.
+        /// </summary>
+        /// <returns>A DateTime containing the current time.</returns>
+        public static async Task<DateTime> GetNetworkTimeAsync()
+        {
+            return await GetNetworkTimeAsync("time.windows.com"); // time-a.nist.gov
+        }
+
+        /// <summary>
+        /// Gets async the current DateTime from <paramref name="ntpServer"/>.
+        /// </summary>
+        /// <param name="ntpServer">The hostname of the NTP server.</param>
+        /// <returns>A DateTime containing the current time.</returns>
+        public static async Task<DateTime> GetNetworkTimeAsync(string ntpServer)
+        {
+            var address = (await Dns.GetHostEntryAsync(ntpServer)).AddressList;
+            if (address == null || address.Length == 0)
+                throw new ArgumentException("Could not resolve ip address from '" + ntpServer + "'.",
+                    nameof(ntpServer));
+
+            var endPoint = new IPEndPoint(address[0], 123);
+            return await GetNetworkTimeAsync(endPoint);
+        }
+
+        /// <summary>
+        /// Gets async the current DateTime form <paramref name="endPoint"/> IPEndPoint.
+        /// </summary>
+        /// <param name="endPoint">The IPEndPoint to connect to.</param>
+        /// <returns>A DateTime containing the current time.</returns>
+        public static async Task<DateTime> GetNetworkTimeAsync(IPEndPoint endPoint)
+        {
+            using (var udpClient = new UdpClient(AddressFamily.InterNetwork))
+            {
+                await Task.Factory.FromAsync(udpClient.Client.BeginConnect, udpClient.Client.EndConnect,
+                    endPoint, null);
+
+                if (!udpClient.Client.Connected)
+                    throw new Exception("GetNetworkTimeAsync socket not connected");
+
+                var data = new byte[48]; // RFC 2030 
+                data[0] = 0x1B;
+                for (var i = 1; i < 48; i++)
+                    data[i] = 0;
+
+                await udpClient.SendAsync(data, data.Length);
+                var result = await udpClient.ReceiveAsync();
+
+                if (result.Buffer.Length < data.Length)
+                    throw new Exception("GetNetworkTimeAsync receive error");
+
+                const byte offsetTransmitTime = 40;
+                ulong intpart = 0;
+                ulong fractpart = 0;
+
+                for (var i = 0; i <= 3; i++)
+                    intpart = 256 * intpart + result.Buffer[offsetTransmitTime + i];
+
+                for (var i = 4; i <= 7; i++)
+                    fractpart = 256 * fractpart + result.Buffer[offsetTransmitTime + i];
+
+                var milliseconds = (intpart * 1000 + (fractpart * 1000) / 0x100000000L);
+
+                var timeSpan = TimeSpan.FromTicks((long) milliseconds * TimeSpan.TicksPerMillisecond);
+                var dateTime = new DateTime(1900, 1, 1);
+
+                dateTime += timeSpan;
+
+                var offsetAmount = TimeZone.CurrentTimeZone.GetUtcOffset(dateTime);
+                var networkDateTime = (dateTime + offsetAmount);
+                return networkDateTime;
+            }
         }
     }
 }

@@ -10,14 +10,14 @@ namespace mFramework.concrete
     {
         public static async void Check(Action onSuccess, Action onFailed)
         {
-            var result = await GetHtml(new Uri("http://google.com"));
+            var result = await GetPage(new Uri("http://google.com"));
             if (result)
                 onSuccess?.Invoke();
             else 
                 onFailed?.Invoke();
         }
 
-        private static async Task<bool> GetHtml(Uri uri)
+        private static async Task<bool> GetPage(Uri uri)
         {
             using (var client = new HttpClient())
             {
