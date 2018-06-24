@@ -20,7 +20,8 @@ namespace mFramework.UI
             WordSpacing = 1f,
             Size = 40,
             TextAlignment = TextAlignment.Left,
-            MaxWidth = null
+            MaxWidth = null,
+            WordBreak = WordBreak.NORMAL
         };
 
         public IDictionary<int, TextFormatting> TextFormatting = null;
@@ -49,6 +50,7 @@ namespace mFramework.UI
         public int Size;
         public TextAlignment TextAlignment;
         public FontStyle FontStyle;
+        public WordBreak WordBreak;
         public float LetterSpacing;
         public float WordSpacing;
         public float LinesSpacing;
@@ -444,8 +446,9 @@ namespace mFramework.UI
             SizeX = 0f;
 
             var textXOffset = 0f;
-            var formattingIndex = -1;
+            var ignoreBreakIndex = -1;
             var startLineIndex = 0;
+            var wordLength = 0;
 
             var lastLineHeight = 0f;
             var lastLineWidth = 0f;
@@ -468,9 +471,9 @@ namespace mFramework.UI
 
             for (var i = 0; i < text.Length; i++)
             {
-                var forceNewLine = false;
                 CharacterInfo characterInfo;
                 var currentCharacter = text[i];
+                var forceNewLine = false;
 
                 if (_textFormatting.Count > 0)
                 {
@@ -532,29 +535,61 @@ namespace mFramework.UI
                     {
                         continue;
                     }
-                }              
+                }
+
+                var w = characterInfo.glyphWidth / pixelsPerWorldUnit / _cachedFont.Harshness;
+
+                if (i > ignoreBreakIndex &&
+                    style.MaxWidth.HasValue && 
+                    lastLineWidth + w > style.MaxWidth)
+                {
+                    ignoreBreakIndex = i;
+
+                    if (wordLength == 0 || style.WordBreak == WordBreak.BREAK_ALL)
+                    {
+                        i--;
+                    }
+                    else if (style.WordBreak == WordBreak.NORMAL)
+                    {
+                        var wordWidth =
+                            verticesList[verticesList.Count - 1].x -
+                            verticesList[verticesList.Count - 4 * wordLength].x + w;
+
+                        if (wordWidth > style.MaxWidth.Value)
+                        {
+                            i--;
+                        }
+                        else
+                        {
+                            for (var b = 0; b < wordLength; b++)
+                            {
+                                verticesList.RemoveRange(verticesList.Count - 4, 4);
+                                colorsList.RemoveRange(colorsList.Count - 4, 4);
+                                uvList.RemoveRange(uvList.Count - 4, 4);
+                                normalsList.RemoveRange(normalsList.Count - 4, 4);
+                                trianglesList.RemoveRange(trianglesList.Count - 6, 6);
+                            }
+
+                            i -= wordLength;
+                            i--;
+                        }
+                    }
+
+                    forceNewLine = true;
+                    goto End;
+                }
 
                 var minX = characterInfo.minX / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var maxX = characterInfo.maxX / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var minY = characterInfo.minY / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var maxY = characterInfo.maxY / pixelsPerWorldUnit / _cachedFont.Harshness;
-                var w = characterInfo.glyphWidth / pixelsPerWorldUnit / _cachedFont.Harshness;
 
                 if (lineMaxY < maxY)
                     lineMaxY = maxY;
 
                 if (lineMinY > minY)
                     lineMinY = minY;
-
-                //Debug.Log($"minX={minX} minY={minY}");
-
-                if (style.MaxWidth.HasValue && lastLineWidth + w > style.MaxWidth)
-                {
-                    i--;
-                    forceNewLine = true;
-                    goto End;
-                }
-
+                
                 //var h = characterInfo.glyphHeight / devider;
                 //var bearing = characterInfo.bearing / pixelsPerWorldUnit / _cachedFont.Harshness;
                 var advance = characterInfo.advance / pixelsPerWorldUnit / _cachedFont.Harshness;
@@ -564,28 +599,25 @@ namespace mFramework.UI
                 var rightTop = new Vector3(textXOffset + (maxX - minX), maxY);
                 var rightBottom = new Vector3(textXOffset + (maxX - minX), minY);
 
-                verticesList.Add(leftBottom);
-                verticesList.Add(leftTop);
-                verticesList.Add(rightTop);
-                verticesList.Add(rightBottom);
-
-                lastLineWidth = rightBottom.x - verticesList[startLineIndex].x;
-
-                if (lastLineHeight < characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness)
-                    lastLineHeight = characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness;
+                if (currentCharacter == ' ')
+                {
+                    textXOffset += advance * wordSpacing;
+                    wordLength = 0;
+                }
+                else
+                {
+                    textXOffset += advance * letterSpacing;
+                    wordLength++;
+                }
 
                 //mCore.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
                 //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
                 //  characterInfo.advance, characterInfo.bearing, characterInfo.size, characterInfo.glyphHeight, characterInfo.glyphWidth);
 
-                if (currentCharacter == ' ')
-                {
-                    textXOffset += advance * wordSpacing;
-                }
-                else
-                {
-                    textXOffset += advance * letterSpacing;
-                }
+                verticesList.Add(leftBottom);
+                verticesList.Add(leftTop);
+                verticesList.Add(rightTop);
+                verticesList.Add(rightBottom);
 
                 colorsList.Add(color);
                 colorsList.Add(color);
@@ -610,8 +642,13 @@ namespace mFramework.UI
                 trianglesList.Add(verticesList.Count - 1); // 3
                 trianglesList.Add(verticesList.Count - 4); // 0
 
+                lastLineWidth = rightBottom.x - verticesList[startLineIndex].x;
+
+                if (lastLineHeight < characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness)
+                    lastLineHeight = characterInfo.size / pixelsPerWorldUnit / _cachedFont.Harshness;
+                
                 // new line
-            End:
+                End:
                 if (forceNewLine || i + 1 >= text.Length || i + 1 < text.Length && text[i + 1] == '\n')
                 {
                     lastLineHeight = lastLineHeight * style.LinesSpacing;
@@ -637,6 +674,7 @@ namespace mFramework.UI
                     if (SizeX < lastLineWidth)
                         SizeX = lastLineWidth;
                     
+                    wordLength = 0;
                     textXOffset = 0f;
                     lastLineWidth = 0f;
                     lastLineHeight = 0f;

@@ -52,6 +52,8 @@ namespace mFramework
                     style.TextAlignment, GUIStyle.none);
                 style.FontStyle = (FontStyle)EditorGUILayout.EnumPopup("Font style",
                     style.FontStyle, GUIStyle.none);
+                style.WordBreak = (WordBreak) EditorGUILayout.EnumPopup("Word break",
+                    style.WordBreak, GUIStyle.none);
 
                 if (EditorGUI.EndChangeCheck())
                     _label.TextStyle = style;

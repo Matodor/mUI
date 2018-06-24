@@ -169,6 +169,7 @@
     <Compile Include="src\UI\UICamera.cs" />
     <Compile Include="src\UI\UIView.cs" />
     <Compile Include="src\UI\UIComponent.cs" />
+    <Compile Include="src\UI\WordBreak.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\network\" />

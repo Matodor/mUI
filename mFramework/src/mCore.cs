@@ -10,6 +10,7 @@ using UnityEngine;
 namespace mFramework
 {
     public delegate object LateBoundFieldGet(object target);
+
     public delegate void LateBoundFieldSet(object target, object value);
 
     public sealed class mCore
@@ -18,8 +19,8 @@ namespace mFramework
 
         public static bool IsEditor { get; private set; }
         public static bool IsDebug { get; set; }
-        public static event Action ApplicationQuitEvent = delegate {};
-        public static event Action<bool> ApplicationPaused = delegate {};
+        public static event Action ApplicationQuitEvent = delegate { };
+        public static event Action<bool> ApplicationPaused = delegate { };
 
         private static Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
         private static UnidirectionalList<RepeatAction> _repeatsActions;
@@ -32,6 +33,17 @@ namespace mFramework
                 _instance = new mCore();
         }
 
+        // TODO
+        /*[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Initialize()
+        {
+            if (instance == null)
+            {
+                go.hideFlags = HideFlags.HideAndDontSave;
+                Object.DontDestroyOnLoad(go);
+            }
+        }*/
+
         ~mCore()
         {
             Log("~mCore");
@@ -39,7 +51,7 @@ namespace mFramework
 
         private mCore()
         {
-            var newCultureDefinition = (CultureInfo)Thread.CurrentThread.CurrentCulture.Clone();
+            var newCultureDefinition = (CultureInfo) Thread.CurrentThread.CurrentCulture.Clone();
             newCultureDefinition.NumberFormat.NumberDecimalSeparator = ".";
             Thread.CurrentThread.CurrentCulture = newCultureDefinition;
 
@@ -49,7 +61,7 @@ namespace mFramework
             _repeatsActions = UnidirectionalList<RepeatAction>.Create();
             _timerActions = UnidirectionalList<TimerAction>.Create();
             _fieldDictionary = new Dictionary<Type, CachedFieldsInfo>();
-            
+
             if (Application.isEditor)
             {
                 IsDebug = true;
@@ -58,7 +70,7 @@ namespace mFramework
 
             Log("[mFramework] init");
         }
-         
+
         internal static bool RemoveTimerAction(TimerAction timerAction)
         {
             return _timerActions.Remove(timerAction);
@@ -99,7 +111,8 @@ namespace mFramework
 
         public static LateBoundFieldGet CreateFieldGetter(FieldInfo field)
         {
-            var method = new DynamicMethod("Get" + field.Name, typeof(object), new[] { typeof(object) }, field.DeclaringType, true);
+            var method = new DynamicMethod("Get" + field.Name, typeof(object), new[] {typeof(object)},
+                field.DeclaringType, true);
             var gen = method.GetILGenerator();
 
             gen.Emit(OpCodes.Ldarg_0);
@@ -117,7 +130,7 @@ namespace mFramework
 
         public static LateBoundFieldSet CreateFieldSetter(FieldInfo field)
         {
-            var method = new DynamicMethod("Set" + field.Name, null, new[] { typeof(object), typeof(object) }, 
+            var method = new DynamicMethod("Set" + field.Name, null, new[] {typeof(object), typeof(object)},
                 field.DeclaringType, true);
             var gen = method.GetILGenerator();
 
@@ -127,8 +140,8 @@ namespace mFramework
             gen.Emit(OpCodes.Unbox_Any, field.FieldType); // Unbox the value to its proper value type
             gen.Emit(OpCodes.Stfld, field); // Set the value to the input field
             gen.Emit(OpCodes.Ret);
-             
-            var callback = (LateBoundFieldSet)method.CreateDelegate(typeof(LateBoundFieldSet));
+
+            var callback = (LateBoundFieldSet) method.CreateDelegate(typeof(LateBoundFieldSet));
             return callback;
         }
 
@@ -183,15 +196,19 @@ namespace mFramework
                 var p1 = mMath.GetRotatedPoint(pos, new Vector2(radius, 0), i);
                 var p2 = mMath.GetRotatedPoint(pos, new Vector2(radius, 0), i + 1);
                 Debug.DrawLine(p1, p2);
-            }    
+            }
         }
 
         public static void DrawDebugBox(Vector2 boxPos, Vector2 boxSize)
         {
-            Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2), boxPos + new Vector2(boxSize.x / 2, boxSize.y / 2));
-            Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, boxSize.y / 2), boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2));
-            Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2), boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2));
-            Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2), boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2));
+            Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2),
+                boxPos + new Vector2(boxSize.x / 2, boxSize.y / 2));
+            Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, boxSize.y / 2),
+                boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2));
+            Debug.DrawLine(boxPos + new Vector2(boxSize.x / 2, -boxSize.y / 2),
+                boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2));
+            Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2),
+                boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2));
         }
 
         internal static void OnApplicationPause(bool pauseState)
