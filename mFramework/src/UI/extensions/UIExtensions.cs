@@ -81,7 +81,7 @@ namespace mFramework.UI
         {
             var o = obj as UIObject;
             // ReSharper disable once PossibleNullReferenceException
-            o.RotationAround(o.GetAnchorPos(pivot), value, relativeTo);
+            o.RotationAround(o.GlobalAnchorPosition(pivot), value, relativeTo);
             return obj;
         }
 
@@ -90,7 +90,7 @@ namespace mFramework.UI
         {
             var o = obj as UIObject;
             // ReSharper disable once PossibleNullReferenceException
-            o.RotationAround(o.GetAnchorPos(anchor), value, relativeTo);
+            o.RotationAround(o.GlobalAnchorPosition(UIObject.PivotByAnchor(anchor)), value, relativeTo);
             return obj;
         }
 
@@ -98,7 +98,7 @@ namespace mFramework.UI
         {
             var o = obj as UIObject;
             // ReSharper disable once PossibleNullReferenceException
-            o.TurnAround(o.GetAnchorPos(pivot), value);
+            o.TurnAround(o.GlobalAnchorPosition(pivot), value);
             return obj;
         }
 
@@ -106,7 +106,7 @@ namespace mFramework.UI
         {
             var o = obj as UIObject;
             // ReSharper disable once PossibleNullReferenceException
-            o.TurnAround(o.GetAnchorPos(anchor), value);
+            o.TurnAround(o.GlobalAnchorPosition(UIObject.PivotByAnchor(anchor)), value);
             return obj;
         }
 
@@ -240,9 +240,9 @@ namespace mFramework.UI
         {
             // ReSharper disable PossibleNullReferenceException
             if (relativeTo == Space.Self)
-                (obj as UIObject).LocalPositionByPivot(position, UIObject.PivotByAnchor(anchor));
+                (obj as UIObject).SetLocalPosition(position, UIObject.PivotByAnchor(anchor));
             else
-                (obj as UIObject).PositionByPivot(position, UIObject.PivotByAnchor(anchor));
+                (obj as UIObject).SetGlobalPosition(position, UIObject.PivotByAnchor(anchor));
             return obj;
             // ReSharper restore PossibleNullReferenceException
         }
@@ -252,9 +252,9 @@ namespace mFramework.UI
         {
             // ReSharper disable PossibleNullReferenceException
             if (relativeTo == Space.Self)
-                (obj as UIObject).LocalPositionByPivot(position, UIObject.PivotByAnchor(anchor));
+                (obj as UIObject).SetLocalPosition(position, UIObject.PivotByAnchor(anchor));
             else
-                (obj as UIObject).PositionByPivot(position, UIObject.PivotByAnchor(anchor));
+                (obj as UIObject).SetGlobalPosition(position, UIObject.PivotByAnchor(anchor));
             return obj;
             // ReSharper restore PossibleNullReferenceException
         }
@@ -264,8 +264,8 @@ namespace mFramework.UI
         {
             // ReSharper disable PossibleNullReferenceException
             return relativeTo == Space.Self
-                ? (obj as UIObject).GetLocalAnchorPos(anchor)
-                : (obj as UIObject).GetAnchorPos(anchor);
+                ? (Vector3) (obj as UIObject).LocalAnchorPosition(UIObject.PivotByAnchor(anchor))
+                : (Vector3) (obj as UIObject).GlobalAnchorPosition(UIObject.PivotByAnchor(anchor));
             // ReSharper restore PossibleNullReferenceException
         }
 
@@ -274,8 +274,8 @@ namespace mFramework.UI
         {
             // ReSharper disable PossibleNullReferenceException
             return relativeTo == Space.Self
-                ? (obj as UIObject).GetLocalAnchorPos(pivot)
-                : (obj as UIObject).GetAnchorPos(pivot);
+                ? (Vector3) (obj as UIObject).LocalAnchorPosition(pivot)
+                : (Vector3) (obj as UIObject).GlobalAnchorPosition(pivot);
             // ReSharper restore PossibleNullReferenceException
         }
 

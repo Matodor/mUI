@@ -64,9 +64,11 @@ namespace mFramework.UI.Layouts
             if (Direction == FlexboxDirection.COLUMN || Direction == FlexboxDirection.COLUMN_REVERSE)
             {
                 if (Childs.Count > 1)
-                    SizeY += marginBetween * GlobalScale.y + child.UnscaledHeight;
+                {
+                 //   SizeY += marginBetween + child.LocalHeight;
+                }
                 else
-                    SizeY += child.UnscaledHeight;
+                    SizeY += child.LocalHeight;
 
                 UnscaledCenterOffset = new Vector2(
                     0,
@@ -78,9 +80,9 @@ namespace mFramework.UI.Layouts
             else
             {
                 if (Childs.Count > 1)
-                    SizeX += marginBetween * GlobalScale.x + child.UnscaledWidth;
+                    SizeX += marginBetween + child.LocalWidth;
                 else
-                    SizeX += child.UnscaledWidth;
+                    SizeX += child.LocalWidth;
 
                 UnscaledCenterOffset = new Vector2(
                     Direction == FlexboxDirection.ROW
@@ -90,37 +92,42 @@ namespace mFramework.UI.Layouts
                 );
             }
 
-            Vector2 localOffset;
+            Vector2 localPos;
             if (Childs.Count > 1)
             {
                 var prevChild = Childs.LastItem.Prev.Value;
-                var w = marginBetween + child.UnscaledWidth / 2f;
-                var h = marginBetween + child.UnscaledHeight / 2f;
+
+                child.Position(prevChild.Position(UIAnchor.LowerCenter, Space.Self), 
+                    UIAnchor.UpperCenter, Space.Self);
+
+                return;
+                var w = marginBetween + child.LocalWidth / 2f;
+                var h = marginBetween + child.LocalHeight / 2f;
                 
                 switch (Direction)
                 {
                     case FlexboxDirection.ROW:
-                        localOffset = prevChild.Position(UIAnchor.MiddleRight, Space.Self);
-                        localOffset.x += w;
-                        localOffset.y = 0f;
+                        localPos = prevChild.Position(UIAnchor.MiddleRight, Space.Self);
+                        localPos.x += w;
+                        localPos.y = 0f;
                         break;
 
                     case FlexboxDirection.ROW_REVERSE:
-                        localOffset = prevChild.Position(UIAnchor.MiddleLeft, Space.Self);
-                        localOffset.x -= w;
-                        localOffset.y = 0f;
+                        localPos = prevChild.Position(UIAnchor.MiddleLeft, Space.Self);
+                        localPos.x -= w;
+                        localPos.y = 0f;
                         break;
 
                     case FlexboxDirection.COLUMN:
-                        localOffset = prevChild.Position(UIAnchor.LowerCenter, Space.Self);
-                        localOffset.y -= h;
-                        localOffset.x = 0f;
+                        localPos = prevChild.Position(UIAnchor.LowerCenter, Space.Self);
+                        localPos.y -= h;
+                        localPos.x = 0f;
                         break;
 
                     case FlexboxDirection.COLUMN_REVERSE:
-                        localOffset = prevChild.Position(UIAnchor.UpperCenter, Space.Self);
-                        localOffset.y += h;
-                        localOffset.x = 0f;
+                        localPos = prevChild.Position(UIAnchor.UpperCenter, Space.Self);
+                        localPos.y += h;
+                        localPos.x = 0f;
                         break;
 
                     default:
@@ -129,21 +136,21 @@ namespace mFramework.UI.Layouts
             }
             else
             {
-                localOffset = UnscaledCenterOffset;
+                localPos = UnscaledCenterOffset;
 
                 switch (Direction)
                 {
                     case FlexboxDirection.ROW:
-                        localOffset.x += Padding.Left * Scale.x;
+                        localPos.x += Padding.Left * Scale.x;
                         break;
                     case FlexboxDirection.ROW_REVERSE:
-                        localOffset.x -= Padding.Right * Scale.x;
+                        localPos.x -= Padding.Right * Scale.x;
                         break;
                     case FlexboxDirection.COLUMN:
-                        localOffset.y -= Padding.Top * Scale.y;
+                        localPos.y -= Padding.Top * Scale.y;
                         break;
                     case FlexboxDirection.COLUMN_REVERSE:
-                        localOffset.y += Padding.Bottom * Scale.y;
+                        localPos.y += Padding.Bottom * Scale.y;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -182,7 +189,7 @@ namespace mFramework.UI.Layouts
                 }
             }*/
 
-            child.Position(localOffset, UIAnchor.MiddleCenter, Space.Self);
+            //child.Position(localOffset, UIAnchor.MiddleCenter, Space.Self);
         }
     }
 }

@@ -14,8 +14,8 @@ namespace mFramework.UI
         public static bool InUIRect(UIRect rect, Vector2 worldPos)
         {
             return
-                mMath.TriangleContainsPoint(rect.TopLeft, rect.BottomLeft, rect.BottomRight, worldPos) ||
-                mMath.TriangleContainsPoint(rect.BottomRight, rect.TopRight, rect.TopLeft, worldPos);
+                mMath.TriangleContainsPoint(rect.UpperLeft, rect.LowerLeft, rect.LowerRight, worldPos) ||
+                mMath.TriangleContainsPoint(rect.LowerRight, rect.UpperRight, rect.UpperLeft, worldPos);
         }
     }
 }

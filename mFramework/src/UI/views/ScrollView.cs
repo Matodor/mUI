@@ -133,8 +133,8 @@ namespace mFramework.UI
         private void OnUIMouseDrag(Vector2 worldPos)
         {
             var sliderRect = Rect;
-            var point1 = mMath.ClosestPointOnLine(sliderRect.Top, sliderRect.Bottom, _lastDragPos);
-            var point2 = mMath.ClosestPointOnLine(sliderRect.Top, sliderRect.Bottom, worldPos);
+            var point1 = mMath.ClosestPointOnLine(sliderRect.UpperCenter, sliderRect.LowerCenter, _lastDragPos);
+            var point2 = mMath.ClosestPointOnLine(sliderRect.UpperCenter, sliderRect.LowerCenter, worldPos);
             var shift = point2 - point1;
 
             _averageDiff = (_averageDiff + shift) / 2f;
@@ -178,29 +178,29 @@ namespace mFramework.UI
             if (_flexboxLayout.Direction == FlexboxDirection.COLUMN ||
                 _flexboxLayout.Direction == FlexboxDirection.COLUMN_REVERSE)
             {
-                point1InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Top);
-                point2InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Bottom);
+                point1InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.UpperCenter);
+                point2InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.LowerCenter);
             }
             else
             {
-                point1InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Left);
-                point2InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.Right);
+                point1InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.MiddleLeft);
+                point2InArea = RectangleAreaChecker.InUIRect(sliderRect, itemsRect.MiddleRight);
             }
 
             if (_flexboxLayout.Direction == FlexboxDirection.COLUMN ||
                 _flexboxLayout.Direction == FlexboxDirection.COLUMN_REVERSE)
             {
                 if (point1InArea)
-                    magnetization = sliderRect.Top - itemsRect.Top;
+                    magnetization = sliderRect.UpperCenter - itemsRect.UpperCenter;
                 else
-                    magnetization = sliderRect.Bottom - itemsRect.Bottom;
+                    magnetization = sliderRect.LowerCenter - itemsRect.LowerCenter;
             }
             else
             {
                 if (point1InArea)
-                    magnetization = sliderRect.Left - itemsRect.Left;
+                    magnetization = sliderRect.MiddleLeft - itemsRect.MiddleLeft;
                 else
-                    magnetization = sliderRect.Right - itemsRect.Right;
+                    magnetization = sliderRect.MiddleRight - itemsRect.MiddleRight;
             }
 
             var maxMagnetization =
@@ -214,7 +214,7 @@ namespace mFramework.UI
 
         private void Move(UIRect sliderRect, Vector2 shift)
         {
-            var translatedItemRect = _flexboxLayout.GetRect(_flexboxLayout.TranslatedPos(shift));
+            var translatedItemRect = _flexboxLayout.UIRect(UIRectType.GLOBAL, shift);
             var magnetizationLength = GetNormilizedMagnetization(sliderRect, translatedItemRect,
                 out var point1InArea, out var point2InArea, out var magnetization);
 

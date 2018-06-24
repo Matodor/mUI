@@ -16,29 +16,44 @@ namespace mFramework.UI
             _object = target as UIObject;
         }
 
-        [DrawGizmo(GizmoType.InSelectionHierarchy)]
+        [DrawGizmo(GizmoType.Selected)]
+        //[DrawGizmo(GizmoType.InSelectionHierarchy)]
         private static void DrawGizmo(UIObject source, GizmoType gizmoType)
         {
-            var rect = source.Rect;
+            DrawUnscaledRect(source);
+            DrawLocalRect(source);
+            DrawGlobalRect(source);
+        }
 
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(rect.TopLeft, rect.TopRight);
-            Gizmos.DrawLine(rect.TopRight, rect.BottomRight);
-            Gizmos.DrawLine(rect.BottomRight, rect.BottomLeft);
-            Gizmos.DrawLine(rect.BottomLeft, rect.TopLeft);
+        private static void DrawGlobalRect(UIObject source)
+        {
+            DrawTestRect(source.UIRect(UIRectType.GLOBAL), Color.red);
+            Gizmos.DrawWireSphere(source.CenterPosition(), 0.1f);
+            Gizmos.DrawWireSphere(source.GlobalAnchorPosition(UIObject.PivotByAnchor(source.Anchor)), 0.1f);
+        }
 
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(rect.Center, 0.1f);
+        private static void DrawLocalRect(UIObject source)
+        {
+            DrawTestRect(source.UIRect(UIRectType.LOCAL), Color.yellow);
+            Gizmos.DrawWireSphere(source.CenterLocalPosition(), 0.1f);
+            Gizmos.DrawWireSphere(source.LocalAnchorPosition(UIObject.PivotByAnchor(source.Anchor)), 0.1f);
+        }
 
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(rect.Anchor, new Vector3(0.1f, 0.1f, 0.1f));
+        private static void DrawUnscaledRect(UIObject source)
+        {
+            DrawTestRect(source.UIRect(UIRectType.UNSCALED), Color.blue);
+        }
 
-            /*Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(source.Transform.position, 0.05f);
+        private static void DrawTestRect(UIRect rect, Color color) 
+        {
+            Gizmos.color = color;
+            //.DrawWireSphere(rect.MiddleCenter, 0.1f);
+            //Gizmos.DrawWireCube(rect.AnchorPosition, new Vector3(0.1f, 0.1f, 0.1f));
 
-            Gizmos.DrawLine(source.Transform.position, source.Transform.position +
-                                                       source.AnchorOffsetFromTransformPos(
-                                                           UIObject.PivotByAnchor(source.Anchor), source.Rotation));*/
+            Gizmos.DrawLine(rect.UpperLeft, rect.UpperRight);
+            Gizmos.DrawLine(rect.UpperRight, rect.LowerRight);
+            Gizmos.DrawLine(rect.LowerRight, rect.LowerLeft);
+            Gizmos.DrawLine(rect.LowerLeft, rect.UpperLeft);
         }
 
         public override void OnInspectorGUI()
@@ -148,7 +163,7 @@ namespace mFramework.UI
             EditorGUILayout.Vector2Field("UnscaledWidth UnscaledHeight", new Vector2(_object.UnscaledWidth, _object.UnscaledHeight));
             EditorGUILayout.Vector2Field("SizeX SizeY", new Vector2(_object.SizeX, _object.SizeY));
 
-            EditorGUILayout.Vector2Field("CenterOffset", _object.CenterOffset);
+            //EditorGUILayout.Vector2Field("CenterOffset", _object.CenterOffset);
             EditorGUILayout.Vector2Field("UnscaledCenterOffset", _object.UnscaledCenterOffset);
             EditorGUILayout.IntField("Sorting order", _object.SortingOrder);
             EditorGUI.EndDisabledGroup();

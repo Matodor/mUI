@@ -75,6 +75,7 @@
     <Compile Include="src\UI\extensions\ViewsExtensions.cs" />
     <Compile Include="src\UI\interfaces\ISizeable.cs" />
     <Compile Include="src\UI\interfaces\IUIToggle.cs" />
+    <Compile Include="src\UI\UIUtils.cs" />
     <Compile Include="src\UI\views\ScrollView.cs" />
     <Compile Include="src\UI\extensions\LayoutsExtensions.cs" />
     <Compile Include="src\UI\interfaces\IAreaChecker.cs" />
