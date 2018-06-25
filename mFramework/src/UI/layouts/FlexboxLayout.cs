@@ -65,7 +65,7 @@ namespace mFramework.UI.Layouts
             {
                 if (Childs.Count > 1)
                 {
-                 //   SizeY += marginBetween + child.LocalHeight;
+                    SizeY += marginBetween + child.LocalHeight;
                 }
                 else
                     SizeY += child.LocalHeight;
@@ -91,43 +91,37 @@ namespace mFramework.UI.Layouts
                     0
                 );
             }
+            
+            var localShift = Vector2.zero;
 
-            Vector2 localPos;
             if (Childs.Count > 1)
             {
                 var prevChild = Childs.LastItem.Prev.Value;
-
-                child.Position(prevChild.Position(UIAnchor.LowerCenter, Space.Self), 
-                    UIAnchor.UpperCenter, Space.Self);
-
-                return;
-                var w = marginBetween + child.LocalWidth / 2f;
-                var h = marginBetween + child.LocalHeight / 2f;
                 
                 switch (Direction)
                 {
                     case FlexboxDirection.ROW:
-                        localPos = prevChild.Position(UIAnchor.MiddleRight, Space.Self);
-                        localPos.x += w;
-                        localPos.y = 0f;
+                        child.Position(prevChild.Position(UIAnchor.MiddleRight, Space.Self), 
+                            UIAnchor.MiddleLeft, Space.Self);
+                        localShift.x += marginBetween;
                         break;
 
                     case FlexboxDirection.ROW_REVERSE:
-                        localPos = prevChild.Position(UIAnchor.MiddleLeft, Space.Self);
-                        localPos.x -= w;
-                        localPos.y = 0f;
+                        child.Position(prevChild.Position(UIAnchor.MiddleLeft, Space.Self), 
+                            UIAnchor.MiddleRight, Space.Self);
+                        localShift.x -= marginBetween;
                         break;
 
                     case FlexboxDirection.COLUMN:
-                        localPos = prevChild.Position(UIAnchor.LowerCenter, Space.Self);
-                        localPos.y -= h;
-                        localPos.x = 0f;
+                        child.Position(prevChild.Position(UIAnchor.LowerCenter, Space.Self), 
+                            UIAnchor.UpperCenter, Space.Self);
+                        localShift.y -= marginBetween;
                         break;
 
                     case FlexboxDirection.COLUMN_REVERSE:
-                        localPos = prevChild.Position(UIAnchor.UpperCenter, Space.Self);
-                        localPos.y += h;
-                        localPos.x = 0f;
+                        child.Position(prevChild.Position(UIAnchor.UpperCenter, Space.Self), 
+                            UIAnchor.LowerCenter, Space.Self);
+                        localShift.y += marginBetween;
                         break;
 
                     default:
@@ -136,21 +130,20 @@ namespace mFramework.UI.Layouts
             }
             else
             {
-                localPos = UnscaledCenterOffset;
-
                 switch (Direction)
                 {
                     case FlexboxDirection.ROW:
-                        localPos.x += Padding.Left * Scale.x;
+                        localShift.x += Padding.Left * Scale.x;
                         break;
                     case FlexboxDirection.ROW_REVERSE:
-                        localPos.x -= Padding.Right * Scale.x;
+                        localShift.x -= Padding.Right * Scale.x;
                         break;
                     case FlexboxDirection.COLUMN:
-                        localPos.y -= Padding.Top * Scale.y;
+                        localShift.y -= Padding.Top * Scale.y;
+                        child.Position(this.Position(UIAnchor.UpperCenter), UIAnchor.UpperCenter);
                         break;
                     case FlexboxDirection.COLUMN_REVERSE:
-                        localPos.y += Padding.Bottom * Scale.y;
+                        localShift.y += Padding.Bottom * Scale.y;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -189,7 +182,7 @@ namespace mFramework.UI.Layouts
                 }
             }*/
 
-            //child.Position(localOffset, UIAnchor.MiddleCenter, Space.Self);
+            child.Translate(localShift, Space.Self);
         }
     }
 }

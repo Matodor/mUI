@@ -214,7 +214,7 @@ namespace mFramework.UI
 
         private void Move(UIRect sliderRect, Vector2 shift)
         {
-            var translatedItemRect = _flexboxLayout.UIRect(UIRectType.GLOBAL, shift);
+            var translatedItemRect = _flexboxLayout.UIRect(UIRectType.GLOBAL, shift, true);
             var magnetizationLength = GetNormilizedMagnetization(sliderRect, translatedItemRect,
                 out var point1InArea, out var point2InArea, out var magnetization);
 

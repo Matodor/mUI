@@ -289,109 +289,117 @@ namespace mFramework.UI
             }
         }
 
-        private Vector2 LocalAnchorOffsetFromCenter(UIRect rect, Vector2 anchorPivot)
+        public Vector2 BoundLocalCenter()
         {
-            return new Vector2(
-                BezierHelper.Linear(anchorPivot.x, rect.LowerLeft.x, rect.UpperRight.x) * Scale.x,
-                BezierHelper.Linear(anchorPivot.y, rect.LowerLeft.y, rect.UpperRight.y) * Scale.y
-            );
+            return mMath.GetRotatedPoint(Transform.localPosition, LocalCenterOffset, LocalRotation) -
+                   (Parent?.LocalCenterOffset ?? Vector2.zero);
         }
 
-        private Vector2 GlobalAnchorOffsetFromCenter(UIRect rect, Vector2 anchorPivot)
-        {
-            return new Vector2(
-                BezierHelper.Linear(anchorPivot.x, rect.LowerLeft.x, rect.UpperRight.x) * GlobalScale.x,
-                BezierHelper.Linear(anchorPivot.y, rect.LowerLeft.y, rect.UpperRight.y) * GlobalScale.y
-            );
-        }
-
-        private Vector2 LocalAnchorOffsetFromCenter(Vector2 anchorPivot)
-        {
-            return LocalAnchorOffsetFromCenter(UIRect(UIRectType.UNSCALED), anchorPivot);
-        }
-
-        private Vector2 GlobalAnchorOffsetFromCenter(Vector2 anchorPivot)
-        {
-            return GlobalAnchorOffsetFromCenter(UIRect(UIRectType.UNSCALED), anchorPivot);
-        }
-
-        public Vector2 CenterLocalPosition()
-        {
-            return mMath.GetRotatedPoint(Transform.localPosition, LocalCenterOffset, LocalRotation) - 
-                Parent.LocalCenterOffset;
-        }
-
-        public Vector2 CenterPosition()
+        public Vector2 BoundGlobalCenter()
         {
             return mMath.GetRotatedPoint(Transform.position, CenterOffset, Rotation);
         }
 
+        public Vector2 AnchorShiftFromBoundLocalCenter(Vector2 anchorPivot, float? rotation = null)
+        {
+            var w = SizeX;
+            var h = SizeY;
+            var lowerLeft = new Vector2(-w / 2f - _padding.Left, -h / 2f - _padding.Bottom);
+            var upperRight = new Vector2(+w / 2f + _padding.Right, +h / 2f + _padding.Top);
+
+            return mMath.GetRotatedPoint(Vector2.zero, new Vector2(
+                BezierHelper.Linear(anchorPivot.x, lowerLeft.x, upperRight.x) * Scale.x,
+                BezierHelper.Linear(anchorPivot.y, lowerLeft.y, upperRight.y) * Scale.y
+            ), rotation ?? LocalRotation);
+        }
+
+        public Vector2 AnchorShiftFromBoundGlobalCenter(Vector2 anchorPivot, float? rotation = null)
+        {
+            var w = SizeX;
+            var h = SizeY;
+            var lowerLeft = new Vector2(-w / 2f - _padding.Left, -h / 2f - _padding.Bottom);
+            var upperRight = new Vector2(+w / 2f + _padding.Right, +h / 2f + _padding.Top);
+
+            return mMath.GetRotatedPoint(Vector2.zero, new Vector2(
+                BezierHelper.Linear(anchorPivot.x, lowerLeft.x, upperRight.x) * GlobalScale.x,
+                BezierHelper.Linear(anchorPivot.y, lowerLeft.y, upperRight.y) * GlobalScale.y
+            ), rotation ?? Rotation);
+        }
+
         public Vector2 GlobalAnchorPosition(Vector2 anchorPivot)
         {
-            return mMath.GetRotatedPoint(CenterPosition(),
-                GlobalAnchorOffsetFromCenter(anchorPivot), Rotation);
+            return BoundGlobalCenter() + AnchorShiftFromBoundGlobalCenter(anchorPivot);
         }
 
         public Vector2 LocalAnchorPosition(Vector2 anchorPivot)
         {
-            return mMath.GetRotatedPoint(CenterLocalPosition(),
-                LocalAnchorOffsetFromCenter(anchorPivot), LocalRotation);
+            return BoundLocalCenter() + AnchorShiftFromBoundLocalCenter(anchorPivot) -
+                (Parent?.AnchorShiftFromBoundLocalCenter(Parent._anchorPivot, 0f) ?? Vector2.zero);
         }
 
         public void SetGlobalPosition(Vector2 position, Vector2 anchorPivot)
         {
-            Transform.position = position + GlobalAnchorOffsetFromCenter(anchorPivot);
+            position = mMath.GetRotatedPoint(position, -CenterOffset, Rotation);
+            Transform.position = position - AnchorShiftFromBoundGlobalCenter(anchorPivot);
         }
 
         public void SetLocalPosition(Vector2 position, Vector2 anchorPivot)
         {
-            // todo
-           /* position = mMath.GetRotatedPoint(position, LocalCenterOffset, LocalRotation) -
-                   Parent.LocalCenterOffset;
+            position = mMath.GetRotatedPoint(position, -LocalCenterOffset, LocalRotation) +
+                (Parent?.LocalCenterOffset ?? Vector2.zero);
 
-            Transform.localPosition = mMath.GetRotatedPoint(position,
-                LocalAnchorOffsetFromCenter(anchorPivot), LocalRotation);
-
-            Transform.localPosition = position + LocalAnchorOffsetFromCenter(anchorPivot);*/
+            Transform.localPosition = position - AnchorShiftFromBoundLocalCenter(anchorPivot) +
+                (Parent?.AnchorShiftFromBoundLocalCenter(Parent._anchorPivot, 0f) ?? Vector2.zero);
         }
-
-        public UIRect UIRect(UIRectType type, Vector2 shift)
+        
+        public UIRect UIRect(UIRectType type, Vector2 shift, bool rotated)
         {
             float w;
             float h;
+            Vector2 paddingShift;
 
             switch (type)
             {
                 case UIRectType.UNSCALED:
                     w = UnscaledWidth;
                     h = UnscaledHeight;
+                    paddingShift = new Vector2(
+                        (-_padding.Left + _padding.Right) / 2f,
+                        (-_padding.Bottom + _padding.Top) / 2f
+                    );
                     break;
                 case UIRectType.LOCAL:
                     w = LocalWidth;
                     h = LocalHeight;
+                    paddingShift = new Vector2(
+                        ((-_padding.Left + _padding.Right) * Scale.x) / 2f,
+                        ((-_padding.Bottom + _padding.Top) * Scale.y) / 2f
+                    );
                     break;
                 default:
                     w = Width;
                     h = Height;
+                    paddingShift = new Vector2(
+                        ((-_padding.Left + _padding.Right) * GlobalScale.x) / 2f,
+                        ((-_padding.Bottom + _padding.Top) * GlobalScale.y) / 2f
+                    );
                     break;
             }
 
             var rect = new UIRect
             {
                 Type = type,
-                UpperLeft = new Vector2(-w / 2f, +h / 2f),
-                UpperCenter = new Vector2(0f, +h / 2f),
-                UpperRight = new Vector2(+w / 2f, +h / 2f),
+                UpperLeft = new Vector2(-w / 2f, h / 2f),
+                UpperCenter = new Vector2(0f, h / 2f),
+                UpperRight = new Vector2(w / 2f, h / 2f),
 
                 MiddleLeft = new Vector2(-w / 2f, 0f),
                 MiddleCenter = new Vector2(0f, 0f),
-                MiddleRight = new Vector2(+w / 2f, 0f),
+                MiddleRight = new Vector2(w / 2f, 0f),
 
                 LowerLeft = new Vector2(-w / 2f, -h / 2f),
                 LowerCenter = new Vector2(0f, -h / 2f),
-                LowerRight = new Vector2(+w / 2f, -h / 2f),
-
-                AnchorPosition = new Vector2(0f, 0f)
+                LowerRight = new Vector2(w / 2f, -h / 2f),
             };
 
             switch (type)
@@ -399,21 +407,30 @@ namespace mFramework.UI
                 case UIRectType.UNSCALED:
                     break;
                 case UIRectType.LOCAL:
-                    rect.MiddleCenter = CenterLocalPosition() + shift;
-                    UIUtils.RotateRect(ref rect, LocalRotation);
+                    rect.MiddleCenter = mMath.GetRotatedPoint(BoundLocalCenter(), 
+                        paddingShift, LocalRotation) + shift;
+                    if (rotated)
+                        UIUtils.RotateRect(ref rect, LocalRotation);
                     break;
                 default:
-                    rect.MiddleCenter = CenterPosition() + shift;
-                    UIUtils.RotateRect(ref rect, Rotation);
+                    rect.MiddleCenter = mMath.GetRotatedPoint(BoundGlobalCenter(), 
+                        paddingShift, Rotation) + shift;
+                    if (rotated)
+                        UIUtils.RotateRect(ref rect, Rotation);
                     break;
             }
 
             return rect;
         }
 
+        public UIRect UIRect(UIRectType type, bool rotated)
+        {
+            return UIRect(type, Vector2.zero, rotated);
+        }
+
         public UIRect UIRect(UIRectType type)
         {
-            return UIRect(type, Vector2.zero);
+            return UIRect(type, Vector2.zero, true);
         }
         
         protected virtual void OnBeforeDestroy()

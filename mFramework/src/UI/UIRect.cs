@@ -23,7 +23,5 @@ namespace mFramework.UI
         public Vector2 MiddleLeft { get; set; }
         public Vector2 MiddleCenter { get; set; }
         public Vector2 MiddleRight { get; set; }
-
-        public Vector2 AnchorPosition { get; set; }
     }
 }
