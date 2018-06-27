@@ -22,22 +22,13 @@ namespace mFramework.UI
             //DrawUnscaledRect(source);
             //DrawLocalRect(source);
             DrawGlobalRect(source);
+            Gizmos.DrawWireSphere(source.GlobalAnchorPosition(
+                UIObject.PivotByAnchor(source.Anchor)), 0.1f);
         }
 
         private static void DrawGlobalRect(UIObject source)
         {
             DrawTestRect(source.UIRect(UIRectType.GLOBAL), Color.red);
-
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireCube(source.BoundGlobalCenter(), Vector3.one * 0.1f);
-
-            Gizmos.color = new Color(0.52f, 0.16f, 0.89f);
-            Gizmos.DrawLine(Vector3.zero, source.BoundGlobalCenter());
-            Gizmos.color = new Color(0.16f, 0.77f, 0.89f);
-            Gizmos.DrawLine(source.BoundGlobalCenter(), source.GlobalAnchorPosition(UIObject.PivotByAnchor(source.Anchor)));
-
-            Gizmos.color = new Color(0.89f, 0.6f, 0.16f);
-            Gizmos.DrawLine(Vector3.zero, source.CenterOffset);
 
             //Gizmos.DrawWireSphere(source.AnchorShiftFromBoundGlobalCenter(
             //    UIObject.PivotByAnchor(source.Anchor)), 0.1f);
