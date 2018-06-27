@@ -36,6 +36,22 @@ namespace mFramework.UI
             return color;
         }
 
+        public static Color Inverted(this Color color)
+        {
+            return (Color) color.UIColor().ToHSV.Inverted();
+        }
+
+        public static UIColor Inverted(this UIColor color)
+        {
+            if (color.ColorType == UI.UIColor.Type.HSV)
+            {
+                return new UIColor(((color.N1 + 180) % 360) / 360f, color.N2, color.N3, color.Alpha,
+                    UI.UIColor.Type.HSV);
+            }
+
+            return color.ToHSV.Inverted().ToRGBA;
+        }
+
         /// <summary>
         /// Make color darken
         /// </summary>
