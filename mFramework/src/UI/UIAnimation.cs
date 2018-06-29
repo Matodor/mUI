@@ -29,6 +29,7 @@ namespace mFramework.UI
         public bool DestroyUIObjectOnEnd = false;
         public float Duration = 1f;
         public float AnimateEvery = 0f;
+        public float StartDelay = 0f;
     }
 
     public delegate void UIAnimationEventHandler(UIAnimation sender);
@@ -75,6 +76,7 @@ namespace mFramework.UI
         public bool DestroyUIObjectOnEnd { get; set; }
         public ulong MaxRepeats { get; set; }
         public ulong Repeats { get; private set; }
+        public float StartDelay { get; private set; }
 
         public event UIAnimationEventHandler AnimationRepeat;
         public event UIAnimationEventHandler AnimationEnded;
@@ -83,7 +85,7 @@ namespace mFramework.UI
         private static ulong _guid;
 
         private float _nextAnimationFrame;
-
+        
         protected UIAnimation()
         {
             Direction = UIAnimationDirection.FORWARD;
@@ -190,7 +192,7 @@ namespace mFramework.UI
 
         internal void Tick()
         {
-            if (State == UIAnimationState.STOPPED)
+            if (State == UIAnimationState.STOPPED || AttachTime + StartDelay > UnityEngine.Time.time)
                 return;
 
             DeltaTime = (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) *
