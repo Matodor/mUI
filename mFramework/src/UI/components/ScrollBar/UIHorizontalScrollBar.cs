@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+/*
 namespace mFramework.UI
 {
     public class UIHorizontalScrollBar : UIBaseScrollBar
@@ -10,7 +10,7 @@ namespace mFramework.UI
 
             if (!BarSpriteIsHorizontal)
             {
-                Bar.Rotate(90f);
+                Bar.Rotation = 90f;
             }
         }
 
@@ -58,4 +58,4 @@ namespace mFramework.UI
             BarPoint.PosX(x);
         }
     }
-}
+}*/

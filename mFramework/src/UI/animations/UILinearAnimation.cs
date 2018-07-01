@@ -7,41 +7,37 @@ namespace mFramework.UI
     {
         public Vector2 StartPos;
         public Vector2 EndPos;
-        public bool IsLocal = false;
+        public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor { get; set; } = null;
     }
 
     public class UILinearAnimation : UIAnimation
     {
-        private Vector2 _startPos;
-        private Vector2 _endPos;
-        private bool _isLocal;
-
-        protected UILinearAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-
-        }
+        public Vector3 StartPos;
+        public Vector3 EndPos;
+        public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UILinearAnimationSettings linearSettings))
                 throw new ArgumentException("UILinearAnimation: The given settings is not UILinearAnimationSettings");
 
-            _startPos = linearSettings.StartPos;
-            _endPos = linearSettings.EndPos;
-            _isLocal = linearSettings.IsLocal;
+            StartPos = linearSettings.StartPos;
+            EndPos = linearSettings.EndPos;
+            RelativeTo = linearSettings.RelativeTo;
+            Anchor = linearSettings.Anchor;
+
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            var newPos = BezierHelper.Linear(CurrentEasingTime, _startPos, _endPos);
-            if (_isLocal)
-                AnimatedObject.LocalPos(newPos);
-            else
-                AnimatedObject.Pos(newPos);
+            UIObject.Position(
+                position: BezierHelper.Linear(EasingTime, StartPos, EndPos),
+                anchor: Anchor.GetValueOrDefault(UIObject.Anchor),
+                relativeTo: RelativeTo
+            );
         }
     }
 }

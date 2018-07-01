@@ -1,6 +1,6 @@
 ﻿using mFramework.UI.Layouts;
 using UnityEngine;
-
+/*
 namespace mFramework.UI
 {
     public class UIHorizontalSlider : UIBaseSlider
@@ -195,4 +195,4 @@ namespace mFramework.UI
             }
         }
     }
-}
+}*/

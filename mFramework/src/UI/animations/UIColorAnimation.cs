@@ -11,53 +11,31 @@ namespace mFramework.UI
 
     public class UIColorAnimation : UIAnimation
     {
-        private UIColor _fromColor;
-        private UIColor _toColor;
-        private float n1, n2, n3, Alpha;
+        public UIColor FromColor;
+        public UIColor ToColor;
         private IUIColored _animatedObj;
-
-        protected UIColorAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-            
-        }
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            _animatedObj = AnimatedObject as IUIColored;
+            _animatedObj = UIObject as IUIColored;
             if (_animatedObj == null)
                 throw new Exception("The animated object is not IColored");
 
             if (!(settings is UIColorAnimationSettings colorSettings))
                 throw new ArgumentException("UIColorAnimation: The given settings is not UIColorAnimationSettings");
 
-            if (colorSettings.FromColor.Type != colorSettings.ToColor.Type)
+            if (colorSettings.FromColor.ColorType != colorSettings.ToColor.ColorType)
                 throw new Exception("UIColorAnimationSettings.FromColor.Type != UIColorAnimationSettings.ToColor.Type");
 
-            _fromColor = colorSettings.FromColor;
-            _toColor = colorSettings.ToColor;
-
-            n1 = _fromColor.n1;
-            n2 = _fromColor.n2;
-            n3 = _fromColor.n3;
-            Alpha = _fromColor.Alpha;
+            FromColor = colorSettings.FromColor;
+            ToColor = colorSettings.ToColor;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            n1 = BezierHelper.Linear(CurrentEasingTime, _fromColor.n1, _toColor.n1);
-            n2 = BezierHelper.Linear(CurrentEasingTime, _fromColor.n2, _toColor.n2);
-            n3 = BezierHelper.Linear(CurrentEasingTime, _fromColor.n3, _toColor.n3);
-            Alpha = BezierHelper.Linear(CurrentEasingTime, _fromColor.Alpha, _toColor.Alpha);
-
-            if (_fromColor.Type == UIColorType.RGBA)
-                _animatedObj.SetColor(new Color32((byte) n1, (byte) n2, (byte) n3, (byte) Alpha));
-            else
-                _animatedObj.SetColor(UIColor.HSVToRGB(n1, n2, n3, Alpha));
+            _animatedObj.Color = (Color) UIColor.Lerp(FromColor, ToColor, EasingTime);
         }
     }
 }

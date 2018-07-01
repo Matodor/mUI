@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using UnityEngine;
 
 namespace mFramework
@@ -39,11 +39,17 @@ namespace mFramework
 
     public static class EasingFunctions
     {
-        // c - current value
-        // t - current time (0..1)
-        // d - duration
-        // b - offset
-        public static float GetValue(EasingType easingType, float c, float t, float d, float b = 0)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="easingType"></param>
+        /// <param name="c">Current value</param>
+        /// <param name="t">Current time [0..Duration]</param>
+        /// <param name="d">Duration</param>
+        /// <param name="b">Offset</param>
+        /// <returns></returns>
+        public static float GetValue(EasingType easingType, float c, float t, 
+            float d, float b = 0)
         {
             switch (easingType)
             {
@@ -117,9 +123,9 @@ namespace mFramework
 
                 case EasingType.easeInElastic:
                     {
-                        double s = 1.70158;
+                        var s = 1.70158;
                         double p = 0;
-                        float a = c;
+                        var a = c;
                         if (t == 0) return b; if ((t /= d) == 1) return b + c; if (p == 0) p = d * .3;
                         if (a < Mathf.Abs(c)) { a = c; s = p / 4; }
                         else s = p / (2 * Math.PI);
@@ -128,9 +134,9 @@ namespace mFramework
 
                 case EasingType.easeOutElastic:
                     {
-                        double s = 1.70158;
+                        var s = 1.70158;
                         double p = 0;
-                        float a = c;
+                        var a = c;
                         if (t == 0) return b;
                         if ((t /= d) == 1) return b + c;
                         if (p == 0) p = d * .3;
@@ -141,9 +147,9 @@ namespace mFramework
 
                 case EasingType.easeInOutElastic:
                     {
-                        double s = 1.70158;
+                        double s;
                         double p = 0;
-                        float a = c;
+                        var a = c;
                         if (t == 0) return b; if ((t /= d / 2) == 2) return b + c; if (p == 0) p = d * (.3 * 1.5);
                         if (a < Mathf.Abs(c)) { a = c; s = p / 4; }
                         else s = p / (2 * Math.PI);
@@ -210,4 +216,4 @@ namespace mFramework
             return EaseOutBounce(c, t * 2 - d, d) * 0.5f + c * 0.5f + b;
         }
     }
-}
+}*/

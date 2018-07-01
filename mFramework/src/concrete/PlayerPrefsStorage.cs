@@ -4,7 +4,9 @@ namespace mFramework
 {
     public sealed class PlayerPrefsStorage : IKeyValueStorage
     {
-        public PlayerPrefsStorage()
+        public static readonly PlayerPrefsStorage Instance = new PlayerPrefsStorage();
+
+        private PlayerPrefsStorage()
         {
             
         }
@@ -19,15 +21,20 @@ namespace mFramework
             PlayerPrefs.DeleteAll();
         }
 
+        public bool HasKey(string key)
+        {
+            return PlayerPrefs.HasKey(key);
+        }
+
         public void RemoveKey(string key)
         {
-            if (PlayerPrefs.HasKey(key))
+            if (HasKey(key))
                 PlayerPrefs.DeleteKey(key);
         }
 
         public bool GetInt(string key, out int value)
         {
-            if (PlayerPrefs.HasKey(key))
+            if (HasKey(key))
             {
                 value = PlayerPrefs.GetInt(key);
                 return true;

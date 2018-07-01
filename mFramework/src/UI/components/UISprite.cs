@@ -1,105 +1,118 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace mFramework.UI
-{ 
-    public class UISprite : UIComponent, IUISpriteRenderer, IUIColored
+{
+    public class UISpriteProps : UIComponentProps
     {
-        public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
-        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
-        public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
+        public virtual Sprite Sprite { get; set; }
+        public virtual Color? Color { get; set; } = null;
+    }
 
-        private UISpriteRenderer _uiSpriteRenderer;
+    public class UISprite : UIComponent, IUIRenderer<SpriteRenderer>, IUIRenderer, IUIColored
+    {
+        public override float SizeY => UIRenderer.sprite.bounds.size.y;
+        public override float SizeX => UIRenderer.sprite.bounds.size.x;
+        public override Vector2 UnscaledCenterOffset => UIRenderer.sprite.bounds.center;
 
-        protected override void Init()
+        public Color Color
         {
-            base.Init();
+            get => UIRenderer.color;
+            set => UIRenderer.color = value;
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        public float Opacity
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UISpriteSettings spriteSettings))
-                throw new ArgumentException("UISPrite: The given settings is not UISpriteSettings");
-
-            _uiSpriteRenderer = new UISpriteRenderer(this, spriteSettings);
-
-            base.ApplySettings(spriteSettings);
+            get => UIRenderer.color.a;
+            set
+            {
+                var color = UIRenderer.color;
+                color.a = value;
+                UIRenderer.color = color;
+            }
         }
 
-        public override float UnscaledHeight()
+        public UISprite SpriteMask { get; private set; }
+
+        public Sprite Sprite
         {
-            return _uiSpriteRenderer.UnscaledHeight();
+            get => UIRenderer.sprite;
+            set => UIRenderer.sprite = value;
         }
 
-        public override float UnscaledWidth()
+        public SpriteRenderer UIRenderer { get; private set; }
+        Renderer IUIRenderer.UIRenderer => UIRenderer;
+
+        protected override void OnBeforeDestroy()
         {
-            return _uiSpriteRenderer.UnscaledWidth();
+            SortingOrderChanged -= OnSortingOrderChanged;
+            base.OnBeforeDestroy();
         }
 
-        public override float GetHeight()
+        protected override void AfterAwake()
         {
-            return _uiSpriteRenderer.GetHeight();
+            SortingOrderChanged += OnSortingOrderChanged;
+            UIRenderer = GameObject.AddComponent<SpriteRenderer>();
+            base.AfterAwake();
         }
 
-        public override float GetWidth()
+        private void OnSortingOrderChanged(IUIObject sender)
         {
-            return _uiSpriteRenderer.GetWidth();
+            UIRenderer.sortingOrder = SortingOrder;
         }
 
-        public override UIRect GetRect()
+        protected override void ApplyProps(UIComponentProps props)
         {
-            return _uiSpriteRenderer.GetRect();
-        }
+            if (!(props is UISpriteProps spriteSettings))
+                throw new ArgumentException("UISprite: The given settings is not UISpriteSettings");
 
+            UIRenderer.sprite = spriteSettings.Sprite;
+            UIRenderer.sharedMaterial = UIStencilMaterials
+                .GetOrCreate(ParentView.StencilId ?? 0)
+                .SpritesMaterial;
+
+            if (spriteSettings.Color.HasValue)
+                Color = spriteSettings.Color.Value;
+
+            base.ApplyProps(spriteSettings);
+        }
+        
         public void Flip(bool flipX, bool flipY)
         {
-            _uiSpriteRenderer.Flip(flipX, flipY);
-        }
-
-        public void SetSprite(Sprite sprite)
-        {
-            _uiSpriteRenderer.SetSprite(sprite);
+            UIRenderer.flipX = flipX;
+            UIRenderer.flipY = flipY;
         }
 
         public void RemoveMask()
         {
-            _uiSpriteRenderer.RemoveMask();
+            if (SpriteMask != null)
+            {
+                SpriteMask.Destroy();
+                SpriteMask = null;
+            }
         }
 
         public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
         {
-            return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
-        }
+            if (SpriteMask == null)
+            {
+                SpriteMask = this.Sprite(new UISpriteProps
+                {
+                    Sprite = mask,
+                });
 
-        public Color GetColor()
-        {
-            return _uiSpriteRenderer.GetColor();
-        }
+                var layer = UIStencilMaterials.Create(1,
+                    insideMask ? CompareFunction.Equal : CompareFunction.NotEqual, StencilOp.Replace, 1, 1);
 
-        public float GetOpacity()
-        {
-            return _uiSpriteRenderer.GetOpacity();
-        }
+                SpriteMask.UIRenderer.material = layer.CanvasMaterial;
+                SpriteMask.UIRenderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
+                SpriteMask.UIRenderer.material.SetFloat("_UseUIAlphaClip", useAlphaClip ? 1f : 0f);
+                SpriteMask.UIRenderer.color = new Color32(255, 255, 255, 0);
+                UIRenderer.material = layer.SpritesMaterial;
+            }
 
-        public IUIColored SetColor(Color32 color)
-        {
-            _uiSpriteRenderer.SetColor(color);
-            return this;
-        }
-
-        public IUIColored SetColor(UIColor color)
-        {
-            _uiSpriteRenderer.SetColor(color);
-            return this;
-        }
-
-        public IUIColored SetOpacity(float opacity)
-        {
-            _uiSpriteRenderer.SetOpacity(opacity);
-            return this;
+            return SpriteMask;
         }
     }
 }

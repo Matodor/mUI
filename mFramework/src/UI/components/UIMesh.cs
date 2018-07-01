@@ -3,144 +3,114 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIMeshSettings : UIComponentSettings
+    public class UIMeshProps : UIComponentProps, ISizeable
     {
-        public Mesh Mesh = null;
-        public Mesh SharedMesh = null;
-        public float Width;
-        public float Height;
+        public Mesh Mesh { get; set; } = null;
+        public Mesh SharedMesh { get; set; } = null;
+        public float SizeX { get; set; }
+        public float SizeY { get; set; }
     }
 
-    public class UIMesh : UIComponent, IMeshRenderer, IUIColored
+    public class UIMesh : UIComponent, IUIColored, IUIRenderer<MeshRenderer>, IUIRenderer
     {
-        public Renderer UIRenderer => MeshRenderer;
-        public MeshFilter MeshFilter { get; private set; }
-        public MeshRenderer MeshRenderer { get; private set; }
-
-        private float _width;
-        private float _height;
-        private Color? _color;
-
-        protected override void Init()
+        public virtual Color Color
         {
-            MeshRenderer = gameObject.AddComponent<MeshRenderer>();
-            MeshFilter = gameObject.AddComponent<MeshFilter>();
-
-            SortingOrderChanged += s =>
-            {
-                UIRenderer.sortingOrder = SortingOrder();
-            };
-
-            base.Init();
+            get => throw new Exception("UIMesh not support getter color");
+            set => SetColor(value);
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        public virtual float Opacity
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+            get => throw new Exception("UIMesh not support getter opacity");
+            set
+            {
+                var colors = new Color[MeshFilter.mesh.colors.Length];
+                for (int i = 0; i < colors.Length; i++)
+                {
+                    var color = MeshFilter.mesh.colors[i];
+                    color.a = value;
+                    colors[i] = color;
+                }
 
-            if (!(settings is UIMeshSettings meshSettings))
+                MeshFilter.mesh.colors = colors;
+            }
+        }
+
+        public MeshFilter MeshFilter { get; private set; }
+        public MeshRenderer UIRenderer { get; private set; }
+        Renderer IUIRenderer.UIRenderer => UIRenderer;
+
+        protected override void OnBeforeDestroy()
+        {
+            SortingOrderChanged -= OnSortingOrderChanged;
+            UnityEngine.GameObject.Destroy(MeshFilter.mesh);
+            base.OnBeforeDestroy();
+        }
+
+        protected override void AfterAwake()
+        {
+            UIRenderer = GameObject.AddComponent<MeshRenderer>();
+            MeshFilter = GameObject.AddComponent<MeshFilter>();
+
+            SortingOrderChanged += OnSortingOrderChanged;
+            base.AfterAwake();
+        }
+
+        private void OnSortingOrderChanged(IUIObject sender)
+        {
+            UIRenderer.sortingOrder = SortingOrder;
+        }
+
+        protected override void ApplyProps(UIComponentProps props)
+        {
+            if (!(props is UIMeshProps meshSettings))
                 throw new ArgumentException("UIMesh: The given settings is not UIMeshSettings");
 
-            _color = null;
-            _width = meshSettings.Width;
-            _height = meshSettings.Height;
+            SizeX = meshSettings.SizeX;
+            SizeY = meshSettings.SizeY;
 
             if (meshSettings.Mesh != null)
-            {
                 MeshFilter.mesh = meshSettings.Mesh;
-                _color = MeshFilter.mesh.colors[0];
-            }
 
             if (meshSettings.SharedMesh != null)
-            {
                 MeshFilter.sharedMesh = meshSettings.SharedMesh;
-                _color = MeshFilter.mesh.colors[0];
-            }
             
-            MeshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(ParentView.StencilId ?? 0).SpritesMaterial;
+            UIRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(
+                ParentView.StencilId ?? 0).SpritesMaterial;
 
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
-        public IMeshRenderer SetWidth(float width)
+        public UIMesh SetSizeX(float sizeX)
         {
-            _width = width;
+            SizeX = sizeX;
             return this;
         }
 
-        public IMeshRenderer SetHeight(float height)
+        public UIMesh SetSizeY(float sizeY)
         {
-            _height = height;
+            SizeY = sizeY;
             return this;
         }
 
-        public override float UnscaledHeight()
-        {
-            return _height;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _width;
-        }
-
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
-        }
-
-        public IMeshRenderer SetSharedMesh(Mesh mesh)
+        public UIMesh SetSharedMesh(Mesh mesh)
         {
             MeshFilter.sharedMesh = mesh;
             return this;
         }
 
-        public IMeshRenderer SetMesh(Mesh mesh)
+        public UIMesh SetMesh(Mesh mesh)
         {
             MeshFilter.mesh = mesh;
             return this;
         }
 
-        public Color GetColor()
+        private void SetColor(Color color)
         {
-            return _color ?? new Color(0, 0, 0, 0);
-        }
-
-        public float GetOpacity()
-        {
-            return GetColor().a * 255f;
-        }
-
-        public IUIColored SetColor(Color32 color)
-        {
-            if (_color == color)
-                return this;
-            _color = color;
-
             var colors = new Color[MeshFilter.mesh.colors.Length];
             for (int i = 0; i < colors.Length; i++)
                 colors[i] = color;
             MeshFilter.mesh.colors = colors;
-            return this;
-        }
-
-        public IUIColored SetColor(UIColor color)
-        {
-            return SetColor(color.Color32);
-        }
-
-        public IUIColored SetOpacity(float opacity)
-        {
-            var c = GetColor();
-            c.a = opacity / 255f;
-            SetColor(c);
-            return this;
         }
     }
 }

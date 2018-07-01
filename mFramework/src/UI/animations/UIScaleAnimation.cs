@@ -7,35 +7,33 @@ namespace mFramework.UI
     {
         public Vector2 StartScale { get; set; }
         public Vector2 EndScale { get; set; }
+        public UIAnchor? Anchor { get; set; } = null;
     }
 
     public class UIScaleAnimation : UIAnimation
     {
-        private Vector2 _startScale;
-        private Vector2 _endScale;
-
-        protected UIScaleAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-        }
+        public Vector2 StartScale;
+        public Vector2 EndScale;
+        public UIAnchor? Anchor;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UIScaleAnimationSettings scaleSettings))
                 throw new ArgumentException("UIScaleAnimation: The given settings is not UIScaleAnimationSettings");
 
-            _startScale = scaleSettings.StartScale;
-            _endScale = scaleSettings.EndScale;
-            
+            StartScale = scaleSettings.StartScale;
+            EndScale = scaleSettings.EndScale;
+            Anchor = scaleSettings.Anchor;
+
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            var newScale = BezierHelper.Linear(CurrentEasingTime, _startScale, _endScale);
-            AnimatedObject.Scale(newScale.x, newScale.y);
+            UIObject.Scale(
+                BezierHelper.Linear(EasingTime, StartScale, EndScale),
+                Anchor.GetValueOrDefault(UIObject.Anchor)
+            );
         }
     }
 }

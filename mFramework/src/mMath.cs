@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace mFramework
 {
@@ -150,7 +151,8 @@ namespace mFramework
             return val;
         }
 
-        public static void GetRotatedPoints(float angle, Vector2 center, Vector2[] rotatedPoints)
+        public static void GetRotatedPoints(float angle, Vector2 center, 
+            params Vector2[] rotatedPoints)
         {
             var cos = Mathf.Cos(Mathf.Deg2Rad * angle);
             var sin = Mathf.Sin(Mathf.Deg2Rad * angle);
@@ -172,7 +174,8 @@ namespace mFramework
             return GetRotatedPoint(center.x, center.y, point.x, point.y, sin, cos);
         }
 
-        public static Vector2 GetRotatedPoint(float centerX, float centerY, float x, float y, float sin, float cos)
+        public static Vector2 GetRotatedPoint(float centerX, float centerY, 
+            float x, float y, float sin, float cos)
         {
             return new Vector2(centerX + x * cos - y * sin, centerY + x * sin + y * cos);
         }
@@ -191,6 +194,26 @@ namespace mFramework
         public static float NormilizeValue(float min, float max, float value)
         {
             return (value - min) / (max - min);
+        }
+
+        public static float Dot(Vector2 a, Vector2 b)
+        {
+            return a.x * b.x + a.y * b.y;
+        }
+
+        public static Vector2 Mix(Vector2 a, Vector2 b, float amount)
+        {
+            return a + (b - a) * amount;
+        }
+
+        public static Vector2 ClosestPointOnLine(Vector2 linePoint0, Vector2 linePoint1,
+            Vector2 targetPoint)
+        {
+            var c = targetPoint - linePoint0;
+            var v = (linePoint1 - linePoint0).normalized;
+            var l = (linePoint0 - linePoint1).Length();
+            var t = Dot(v, c) / l;
+            return Mix(linePoint0, linePoint1, Clamp(t, 0, 1));
         }
     }
 }

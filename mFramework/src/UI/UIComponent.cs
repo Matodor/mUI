@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public abstract class UIComponentSettings
+    public abstract class UIComponentProps : UIObjectProps
     {
-        
+
     }
 
     /*public static class NewComponent<T> where T : UIComponent
@@ -24,20 +24,26 @@ namespace mFramework.UI
 
     public abstract class UIComponent : UIObject
     {
-        internal static T Create<T>(UIObject parent, UIComponentSettings settings = null) where T : UIComponent
+        internal static T Create<T>(UIObject parent, UIComponentProps props = null) 
+            where T : UIComponent
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
 
+            if (props == null)
+                throw new Exception("UIComponent: UIComponentProps can not be null");
+
             var component = new GameObject(typeof(T).Name).AddComponent<T>();
             component.SetupParent(parent);
-            component.ApplySettings(settings);
-            component.InitCompleted();
+            component.ApplyProps(props);
+            component.InitCompleted(true);
+            mUI.ObjectCreated(component);
             return component;
         }
 
-        protected virtual void ApplySettings(UIComponentSettings settings)
+        protected virtual void ApplyProps(UIComponentProps props)
         {
+            base.ApplyProps(props);
         }
     }
 }

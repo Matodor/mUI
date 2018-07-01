@@ -1,116 +1,156 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIRectAreaButtonSettings : UIComponentSettings
+    public class UIRectAreaButtonProps : UIComponentProps, ISizeable
     {
-        public ClickCondition ClickCondition = ClickCondition.BUTTON_UP;
-        public float AreaWidth = 0f;
-        public float AreaHeight = 0f;
-        public Vector2 AreaOffset = Vector2.zero;
+        public virtual ClickCondition ClickCondition { get; set; } = ClickCondition.BUTTON_UP;
+        public float SizeX { get; set; }
+        public float SizeY { get; set; }
     }
 
     public class UIRectAreaButton : UIComponent, IUIButton
     {
-        public Vector2 AreaOffset = Vector2.zero;
-        public float AreaWidth = 0f;
-        public float AreaHeight = 0;
-        
-        public UIClickable UIClickable { get; protected set; }
-        public ClickCondition ClickCondition { get; set; }
+        public event UIMouseEvent MouseDown;
+        public event UIMouseEvent MouseUp;
 
-        public event UIEventHandler<IUIButton> Click = delegate { };
-        public event Func<IUIButton, Vector2, bool> CanButtonClick = delegate { return true; };
-
-        public event UIEventHandler<IUIButton, Vector2> ButtonDown = delegate { };
-        public event UIEventHandler<IUIButton, Vector2> ButtonUp = delegate { };
-
-        private bool _isPressed;
-
-        protected override void Init()
+        public event UIMouseAllowEvent CanMouseDown
         {
-            _isPressed = false;
-            ClickCondition = ClickCondition.BUTTON_UP;
+            add => _canMouseDownEvents.Add(value);
+            remove => _canMouseDownEvents.Remove(value);
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        public event UIMouseAllowEvent CanMouseUp
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+            add => _canMouseUpEvents.Add(value);
+            remove => _canMouseUpEvents.Remove(value);
+        }
 
-            if (!(settings is UIRectAreaButtonSettings buttonSettings))
+        public event UIButtonClickEvent Clicked;
+        public event UIButtonAllowClick CanClick
+        {
+            add => _canClickButtonEvents.Add(value);
+            remove => _canClickButtonEvents.Remove(value);
+        }
+
+        public bool IgnoreByHandler { get; set; }
+        public bool IsPressed { get; protected set; }
+
+        public IAreaChecker AreaChecker { get; set; }
+        public ClickCondition ClickCondition { get; set; }
+
+        private List<UIMouseAllowEvent> _canMouseDownEvents;
+        private List<UIMouseAllowEvent> _canMouseUpEvents;
+        private List<UIButtonAllowClick> _canClickButtonEvents;
+
+        protected override void OnBeforeDestroy()
+        {
+            MouseDown = null;
+            MouseUp = null;
+            Clicked = null;
+
+            _canMouseDownEvents.Clear();
+            _canMouseUpEvents.Clear();
+            _canClickButtonEvents.Clear();
+            base.OnBeforeDestroy();
+        }
+
+        protected override void AfterAwake()
+        {
+            _canMouseDownEvents = new List<UIMouseAllowEvent>();
+            _canMouseUpEvents = new List<UIMouseAllowEvent>();
+            _canClickButtonEvents = new List<UIButtonAllowClick>();
+            
+            IsPressed = false;
+            ClickCondition = ClickCondition.BUTTON_UP;
+
+            AreaChecker = RectangleAreaChecker.Default;
+            UIClickablesHandler.AddClickable(this);
+
+            base.AfterAwake();
+        }
+
+        protected override void ApplyProps(UIComponentProps props)
+        { 
+            if (!(props is UIRectAreaButtonProps buttonSettings))
                 throw new ArgumentException("UIButton: The given settings is not UIButtonSettings");
 
             ClickCondition = buttonSettings.ClickCondition;
-            AreaHeight = buttonSettings.AreaHeight;
-            AreaWidth = buttonSettings.AreaWidth;
-            AreaOffset = buttonSettings.AreaOffset;
+            SizeX = buttonSettings.SizeX;
+            SizeY = buttonSettings.SizeY;
+            
+            base.ApplyProps(buttonSettings);
+        }
 
-            var area = new RectangleArea2D();
-            area.Update += a =>
+        public UIRectAreaButton SetWidth(float width)
+        {
+            SizeX = width;
+            return this;
+        }
+
+        public UIRectAreaButton SetHeight(float height)
+        {
+            SizeY = height;
+            return this;
+        }
+
+        public bool Click()
+        {
+            if (_canClickButtonEvents.Count != 0 &&
+                !_canClickButtonEvents.TrueForAll(e => e(this)))
             {
-                area.Width = GetWidth();
-                area.Height = GetHeight();
-                area.Offset = new Vector2(
-                    AreaOffset.x * GlobalScale().x,
-                    AreaOffset.y * GlobalScale().y
-                );
-            };
-            UIClickable = new UIClickable(this, area);
+                return false;
+            }
 
-            base.ApplySettings(buttonSettings);
+            Clicked?.Invoke(this);
+            return true;
         }
 
-        public override float UnscaledHeight()
+        private void OnUIMouseDown()
         {
-            return AreaHeight;
+            if (ClickCondition == ClickCondition.BUTTON_DOWN)
+                Click();
         }
 
-        public override float UnscaledWidth()
+        private void OnUIMouseUp(Vector2 worldPos)
         {
-            return AreaWidth;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
+            if (ClickCondition == ClickCondition.BUTTON_UP && AreaChecker.InAreaShape(this, worldPos))
+                Click();
         }
         
-        public override float GetHeight()
+        public void DoMouseDown(Vector2 worldPos)
         {
-            return UnscaledHeight() * GlobalScale().y;
-        }
-
-        public void MouseDown(Vector2 worldPos)
-        {
-            _isPressed = true;
-
-            if (CanButtonClick.Invoke(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
-            {
-                Click.Invoke(this);
-            }
-
-            ButtonDown.Invoke(this, worldPos);
-        }
-
-        public void MouseUp(Vector2 worldPos)
-        {
-            if (!_isPressed)
+            if (!IsActive || IsPressed || !AreaChecker.InAreaShape(this, worldPos))
                 return;
 
-            if (CanButtonClick.Invoke(this, worldPos) && _isPressed &&
-                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
+            if (_canMouseDownEvents.Count != 0 &&
+                !_canMouseDownEvents.TrueForAll(e => e(this, ref worldPos)))
             {
-                Click.Invoke(this);
+                return;
             }
 
-            ButtonUp.Invoke(this, worldPos);
-            _isPressed = false;
+            IsPressed = true;
+            OnUIMouseDown();
+            MouseDown?.Invoke(this, worldPos);
         }
 
-        public void MouseDrag(Vector2 worldPos)
+        public void DoMouseUp(Vector2 worldPos)
         {
+            if (!IsPressed)
+                return;
+
+            if (_canMouseUpEvents.Count != 0 &&
+                !_canMouseUpEvents.TrueForAll(e => e(this, ref worldPos)))
+            {
+                return;
+            }
+
+            OnUIMouseUp(worldPos);
+            MouseUp?.Invoke(this, worldPos);
+            IsPressed = false;
         }
     }
 }

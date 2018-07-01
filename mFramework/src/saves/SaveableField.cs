@@ -29,20 +29,18 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetString(bridge.Key, out var value))
-            {
-                try
-                {
-                    return new SaveableDateTime {_value = new DateTime(Convert.ToInt64(value)) };
-                }
-                catch
-                {
-                    return this;
-                }
-            }
-            return this;
-        }
+            if (!bridge.Storage.GetString(bridge.Key, out var value))
+                return this;
 
+            try
+            {
+                return new SaveableDateTime {_value = new DateTime(Convert.ToInt64(value)) };
+            }
+            catch
+            {
+                return this;
+            }
+        }
     }
 
     public struct SaveableBoolean : ISaveableField
@@ -71,9 +69,9 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetInt(bridge.Key, out var value))
-                return new SaveableBoolean { _value = value == 1 };
-            return this;
+            return bridge.Storage.GetInt(bridge.Key, out var value) 
+                ? new SaveableBoolean { _value = value == 1 } 
+                : this;
         }
     }
 
@@ -103,9 +101,9 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetInt(bridge.Key, out var value))
-                return new SaveableInt { _value = value };
-            return this;
+            return bridge.Storage.GetInt(bridge.Key, out var value) 
+                ? new SaveableInt { _value = value } 
+                : this;
         }
     }
 
@@ -135,9 +133,9 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetFloat(bridge.Key, out var value))
-                return new SaveableFloat {_value = value};
-            return this;
+            return bridge.Storage.GetFloat(bridge.Key, out var value) 
+                ? new SaveableFloat {_value = value} 
+                : this;
         }
     }
 
@@ -167,9 +165,9 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetString(bridge.Key, out var value))
-                return new SaveableString { _value = value };
-            return this;
+            return bridge.Storage.GetString(bridge.Key, out var value) 
+                ? new SaveableString { _value = value } 
+                : this;
         }
     }
 
@@ -199,21 +197,59 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetString(bridge.Key, out var value))
+            if (!bridge.Storage.GetString(bridge.Key, out var value))
+                return this;
+
+            try
             {
-                try
-                {
-                    return new SaveableInt64 { _value = Convert.ToInt64(value) };
-                }
-                catch
-                {
-                    return this;
-                }
+                return new SaveableInt64 { _value = Convert.ToInt64(value) };
             }
-            return this;
+            catch
+            {
+                return this;
+            }
         }
     }
 
+    public struct SaveableTimeSpan : ISaveableField
+    {
+        private TimeSpan _value;
+
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
+
+        public static implicit operator TimeSpan(SaveableTimeSpan field)
+        {
+            return field._value;
+        }
+
+        public static implicit operator SaveableTimeSpan(TimeSpan value)
+        {
+            return new SaveableTimeSpan {_value = value};
+        }
+
+        public bool SaveValue(ISaveableFieldsBridge bridge)
+        {
+            return bridge.Storage.SetString(bridge.Key, Convert.ToString(_value.Ticks));
+        }
+
+        public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
+        {
+            if (!bridge.Storage.GetString(bridge.Key, out var value))
+                return this;
+
+            try
+            {
+                return new SaveableTimeSpan {_value = new TimeSpan(Convert.ToInt64(value))};
+            }
+            catch
+            {
+                return this;
+            }
+        }
+    }
 
     public struct SaveableUInt64 : ISaveableField
     {
@@ -241,18 +277,17 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetString(bridge.Key, out var value))
+            if (!bridge.Storage.GetString(bridge.Key, out var value))
+                return this;
+
+            try
             {
-                try
-                {
-                    return new SaveableUInt64 { _value = Convert.ToUInt64(value) };
-                }
-                catch
-                {
-                    return this;
-                }
+                return new SaveableUInt64 { _value = Convert.ToUInt64(value) };
             }
-            return this;
+            catch
+            {
+                return this;
+            }
         }
     }
 
@@ -282,18 +317,17 @@ namespace mFramework.Saves
 
         public ISaveableField LoadValue(ISaveableFieldsBridge bridge)
         {
-            if (bridge.Storage.GetString(bridge.Key, out var value))
+            if (!bridge.Storage.GetString(bridge.Key, out var value))
+                return this;
+
+            try
             {
-                try
-                {
-                    return new SaveableDecimal { _value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
-                }
-                catch
-                {
-                    return this;
-                }
+                return new SaveableDecimal { _value = Convert.ToDecimal(value, CultureInfo.InvariantCulture) };
             }
-            return this;
+            catch
+            {
+                return this;
+            }
         }
     }
 }

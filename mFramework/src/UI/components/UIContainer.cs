@@ -2,66 +2,35 @@
 
 namespace mFramework.UI
 {
-    public class UIContainerSettings : UIComponentSettings
+    public class UIContainerProps : UIComponentProps, ISizeable
     {
-        public float Height;
-        public float Width;
+        public float SizeX { get; set; }
+        public float SizeY { get; set; }
     }
 
     public class UIContainer : UIComponent
     {
-        private float _width;
-        private float _height;
-
-        protected override void Init()
+        protected override void ApplyProps(UIComponentProps props)
         {
-            base.Init();
-        }
-
-        protected override void ApplySettings(UIComponentSettings settings)
-        {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UIContainerSettings containerSettings))
+            if (!(props is UIContainerProps containerSettings))
                 throw new ArgumentException("UIContainer: The given settings is not UIContainerSettings");
 
-            _width = containerSettings.Width;
-            _height = containerSettings.Height;
+            SizeX = containerSettings.SizeX;
+            SizeY = containerSettings.SizeY;
 
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
         public UIContainer SetWidth(float width)
         {
-            _width = width;
+            SizeX = width;
             return this;
         }
 
         public UIContainer SetHeight(float height)
         {
-            _height = height;
+            SizeY = height;
             return this;
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _height;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _width;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
-        }
-
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
         }
     }
 }

@@ -3,13 +3,19 @@ using UnityEngine;
 
 namespace mFramework.UI
 {
-    public sealed class UIViewSettings
+    public class UIViewProps : UIObjectProps
     {
-        public float? Height = null;
-        public float? Width = null;
-        public int? SortingOrder = null;
-        public Vector2? DefaultPos = null;
-        public ushort? StencilId = null;
+        public virtual ushort? StencilId { get; set; } = null;
+     
+        /// <summary>
+        /// Element bound width
+        /// </summary>
+        public virtual float? SizeX { get; set; }
+
+        /// <summary>
+        /// Element bound height
+        /// </summary>
+        public virtual float? SizeY { get; set; }
     }
 
     /*public static class NewView<T> where T : UIView
@@ -28,87 +34,99 @@ namespace mFramework.UI
     public abstract class UIView : UIObject, IView
     {
         public ushort? StencilId => _stencilId ?? ParentView.StencilId;
-
-        private float _height;
-        private float _width;
         private ushort? _stencilId;
 
-        internal static UIView Create(Type viewType, UIViewSettings settings, IView parent, params object[] @params)
+        public static bool IsViewType(Type viewType)
         {
-            if (!typeof(UIView).IsAssignableFrom(viewType))
+            return typeof(UIView).IsAssignableFrom(viewType);
+        }
+
+        public virtual UIView View(Type viewType, UIViewProps props, params object[] @params)
+        {
+            if (!IsViewType(viewType))
+                throw new Exception("The given viewType paramater is not UIView");
+
+            var view = (UIView)new GameObject(viewType.Name).AddComponent(viewType);
+            view.SetupView(props, this, @params);
+            return view;
+        }
+
+        public UIView View(Type viewType, params object[] @params)
+        {
+            return View(viewType, new UIViewProps
+            {
+                SizeX = SizeX,
+                SizeY = SizeY,
+            }, @params);
+        }
+        
+        public T View<T>(params object[] @params) where T : UIView
+        {
+            return (T) View(typeof(T), new UIViewProps
+            {
+                SizeX = SizeX,
+                SizeY = SizeY,
+            }, @params);
+        }
+
+        public T View<T>(UIViewProps props, params object[] @params) where T : UIView
+        {
+            return (T) View(typeof(T), props, @params);
+        }
+
+        internal static UIView Create(Type viewType, UIViewProps props, IView parent, params object[] @params)
+        {
+            if (!IsViewType(viewType))
                 throw new Exception("The given viewType paramater is not UIView");
 
             var view = (UIView) new GameObject(viewType.Name).AddComponent(viewType);
-            view.SetupView(settings, parent, @params);
+            view.SetupView(props, parent, @params);
             return view;
         }
 
-        internal static T Create<T>(UIViewSettings settings, IView parent, params object[] @params) where T : UIView
+        internal static T Create<T>(UIViewProps props, IView parent, params object[] @params) where T : UIView
         {
-            var view = new GameObject(typeof(T).Name).AddComponent<T>();
-            view.SetupView(settings, parent, @params);
-            return view;
+            return (T) Create(typeof(T), props, parent, @params);
         }
         
-        private void SetupView(UIViewSettings settings, IView parent, object[] @params)
+        internal virtual void SetupView(UIViewProps props, IView parent, object[] @params)
         {
-            SetupParent((UIObject) parent);
-            SetupSettings(settings, parent);
-            InitCompleted();
-            CreateInterface(@params);
+            if (props == null)
+                throw new Exception("UIView: UIViewProps can not be null");
 
-            if (_stencilId.HasValue)
+            SetupParent((UIObject) parent);
+            ApplyProps(props, parent);
+            InitCompleted(true);
+
+            if (_stencilId.HasValue && _stencilId.Value != 0)
             {
+                // TODO при изменении padding изменение canvas
+                var meshRenderer = GameObject.AddComponent<MeshRenderer>();
+                meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId.Value).CanvasMaterial;
+                meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
+                meshRenderer.sortingOrder = SortingOrder;
+
+                SortingOrderChanged += sender =>
+                {
+                    meshRenderer.sortingOrder = SortingOrder;
+                };
+
                 UIStencilMaterials.CreateMesh(this);
             }
+
+            mUI.ObjectCreated(this);
+            CreateInterface(@params);
         }
 
         protected abstract void CreateInterface(object[] @params);
 
-        protected virtual void SetupSettings(UIViewSettings settings, IView parent)
+        protected virtual void ApplyProps(UIViewProps props, IView parent)
         {
-            _stencilId = settings.StencilId;
-            _height = settings.Height ?? parent.GetHeight();
-            _width = settings.Width ?? parent.GetWidth();
+            base.ApplyProps(props);
 
-            if (settings.DefaultPos.HasValue)
-                Pos(settings.DefaultPos.Value);
-
-            if (settings.SortingOrder.HasValue)
-                SortingOrder(settings.SortingOrder.Value);
-
-            if (_stencilId.HasValue && _stencilId.Value != 0)
-            {
-                var meshRenderer = gameObject.AddComponent<MeshRenderer>();
-                meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId.Value).CanvasMaterial;
-                meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
-                meshRenderer.sortingOrder = SortingOrder();
-
-                SortingOrderChanged += sender =>
-                {
-                    meshRenderer.sortingOrder = SortingOrder();
-                };
-            }
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _height;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _width;
-        }
-
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
-        }
-
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
+            _stencilId = props.StencilId;
+            SizeY = props.SizeY ?? parent.SizeY;
+            SizeX = props.SizeX ?? parent.SizeX;
         }
     }
 }

@@ -8,56 +8,39 @@ namespace mFramework.UI
         public Vector2 FirstPoint;
         public Vector2 SecondPoint;
         public Vector2 ThirdPoint;
-        public bool IsLocalPos;
+        public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor { get; set; } = null;
     }
 
     public class UIBezierQuadraticAnimation : UIAnimation
     {
-        private Vector2 _firstPoint;
-        private Vector2 _secondPoint;
-        private Vector2 _thirdPoint;
-        private bool _isLocalPos;
-
-        protected UIBezierQuadraticAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-        }
+        public Vector2 FirstPoint;
+        public Vector2 SecondPoint;
+        public Vector2 ThirdPoint;
+        public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UIBezierQuadraticAnimationSettings bezierSettings))
                 throw new ArgumentException("UIBezierQuadraticAnimation: The given settings is not UIBezierQuadraticAnimationSettings");
 
-            _isLocalPos = bezierSettings.IsLocalPos;
-            _firstPoint = bezierSettings.FirstPoint;
-            _secondPoint = bezierSettings.SecondPoint;
-            _thirdPoint = bezierSettings.ThirdPoint;
+            RelativeTo = bezierSettings.RelativeTo;
+            FirstPoint = bezierSettings.FirstPoint;
+            SecondPoint = bezierSettings.SecondPoint;
+            ThirdPoint = bezierSettings.ThirdPoint;
+            Anchor = bezierSettings.Anchor;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            if (_isLocalPos)
-            {
-                AnimatedObject.LocalPos(BezierHelper.Quadratic(
-                    CurrentEasingTime,
-                    _firstPoint,
-                    _secondPoint,
-                    _thirdPoint
-                ));
-            }
-            else
-            {
-                AnimatedObject.Pos(BezierHelper.Quadratic(
-                    CurrentEasingTime,
-                    _firstPoint,
-                    _secondPoint,
-                    _thirdPoint
-                ));
-            }
+            UIObject.Position(
+                position: BezierHelper.Quadratic(EasingTime, FirstPoint, SecondPoint, ThirdPoint), 
+                anchor: Anchor.GetValueOrDefault(UIObject.Anchor), 
+                relativeTo: RelativeTo
+            );
         }
     }
 }

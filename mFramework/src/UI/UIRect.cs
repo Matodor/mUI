@@ -2,17 +2,26 @@
 
 namespace mFramework.UI
 {
+    public enum UIRectType
+    {
+        UNSCALED,
+        LOCAL,
+        GLOBAL
+    }
+
     public struct UIRect
     {
-        public float Top;
-        public float Bottom;
-        public float Right;
-        public float Left;
-        public Vector2 Position;
+        public UIRectType Type { get; set; }
+        public Vector2 UpperLeft { get; set; }
+        public Vector2 UpperCenter { get; set; }
+        public Vector2 UpperRight { get; set; }
 
-        public override string ToString()
-        {
-            return $"Pos={Position} Top={Top} Bottom={Bottom} Right={Right} Left={Left}";
-        }
+        public Vector2 LowerLeft { get; set; }
+        public Vector2 LowerCenter { get; set; }
+        public Vector2 LowerRight { get; set; }
+
+        public Vector2 MiddleLeft { get; set; }
+        public Vector2 MiddleCenter { get; set; }
+        public Vector2 MiddleRight { get; set; }
     }
 }

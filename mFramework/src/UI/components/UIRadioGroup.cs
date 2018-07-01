@@ -2,43 +2,29 @@
 
 namespace mFramework.UI
 {
-    public class UIRadioGroupSettings : UIComponentSettings
+    public class UIRadioGroupProps : UIComponentProps
     {
-        public bool CanDeselectCurrent;
+        public virtual bool CanDeselectCurrent { get; set; }
     }
 
     public class UIRadioGroup : UIComponent
     {
-        public event Action<UIRadioGroup> Selected = delegate { };
-        public UIToggle CurrentSelected => _currentSelected;
+        public event Action<UIRadioGroup> Selected;
+        public IUIToggle CurrentSelected { get; private set; }
 
         private bool _canDeselectCurrent;
-        private UIToggle _currentSelected;
 
-        protected override void Init()
+        protected override void OnBeforeDestroy()
         {
-            ChildObjectAdded += CheckChildren;
-            base.Init();
+            ChildAdded -= CheckChildren;
+            Selected = null;
+            base.OnBeforeDestroy();
         }
 
-        public override float UnscaledHeight()
+        protected override void AfterAwake()
         {
-            return 0f;
-        }
-
-        public override float UnscaledWidth()
-        {
-            return 0f;
-        }
-
-        public override float GetWidth()
-        {
-            return 0f;
-        }
-
-        public override float GetHeight()
-        {
-            return 0f;
+            ChildAdded += CheckChildren;
+            base.AfterAwake();
         }
 
         private void CheckChildren(IUIObject sender, IUIObject addedObj)
@@ -49,17 +35,14 @@ namespace mFramework.UI
             SetupToggle(toggle);
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        protected override void ApplyProps(UIComponentProps props)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
-            if (!(settings is UIRadioGroupSettings radioGroupSettings))
+            if (!(props is UIRadioGroupProps radioGroupSettings))
                 throw new ArgumentException("UIRadioGroup: The given settings is not UIRadioGroupSettings");
 
             _canDeselectCurrent = radioGroupSettings.CanDeselectCurrent;
 
-            base.ApplySettings(settings);
+            base.ApplyProps(props);
         }
 
         public UIToggle AddToggle(UIToggle toggle)
@@ -68,15 +51,15 @@ namespace mFramework.UI
             return toggle;
         }
 
-        public UIToggle CreateToggle(UIToggleSettings toggleSettings)
+        public UIToggle CreateToggle(UIToggleProps toggleProps)
         {
-            toggleSettings.DefaultSelected = false;
-            var toggle = this.Toggle(toggleSettings);
+            toggleProps.DefaultSelected = false;
+            var toggle = this.Toggle(toggleProps);
             SetupToggle(toggle);
             return toggle;
         }
 
-        private void SetupToggle(UIToggle toggle)
+        private void SetupToggle(IUIToggle toggle)
         {
             toggle.BeforeDestroy += ToggleOnBeforeDestroy;
             toggle.Selected += ToggleSelected;
@@ -86,37 +69,32 @@ namespace mFramework.UI
 
         private void ToggleOnBeforeDestroy(IUIObject sender)
         {
-            if ((UIToggle) sender == _currentSelected)
-                _currentSelected = null;
+            if (sender == CurrentSelected)
+                CurrentSelected = null;
         }
 
-        private bool ToggleOnCanDeselect(UIToggle toggle)
+        private bool ToggleOnCanDeselect(IUIToggle toggle)
         {
             if (_canDeselectCurrent)
-            {
                 return true;
-            }
-
-            if (_currentSelected == toggle)
-                return false;
-            return true;
+            return CurrentSelected != toggle;
         }
 
-        private void ToggleDeselected(UIToggle toggle)
+        private void ToggleDeselected(IUIToggle toggle)
         {
-            if (_currentSelected == toggle)
-                _currentSelected = null;
+            if (CurrentSelected == toggle)
+                CurrentSelected = null;
         }
 
-        private void ToggleSelected(UIToggle toggle)
+        private void ToggleSelected(IUIToggle toggle)
         {
-            var prev = _currentSelected;
-            _currentSelected = toggle;
+            var prev = CurrentSelected;
+            CurrentSelected = toggle;
 
             if (prev != null && prev != toggle)
                 prev.Deselect();
 
-            Selected.Invoke(this);
+            Selected?.Invoke(this);
         }
     }
 }

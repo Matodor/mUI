@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using mFramework.Saves;
 
 namespace mFramework.GameEvents
@@ -14,10 +15,19 @@ namespace mFramework.GameEvents
         static mGameEvents()
         {
             _events = new Dictionary<string, Event>();
-            mCore.ApplicationQuitEvent += SaveGameEvents;
+            mCore.ApplicationQuitEvent += Save;
+            mCore.ApplicationPaused += OnApplicationPaused;
         }
 
-        private static void SaveGameEvents()
+        private static void OnApplicationPaused(bool paused)
+        {
+            if (paused)
+            {
+                Save();
+            }
+        }
+
+        private static void Save()
         {
             _events.Values.Save();
         }

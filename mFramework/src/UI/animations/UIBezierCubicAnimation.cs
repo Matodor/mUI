@@ -9,60 +9,42 @@ namespace mFramework.UI
         public Vector2 SecondPoint;
         public Vector2 ThirdPoint;
         public Vector2 FourthPoint;
-        public bool IsLocalPos;
+        public Space RelativeTo = Space.World;
+
+        public UIAnchor? Anchor { get; set; } = null;
     }
 
     public class UIBezierCubicAnimation : UIAnimation
     {
-        private Vector2 _firstPoint;
-        private Vector2 _secondPoint;
-        private Vector2 _thirdPoint;
-        private Vector2 _fourthPoint;
-        private bool _isLocalPos;
-
-        protected UIBezierCubicAnimation(UIObject animatedObject) : base(animatedObject)
-        {
-        }
+        public Vector2 FirstPoint;
+        public Vector2 SecondPoint;
+        public Vector2 ThirdPoint;
+        public Vector2 FourthPoint;
+        public Space RelativeTo = Space.World;
+        public UIAnchor? Anchor;
 
         protected override void ApplySettings(UIAnimationSettings settings)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
-
             if (!(settings is UIBezierCubicAnimationSettings bezierSettings))
                 throw new ArgumentException("UIBezierCubicAnimation: The given settings is not UIBezierCubicAnimationSettings");
 
-            _isLocalPos = bezierSettings.IsLocalPos;
-            _firstPoint = bezierSettings.FirstPoint;
-            _secondPoint = bezierSettings.SecondPoint;
-            _thirdPoint = bezierSettings.ThirdPoint;
-            _fourthPoint = bezierSettings.FourthPoint;
+            RelativeTo = bezierSettings.RelativeTo;
+            FirstPoint = bezierSettings.FirstPoint;
+            SecondPoint = bezierSettings.SecondPoint;
+            ThirdPoint = bezierSettings.ThirdPoint;
+            FourthPoint = bezierSettings.FourthPoint;
+            Anchor = bezierSettings.Anchor;
 
             base.ApplySettings(settings);
         }
 
         protected override void OnAnimate()
         {
-            if (_isLocalPos)
-            {
-                AnimatedObject.LocalPos(BezierHelper.Cubic(
-                    CurrentEasingTime,
-                    _firstPoint,
-                    _secondPoint,
-                    _thirdPoint,
-                    _fourthPoint
-                ));
-            }
-            else
-            {
-                AnimatedObject.Pos(BezierHelper.Cubic(
-                    CurrentEasingTime,
-                    _firstPoint,
-                    _secondPoint,
-                    _thirdPoint,
-                    _fourthPoint
-                ));
-            }
+            UIObject.Position(
+                position: BezierHelper.Cubic(EasingTime, FirstPoint, SecondPoint, ThirdPoint, FourthPoint), 
+                anchor: Anchor.GetValueOrDefault(UIObject.Anchor), 
+                relativeTo: RelativeTo
+            );
         }
     }
 }

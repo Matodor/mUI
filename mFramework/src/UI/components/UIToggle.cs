@@ -1,107 +1,85 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace mFramework.UI
 {
-    public class UIToggleSettings : UIButtonSettings
+    public class UIToggleProps : UIButtonProps
     {
-        public bool DefaultSelected = false;
+        public virtual bool DefaultSelected { get; set; } = false;
     }
-
-    public class UIToggle : UIComponent, IUISpriteRenderer, IUIColored, IUIClickable
+    
+    public class UIToggle : UIButton, IUIToggle
     {
-        public UIClickable UIClickable { get; private set; }
-        public Renderer UIRenderer => _uiSpriteRenderer.Renderer;
+        public bool IsSelected { get; protected set; }
 
-        public SpriteRenderer Renderer => _uiSpriteRenderer.Renderer;
-        public UISprite SpriteMask => _uiSpriteRenderer.SpriteMask;
-
-        public StateableSprite StateableSprite { get; private set; }
-        public ClickCondition ClickCondition { get; set; }
-
-        public bool IsSelected => _isSelected;
-
-        public event Func<UIToggle, Vector2, bool> CanToggleClick = delegate { return true; };
-        public event Func<UIToggle, bool> CanSelect = delegate { return true; };
-        public event Func<UIToggle, bool> CanDeselect = delegate { return true; };
-
-        public event UIEventHandler<UIToggle> Selected = delegate { };
-        public event UIEventHandler<UIToggle> Deselected = delegate { };
-        public event UIEventHandler<UIToggle> Changed = delegate { };
-
-        private bool _isSelected;
-        private bool _isPressed;
-
-        private UISpriteRenderer _uiSpriteRenderer;
-
-        protected override void Init()
+        public event UIToggleAllowChangeState CanSelect
         {
-            _isSelected = false;
-            _isPressed = false;
+            add => _canSelectEvents.Add(value);
+            remove => _canSelectEvents.Remove(value);
         }
 
-        protected override void ApplySettings(UIComponentSettings settings)
+        public event UIToggleAllowChangeState CanDeselect
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+            add => _canDeselectEvents.Add(value);
+            remove => _canDeselectEvents.Remove(value);
+        }
 
-            if (!(settings is UIToggleSettings toggleSettings))
+        public event UIToggleStateChangedEvent Selected;
+        public event UIToggleStateChangedEvent Deselected;
+        public event UIToggleStateChangedEvent Changed;
+
+        private List<UIToggleAllowChangeState> _canSelectEvents;
+        private List<UIToggleAllowChangeState> _canDeselectEvents;
+
+        protected override void OnBeforeDestroy()
+        {
+            Selected = null;
+            Deselected = null;
+            Changed = null;
+
+            Clicked -= OnToggleClick;
+            MouseUp -= OnUIMouseUp;
+
+            _canSelectEvents.Clear();
+            _canDeselectEvents.Clear();
+            base.OnBeforeDestroy();
+        }
+
+        protected override void AfterAwake()
+        {
+            _canSelectEvents = new List<UIToggleAllowChangeState>();
+            _canDeselectEvents = new List<UIToggleAllowChangeState>();
+
+            Clicked += OnToggleClick;
+            MouseUp += OnUIMouseUp;
+
+            IsSelected = false;
+            base.AfterAwake();
+        }
+
+        protected override void ApplyProps(UIComponentProps props)
+        {
+            if (!(props is UIToggleProps toggleSettings))
                 throw new ArgumentException("UIToggle: The given settings is not UIToggleSettings");
-
-            ClickCondition = toggleSettings.ClickCondition;
-
-            if (toggleSettings.ButtonAreaType == AreaType.RECTANGLE)
-            {
-                var area = new RectangleArea2D();
-                area.Update += a =>
-                {
-                    area.Width = GetWidth();
-                    area.Height = GetHeight();
-                    area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
-                    area.Offset = new Vector2(
-                        area.Offset.x * GlobalScale().x,
-                        area.Offset.y * GlobalScale().y
-                    );
-                };
-
-                UIClickable = new UIClickable(this, area);
-            }
-            else if (toggleSettings.ButtonAreaType == AreaType.CIRCLE)
-            {
-                var area = new CircleArea2D();
-                area.Update += a =>
-                {
-                    area.Radius = GetWidth() / 2;
-                    area.Offset = _uiSpriteRenderer.Renderer.sprite.GetCenterOffset();
-                    area.Offset = new Vector2(
-                        area.Offset.x * GlobalScale().x,
-                        area.Offset.y * GlobalScale().y
-                    );
-                };
-                UIClickable = new UIClickable(this, area);
-            }
-
-            _uiSpriteRenderer = new UISpriteRenderer(this, new UISpriteSettings
-            {
-                Sprite = toggleSettings.ButtonSpriteStates.Default
-            });
-
-            StateableSprite = StateableSprite.Create(toggleSettings.ButtonSpriteStates);
-            StateableSprite.StateChanged += (s, sprite) =>
-            {
-                if (sprite != null && sprite != _uiSpriteRenderer.Renderer.sprite)
-                    _uiSpriteRenderer.Renderer.sprite = sprite;
-            };
 
             if (toggleSettings.DefaultSelected)
                 Select();
-
-            base.ApplySettings(settings);
+            
+            base.ApplyProps(props);
         }
 
-        public UIToggle Toggle()
+        private void OnUIMouseUp(IUIClickable sender, Vector2 vector2)
         {
-            if (_isSelected)
+            if (IsSelected)
+                StateableSprite.SetSelected();
+            else
+                StateableSprite.SetDefault();
+        }
+
+        public IUIToggle Toggle()
+        {
+            if (IsSelected)
                 Deselect();
             else
                 Select();
@@ -109,137 +87,35 @@ namespace mFramework.UI
             return this;
         }
 
-        public UIToggle Select()
+        public IUIToggle Select()
         {
-            if (!CanSelect(this))
+            if (_canSelectEvents.Count != 0 && !_canSelectEvents.TrueForAll(e => e(this)))
                 return this;
 
-            _isSelected = true;
+            IsSelected = true;
             StateableSprite.SetSelected();
 
-            Selected.Invoke(this);
-            Changed.Invoke(this);
+            Selected?.Invoke(this);
+            Changed?.Invoke(this);
             return this;
         }
 
-        public UIToggle Deselect()
+        public IUIToggle Deselect()
         {
-            if (!CanDeselect(this))
+            if (_canDeselectEvents.Count != 0 && !_canDeselectEvents.TrueForAll(e => e(this)))
                 return this;
 
-            _isSelected = false;
+            IsSelected = false;
             StateableSprite.SetDefault();
 
-            Deselected.Invoke(this);
-            Changed.Invoke(this);
+            Deselected?.Invoke(this);
+            Changed?.Invoke(this);
             return this;
         }
 
-        public Color GetColor()
+        private void OnToggleClick(IUIButton sender)
         {
-            return _uiSpriteRenderer.GetColor();
-        }
-
-        public float GetOpacity()
-        {
-            return _uiSpriteRenderer.GetOpacity();
-        }
-
-        public IUIColored SetColor(Color32 color)
-        {
-            _uiSpriteRenderer.SetColor(color);
-            return this;
-        }
-
-        public IUIColored SetColor(UIColor color)
-        {
-            _uiSpriteRenderer.SetColor(color);
-            return this;
-        }
-
-        public IUIColored SetOpacity(float opacity)
-        {
-            _uiSpriteRenderer.SetOpacity(opacity);
-            return this;
-        }
-
-        public void MouseDown(Vector2 worldPos)
-        {
-            _isPressed = true;
-            StateableSprite.SetHighlighted();
-
-            if (CanToggleClick(this, worldPos) && ClickCondition == ClickCondition.BUTTON_DOWN)
-            {
-                Toggle();
-            }
-        }
-
-        public void MouseUp(Vector2 worldPos)
-        {
-            if (!_isPressed)
-                return;
-            
-            if (_isSelected)
-                StateableSprite.SetSelected();
-            else
-                StateableSprite.SetDefault();
-
-            if (CanToggleClick(this, worldPos) && _isPressed &&
-                ClickCondition == ClickCondition.BUTTON_UP && UIClickable.Area2D.InArea(worldPos))
-            {
-                Toggle();
-            }
-
-            _isPressed = false;
-        }
-
-        public void MouseDrag(Vector2 worldPos)
-        {
-        }
-
-        public void Flip(bool flipX, bool flipY)
-        {
-            _uiSpriteRenderer.Flip(flipX, flipY);
-        }
-
-        public void SetSprite(Sprite sprite)
-        {
-            _uiSpriteRenderer.SetSprite(sprite);
-        }
-
-        public void RemoveMask()
-        {
-            _uiSpriteRenderer.RemoveMask();
-        }
-
-        public UISprite SetMask(Sprite mask, bool useAlphaClip = true, bool insideMask = true)
-        {
-            return _uiSpriteRenderer.SetMask(mask, useAlphaClip, insideMask);
-        }
-
-        public override float UnscaledHeight()
-        {
-            return _uiSpriteRenderer.UnscaledHeight();
-        }
-
-        public override float UnscaledWidth()
-        {
-            return _uiSpriteRenderer.UnscaledWidth();
-        }
-
-        public override float GetHeight()
-        {
-            return _uiSpriteRenderer.GetHeight();
-        }
-
-        public override float GetWidth()
-        {
-            return _uiSpriteRenderer.GetWidth();
-        }
-
-        public override UIRect GetRect()
-        {
-            return _uiSpriteRenderer.GetRect();
+            Toggle();
         }
     }
 }

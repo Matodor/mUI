@@ -1,8 +1,10 @@
-﻿namespace mFramework.Saves
+﻿using mFramework.concrete;
+
+namespace mFramework.Saves
 {
     public abstract class SaveableFields
     {
-        public static IKeyValueStorage Storage { get; } = new PlayerPrefsStorage();
+        public static IKeyValueStorage Storage { get; } = PlayerPrefsStorage.Instance;
         public string Key { get; }
 
         protected SaveableFields(string key)
@@ -32,7 +34,7 @@
                 }
 
                 var key = GetKey(Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
-                var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(this);
+                var saveableField = (ISaveableField) fieldsInfo.CachedFields[i].Getter(this);
                 var bridge = new SaveableFieldsBridge(key, Storage);
                 saveableField.SaveValue(bridge);
             }
@@ -55,18 +57,21 @@
                 }
 
                 var key = GetKey(Key, fieldsInfo.CachedFields[i].FieldInfo.Name);
-                var saveableField = (ISaveableField)fieldsInfo.CachedFields[i].Getter(this);
-                var bridge = new SaveableFieldsBridge(key, Storage);
-                var newValue = saveableField.LoadValue(bridge);
-                fieldsInfo.CachedFields[i].Setter(this, newValue);
+                if (Storage.HasKey(key))
+                {
+                    var saveableField = (ISaveableField) fieldsInfo.CachedFields[i].Getter(this);
+                    var bridge = new SaveableFieldsBridge(key, Storage);
+                    var newValue = saveableField.LoadValue(bridge);
+                    fieldsInfo.CachedFields[i].Setter(this, newValue);
+                }
             }
 
             AfterLoad();
         }
 
-        internal static string GetKey(string fieldsClassKey, string fieldName)
+        private static string GetKey(string fieldsKey, string fieldName)
         {
-            return $"{fieldsClassKey}_{fieldsClassKey.GetHashCode()}_{fieldName}_{fieldName.GetHashCode()}";
+            return KnuthHash.CalculateHash(fieldsKey + fieldName).ToString();
         }
     }
 

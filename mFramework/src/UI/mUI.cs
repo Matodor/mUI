@@ -7,42 +7,45 @@ namespace mFramework.UI
     public sealed class UISettings
     {
         public readonly UICameraSettings CameraSettings = new UICameraSettings();
+        public readonly UIViewProps BaseViewProps = new UIViewProps()
+        {
+            Anchor = UIAnchor.MiddleCenter,
+            StencilId = 0,
+        };
     }
 
     public sealed class mUI
     {
+        public static event Action<MouseEvent> OnMouseDown = delegate { };
+        public static event Action<MouseEvent> OnMouseUp = delegate { };
+        public static event Action<MouseEvent> OnMouseDrag = delegate { };
+
         public static event Action<UIObject> UIObjectCreated = delegate {};
         public static event Action<UIObject> UIObjectRemoved = delegate {};
 
-        public static UIView BaseView => _baseView;
-        public static UICamera UICamera => _uiCamera;
+        public static UIView BaseView { get; private set; }
+        public static UICamera UICamera { get; private set; }
 
         private static Dictionary<string, UIFont> _fonts;
-        private static BaseView _baseView;
-        private static UICamera _uiCamera;
-        private static Dictionary<ulong, UIObject> _uiObjects;
         private static mUI _instance;
-        private static bool _isCreated = false;
+        private static bool _isCreated;
 
         static mUI()
         {
             if (_instance == null)
             {
                 _instance = new mUI();
-                Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
             }
         }
 
         ~mUI()
         {
-            Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
             mCore.Log("~mUI");
         }
 
         private mUI()
         {
             _fonts = new Dictionary<string, UIFont>();
-            _uiObjects = new Dictionary<ulong, UIObject>();
         }
 
         public static void Create()
@@ -55,35 +58,56 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            _uiCamera = UICamera.Create(settings.CameraSettings);
-            _uiCamera.Transform.SetParentTransform(mCore.Behaviour.transform);
             _isCreated = true;
-            _baseView = UIView.Create<BaseView>(new UIViewSettings
+            UICamera = UICamera.Create(settings.CameraSettings);
+            UICamera.Transform.ParentTransform(mCore.Behaviour.transform);
+            BaseView = UIView.Create<BaseView>(new UIViewProps
             {
-                Height = UICamera.PureHeight,
-                Width = UICamera.PureWidth,
-                SortingOrder = 0,
-                StencilId = 0,
-                DefaultPos = Vector2.zero
+                SizeY = settings.BaseViewProps.SizeY ?? UICamera.SizeY,
+                SizeX = settings.BaseViewProps.SizeX ?? UICamera.SizeX,
+                SortingOrder = settings.BaseViewProps.SortingOrder,
+                StencilId = settings.BaseViewProps.StencilId ?? 0,
+                Padding = settings.BaseViewProps.Padding ?? new UIPadding(),
+                Anchor = settings.BaseViewProps.Anchor ?? UIAnchor.MiddleCenter
             }, null);
-            
+
+            Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
             mCore.ApplicationQuitEvent += OnApplicationQuitEvent;
             mCore.Log("[mFramework][UI] created");
         }
          
         private static void OnApplicationQuitEvent()
         {
-            _baseView.DestroyWithoutChecks();
+            Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
+            BaseView.DestroyImpl(false);
             _instance = null;
         }
-        
-        public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)
+
+        internal static void MouseDown(MouseEvent e)
+        {
+            OnMouseDown(e);
+            UIClickablesHandler.MouseDown(e);
+        }
+
+        internal static void MouseUp(MouseEvent e)
+        {
+            OnMouseUp(e);
+            UIClickablesHandler.MouseUp(e);
+        }
+
+        internal static void MouseDrag(MouseEvent e)
+        {
+            OnMouseDrag(e);
+            UIClickablesHandler.MouseDrag(e);
+        }
+
+        /*public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)
         {
             var worldPos = UICamera.ScreenToWorldPoint(e.MouseScreenPos);
             BaseView.DeepFind(o => 
                 o.IsActive && 
                 o is IUIClickable clickable &&
-                clickable.UIClickable.Area2D.InArea(worldPos) && predicate(o),
+                clickable.UiClickableOld.Area2D.InArea(worldPos) && predicate(o),
                 out var result
             );
             return result as IUIClickable;
@@ -95,11 +119,11 @@ namespace mFramework.UI
             BaseView.DeepFind(o => 
                 o.IsActive &&
                 o is IUIClickable clickable &&
-                clickable.UIClickable.Area2D.InArea(worldPos),
+                clickable.UiClickableOld.Area2D.InArea(worldPos),
                 out var result
             );
             return result as IUIClickable;
-        }
+        }*/
 
         public static UIFont GetFont(string font)
         {
@@ -131,34 +155,32 @@ namespace mFramework.UI
 
         public static float MaxWidth()
         {
-            return BaseView.GetWidth();
+            return BaseView.Width;
         }
 
         public static float MaxHeight()
         {
-            return BaseView.GetHeight();
+            return BaseView.Height;
         }
 
-        internal static bool RemoveUIObject(UIObject obj)
+        public static void OnClickables()
         {
-            if (!_uiObjects.ContainsKey(obj.GUID))
-                return false;
+            UIClickablesHandler.EnableClickables();
+        }
 
-            _uiObjects.Remove(obj.GUID);
+        public static void OffClickables()
+        {
+            UIClickablesHandler.DisableClickables();    
+        }
+
+        internal static void RemoveUIObject(UIObject obj)
+        {
             UIObjectRemoved.Invoke(obj);
-
-            return true;
         }
 
-        internal static bool AddUIObject(UIObject obj)
+        internal static void ObjectCreated(UIObject obj)
         {
-            if (_uiObjects.ContainsKey(obj.GUID))
-                return false;
-
-            _uiObjects.Add(obj.GUID, obj);
             UIObjectCreated.Invoke(obj);
-
-            return true;
         }
 
         internal static void Tick()

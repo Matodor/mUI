@@ -3,222 +3,190 @@ using System.Collections.Generic;
 using mFramework.UI.Layouts;
 using UnityEngine;
 
-namespace mFramework.UI
+/*namespace mFramework.UI
 {
-    public class UISliderSettings : UIComponentSettings
-    {
-        public float? Height = null;
-        public float? Width = null;
-        public float Offset = 0;
-        public float Padding = 0f;
-        public float TimeToStop = 0.3f;
+   /*public abstract class UIBaseSlider : UIComponent, IUIClickable, IView
+   {
+       public const float SLIDER_MAX_PATH_TO_CLICK = 0.03f;
+       public const float SLIDER_MIN_DIFF_TO_MOVE = 0.0001f;
 
-        public LayoutElemsDirection ElementsDirection = LayoutElemsDirection.FORWARD;
-        public ushort StencilId = 1 << 2;
-    }
+       public ushort? StencilId => _stencilId;
+       public UIClickable UIClickable { get; private set; }
 
-    public abstract class UIBaseSlider : UIComponent, IUIClickable, IView
-    {
-        public const float SLIDER_MAX_PATH_TO_CLICK = 0.03f;
-        public const float SLIDER_MIN_DIFF_TO_MOVE = 0.0001f;
+       public float TimeToStop;
 
-        public ushort? StencilId => _stencilId;
-        public UIClickable UIClickable { get; private set; }
+       protected LayoutElemsDirection ElementsDirection { get; private set; }
+       protected bool IsPressed { get; private set; }
+       protected float ElementsOffset { get; private set; }
+       protected float Padding { get; private set; }
 
-        public float TimeToStop;
+       private ushort _stencilId;
+       private float _height;
+       private float _width;
 
-        protected LayoutElemsDirection ElementsDirection { get; private set; }
-        protected bool IsPressed { get; private set; }
-        protected float ElementsOffset { get; private set; }
-        protected float Padding { get; private set; }
+       private Vector2 _lastMousePos;
+       private Vector2 _lastMoveDiff;
+       private Vector2 _dragPath;
+       private List<Pair<IUIClickable, Vector2>> _clickNext;
+       private DateTime _mouseUpAt;
 
-        private ushort _stencilId;
-        private float _height;
-        private float _width;
+       protected abstract void OnChildObjectAdded(IUIObject sender, IUIObject child);
+       protected abstract void SliderDrag(Vector2 drag);
 
-        private Vector2 _lastMousePos;
-        private Vector2 _lastMoveDiff;
-        private Vector2 _dragPath;
-        private List<Pair<IUIClickable, Vector2>> _clickNext;
-        private DateTime _mouseUpAt;
+       protected override void Init()
+       {
+           IsPressed = false;
+           TimeToStop = 0.3f;
 
-        protected abstract void OnChildObjectAdded(IUIObject sender, IUIObject child);
-        protected abstract void SliderDrag(Vector2 drag);
+           _lastMousePos = Vector2.zero;
+           _lastMoveDiff = Vector2.zero;
+           _dragPath = Vector2.zero;
+           _clickNext = new List<Pair<IUIClickable, Vector2>>();
 
-        protected override void Init()
-        {
-            IsPressed = false;
-            TimeToStop = 0.3f;
+           ChildObjectAdded += OnChildObjectAdded;
+           ChildObjectAdded += SetupChilds;
 
-            _lastMousePos = Vector2.zero;
-            _lastMoveDiff = Vector2.zero;
-            _dragPath = Vector2.zero;
-            _clickNext = new List<Pair<IUIClickable, Vector2>>();
+           BeforeDestroy += _ =>
+           {
+               ChildObjectAdded -= OnChildObjectAdded;
+               ChildObjectAdded -= SetupChilds;
+           };
+           base.Init();
+       }
 
-            ChildObjectAdded += OnChildObjectAdded;
-            ChildObjectAdded += SetupChilds;
+       protected override void ApplySettings(UIComponentSettings settings)
+       {
+           if (settings == null)
+               throw new ArgumentNullException(nameof(settings));
 
-            BeforeDestroy += _ =>
-            {
-                ChildObjectAdded -= OnChildObjectAdded;
-                ChildObjectAdded -= SetupChilds;
-            };
-            base.Init();
-        }
+           if (!(settings is UISliderSettings sliderSettings))
+               throw new ArgumentException("UIBaseSlider: The given settings is not UIComponentSettings");
 
-        protected override void ApplySettings(UIComponentSettings settings)
-        {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings));
+           ElementsDirection = sliderSettings.ElementsDirection;
+           ElementsOffset = sliderSettings.Offset;
+           TimeToStop = sliderSettings.TimeToStop;
+           Padding = sliderSettings.Padding;
 
-            if (!(settings is UISliderSettings sliderSettings))
-                throw new ArgumentException("UIBaseSlider: The given settings is not UIComponentSettings");
+           _stencilId = sliderSettings.StencilId;
+           _height = sliderSettings.Height ?? ParentView.GetHeight();
+           _width = sliderSettings.Width ?? ParentView.GetWidth();
 
-            ElementsDirection = sliderSettings.ElementsDirection;
-            ElementsOffset = sliderSettings.Offset;
-            TimeToStop = sliderSettings.TimeToStop;
-            Padding = sliderSettings.Padding;
+           var area = new RectangleArea2D();
+           area.Update += a =>
+           {
+               area.Width = GetWidth();
+               area.Height = GetHeight();
+           };
+           UIClickable = new UIClickable(this, area);
 
-            _stencilId = sliderSettings.StencilId;
-            _height = sliderSettings.Height ?? ParentView.GetHeight();
-            _width = sliderSettings.Width ?? ParentView.GetWidth();
+           var meshRenderer = gameObject.AddComponent<MeshRenderer>();
+           meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId).CanvasMaterial;
+           meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
+           meshRenderer.sortingOrder = SortingOrder();
+           UIStencilMaterials.CreateMesh(this);
 
-            var area = new RectangleArea2D();
-            area.Update += a =>
-            {
-                area.Width = GetWidth();
-                area.Height = GetHeight();
-            };
-            UIClickable = new UIClickable(this, area);
+           SortingOrderChanged += sender =>
+           {
+               meshRenderer.sortingOrder = SortingOrder();
+           };
 
-            var meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            meshRenderer.sharedMaterial = UIStencilMaterials.GetOrCreate(_stencilId).CanvasMaterial;
-            meshRenderer.sharedMaterial.SetTexture("_MainTex", Texture2D.blackTexture);
-            meshRenderer.sortingOrder = SortingOrder();
-            UIStencilMaterials.CreateMesh(this);
+           base.ApplySettings(settings);
+       }
 
-            SortingOrderChanged += sender =>
-            {
-                meshRenderer.sortingOrder = SortingOrder();
-            };
+       private void SetupChilds(IUIObject sender, IUIObject addedObj)
+       {
+           if (addedObj is IUIClickable uiClickable)
+           {
+               uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
+               uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
+           }
 
-            base.ApplySettings(settings);
-        }
-        
-        private void SetupChilds(IUIObject sender, IUIObject addedObj)
-        {
-            if (addedObj is IUIClickable uiClickable)
-            {
-                uiClickable.UIClickable.CanMouseDown += CanChildsMouseDown;
-                uiClickable.UIClickable.CanMouseUp += CanChildsMouseUp;
-            }
+           addedObj.ChildObjectAdded += SetupChilds;
+       }
 
-            addedObj.ChildObjectAdded += SetupChilds;
-        }
+       private bool CanChildsMouseUp(IUIClickable sender, MouseEvent e)
+       {
+           return false;
+       }
 
-        private bool CanChildsMouseUp(IUIClickable sender, MouseEvent e)
-        {
-            return false;
-        }
+       private bool CanChildsMouseDown(IUIClickable sender, MouseEvent e)
+       {
+           var worldPos = mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
+           if (UIClickable.Area2D.InArea(worldPos) &&
+               _dragPath.Length() < SLIDER_MAX_PATH_TO_CLICK)
+           {
+               _clickNext.Add(new Pair<IUIClickable, Vector2>(sender, worldPos));
+               return true;
+           }
+           return false;
+       }
 
-        private bool CanChildsMouseDown(IUIClickable sender, MouseEvent e)
-        {
-            var worldPos = mUI.UICamera.ScreenToWorldPoint(e.MouseScreenPos);
-            if (UIClickable.Area2D.InArea(worldPos) &&
-                _dragPath.Length() < SLIDER_MAX_PATH_TO_CLICK)
-            {
-                _clickNext.Add(new Pair<IUIClickable, Vector2>(sender, worldPos));
-                return true;
-            }
-            return false;
-        }
+       public void MouseDown(Vector2 worldPos)
+       {
+           IsPressed = true;
+           _lastMousePos = worldPos;
+       }
 
-        public override float UnscaledHeight()
-        {
-            return _height;
-        }
+       public void MouseUp(Vector2 worldPos)
+       {
+           if (!IsPressed)
+               return;
+           IsPressed = false;
 
-        public override float UnscaledWidth()
-        {
-            return _width;
-        }
+           _lastMoveDiff = worldPos - _lastMousePos;
+           _lastMousePos = worldPos;
+           _mouseUpAt = DateTime.Now;
 
-        public override float GetWidth()
-        {
-            return UnscaledWidth() * GlobalScale().x;
-        }
+           if (_clickNext.Count > 0)
+           {
+               if (_dragPath.Length() <= SLIDER_MAX_PATH_TO_CLICK)
+                   _clickNext.ForEach(e => e.First.MouseUp(e.Second));
+               else
+                   _clickNext.ForEach(e => e.First.MouseUp(new Vector2(float.MinValue, float.MinValue))); // fake pos
+               _clickNext.Clear();
+           }
 
-        public override float GetHeight()
-        {
-            return UnscaledHeight() * GlobalScale().y;
-        }
+           _dragPath = Vector2.zero;
+       }
 
-        public void MouseDown(Vector2 worldPos)
-        {
-            IsPressed = true;
-            _lastMousePos = worldPos;
-        }
+       public void MouseDrag(Vector2 worldPos)
+       {
+           if (!IsPressed)
+               return;
 
-        public void MouseUp(Vector2 worldPos)
-        {
-            if (!IsPressed)
-                return;
-            IsPressed = false;
+           _lastMoveDiff = worldPos - _lastMousePos;
+           _dragPath += _lastMoveDiff;
 
-            _lastMoveDiff = worldPos - _lastMousePos;
-            _lastMousePos = worldPos;
-            _mouseUpAt = DateTime.Now;
+           if (_clickNext.Count > 0 && _dragPath.Length() > SLIDER_MAX_PATH_TO_CLICK)
+           {
+               _clickNext.ForEach(e => e.First.MouseUp(new Vector2(float.MinValue, float.MinValue))); // fake pos
+               _clickNext.Clear();
+           }
 
-            if (_clickNext.Count > 0)
-            {
-                if (_dragPath.Length() <= SLIDER_MAX_PATH_TO_CLICK)
-                    _clickNext.ForEach(e => e.First.MouseUp(e.Second));
-                else
-                    _clickNext.ForEach(e => e.First.MouseUp(new Vector2(float.MinValue, float.MinValue))); // fake pos
-                _clickNext.Clear();
-            }
+           SliderDrag(_lastMoveDiff);
+           _lastMousePos = worldPos;
+       }
 
-            _dragPath = Vector2.zero;
-        }
+       protected abstract bool CheckInnerSpace();
 
-        public void MouseDrag(Vector2 worldPos)
-        {
-            if (!IsPressed)
-                return;
-             
-            _lastMoveDiff = worldPos - _lastMousePos;
-            _dragPath += _lastMoveDiff;
+       protected override void OnTick()
+       {
+           if (!IsActive || IsPressed || CheckInnerSpace())
+           {
+               base.OnTick();
+               return;
+           }
 
-            if (_clickNext.Count > 0 && _dragPath.Length() > SLIDER_MAX_PATH_TO_CLICK)
-            {
-                _clickNext.ForEach(e => e.First.MouseUp(new Vector2(float.MinValue, float.MinValue))); // fake pos
-                _clickNext.Clear();
-            }
+           var t = (float)(DateTime.Now - _mouseUpAt).TotalSeconds / TimeToStop;
+           t = 1 - t;
 
-            SliderDrag(_lastMoveDiff);
-            _lastMousePos = worldPos;
-        }
+           if (t <= 0f)
+           {
+               return;
+           }
 
-        protected abstract bool CheckInnerSpace();
-
-        protected override void OnTick()
-        {
-            if (!IsActive || IsPressed || CheckInnerSpace())
-            {
-                base.OnTick();
-                return;
-            }
-
-            var t = (float)(DateTime.Now - _mouseUpAt).TotalSeconds / TimeToStop;
-            t = 1 - t;
-
-            if (t <= 0f)
-            {
-                return;
-            }
-
-            SliderDrag(_lastMoveDiff * t);
-            base.OnTick();
-        }
-    }
-}
+           SliderDrag(_lastMoveDiff * t);
+           base.OnTick();
+       }
+   }
+}*/

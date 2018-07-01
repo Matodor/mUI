@@ -6,5 +6,10 @@
         {
             mCore.Log("[ui] Create BaseView");
         }
+
+        public new void Destroy()
+        {
+            
+        }
     }
 }

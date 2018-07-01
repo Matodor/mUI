@@ -28,7 +28,7 @@ namespace mFramework.Analytics
         private static JSONObject _analyticsData;
         private static readonly DateTime _startSession;
         private static readonly AnalyticsStats _analyticsStats;
-        private static readonly MouseEventListener _mouseEventListener;
+        //private static readonly MouseEventListener _mouseEventListener;
         private static string[] _ignoreEvents;
 
         static mAnalytics()
@@ -40,7 +40,7 @@ namespace mFramework.Analytics
             UserGUID = _analyticsStats.GUID;
             SessionGUID = Guid.NewGuid().ToString();
             
-            _mouseEventListener = MouseEventListener.Create();
+            //_mouseEventListener = MouseEventListener.Create();
             _analyticsData = CreateAnalyticsData();
             _analyticsData["device"] = GetDeviceInfo();
             _startSession = DateTime.Now;
@@ -149,7 +149,7 @@ namespace mFramework.Analytics
 
         private static void OnQuitEvent()
         {
-            _mouseEventListener.Detach();
+            //_mouseEventListener.Detach();
             _analyticsStats.Save();
 
             CustomEvent("end_session");

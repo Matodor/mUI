@@ -144,7 +144,7 @@ namespace mFramework.UI
 
         internal static void CreateMesh(UIObject obj)
         {
-            var meshFilter = obj.gameObject.AddComponent<MeshFilter>();
+            var meshFilter = obj.GameObject.AddComponent<MeshFilter>();
             //meshFilter.mesh = new Mesh();
             //meshFilter.mesh.Clear();
             
@@ -154,8 +154,8 @@ namespace mFramework.UI
             var colors = new Color32[4];
             var triangles = new int[2 * 3];
 
-            var width = obj.GetWidth();
-            var height = obj.GetHeight();
+            var width = obj.SizeX + (obj.Padding.Left + obj.Padding.Right);
+            var height = obj.SizeY + (obj.Padding.Top + obj.Padding.Bottom);
 
             vertices[0] = new Vector3(-width / 2, -height / 2);
             vertices[1] = new Vector3(-width / 2, +height / 2);

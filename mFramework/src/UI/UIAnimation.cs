@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Reflection;
-using UnityEngine;
 
 namespace mFramework.UI
 {
@@ -29,15 +25,16 @@ namespace mFramework.UI
     {
         public ulong MaxRepeats = 0;
         public UIAnimationPlayType PlayType = UIAnimationPlayType.PLAY_ONCE;
-        public EasingType EasingType = EasingType.linear;
+        public EasingFunctions EasingType = EasingFunctions.Linear;
         public bool DestroyUIObjectOnEnd = false;
         public float Duration = 1f;
         public float AnimateEvery = 0f;
+        public float StartDelay = 0f;
     }
 
     public delegate void UIAnimationEventHandler(UIAnimation sender);
 
-    public static class NewAnimation<T> where T : UIAnimation
+    /*public static class NewAnimation<T> where T : UIAnimation
     {
         public static readonly Func<UIObject, T> Instance;
 
@@ -49,79 +46,80 @@ namespace mFramework.UI
             var e = Expression.New(constructor, parameter);
             Instance = Expression.Lambda<Func<UIObject, T>>(e, parameter).Compile();
         }
-    }
+    }*/
 
     public abstract class UIAnimation : IGlobalUniqueIdentifier
     {
-        public float CurrentTime => _animationTime;
-        public float CurrentEasingTime => _animationEasingTime;
+        /// <summary>
+        /// Normilized animation time
+        /// </summary>
+        public float Time { get; private set; }
+        public float DeltaTime { get; private set; }
 
+        /// <summary>
+        /// Normilized animation easing time
+        /// </summary>
+        public float EasingTime { get; private set; }
+        public float DeltaEasingTime { get; private set; }
+        public float Duration { get; set; }
+        public readonly float AttachTime;
+
+        public UIObject UIObject { get; private set; }
         public ulong GUID { get; }
+
         public UIAnimationState State { get; set; }
         public UIAnimationPlayType PlayType { get; set; }
-        public EasingType EasingType { get; set; }
+        public EasingFunctions EasingType { get; set; }
         public UIAnimationDirection Direction { get; set; }
 
         public float AnimateEvery { get; set; }
         public bool DestroyUIObjectOnEnd { get; set; }
-        public float Duration { get; set; }
         public ulong MaxRepeats { get; set; }
-        public ulong RepeatsNumber => _repeats;
-        public UIObject AnimatedObject => _animatedObject;
+        public ulong Repeats { get; private set; }
+        public float StartDelay { get; private set; }
 
         public event UIAnimationEventHandler AnimationRepeat;
         public event UIAnimationEventHandler AnimationEnded;
-
-        private readonly UIObject _animatedObject;
+        public event UIAnimationEventHandler AnimationRemoved;
 
         private static ulong _guid;
-        private ulong _repeats;
 
         private float _nextAnimationFrame;
-        private float _animationStart;
-        private float _animationTime;
-        private float _animationEasingTime;
         
-        protected UIAnimation(UIObject animatedObject)
+        protected UIAnimation()
         {
             Direction = UIAnimationDirection.FORWARD;
-            _animatedObject = animatedObject;
-            _animationTime = 0;
-            _animationEasingTime = 0;
-            _repeats = 0;
-            _nextAnimationFrame = Time.time;
+            Time = 0;
+            EasingTime = 0;
+            Repeats = 0;
+            _nextAnimationFrame = UnityEngine.Time.time;
 
             State = UIAnimationState.PLAYING;
             PlayType = UIAnimationPlayType.PLAY_ONCE;
-            EasingType = EasingType.linear;
+            EasingType = EasingFunctions.Linear;
             DestroyUIObjectOnEnd = false;
 
             GUID = ++_guid;
+            AttachTime = UnityEngine.Time.time;
         }
 
-        internal static T Create<T>(UIObject parent, UIAnimationSettings settings) where T : UIAnimation
+        internal static T Create<T>(UIObject parent, UIAnimationSettings settings) 
+            where T : UIAnimation, new()
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
 
-            var animation = NewAnimation<T>.Instance(parent);
-            animation.ApplySettings(settings);
-            
-            //(T)
-            //    Activator.CreateInstance(typeof(T), BindingFlags.NonPublic | BindingFlags.Instance, null,
-            //        new object[] { parent }, CultureInfo.InvariantCulture);
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
 
+            var animation = new T {UIObject = parent};
+            animation.ApplySettings(settings);
             return animation;
         }
 
-        public void SetStartOffset(float time)
+        public void SetTime(float time)
         {
-            _animationStart = Time.time + time;
-        }
-
-        public void SetAnimationPos(float time)
-        {
-            _animationTime = mMath.Clamp(time, 0, 1);
+            Time = mMath.Clamp(time, 0, 1);
         }
 
         public void UpdateAnimation()
@@ -137,6 +135,7 @@ namespace mFramework.UI
             EasingType = settings.EasingType;
             PlayType = settings.PlayType;
             AnimateEvery = settings.AnimateEvery;
+            StartDelay = settings.StartDelay;
             UpdateAnimation();
         }
 
@@ -144,7 +143,7 @@ namespace mFramework.UI
 
         private void OnRepeatAnimation()
         {
-            _repeats++;
+            Repeats++;
             AnimationRepeat?.Invoke(this);
         }
 
@@ -153,23 +152,23 @@ namespace mFramework.UI
             AnimationEnded?.Invoke(this);
         }
 
-        public void Animate(bool forcibly = false)
+        private void Animate(bool forcibly = false)
         {
-            _animationEasingTime = EasingFunctions.GetValue(EasingType, 1f, _animationTime, 1f);
-
-            if (forcibly || _nextAnimationFrame <= Time.time)
+            // TODO: выключение анимации, когда объект скрыт
+            if (forcibly || _nextAnimationFrame <= UnityEngine.Time.time)
             {
                 OnAnimate();
-                _nextAnimationFrame = Time.time + AnimateEvery;
+                _nextAnimationFrame = UnityEngine.Time.time + AnimateEvery;
             }
 
-            if (_animationTime >= 1f && Direction == UIAnimationDirection.FORWARD ||
-                _animationTime <= 0f && Direction == UIAnimationDirection.BACKWARD)
+            if (Time >= 1f && Direction == UIAnimationDirection.FORWARD ||
+                Time <= 0f && Direction == UIAnimationDirection.BACKWARD)
             {
                 if (PlayType == UIAnimationPlayType.END_RESET)
                 {
                     OnRepeatAnimation();
-                    _animationTime = 0;
+                    Time = 0f;
+                    EasingTime = 0f;
                 }
                 else if (PlayType == UIAnimationPlayType.END_FLIP)
                 {
@@ -180,34 +179,47 @@ namespace mFramework.UI
                 }
 
                 if (PlayType == UIAnimationPlayType.PLAY_ONCE ||
-                    MaxRepeats > 0 && _repeats >= MaxRepeats)
+                    MaxRepeats > 0 && Repeats >= MaxRepeats)
                 {
                     State = UIAnimationState.STOPPED;
                     OnEndAnimation();
                     Remove();
 
                     if (DestroyUIObjectOnEnd)
-                        _animatedObject.Destroy();
+                        UIObject.Destroy();
                 }
             }
         }
 
         internal void Tick()
         {
-            if (State == UIAnimationState.STOPPED || Time.time < _animationStart)
+            if (State == UIAnimationState.STOPPED || AttachTime + StartDelay > UnityEngine.Time.time)
                 return;
 
-            _animationTime += (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) * (Time.deltaTime / Duration);
-            _animationTime = mMath.Clamp(_animationTime, 0f, 1f);
+            DeltaTime = (Direction == UIAnimationDirection.FORWARD ? 1f : -1f) *
+                        (UnityEngine.Time.deltaTime / Duration);
+            Time = mMath.Clamp(Time + DeltaTime, 0f, 1f);
+
+            var easingTime = Easings.Interpolate(Time, EasingType);
+            DeltaEasingTime = easingTime - EasingTime;
+            EasingTime = easingTime;
 
             Animate();
         }
 
-        public void Remove()
+        internal void RemoveInternal()
         {
+            State = UIAnimationState.STOPPED;
+            AnimationRemoved?.Invoke(this);
             AnimationRepeat = null;
             AnimationEnded = null;
-            AnimatedObject.RemoveAnimation(this);
+            AnimationRemoved = null;
+        }
+
+        public void Remove()
+        {
+            UIObject.Animations.Remove(this);
+            RemoveInternal();
         }
     }
 }
