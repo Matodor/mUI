@@ -14,7 +14,7 @@ namespace mFramework.UI
         };
     }
 
-    public sealed class mUI
+    public sealed class mUI : MonoBehaviour
     {
         public static event Action<MouseEvent> OnMouseDown = delegate { };
         public static event Action<MouseEvent> OnMouseUp = delegate { };
@@ -26,26 +26,31 @@ namespace mFramework.UI
         public static UIView BaseView { get; private set; }
         public static UICamera UICamera { get; private set; }
 
-        private static Dictionary<string, UIFont> _fonts;
+        private Dictionary<string, UIFont> _fonts;
         private static mUI _instance;
-        private static bool _isCreated;
 
-        static mUI()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Initialize()
         {
-            if (_instance == null)
-            {
-                _instance = new mUI();
-            }
+            if (_instance != null)
+                return;
+
+            _instance = mCore.Instance.gameObject.AddComponent<mUI>();
+            _instance.hideFlags = HideFlags.HideAndDontSave;
+            DontDestroyOnLoad(_instance);
         }
 
-        ~mUI()
-        {
-            mCore.Log("~mUI");
-        }
-
-        private mUI()
+        private void Awake()
         {
             _fonts = new Dictionary<string, UIFont>();
+            Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
+        }
+
+        private void OnDestroy()
+        {
+            Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
+            BaseView?.DestroyImpl(false);
+            _instance = null;
         }
 
         public static void Create()
@@ -58,9 +63,10 @@ namespace mFramework.UI
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings));
 
-            _isCreated = true;
+            if (BaseView != null)
+                throw new Exception("mUI already created");
+
             UICamera = UICamera.Create(settings.CameraSettings);
-            UICamera.Transform.ParentTransform(mCore.Behaviour.transform);
             BaseView = UIView.Create<BaseView>(new UIViewProps
             {
                 SizeY = settings.BaseViewProps.SizeY ?? UICamera.SizeY,
@@ -71,16 +77,7 @@ namespace mFramework.UI
                 Anchor = settings.BaseViewProps.Anchor ?? UIAnchor.MiddleCenter
             }, null);
 
-            Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
-            mCore.ApplicationQuitEvent += OnApplicationQuitEvent;
-            mCore.Log("[mFramework][UI] created");
-        }
-         
-        private static void OnApplicationQuitEvent()
-        {
-            Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
-            BaseView.DestroyImpl(false);
-            _instance = null;
+            Debug.Log("[mFramework][UI] created");
         }
 
         internal static void MouseDown(MouseEvent e)
@@ -101,35 +98,11 @@ namespace mFramework.UI
             UIClickablesHandler.MouseDrag(e);
         }
 
-        /*public static IUIClickable GetClickableObject(MouseEvent e, Func<IUIObject, bool> predicate)
-        {
-            var worldPos = UICamera.ScreenToWorldPoint(e.MouseScreenPos);
-            BaseView.DeepFind(o => 
-                o.IsActive && 
-                o is IUIClickable clickable &&
-                clickable.UiClickableOld.Area2D.InArea(worldPos) && predicate(o),
-                out var result
-            );
-            return result as IUIClickable;
-        }
-
-        public static IUIClickable GetClickableObject(MouseEvent e)
-        {
-            var worldPos = UICamera.ScreenToWorldPoint(e.MouseScreenPos);
-            BaseView.DeepFind(o => 
-                o.IsActive &&
-                o is IUIClickable clickable &&
-                clickable.UiClickableOld.Area2D.InArea(worldPos),
-                out var result
-            );
-            return result as IUIClickable;
-        }*/
-
         public static UIFont GetFont(string font)
         {
-            if (!_fonts.ContainsKey(font))
+            if (!_instance._fonts.ContainsKey(font))
                 return null;
-            return _fonts[font];
+            return _instance._fonts[font];
         }
 
         public static bool LoadOSFont(string fontName, float harshness = UILabel.DEFAULT_HARSHNESS)
@@ -138,29 +111,29 @@ namespace mFramework.UI
             if (font == null)
                 return false;
 
-            _fonts.Add(fontName, new UIFont(harshness, font));
+            _instance._fonts.Add(fontName, new UIFont(harshness, font));
             return true;
         }
 
         public static bool LoadFont(string path, float harshness = UILabel.DEFAULT_HARSHNESS)
         {
             var font = Resources.Load<Font>(path);
-            if (font == null || _fonts.ContainsKey(font.name))
+            if (font == null || _instance._fonts.ContainsKey(font.name))
                 return false;
 
-            _fonts.Add(font.name, new UIFont(harshness, font));
-            mCore.Log("Loaded font: {0} ", font.name);
+            _instance._fonts.Add(font.name, new UIFont(harshness, font));
+            Debug.Log($"Loaded font: {font.name}");
             return true;
         }
 
         public static float MaxWidth()
         {
-            return BaseView.Width;
+            return BaseView?.Width ?? 0f;
         }
 
         public static float MaxHeight()
         {
-            return BaseView.Height;
+            return BaseView?.Height ?? 0f;
         }
 
         public static void OnClickables()
@@ -183,25 +156,19 @@ namespace mFramework.UI
             UIObjectCreated.Invoke(obj);
         }
 
-        internal static void Tick()
+        private void Update()
         {
-            if (!_isCreated)
-                return;
-            BaseView.Tick();
+            BaseView?.Tick();
         }
 
-        internal static void FixedTick()
+        private void FixedUpdate()
         {
-            if (!_isCreated)
-                return;
-            BaseView.FixedTick();
+            BaseView?.FixedTick();
         }
 
-        internal static void LateTick()
+        private void LateUpdate()
         {
-            if (!_isCreated) 
-                return;
-            BaseView.LateTick();
+            BaseView?.LateTick();
         }
     }
 }

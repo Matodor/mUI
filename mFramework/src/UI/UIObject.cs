@@ -35,18 +35,8 @@ namespace mFramework.UI
 
     public abstract class UIObject : MonoBehaviour, IUIObject
     {
-        // TODO
-        public Transform Transform => base.transform;
+        internal Transform Transform => base.transform;
         internal GameObject GameObject => base.gameObject;
-
-        [Obsolete("mUI disallow use gameObject property")]
-        public new GameObject gameObject => throw new Exception("Not supported");
-
-        [Obsolete("mUI disallow use transform property")]
-        public new Transform transform => throw new Exception("Not supported");
-
-        [Obsolete("mUI disallow use enabled property, use Enable()/Disable()")]
-        public new bool enabled => throw new Exception("Not supported");
 
         public IView ParentView { get; private set; }
         public UnidirectionalList<UIAnimation> Animations { get; private set; }
@@ -245,7 +235,8 @@ namespace mFramework.UI
 
         private void Awake()
         {
-            //Transform.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
+            Transform.hideFlags = HideFlags.HideInInspector; 
+            
             GUID = ++_guid;
             Parent = null;
             Animations = UnidirectionalList<UIAnimation>.Create();
@@ -442,7 +433,7 @@ namespace mFramework.UI
         {
             if (_destroyed)
                 return;
-
+            
             DestroyChilds();
             RemoveAnimations();
 
@@ -565,7 +556,7 @@ namespace mFramework.UI
             /*if (transform.hasChanged)
             {
                 transform.hasChanged = false;
-                mCore.Log($"{GetType().Name} transform.hasChanged = {transform.hasChanged}");
+                Debug.Log($"{GetType().Name} transform.hasChanged = {transform.hasChanged}");
             }*/
         }
 

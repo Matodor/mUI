@@ -49,8 +49,8 @@ namespace mFramework.Analytics
             {
                 OnEvent = (s, e) =>
                 {
-                    mCore.Log($"[mAnalytics] Init UserGUID={UserGUID} SessionGUID={SessionGUID}");
-                    mCore.Log($"[mAnalytics] DeviceInfo: {GetDeviceInfo().ToString()}");
+                    Debug.Log($"[mAnalytics] Init UserGUID={UserGUID} SessionGUID={SessionGUID}");
+                    Debug.Log($"[mAnalytics] DeviceInfo: {GetDeviceInfo().ToString()}");
 
                     if (s.EventCounter == 1)
                     {
@@ -63,7 +63,7 @@ namespace mFramework.Analytics
             CustomEvent("start_session");
             Flush();
 
-            mCore.ApplicationQuitEvent += OnQuitEvent;
+            mCore.ApplicationQuit += OnQuit;
         }
 
         public static void Flush()
@@ -147,7 +147,7 @@ namespace mFramework.Analytics
                 Flush();
         }
 
-        private static void OnQuitEvent()
+        private static void OnQuit()
         {
             //_mouseEventListener.Detach();
             _analyticsStats.Save();
@@ -155,8 +155,8 @@ namespace mFramework.Analytics
             CustomEvent("end_session");
             Flush();
 
-            mCore.Log(_data.ToString());
-            mCore.ApplicationQuitEvent -= OnQuitEvent;
+            Debug.Log(_data.ToString());
+            mCore.ApplicationQuit -= OnQuit;
         }
     }
 }

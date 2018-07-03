@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using System;
+using mFramework.UI;
+using UnityEditor;
 using UnityEngine;
 
 namespace mFramework
@@ -7,26 +9,29 @@ namespace mFramework
     {
         private static bool _isLock;
 
-        static mEditor()
-        {
-        
-        }
-
-        [RuntimeInitializeOnLoadMethod]
-        private static void Attach()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Initialize()
         {
             EditorApplication.update += EditorUpdate;
-
-            mCore.ApplicationQuitEvent += OnApplicationQuitEvent;
-            mCore.Log("[mEditor] InitializeOnLoad");
+            mCore.ApplicationQuit += OnApplicationQuit;
+            mUI.UIObjectCreated += OnUiObjectCreated;
+            Debug.Log("[mEditor] InitializeOnLoad");
 
             _isLock = false;
         }
 
-        private static void OnApplicationQuitEvent()
+        private static void OnUiObjectCreated(UIObject uiObject)
+        {
+            EditorUtility.SetDirty(uiObject.gameObject);
+        }
+
+        private static void OnApplicationQuit()
         {
             EditorApplication.update -= EditorUpdate;
-            
+            mCore.ApplicationQuit -= OnApplicationQuit;
+            mUI.UIObjectCreated -= OnUiObjectCreated;
+            Debug.Log("[mEditor] OnApplicationQuit");
+
             if (_isLock)
                 UnlockReload();
         }
@@ -39,19 +44,21 @@ namespace mFramework
             }
         }
 
+        [MenuItem("mFramework/LockReload")]
         private static void LockReload()
         {
             _isLock = true;
             EditorApplication.LockReloadAssemblies();
-            mCore.Log("[mFramework]: LockReloadAssemblies");
+            Debug.Log("[mFramework]: LockReloadAssemblies");
         }
 
+        [MenuItem("mFramework/UnlockReload")]
         private static void UnlockReload()
         {
             _isLock = false;
             EditorApplication.UnlockReloadAssemblies();
             AssetDatabase.Refresh();
-            mCore.Log("[mFramework]: UnlockReloadAssemblies");
+            Debug.Log("[mFramework]: UnlockReloadAssemblies");
         }
     }
 }

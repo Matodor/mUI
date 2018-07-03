@@ -196,7 +196,7 @@ namespace mFramework.UI
             }
             
 
-            //mCore.Log($"Font rebuilt: {font.name}");
+            //Debug.Log($"Font rebuilt: {font.name}");
         }
 
         protected override void ApplyProps(UIComponentProps props)
@@ -457,7 +457,7 @@ namespace mFramework.UI
             var lineMaxY = 0f;
             var lineMinY = 0f;
                         
-            //mCore.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
+            //Debug.Log($"ascent={_cachedFont.Font.ascent} dynamic={_cachedFont.Font.dynamic} fontSize={_cachedFont.Font.fontSize} fontNames={_cachedFont.Font.fontNames.Aggregate((s1, s2) => $"{s1},{s2}")}");
 
             var style = _textStyle;
             style.Size = mMath.Clamp(style.Size, 1, MAX_SIZE);
@@ -610,7 +610,7 @@ namespace mFramework.UI
                     wordLength++;
                 }
 
-                //mCore.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
+                //Debug.Log("{0} minX={1} maxX={2} minY={3} maxY={4} advance={5} bearing={6} size={7} h={8} w={9}", 
                 //  currentCharacter, characterInfo.minX, characterInfo.maxX, characterInfo.minY, characterInfo.maxY, 
                 //  characterInfo.advance, characterInfo.bearing, characterInfo.size, characterInfo.glyphHeight, characterInfo.glyphWidth);
 

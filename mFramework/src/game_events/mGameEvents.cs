@@ -15,7 +15,7 @@ namespace mFramework.GameEvents
         static mGameEvents()
         {
             _events = new Dictionary<string, Event>();
-            mCore.ApplicationQuitEvent += Save;
+            mCore.ApplicationQuit += Save;
             mCore.ApplicationPaused += OnApplicationPaused;
         }
 

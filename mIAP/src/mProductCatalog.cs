@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using mFramework.GameEvents;
+using UnityEngine;
 using UnityEngine.Purchasing;
 
 namespace mFramework.IAP
@@ -128,7 +129,8 @@ namespace mFramework.IAP
 
         public static void AddProduct(CatalogItem item)
         {
-            mCore.Log($"[mProductCatalog] Add product: {item}");
+            Debug.Log($"[mProductCatalog] Add product: {item}");
+
             if (_shopItems.ContainsKey(item.Id))
             {
                 _shopItems[item.Id] = item;

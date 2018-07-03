@@ -147,7 +147,6 @@
     <Compile Include="src\extensions\SpriteExtension.cs" />
     <Compile Include="src\extensions\TransformExtension.cs" />
     <Compile Include="src\events\KeyboardEvent.cs" />
-    <Compile Include="src\mBehaviour.cs" />
     <Compile Include="src\mCore.cs" />
     <Compile Include="src\events\MouseEvent.cs" />
     <Compile Include="src\mMath.cs" />

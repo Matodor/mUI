@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using mFramework.UI;
 using UnityEngine;
 
 namespace mFramework
@@ -13,51 +12,32 @@ namespace mFramework
 
     public delegate void LateBoundFieldSet(object target, object value);
 
-    public sealed class mCore
+    public sealed class mCore : MonoBehaviour
     {
-        internal static mBehaviour Behaviour { get; private set; }
+        public static event Action ApplicationQuit;
+        public static event Action<bool> ApplicationPaused;
 
         public static bool IsEditor { get; private set; }
         public static bool IsDebug { get; set; }
-        public static event Action ApplicationQuitEvent = delegate { };
-        public static event Action<bool> ApplicationPaused = delegate { };
+        
+        private Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
+        private UnidirectionalList<RepeatAction> _repeatsActions;
+        private UnidirectionalList<TimerAction> _timerActions;
+        internal static mCore Instance { get; private set; }
 
-        private static Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
-        private static UnidirectionalList<RepeatAction> _repeatsActions;
-        private static UnidirectionalList<TimerAction> _timerActions;
-        private static mCore _instance;
-
-        static mCore()
-        {
-            if (_instance == null)
-                _instance = new mCore();
-        }
-
-        // TODO
-        /*[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Initialize()
         {
-            if (instance == null)
-            {
-                go.hideFlags = HideFlags.HideAndDontSave;
-                Object.DontDestroyOnLoad(go);
-            }
-        }*/
-
-        ~mCore()
-        {
-            Log("~mCore");
+            if (Instance != null)
+                return;
+            
+            Instance = new GameObject("mCore").AddComponent<mCore>();
+            Instance.gameObject.hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInHierarchy;
+            DontDestroyOnLoad(Instance);
         }
 
-        private mCore()
+        private void Awake()
         {
-            var newCultureDefinition = (CultureInfo) Thread.CurrentThread.CurrentCulture.Clone();
-            newCultureDefinition.NumberFormat.NumberDecimalSeparator = ".";
-            Thread.CurrentThread.CurrentCulture = newCultureDefinition;
-
-            Behaviour = new GameObject("mFramework").AddComponent<mBehaviour>();
-            Behaviour.transform.position = new Vector3(0, 0, 0);
-
             _repeatsActions = UnidirectionalList<RepeatAction>.Create();
             _timerActions = UnidirectionalList<TimerAction>.Create();
             _fieldDictionary = new Dictionary<Type, CachedFieldsInfo>();
@@ -66,47 +46,72 @@ namespace mFramework
             {
                 IsDebug = true;
                 IsEditor = true;
+
+                var cultureDefinition = (CultureInfo) Thread.CurrentThread.CurrentCulture.Clone();
+                cultureDefinition.NumberFormat.NumberDecimalSeparator = ".";
+                Thread.CurrentThread.CurrentCulture = cultureDefinition;
             }
 
-            Log("[mFramework] init");
+            Debug.Log("[mCore] init");
         }
 
+        private void OnDestroy()
+        {
+            Debug.Log("[mCore] OnDestroy");
+            _fieldDictionary.Clear();
+            _repeatsActions.Clear();
+            _timerActions.Clear();
+            Instance = null;
+        }
+
+        private void OnApplicationPause(bool pauseState)
+        {
+            Debug.Log("[mCore] OnApplicationPause");
+            ApplicationPaused?.Invoke(pauseState);
+        }
+
+        private void OnApplicationQuit()
+        {
+            Debug.Log("[mCore] OnApplicationQuit");
+            ApplicationQuit?.Invoke();
+        }
+
+        private void Update()
+        {
+            EventsController.Update();
+
+            _repeatsActions.ForEach(ForEachRepeatAction);
+            _timerActions.ForEach(ForEachTimerAction);
+        }
+        
         internal static bool RemoveTimerAction(TimerAction timerAction)
         {
-            return _timerActions.Remove(timerAction);
+            return Instance != null && Instance._timerActions.Remove(timerAction);
         }
 
         internal static void AddTimerAction(TimerAction timerAction)
         {
-            _timerActions.Add(timerAction);
+            Instance?._timerActions.Add(timerAction);
         }
 
         internal static bool RemoveRepeatAction(RepeatAction repeatAction)
         {
-            return _repeatsActions.Remove(repeatAction);
+            return Instance != null && Instance._repeatsActions.Remove(repeatAction);
         }
 
         internal static void AddRepeatAction(RepeatAction repeatAction)
         {
-            _repeatsActions.Add(repeatAction);
+            Instance?._repeatsActions.Add(repeatAction);
         }
 
-        internal static void OnApplicationQuit()
+        private static void ForEachTimerAction(TimerAction timerAction)
         {
-            ApplicationQuitEvent.Invoke();
-            Log("[mCore] OnApplicationQuit");
-
-            _repeatsActions.Clear();
-            _timerActions.Clear();
-            _instance = null;
+            timerAction.Tick();
         }
 
-        public static void Log(string format, params object[] @params)
+        private static void ForEachRepeatAction(RepeatAction action)
         {
-            if (IsDebug)
-            {
-                UnityEngine.Debug.Log(@params.Length > 0 ? string.Format(format, @params) : format);
-            }
+            action.Tick();
         }
 
         public static LateBoundFieldGet CreateFieldGetter(FieldInfo field)
@@ -147,7 +152,7 @@ namespace mFramework
 
         public static CachedFieldsInfo GetCachedFields(Type type)
         {
-            if (_fieldDictionary.TryGetValue(type, out var cachedFieldsInfo) == false)
+            if (Instance._fieldDictionary.TryGetValue(type, out var cachedFieldsInfo) == false)
             {
                 var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
                 cachedFieldsInfo = new CachedFieldsInfo(fields.Length);
@@ -156,39 +161,13 @@ namespace mFramework
                     cachedFieldsInfo.CachedFields[i] = new CachedFieldInfo(
                         fields[i], CreateFieldSetter(fields[i]), CreateFieldGetter(fields[i]));
                 }
-                _fieldDictionary.Add(type, cachedFieldsInfo);
+
+                Instance._fieldDictionary.Add(type, cachedFieldsInfo);
             }
+
             return cachedFieldsInfo;
         }
-
-        private static void ForEachTimerAction(TimerAction timerAction)
-        {
-            timerAction.Tick();
-        }
-
-        private static void ForEachRepeatAction(RepeatAction action)
-        {
-            action.Tick();
-        }
-
-        internal static void Tick()
-        {
-            _repeatsActions.ForEach(ForEachRepeatAction);
-            _timerActions.ForEach(ForEachTimerAction);
-
-            mUI.Tick();
-        }
-
-        internal static void FixedTick()
-        {
-            mUI.FixedTick();
-        }
-
-        internal static void LateTick()
-        {
-            mUI.LateTick();
-        }
-
+        
         public static void DrawDebugCircle(Vector2 pos, float radius)
         {
             for (int i = 0; i < 360; i++)
@@ -209,11 +188,6 @@ namespace mFramework
                 boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2));
             Debug.DrawLine(boxPos + new Vector2(-boxSize.x / 2, -boxSize.y / 2),
                 boxPos + new Vector2(-boxSize.x / 2, boxSize.y / 2));
-        }
-
-        internal static void OnApplicationPause(bool pauseState)
-        {
-            ApplicationPaused(pauseState);
         }
     }
 }
