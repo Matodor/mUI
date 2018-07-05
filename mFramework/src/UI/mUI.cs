@@ -16,41 +16,66 @@ namespace mFramework.UI
 
     public sealed class mUI : MonoBehaviour
     {
-        public static event Action<MouseEvent> OnMouseDown = delegate { };
-        public static event Action<MouseEvent> OnMouseUp = delegate { };
-        public static event Action<MouseEvent> OnMouseDrag = delegate { };
+        public static mUI Instance { get; private set; }
 
-        public static event Action<UIObject> UIObjectCreated = delegate {};
-        public static event Action<UIObject> UIObjectRemoved = delegate {};
+        public static event Action<MouseEvent> OnMouseDown;
+        public static event Action<MouseEvent> OnMouseUp;
+        public static event Action<MouseEvent> OnMouseDrag;
+
+        public static event Action<UIObject> UIObjectCreated;
+        public static event Action<UIObject> UIObjectRemoved;
 
         public static UIView BaseView { get; private set; }
         public static UICamera UICamera { get; private set; }
 
         private Dictionary<string, UIFont> _fonts;
-        private static mUI _instance;
+        private bool _destroyed;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Initialize()
         {
-            if (_instance != null)
+            if (Instance != null)
                 return;
 
-            _instance = mCore.Instance.gameObject.AddComponent<mUI>();
-            _instance.hideFlags = HideFlags.HideAndDontSave;
-            DontDestroyOnLoad(_instance);
+            var instance = mCore.Instance.gameObject.AddComponent<mUI>();
+            instance.hideFlags = HideFlags.HideAndDontSave;
+            DontDestroyOnLoad(instance);
         }
 
         private void Awake()
         {
+            if (Instance != null)
+                throw new Exception("mUI instance already created");
+
+            Instance = this;
             _fonts = new Dictionary<string, UIFont>();
             Font.textureRebuilt += UILabel.FontOnTextureRebuilt;
+            mCore.ApplicationQuit += mCoreOnApplicationQuit;
+        }
+
+        private void mCoreOnApplicationQuit()
+        {
+            OnDestroy();
+            Destroy(gameObject);
         }
 
         private void OnDestroy()
         {
+            if (_destroyed)
+                return;
+
+            Debug.Log("[mUI] OnDestroy");
+            _destroyed = true;
             Font.textureRebuilt -= UILabel.FontOnTextureRebuilt;
             BaseView?.DestroyImpl(false);
-            _instance = null;
+            Instance = null;
+            
+            OnMouseDown = null;
+            OnMouseUp = null;
+            OnMouseDrag = null;
+
+            UIObjectCreated = null;
+            UIObjectRemoved = null;
         }
 
         public static void Create()
@@ -82,27 +107,27 @@ namespace mFramework.UI
 
         internal static void MouseDown(MouseEvent e)
         {
-            OnMouseDown(e);
+            OnMouseDown?.Invoke(e);
             UIClickablesHandler.MouseDown(e);
         }
 
         internal static void MouseUp(MouseEvent e)
         {
-            OnMouseUp(e);
+            OnMouseUp?.Invoke(e);
             UIClickablesHandler.MouseUp(e);
         }
 
         internal static void MouseDrag(MouseEvent e)
         {
-            OnMouseDrag(e);
+            OnMouseDrag?.Invoke(e);
             UIClickablesHandler.MouseDrag(e);
         }
 
         public static UIFont GetFont(string font)
         {
-            if (!_instance._fonts.ContainsKey(font))
+            if (!Instance._fonts.ContainsKey(font))
                 return null;
-            return _instance._fonts[font];
+            return Instance._fonts[font];
         }
 
         public static bool LoadOSFont(string fontName, float harshness = UILabel.DEFAULT_HARSHNESS)
@@ -111,17 +136,17 @@ namespace mFramework.UI
             if (font == null)
                 return false;
 
-            _instance._fonts.Add(fontName, new UIFont(harshness, font));
+            Instance._fonts.Add(fontName, new UIFont(harshness, font));
             return true;
         }
 
         public static bool LoadFont(string path, float harshness = UILabel.DEFAULT_HARSHNESS)
         {
             var font = Resources.Load<Font>(path);
-            if (font == null || _instance._fonts.ContainsKey(font.name))
+            if (font == null || Instance._fonts.ContainsKey(font.name))
                 return false;
 
-            _instance._fonts.Add(font.name, new UIFont(harshness, font));
+            Instance._fonts.Add(font.name, new UIFont(harshness, font));
             Debug.Log($"Loaded font: {font.name}");
             return true;
         }
@@ -148,12 +173,12 @@ namespace mFramework.UI
 
         internal static void RemoveUIObject(UIObject obj)
         {
-            UIObjectRemoved.Invoke(obj);
+            UIObjectRemoved?.Invoke(obj);
         }
 
         internal static void ObjectCreated(UIObject obj)
         {
-            UIObjectCreated.Invoke(obj);
+            UIObjectCreated?.Invoke(obj);
         }
 
         private void Update()

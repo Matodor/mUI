@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using mFramework.Saves;
 
 namespace mFramework.Analytics
@@ -24,4 +24,4 @@ namespace mFramework.Analytics
                 GUID = Guid.NewGuid().ToString();
         }
     }
-}
+}*/

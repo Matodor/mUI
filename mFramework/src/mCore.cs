@@ -14,6 +14,8 @@ namespace mFramework
 
     public sealed class mCore : MonoBehaviour
     {
+        internal static mCore Instance { get; private set; }
+
         public static event Action ApplicationQuit;
         public static event Action<bool> ApplicationPaused;
 
@@ -23,7 +25,7 @@ namespace mFramework
         private Dictionary<Type, CachedFieldsInfo> _fieldDictionary;
         private UnidirectionalList<RepeatAction> _repeatsActions;
         private UnidirectionalList<TimerAction> _timerActions;
-        internal static mCore Instance { get; private set; }
+        private bool _destroyed;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Initialize()
@@ -31,13 +33,17 @@ namespace mFramework
             if (Instance != null)
                 return;
             
-            Instance = new GameObject("mCore").AddComponent<mCore>();
-            Instance.gameObject.hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInHierarchy;
-            DontDestroyOnLoad(Instance);
+            var instance = new GameObject("mCore").AddComponent<mCore>();
+            instance.gameObject.hideFlags = HideFlags.HideAndDontSave | HideFlags.HideInHierarchy;
+            DontDestroyOnLoad(instance);
         }
 
         private void Awake()
         {
+            if (Instance != null)
+                throw new Exception("mCore instance already created");
+
+            Instance = this;
             _repeatsActions = UnidirectionalList<RepeatAction>.Create();
             _timerActions = UnidirectionalList<TimerAction>.Create();
             _fieldDictionary = new Dictionary<Type, CachedFieldsInfo>();
@@ -57,23 +63,32 @@ namespace mFramework
 
         private void OnDestroy()
         {
+            if (_destroyed)
+                return;
+
             Debug.Log("[mCore] OnDestroy");
+            _destroyed = true;
             _fieldDictionary.Clear();
             _repeatsActions.Clear();
             _timerActions.Clear();
             Instance = null;
         }
 
-        private void OnApplicationPause(bool pauseState)
+        private void OnApplicationPause(bool paused)
         {
-            Debug.Log("[mCore] OnApplicationPause");
-            ApplicationPaused?.Invoke(pauseState);
+            Debug.Log($"[mCore] OnApplicationPause ({paused})");
+            ApplicationPaused?.Invoke(paused);
         }
 
         private void OnApplicationQuit()
         {
             Debug.Log("[mCore] OnApplicationQuit");
             ApplicationQuit?.Invoke();
+
+            OnDestroy();
+            Destroy(gameObject);
+            ApplicationQuit = null;
+            ApplicationPaused = null;
         }
 
         private void Update()

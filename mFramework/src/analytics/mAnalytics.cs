@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Linq;
 using mFramework.GameEvents;
 using SimpleJSON;
@@ -8,27 +8,15 @@ namespace mFramework.Analytics
 {
     public static class mAnalytics
     {
-        /*public static ScreenSession RootScreenSession
-        {
-            get
-            {
-                if (_rootScreenSession == null)
-                    _rootScreenSession = new ScreenSession(mUI.BaseView, null);
-                return _rootScreenSession;
-            }
-        }*/
-
         public static readonly string UserGUID;
         public static readonly string SessionGUID;
         public static string Remote_API = "";
 
         private static readonly JSONArray _data = new JSONArray();
 
-        //private static ScreenSession _rootScreenSession;
         private static JSONObject _analyticsData;
         private static readonly DateTime _startSession;
         private static readonly AnalyticsStats _analyticsStats;
-        //private static readonly MouseEventListener _mouseEventListener;
         private static string[] _ignoreEvents;
 
         static mAnalytics()
@@ -159,4 +147,4 @@ namespace mFramework.Analytics
             mCore.ApplicationQuit -= OnQuit;
         }
     }
-}
+}*/
